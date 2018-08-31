@@ -5,12 +5,12 @@
 
 #### This is an ongoing project by me.. Coffee_
 
-## Verion 58:
+## Version 58:
 Fixed a issue when visuals and their matching models are scattered in different pkg files. TE should find every part for every tank now.
 Bloom now is affected by all 3 lights.
 I updated the install banner.
 
-## Verion 57:
+## Version 57:
 Fixed a bug loading some of the Polish tanks.
 Added Bloom and a way to turn it on and off and a check box to view the texture used for rendering it.
 
