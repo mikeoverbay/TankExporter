@@ -7419,7 +7419,7 @@ make_this_tank:
 
     End Sub
 
- 
+
     Private Sub save_decal_btn_Click(sender As Object, e As EventArgs) Handles save_decal_btn.Click
         If current_decal = -1 Then Return
         If MsgBox("Are you sure?", MsgBoxStyle.YesNo, "For real?") = MsgBoxResult.Yes Then

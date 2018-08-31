@@ -427,11 +427,13 @@ Module ModTankLoader
         Else
             has_bsp = True
         End If
+        '============================'============================
+        'open visual
         If Not openVisual(file_name) Then
             log_text.Append("File Not Found :" + file_name + vbCrLf)
             Return False
         End If
-        '============================
+        '============================'============================
         'this gets all the entries in the xml file..
         'IE.. bone and wheel locations
         If xmlget_mode = 1 Then
@@ -550,7 +552,10 @@ Module ModTankLoader
             If entry IsNot Nothing Then
                 entry.Extract(r)
             Else
-                entry = frmMain.packages_2(current_tank_package)(file_name)
+                Try
+                    entry = frmMain.packages_2(current_tank_package)(file_name)
+                Catch ex As Exception
+                End Try
                 If entry IsNot Nothing Then
                     entry.Extract(r)
                 Else
@@ -1644,7 +1649,10 @@ get_visual:
             If e IsNot Nothing Then
                 e.Extract(mstream)
             Else
-                e = frmMain.packages_2(current_tank_package)(filename)
+                Try
+                    e = frmMain.packages_2(current_tank_package)(filename)
+                Catch ex As Exception
+                End Try
                 If e IsNot Nothing Then
                     e.Extract(mstream)
                 Else
@@ -1652,7 +1660,10 @@ get_visual:
                     If e IsNot Nothing Then
                         e.Extract(mstream)
                     Else
-                        e = frmMain.packages_2(11)(filename)
+                        Try
+                            e = frmMain.packages_2(11)(filename)
+                        Catch ex As Exception
+                        End Try
                         If e IsNot Nothing Then
                             e.Extract(mstream)
                         End If
@@ -2209,7 +2220,7 @@ get_visual:
             Else
                 _group(id).doubleSided = False
             End If
-          
+
         Else
             _group(id).doubleSided = 0
         End If

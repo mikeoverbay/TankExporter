@@ -435,8 +435,7 @@ for (int i = 0; i < 3; i++){
         // Obtain final intensity as reflectance (BRDF) scaled by the energy of the light (cosine law)
     vec3 colorMix =  NdotL * u_LightColor *  ((sSpec + diffuseContrib) + (specContrib*S_level*mrSample.g*6.0))*5.0;
 
-    blmColor.rgb =  NdotL *(specContrib*S_level*mrSample.g)*colorMix.rgb*base.rgb*6.0*GMM.r;
-    blmColor.a = 1.0;
+    blmColor.rgb +=  NdotL *(specContrib*S_level*mrSample.g)*colorMix.rgb*base.rgb*6.0*GMM.r;
     colorMix += NdotV * getIBLContribution(pbrInputs, n, R)
                 *perceptualRoughness * float(is_GAmap);
     vec3 ambient = diffuseContrib.rgb * A_level*0.25;
@@ -467,5 +466,6 @@ for (int i = 0; i < 3; i++){
     //gColor.rgb = (gColor.rgb*vec3(0.001)) + vec3(shadow) * T_level * 2.0;
     
 }// i loop
+    blmColor.a = 1.0;
 }
 
