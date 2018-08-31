@@ -1,0 +1,1369 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Tao.Glfw</name>
+    </assembly>
+    <members>
+        <member name="T:Tao.Glfw.Glfw">
+            <summary>
+                GLFW (OpenGL Framework) binding for .NET, implementing GLFW 2.6.0.
+            </summary>
+            <remarks>
+                <para>
+                    Marcus Geelnard is the author of GLFW, more information can be found on the
+                    GLFW homepage, http://glfw.sourceforge.net.
+                </para>
+                <para>
+                    GLFW is a portable API (Application Program Interface) that handles operating
+                    system specific tasks related to OpenGL programming.  While OpenGL in general
+                    is portable, easy to use and often results in tidy and compact code, the
+                    operating system specific mechanisms that are required to set up and manage an
+                    OpenGL window are quite the opposite.  GLFW tries to remedy this by providing
+                    the following functionality:
+                </para>
+                <para>
+                    <list type="bullet">
+                        <item>Opening and managing an OpenGL window.</item>
+                        <item>Keyboard, mouse and joystick input.</item>
+                        <item>A high precision timer.</item>
+                        <item>Multi threading support.</item>
+                        <item>Support for querying and using OpenGL extensions.</item>
+                        <item>Image file loading support.</item>
+                    </list>
+                </para>
+                <para>
+                    All this functionality is implemented as a set of easy-to-use functions, which
+                    makes it possible to write an OpenGL application framework in just a few lines
+                    of code.  The GLFW API is completely operating system and platform independent,
+                    which makes it very simple to port GLFW based OpenGL applications to a variety
+                    of platforms.  Currently supported platforms are:
+                </para>
+                <para>
+                    <list type="bullet">
+                        <item>Microsoft Windows 95/98/ME/NT/2000/XP/2003 Server.</item>
+                        <item>
+                            Unix or Unix-like systems running the X Window System, e.g. Linux,
+                            IRIX, FreeBSD, Solaris, QNX, and Mac OSX.
+                        </item>
+                        <item>
+                            Mac OSX (Carbon), only a subset of GLFW is available at this time.
+                        </item>
+                        <item>
+                            AmigaOS, only a subset of GLFW is available at this time.
+                        </item>
+                    </list>
+                </para>
+            </remarks>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_NATIVE_LIBRARY">
+            <summary>
+            Specifies the GLFW native library used in the bindings
+            </summary>
+            <remarks>
+            The Windows dll is specified here universally - note that
+            under Mono the non-windows native library can be mapped using
+            the ".config" file mechanism.  Kudos to the Mono team for this
+            simple yet elegant solution.
+            </remarks>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_VERSION_MAJOR">
+            <summary>
+                Major version number.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_VERSION_MINOR">
+            <summary>
+                Minor version number.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_VERSION_REVISION">
+            <summary>
+                Revision version number.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_RELEASE">
+            <summary>
+                Button or key is not pressed.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_PRESS">
+            <summary>
+                Button or key is pressed.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_KEY_UNKNOWN">
+            <summary>
+                Unknown key.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_KEY_SPACE">
+            <summary>
+                Space bar.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_KEY_SPECIAL">
+            <summary>
+                Delineates start of 'special' keys.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_KEY_ESC">
+            <summary>
+                Escape.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_KEY_F1">
+            <summary>
+                Function key 1.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_KEY_F2">
+            <summary>
+                Function key 2.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_KEY_F3">
+            <summary>
+                Function key 3.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_KEY_F4">
+            <summary>
+                Function key 4.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_KEY_F5">
+            <summary>
+                Function key 5.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_KEY_F6">
+            <summary>
+                Function key 6.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_KEY_F7">
+            <summary>
+                Function key 7.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_KEY_F8">
+            <summary>
+                Function key 8.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_KEY_F9">
+            <summary>
+                Function key 9.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_KEY_F10">
+            <summary>
+                Function key 10.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_KEY_F11">
+            <summary>
+                Function key 11.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_KEY_F12">
+            <summary>
+                Function key 12.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_KEY_F13">
+            <summary>
+                Function key 13.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_KEY_F14">
+            <summary>
+                Function key 14.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_KEY_F15">
+            <summary>
+                Function key 15.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_KEY_F16">
+            <summary>
+                Function key 16.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_KEY_F17">
+            <summary>
+                Function key 17.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_KEY_F18">
+            <summary>
+                Function key 18.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_KEY_F19">
+            <summary>
+                Function key 19.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_KEY_F20">
+            <summary>
+                Function key 20.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_KEY_F21">
+            <summary>
+                Function key 21.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_KEY_F22">
+            <summary>
+                Function key 22.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_KEY_F23">
+            <summary>
+                Function key 23.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_KEY_F24">
+            <summary>
+                Function key 24.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_KEY_F25">
+            <summary>
+                Function key 25.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_KEY_UP">
+            <summary>
+                Cursor up.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_KEY_DOWN">
+            <summary>
+                Cursor down.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_KEY_LEFT">
+            <summary>
+                Cursor left.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_KEY_RIGHT">
+            <summary>
+                Cursor right.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_KEY_LSHIFT">
+            <summary>
+                Left shift key.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_KEY_RSHIFT">
+            <summary>
+                Right shift key.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_KEY_LCTRL">
+            <summary>
+                Left control key.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_KEY_RCTRL">
+            <summary>
+                Right control key.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_KEY_LALT">
+            <summary>
+                Left alternate function key.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_KEY_RALT">
+            <summary>
+                Right alternate function key.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_KEY_TAB">
+            <summary>
+                Tabulator.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_KEY_ENTER">
+            <summary>
+                Enter.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_KEY_BACKSPACE">
+            <summary>
+                Backspace.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_KEY_INSERT">
+            <summary>
+                Insert.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_KEY_DEL">
+            <summary>
+                Delete.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_KEY_PAGEUP">
+            <summary>
+                Page up.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_KEY_PAGEDOWN">
+            <summary>
+                Page down.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_KEY_HOME">
+            <summary>
+                Home.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_KEY_END">
+            <summary>
+                End.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_KEY_KP_0">
+            <summary>
+                Keypad numeric key 0.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_KEY_KP_1">
+            <summary>
+                Keypad numeric key 1.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_KEY_KP_2">
+            <summary>
+                Keypad numeric key 2.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_KEY_KP_3">
+            <summary>
+                Keypad numeric key 3.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_KEY_KP_4">
+            <summary>
+                Keypad numeric key 4.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_KEY_KP_5">
+            <summary>
+                Keypad numeric key 5.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_KEY_KP_6">
+            <summary>
+                Keypad numeric key 6.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_KEY_KP_7">
+            <summary>
+                Keypad numeric key 7.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_KEY_KP_8">
+            <summary>
+                Keypad numeric key 8.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_KEY_KP_9">
+            <summary>
+                Keypad numeric key 9.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_KEY_KP_DIVIDE">
+            <summary>
+                Keypad divide.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_KEY_KP_MULTIPLY">
+            <summary>
+                Keypad multiply.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_KEY_KP_SUBTRACT">
+            <summary>
+                Keypad subtract.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_KEY_KP_ADD">
+            <summary>
+                Keypad add.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_KEY_KP_DECIMAL">
+            <summary>
+                Keypad decimal.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_KEY_KP_EQUAL">
+            <summary>
+                Keypad equal.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_KEY_KP_ENTER">
+            <summary>
+                Keypad enter.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_KEY_LAST">
+            <summary>
+                Delinates end of 'special' keys.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_MOUSE_BUTTON_1">
+            <summary>
+            	Mouse identifier 1.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_MOUSE_BUTTON_2">
+            <summary>
+            	Mouse identifier 2.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_MOUSE_BUTTON_3">
+            <summary>
+            	Mouse identifier 3.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_MOUSE_BUTTON_4">
+            <summary>
+            	Mouse identifier 4.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_MOUSE_BUTTON_5">
+            <summary>
+            	Mouse identifier 5.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_MOUSE_BUTTON_6">
+            <summary>
+            	Mouse identifier 6.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_MOUSE_BUTTON_7">
+            <summary>
+            	Mouse identifier 7.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_MOUSE_BUTTON_8">
+            <summary>
+            	Mouse identifier 8.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_MOUSE_BUTTON_LEFT">
+            <summary>
+                Left mouse button.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_MOUSE_BUTTON_RIGHT">
+            <summary>
+                Right mouse button.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_MOUSE_BUTTON_MIDDLE">
+            <summary>
+                Middle mouse button.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_MOUSE_BUTTON_LAST">
+            <summary>
+                Delineates the last mouse button.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_JOYSTICK_1">
+            <summary>
+                Joystick identifier 1.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_JOYSTICK_2">
+            <summary>
+                Joystick identifier 2.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_JOYSTICK_3">
+            <summary>
+                Joystick identifier 3.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_JOYSTICK_4">
+            <summary>
+                Joystick identifier 4.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_JOYSTICK_5">
+            <summary>
+                Joystick identifier 5.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_JOYSTICK_6">
+            <summary>
+                Joystick identifier 6.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_JOYSTICK_7">
+            <summary>
+                Joystick identifier 7.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_JOYSTICK_8">
+            <summary>
+                Joystick identifier 8.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_JOYSTICK_9">
+            <summary>
+                Joystick identifier 9.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_JOYSTICK_10">
+            <summary>
+                Joystick identifier 10.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_JOYSTICK_11">
+            <summary>
+                Joystick identifier 11.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_JOYSTICK_12">
+            <summary>
+                Joystick identifier 12.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_JOYSTICK_13">
+            <summary>
+                Joystick identifier 13.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_JOYSTICK_14">
+            <summary>
+                Joystick identifier 14.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_JOYSTICK_15">
+            <summary>
+                Joystick identifier 15.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_JOYSTICK_16">
+            <summary>
+                Joystick identifier 16.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_JOYSTICK_LAST">
+            <summary>
+                Delineates the last joystick identifier.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_WINDOW">
+            <summary>
+                Normal desktop window.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_FULLSCREEN">
+            <summary>
+                Fullscreen window.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_OPENED">
+            <summary>
+                <see cref="F:Tao.OpenGl.Gl.GL_TRUE"/> if window is opened, else <see cref="F:Tao.OpenGl.Gl.GL_FALSE"/>.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_ACTIVE">
+            <summary>
+                <see cref="F:Tao.OpenGl.Gl.GL_TRUE"/> if window has focus, else <see cref="F:Tao.OpenGl.Gl.GL_FALSE"/>.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_ICONIFIED">
+            <summary>
+                <see cref="F:Tao.OpenGl.Gl.GL_TRUE"/> if window is iconified, else <see cref="F:Tao.OpenGl.Gl.GL_FALSE"/>.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_ACCELERATED">
+            <summary>
+                <see cref="F:Tao.OpenGl.Gl.GL_TRUE"/> if window is hardware accelerated, else
+                <see cref="F:Tao.OpenGl.Gl.GL_FALSE"/>.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_RED_BITS">
+            <summary>
+                Number of bits for the red color component.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_GREEN_BITS">
+            <summary>
+                Number of bits for the green color component.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_BLUE_BITS">
+            <summary>
+                Number of bits for the blue color component.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_ALPHA_BITS">
+            <summary>
+                Number of bits for the alpha buffer.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_DEPTH_BITS">
+            <summary>
+                Number of bits for the depth buffer.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_STENCIL_BITS">
+            <summary>
+                Number of bits for the stencil buffer.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_REFRESH_RATE">
+            <summary>
+                Vertical monitor refresh rate in Hz (only used for fullscreen windows).  Zero
+                means system default.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_ACCUM_RED_BITS">
+            <summary>
+                Number of bits for the red channel of the accumulator buffer.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_ACCUM_GREEN_BITS">
+            <summary>
+                Number of bits for the green channel of the accumulator buffer.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_ACCUM_BLUE_BITS">
+            <summary>
+                Number of bits for the blue channel of the accumulator buffer.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_ACCUM_ALPHA_BITS">
+            <summary>
+                Number of bits for the alpha channel of the accumulator buffer.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_AUX_BUFFERS">
+            <summary>
+                Number of auxiliary buffers.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_STEREO">
+            <summary>
+                Specify if stereo rendering should be supported (can be <see cref="F:Tao.OpenGl.Gl.GL_TRUE"/>
+                or <see cref="F:Tao.OpenGl.Gl.GL_FALSE"/>).
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_WINDOW_NO_RESIZE">
+            <summary>
+                Specify whether the window can be resized (can be <see cref="F:Tao.OpenGl.Gl.GL_TRUE"/>
+                or <see cref="F:Tao.OpenGl.Gl.GL_FALSE"/>).
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_FSAA_SAMPLES">
+            <summary>
+                Specify if full screen antialiasing should be supported. Zero disabless multisampling, greater
+                values define the number of samples.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_MOUSE_CURSOR">
+            <summary>
+                Mouse cursor visibility.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_STICKY_KEYS">
+            <summary>
+                Keyboard key “stickiness".
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_STICKY_MOUSE_BUTTONS">
+            <summary>
+                Mouse button “stickiness”.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_SYSTEM_KEYS">
+            <summary>
+                Special system key actions.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_KEY_REPEAT">
+            <summary>
+                Keyboard key repeat.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_AUTO_POLL_EVENTS">
+            <summary>
+                Automatic event polling when <see cref="M:Tao.Glfw.Glfw.glfwSwapBuffers"/> is called.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_WAIT">
+            <summary>
+                Waiting.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_NOWAIT">
+            <summary>
+                No waiting.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_PRESENT">
+            <summary>
+                <see cref="F:Tao.OpenGl.Gl.GL_TRUE"/> if the joystick is connected, else
+                <see cref="F:Tao.OpenGl.Gl.GL_FALSE"/>.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_AXES">
+            <summary>
+                Number of axes supported by the joystick.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_BUTTONS">
+            <summary>
+                Number of buttons supported by the joystick.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_NO_RESCALE_BIT">
+            <summary>
+                Do not rescale image to closest 2^m * 2^n resolution.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_ORIGIN_UL_BIT">
+            <summary>
+                Specifies that the origin of the loaded image should be in the upper left corner
+                (default is the lower left corner).
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_BUILD_MIPMAPS_BIT">
+            <summary>
+                Automatically build and upload all mipmap levels.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_ALPHA_MAP_BIT">
+            <summary>
+                Single component alpha maps.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFW_INFINITY">
+            <summary>
+                Infinite amount of time.
+            </summary>
+        </member>
+        <member name="M:Tao.Glfw.Glfw.glfwInit">
+            <summary>
+                Initializes GLFW.
+            </summary>
+            <returns>
+                On success <see cref="F:Tao.OpenGl.Gl.GL_TRUE"/> is returned; otherwise <see cref="F:Tao.OpenGl.Gl.GL_FALSE"/>.
+            </returns>
+            <remarks>
+                <para>
+                    No other GLFW functions may be used before this function has been called.
+                </para>
+                <para>
+                    This function may take several seconds to complete on some systems, while
+                    on other systems it may take only a fraction of a second to complete.
+                </para>
+            </remarks>
+        </member>
+        <member name="M:Tao.Glfw.Glfw.glfwTerminate">
+            <summary>
+                Terminates GLFW.
+            </summary>
+            <remarks>
+                Among other things it closes the window, if it is opened, and kills any running
+                threads.  This function must be called before a program exits.
+            </remarks>
+        </member>
+        <member name="M:Tao.Glfw.Glfw.glfwGetVersion(System.Int32@,System.Int32@,System.Int32@)">
+            <summary>
+                Returns the GLFW library version.
+            </summary>
+            <param name="major">
+                Pointer to an integer that will hold the major version number.
+            </param>
+            <param name="minor">
+                Pointer to an integer that will hold the minor version number.
+            </param>
+            <param name="revision">
+                Pointer to an integer that will hold the revision.
+            </param>
+        </member>
+        <member name="M:Tao.Glfw.Glfw.glfwOpenWindow(System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32)">
+            <summary>
+                Opens a window that best matches the parameters given to the function.
+            </summary>
+            <param name="width">
+                The width of the window.  If <paramref name="width"/> is zero, it will be
+                calculated as width = <c>(4 / 3) * height</c>, if <paramref name="height"/> is
+                not zero.  If both <paramref name="width"/> and <paramref name="height"/> are
+                zero, then <paramref name="width"/> will be set to 640.
+            </param>
+            <param name="height">
+                The height of the window.  If <paramref name="height"/> is zero, it will be
+                calculated as <c>height = (3 / 4) * width</c>, if <paramref name="width"/> is
+                not zero.  If both <paramref name="width"/> and <paramref name="height"/> are
+                zero, then <paramref name="height"/> will be set to 480.
+            </param>
+            <param name="redBits">
+                The number of bits to use for the red color component of the color buffer
+                (0 means default color depth).  For instance, setting redbits = 5, greenbits = 6,
+                and bluebits = 5 will generate a 16-bit color buffer, if possible.
+            </param>
+            <param name="greenBits">
+                The number of bits to use for the green color component of the color buffer
+                (0 means default color depth).  For instance, setting redbits = 5, greenbits = 6,
+                and bluebits = 5 will generate a 16-bit color buffer, if possible.
+            </param>
+            <param name="blueBits">
+                The number of bits to use for the blue color component of the color buffer
+                (0 means default color depth).  For instance, setting redbits = 5, greenbits = 6,
+                and bluebits = 5 will generate a 16-bit color buffer, if possible.
+            </param>
+            <param name="alphaBits">
+                The number of bits to use for the alpha buffer (0 means no alpha buffer).
+            </param>
+            <param name="depthBits">
+                The number of bits to use for the depth buffer (0 means no depth buffer).
+            </param>
+            <param name="stencilBits">
+                The number of bits to use for the stencil buffer (0 means no stencil buffer).
+            </param>
+            <param name="mode">
+                Selects which type of OpenGL window to use. mode can be either
+                <see cref="F:Tao.Glfw.Glfw.GLFW_WINDOW"/>, which will generate a normal desktop window, or
+                <see cref="F:Tao.Glfw.Glfw.GLFW_FULLSCREEN"/>, which will generate a window which covers the
+                entire screen.  When <see cref="F:Tao.Glfw.Glfw.GLFW_FULLSCREEN"/> is selected, the video mode
+                will be changed to the resolution that closest matches the
+                <paramref name="width"/> and <paramref name="height"/> parameters.
+            </param>
+            <returns>
+                On success <see cref="F:Tao.OpenGl.Gl.GL_TRUE"/> is returned; otherwise <see cref="F:Tao.OpenGl.Gl.GL_FALSE"/>.
+            </returns>
+            <remarks>
+                <para>
+                    How well the resulting window matches the desired window depends mostly
+                    on the available hardware and OpenGL drivers.  In general, selecting a
+                    fullscreen mode has better chances of generating a close match than does
+                    a normal desktop window, since GLFW can freely select from all the available
+                    video modes.  A desktop window is normally restricted to the video mode of
+                    the desktop.
+                </para>
+                <para>
+                    For additional control of window properties, see
+                    <see cref="M:Tao.Glfw.Glfw.glfwOpenWindowHint(System.Int32,System.Int32)"/>.
+                </para>
+                <para>
+                    In fullscreen mode the mouse cursor is hidden by default, and any system
+                    screensavers are prohibited from starting.  In windowed mode the mouse cursor
+                    is visible, and screensavers are allowed to start.  To change the visibility
+                    of the mouse cursor, use <see cref="M:Tao.Glfw.Glfw.glfwEnable(System.Int32)"/> or
+                    <see cref="M:Tao.Glfw.Glfw.glfwDisable(System.Int32)"/> with the argument <see cref="F:Tao.Glfw.Glfw.GLFW_MOUSE_CURSOR"/>.
+                </para>
+                <para>
+                    In order to determine the actual properties of an opened window, use
+                    <see cref="M:Tao.Glfw.Glfw.glfwGetWindowParam(System.Int32)"/> and <see cref="M:Tao.Glfw.Glfw.glfwGetWindowSize(System.Int32@,System.Int32@)"/>
+                    (or <see cref="M:Tao.Glfw.Glfw.glfwSetWindowSizeCallback(Tao.Glfw.Glfw.GLFWwindowsizefun)"/>).
+                </para>
+            </remarks>
+        </member>
+        <member name="M:Tao.Glfw.Glfw.glfwOpenWindowHint(System.Int32,System.Int32)">
+            <summary>
+                Sets additional properties for a window that is to be opened.
+            </summary>
+            <param name="target">
+            
+            </param>
+            <param name="hint">
+            
+            </param>
+            <remarks>
+                <para>
+                    For a hint to be registered, the function must be called before calling
+                    <see cref="M:Tao.Glfw.Glfw.glfwOpenWindow(System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32)"/>.  When the <see cref="M:Tao.Glfw.Glfw.glfwOpenWindow(System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32)"/>
+                    function is called, any hints that were registered with the
+                    <b>glfwOpenWindowHint</b> function are used for setting the
+                    corresponding window properties, and then all hints are reset to their
+                    default values.
+                </para>
+            </remarks>
+        </member>
+        <member name="M:Tao.Glfw.Glfw.glfwCloseWindow">
+            <summary>
+            	The function closes an opened window and destroys the associated OpenGL context.
+            </summary>
+        </member>
+        <member name="M:Tao.Glfw.Glfw.glfwSetWindowTitle(System.String)">
+            <summary>
+            	Changes the title of the opened window.
+            </summary>
+            <param name="title">
+            	Pointer to a null terminated ISO 8859-1 (8-bit Latin 1) string that holds the title of the window.
+            </param>
+            <remarks>
+            	<para>
+            		The title property of a window is often used in situations other than for the window title, such as the title of an application icon when it is in iconified state.
+            	</para>
+            </remarks>
+        </member>
+        <member name="M:Tao.Glfw.Glfw.glfwGetWindowSize(System.Int32@,System.Int32@)">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Tao.Glfw.Glfw.glfwSetWindowSize(System.Int32,System.Int32)">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Tao.Glfw.Glfw.glfwSetWindowPos(System.Int32,System.Int32)">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Tao.Glfw.Glfw.glfwIconifyWindow">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Tao.Glfw.Glfw.glfwRestoreWindow">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Tao.Glfw.Glfw.glfwSwapBuffers">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Tao.Glfw.Glfw.glfwSwapInterval(System.Int32)">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Tao.Glfw.Glfw.glfwGetWindowParam(System.Int32)">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Tao.Glfw.Glfw.glfwSetWindowSizeCallback(Tao.Glfw.Glfw.GLFWwindowsizefun)">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Tao.Glfw.Glfw.glfwSetWindowCloseCallback(Tao.Glfw.Glfw.GLFWwindowclosefun)">
+            <summary>
+            	Selects which function to be called upon a window close event.
+            </summary>
+            <remarks>
+            	<para>
+            		A window has to be opened for this function to have any effect.
+            	</para>
+            	<para>
+            		Window close events are recorded continuously, but only reported when glfwPollEvents, glfwWaitEvents or glfwSwapBuffers is called.
+            	</para>
+            	<para>
+            		The OpenGLTM context is still valid when this function is called.
+            	</para>
+            	<para>
+            		Note that the window close callback function is not called when glfwCloseWindow is called, but only when the close request comes from the window manager.
+            	</para>
+            	<para>
+            		Do not call glfwCloseWindow from a window close callback function. Close the window by returning GL_TRUE from the function.
+            	</para>
+            </remarks>
+            <param name="cbfun">
+            	Pointer to a callback function that will be called when a user requests that the window should be closed.
+            </param>
+        </member>
+        <member name="M:Tao.Glfw.Glfw.glfwSetWindowRefreshCallback(Tao.Glfw.Glfw.GLFWwindowrefreshfun)">
+            <summary>
+            	The function selects which function to be called upon a window refresh event, which occurs when any part of the window client area has been damaged, and needs to be repainted (for instance, if a part of the window that was previously occluded by another window has become visible).
+            </summary>
+            <remarks>
+            	<para>
+            		A window has to be opened for this function to have any effect.
+            	</para>
+            	<para>
+            		Window refresh events are recorded continuously, but only reported when glfwPollEvents, glfwWaitEvents or glfwSwapBuffers is called.
+            	</para>
+            </remarks>
+            <param name="cbfun">
+            	Pointer to a callback function that will be called when the window client area needs to be refreshed.
+            </param>
+        </member>
+        <member name="M:Tao.Glfw.Glfw.glfwGetVideoModes(Tao.Glfw.Glfw.GLFWvidmode[],System.Int32)">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Tao.Glfw.Glfw.glfwGetDesktopMode(Tao.Glfw.Glfw.GLFWvidmode@)">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Tao.Glfw.Glfw.glfwPollEvents">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Tao.Glfw.Glfw.glfwWaitEvents">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Tao.Glfw.Glfw.glfwGetKey(System.Int32)">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Tao.Glfw.Glfw.glfwGetMouseButton(System.Int32)">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Tao.Glfw.Glfw.glfwGetMousePos(System.Int32@,System.Int32@)">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Tao.Glfw.Glfw.glfwSetMousePos(System.Int32,System.Int32)">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Tao.Glfw.Glfw.glfwGetMouseWheel">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Tao.Glfw.Glfw.glfwSetMouseWheel(System.Int32)">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Tao.Glfw.Glfw.glfwSetKeyCallback(Tao.Glfw.Glfw.GLFWkeyfun)">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Tao.Glfw.Glfw.glfwSetCharCallback(Tao.Glfw.Glfw.GLFWcharfun)">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Tao.Glfw.Glfw.glfwSetMouseButtonCallback(Tao.Glfw.Glfw.GLFWmousebuttonfun)">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Tao.Glfw.Glfw.glfwSetMousePosCallback(Tao.Glfw.Glfw.GLFWmouseposfun)">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Tao.Glfw.Glfw.glfwSetMouseWheelCallback(Tao.Glfw.Glfw.GLFWmousewheelfun)">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Tao.Glfw.Glfw.glfwGetJoystickParam(System.Int32,System.Int32)">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Tao.Glfw.Glfw.glfwGetJoystickPos(System.Int32,System.Single[],System.Int32)">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Tao.Glfw.Glfw.glfwGetJoystickButtons(System.Int32,System.Byte[],System.Int32)">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Tao.Glfw.Glfw.glfwGetTime">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Tao.Glfw.Glfw.glfwSetTime(System.Double)">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Tao.Glfw.Glfw.glfwSleep(System.Double)">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Tao.Glfw.Glfw.glfwExtensionSupported(System.String)">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Tao.Glfw.Glfw.glfwGetProcAddress(System.String)">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Tao.Glfw.Glfw.glfwGetGLVersion(System.Int32@,System.Int32@,System.Int32@)">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Tao.Glfw.Glfw.glfwCreateThread(Tao.Glfw.Glfw.GLFWthreadfun,System.IntPtr)">
+            <summary>
+            	The function creates a new thread, which executes within the same
+            	address space as the calling process. The thread entry point is
+            	specified with the fun argument.
+            </summary>
+            <param name="fun">
+            	A pointer to a function that acts as the entry point for the new
+            	thread.
+            </param>
+            <param name="arg">
+            	An arbitrary argument for the thread. arg will be passed as the
+            	argument to the thread function pointed to by fun. For instance,
+            	arg can point to data that is to be processed by the thread.
+            </param>
+            <returns>
+            	The function returns a thread identification number if the thread
+            	was created successfully. This number is always positive. If the
+            	function fails, a negative number is returned.
+            </returns>
+            <remarks>
+            	<para>
+            		Once the thread function fun returns, the thread dies.
+            	</para>
+            	<para>
+            		Even if the function returns a positive thread ID, indicating
+            		that the thread was created successfully, the thread may be
+            		unable to execute, for instance if the thread start address
+            		is not a valid thread entry point.
+            	</para>
+            </remarks>
+        </member>
+        <member name="M:Tao.Glfw.Glfw.glfwDestroyThread(System.Int32)">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Tao.Glfw.Glfw.glfwWaitThread(System.Int32,System.Int32)">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Tao.Glfw.Glfw.glfwGetThreadID">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Tao.Glfw.Glfw.glfwCreateMutex">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Tao.Glfw.Glfw.glfwDestroyMutex(System.IntPtr)">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Tao.Glfw.Glfw.glfwLockMutex(System.IntPtr)">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Tao.Glfw.Glfw.glfwUnlockMutex(System.IntPtr)">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Tao.Glfw.Glfw.glfwCreateCond">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Tao.Glfw.Glfw.glfwDestroyCond(System.IntPtr)">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Tao.Glfw.Glfw.glfwWaitCond(System.IntPtr,System.IntPtr,System.Double)">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Tao.Glfw.Glfw.glfwSignalCond(System.IntPtr)">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Tao.Glfw.Glfw.glfwBroadcastCond(System.IntPtr)">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Tao.Glfw.Glfw.glfwGetNumberOfProcessors">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Tao.Glfw.Glfw.glfwEnable(System.Int32)">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Tao.Glfw.Glfw.glfwDisable(System.Int32)">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Tao.Glfw.Glfw.glfwReadImage(System.String,Tao.Glfw.Glfw.GLFWimage@,System.Int32)">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Tao.Glfw.Glfw.glfwReadMemoryImage(System.IntPtr,System.Int32,Tao.Glfw.Glfw.GLFWimage@,System.Int32)">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Tao.Glfw.Glfw.glfwFreeImage(Tao.Glfw.Glfw.GLFWimage@)">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Tao.Glfw.Glfw.glfwLoadTexture2D(System.String,System.Int32)">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Tao.Glfw.Glfw.glfwLoadMemoryTexture2D(System.IntPtr,System.Int32,System.Int32)">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Tao.Glfw.Glfw.glfwLoadTextureImage2D(Tao.Glfw.Glfw.GLFWimage@,System.Int32)">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="T:Tao.Glfw.Glfw.GLFWvidmode">
+            <summary>
+                Video mode.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFWvidmode.Width">
+            <summary>
+                Video width resolution.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFWvidmode.Height">
+            <summary>
+                Video height resolution.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFWvidmode.RedBits">
+            <summary>
+                Number of red bits.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFWvidmode.BlueBits">
+            <summary>
+                Number of blue bits.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFWvidmode.GreenBits">
+            <summary>
+                Number of green bits.
+            </summary>
+        </member>
+        <member name="T:Tao.Glfw.Glfw.GLFWimage">
+            <summary>
+                Image information.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFWimage.Width">
+            <summary>
+                Image width resolution.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFWimage.Height">
+            <summary>
+                Image height resolution.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFWimage.Format">
+            <summary>
+                OpenGL pixel format.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFWimage.BytesPerPixel">
+            <summary>
+                Number of bytes per pixel.
+            </summary>
+        </member>
+        <member name="F:Tao.Glfw.Glfw.GLFWimage.Data">
+            <summary>
+                Image pixel data.
+            </summary>
+        </member>
+        <member name="T:Tao.Glfw.Glfw.GLFWwindowsizefun">
+            <summary>
+                Callback function that will be called every time the window size changes.
+            </summary>
+        </member>
+        <member name="T:Tao.Glfw.Glfw.GLFWwindowclosefun">
+            <summary>
+                Callback function that will be called every time the window closes.
+            </summary>
+        </member>
+        <member name="T:Tao.Glfw.Glfw.GLFWwindowrefreshfun">
+            <summary>
+                Callback function that will be called every time the window refreshes.
+            </summary>
+        </member>
+        <member name="T:Tao.Glfw.Glfw.GLFWmousebuttonfun">
+            <summary>
+                Callback function that will be called every time a mouse button is pressed
+                or released.
+            </summary>
+        </member>
+        <member name="T:Tao.Glfw.Glfw.GLFWmouseposfun">
+            <summary>
+                Callback function that will be called every time the mouse is moved.
+            </summary>
+        </member>
+        <member name="T:Tao.Glfw.Glfw.GLFWmousewheelfun">
+            <summary>
+                Callback function that will be called every time the mouse wheel is moved.
+            </summary>
+        </member>
+        <member name="T:Tao.Glfw.Glfw.GLFWkeyfun">
+            <summary>
+                Callback function that will be called every time a key is pressed or released.
+            </summary>
+        </member>
+        <member name="T:Tao.Glfw.Glfw.GLFWcharfun">
+            <summary>
+                Callback function that will be called every time a printable character is
+                generated by the keyboard.
+            </summary>
+        </member>
+        <member name="T:Tao.Glfw.Glfw.GLFWthreadfun">
+            <summary>
+                Callback function that acts as the entry point for the new thread.
+            </summary>
+        </member>
+    </members>
+</doc>

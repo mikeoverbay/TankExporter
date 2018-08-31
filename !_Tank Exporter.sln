@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.40629.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "!_Tank Exporter", "!_Tank Exporter\!_Tank Exporter.vbproj", "{C9AC5573-A1E9-4EAA-81BB-7FFC69BB5E5F}"
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Texp Setup", "Setup1\Setup1.vdproj", "{5B58A86C-F998-4D62-BB6F-79F4E13885D7}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x86 = Debug|x86
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C9AC5573-A1E9-4EAA-81BB-7FFC69BB5E5F}.Debug|x86.ActiveCfg = Debug|x86
+		{C9AC5573-A1E9-4EAA-81BB-7FFC69BB5E5F}.Debug|x86.Build.0 = Debug|x86
+		{C9AC5573-A1E9-4EAA-81BB-7FFC69BB5E5F}.Release|x86.ActiveCfg = Release|x86
+		{C9AC5573-A1E9-4EAA-81BB-7FFC69BB5E5F}.Release|x86.Build.0 = Release|x86
+		{5B58A86C-F998-4D62-BB6F-79F4E13885D7}.Debug|x86.ActiveCfg = Release
+		{5B58A86C-F998-4D62-BB6F-79F4E13885D7}.Debug|x86.Build.0 = Release
+		{5B58A86C-F998-4D62-BB6F-79F4E13885D7}.Release|x86.ActiveCfg = Release
+		{5B58A86C-F998-4D62-BB6F-79F4E13885D7}.Release|x86.Build.0 = Release
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

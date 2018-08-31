@@ -1,0 +1,18 @@
+﻿<renderSet>
+<node>new_node</node>
+<geometry>
+<primitiveGroup>
+<PG_ID>0</PG_ID>
+<material>
+    <identifier>Kustom_mat</identifier>
+    <fx>shaders/std_effects/normalmap_specmap.fx</fx>
+    <collisionFlags>0</collisionFlags>
+    <materialKind>0</materialKind>
+    <property>specularMap<Texture>SPEC_NAME</Texture></property>
+    <property><Float>0.000000</Float></property>
+    <property>diffuseMap<Texture>COLOR_NAME</Texture></property>
+    <property>normalMap<Texture>NORMAL_NAME</Texture></property>
+    </material>
+</primitiveGroup>
+</geometry>
+</renderSet>
