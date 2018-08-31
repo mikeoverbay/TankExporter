@@ -7,10 +7,10 @@
 
 ## Verion 57:
 Fixed a bug loading some of the Polish tanks.
-Added Bloom and a way to turn it on and off and view the texture used for rendering it.
+Added Bloom and a way to turn it on and off and a check box to view the texture used for rendering it.
 
 ## Verion 56:
-This fixex a bug in hiding parts of the tank when a FBX has not been imported.
+This fixes a bug in hiding parts of the tank when a FBX has not been imported.
 I also turned FXAA back on and added a check box to disable it.
 A few minor bug fixes.
 
