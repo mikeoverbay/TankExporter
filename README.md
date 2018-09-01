@@ -7,7 +7,7 @@
 
 ## Version 59:
 I fixed a bug I managed to add in when I added bloom.
-I added "View in res_mods folder" to the Exoort/Extract menu that will open the tanks folder in Explore. If the folder does not exist, a popup will let you know you have not extracted the files.
+I added "View in res_mods folder" to the Export/Extract menu that will open the tanks folder in Explore. If the folder does not exist, a popup will let you know you have not extracted the files.
 
 ## Version 58:
 Fixed a issue when visuals and their matching models are scattered in different pkg files. TE should find every part for every tank now.
