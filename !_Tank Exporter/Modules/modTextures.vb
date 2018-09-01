@@ -36,6 +36,8 @@ Module modTextures
 
     Dim mStream As MemoryStream
     Public Function get_fbx_texture(ByVal name As String)
+        'frmMain.gl_stop = True
+
         Dim ext = Path.GetExtension(name)
         Dim id As Integer = -1
         If ext.ToLower.Contains(".png") Then
@@ -47,6 +49,7 @@ Module modTextures
         If ext.ToLower.Contains(".jpg") Then
             id = load_jpg_file(name)
         End If
+        'frmMain.gl_stop = False
         Return id
     End Function
     Public Sub export_fbx_textures()
@@ -312,7 +315,7 @@ Module modTextures
     End Function
 
     Public Function get_texture(ByRef ms As MemoryStream, file_path As String) As Integer
-
+        frmMain.gl_stop = True
         Dim texID As UInt32
         Dim image_id As Integer
         ms.Position = 0
@@ -383,6 +386,7 @@ Module modTextures
         End If
         Il.ilBindImage(0)
         Ilu.iluDeleteImage(texID)
+        frmMain.gl_stop = False
         Return image_id
         'ms.Close()
         'ms.Dispose()

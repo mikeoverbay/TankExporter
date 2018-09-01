@@ -405,6 +405,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_84D81A0009F84305AC608029EF1C00AB"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_84EFEFD1F114EC376D9ADAC1604312CE"
         "OwnerKey" = "8:_D88F02B810ED4918A9E68229BD46788B"
         "MsmSig" = "8:_UNDEFINED"
@@ -574,6 +580,12 @@
         "Entry"
         {
         "MsmKey" = "8:_C444918297BD4CE989D7D801AC5FB556"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_C6631E94452B41549E61BD778B4ABAEF"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -814,7 +826,7 @@
         "DisplayName" = "8:Release"
         "IsDebugOnly" = "11:FALSE"
         "IsReleaseOnly" = "11:TRUE"
-        "OutputFilename" = "8:..\\TankExporter_058.msi"
+        "OutputFilename" = "8:..\\TankExporter_059.msi"
         "PackageFilesAs" = "3:2"
         "PackageFileSize" = "3:-2147483648"
         "CabType" = "3:1"
@@ -2208,6 +2220,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_84D81A0009F84305AC608029EF1C00AB"
+            {
+            "SourcePath" = "8:..\\!_Tank Exporter\\shaders\\colorMult_vertex.glsl"
+            "TargetName" = "8:colorMult_vertex.glsl"
+            "Tag" = "8:"
+            "Folder" = "8:_1B07A285BAA74365A2EBEF572AC0A089"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_84EFEFD1F114EC376D9ADAC1604312CE"
             {
             "AssemblyRegister" = "3:1"
@@ -2796,6 +2828,26 @@
             "TargetName" = "8:ILUT.dll"
             "Tag" = "8:"
             "Folder" = "8:_9BBCA850C4D847C495C4D74DD189C10E"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C6631E94452B41549E61BD778B4ABAEF"
+            {
+            "SourcePath" = "8:..\\!_Tank Exporter\\shaders\\colorMult_fragment.glsl"
+            "TargetName" = "8:colorMult_fragment.glsl"
+            "Tag" = "8:"
+            "Folder" = "8:_1B07A285BAA74365A2EBEF572AC0A089"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -3431,15 +3483,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Tank Exporter"
-        "ProductCode" = "8:{D6615E23-F7A6-4BB8-A941-A70DAC8BBCC3}"
-        "PackageCode" = "8:{E5CC9031-FEB0-46CD-AFC9-F4B6780A1342}"
+        "ProductCode" = "8:{416C3DE1-C1BB-47AB-BBF7-B08470C64A27}"
+        "PackageCode" = "8:{131520D4-DE43-4E70-81CF-F0BF15BC0886}"
         "UpgradeCode" = "8:{6ABAF23A-CB3D-4411-B78A-4855B5B5A0CD}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:1.0.58"
+        "ProductVersion" = "8:1.0.59"
         "Manufacturer" = "8:Coffee_"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"

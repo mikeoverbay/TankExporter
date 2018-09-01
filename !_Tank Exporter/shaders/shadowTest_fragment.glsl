@@ -8,6 +8,11 @@ vec4 ShadowCoordPostW;
 vec2 moments ;
 float chebyshevUpperBound( float distance)
 {
+    if (ShadowCoordPostW.x >0.95) return 1.0;
+    if (ShadowCoordPostW.x <0.0) return 1.0;
+    if (ShadowCoordPostW.y >0.85) return 1.0;
+    if (ShadowCoordPostW.y <0.1) return 1.0;
+   
     moments = texture2D(shadowMap,ShadowCoordPostW.xy).rg;
 
     // Surface is fully lit. as the current fragment is before the light occluder
@@ -23,7 +28,7 @@ float chebyshevUpperBound( float distance)
     float d = distance - moments.x;
     float p_max =  smoothstep(0.1, 0.18, variance / (variance + d*d));
     //float p_max =   variance / (variance + d*d);
-    p_max = max(p_max,0.15);
+    p_max = max(p_max,0.1);
     return p_max ;
 }
 
@@ -36,6 +41,6 @@ void main()
     float shadow = chebyshevUpperBound(ShadowCoordPostW.z*5000.0);
 
     
-    gl_FragColor.r  =  shadow;
+    gl_FragColor.r  =  abs(shadow);
   
 }

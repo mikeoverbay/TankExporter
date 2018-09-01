@@ -23,6 +23,7 @@ Module shader_loader
         Public decalsCpass_shader As Integer
         Public dome_shader As Integer
         Public bloom_shader As Integer
+        Public colorMult_shader As Integer
     End Class
 
 #Region "variables"
@@ -519,6 +520,12 @@ Module shader_loader
 
     End Sub
 
+    Public colorMult_color1, colorMult_color2 As Integer
+    '==============================================================================================================
+    Public Sub set_colorMult_variables()
+        colorMult_color1 = Gl.glGetUniformLocation(shader_list.colorMult_shader, "color1")
+        colorMult_color2 = Gl.glGetUniformLocation(shader_list.colorMult_shader, "color2")
+    End Sub
 
     Public Sub set_shader_variables()
         set_tank_shader_variables()
@@ -537,6 +544,7 @@ Module shader_loader
         set_decalsNpass_variables()
         set_dome_variables()
         set_bloom_variables()
+        set_colorMult_variables()
         Return
     End Sub
     '==============================================================================================================

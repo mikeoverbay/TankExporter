@@ -48,10 +48,13 @@ Module modFBX
                 Gl.glDeleteTextures(1, fbxgrp(ii).color_Id)
                 Gl.glFinish()
                 Gl.glDeleteLists(fbxgrp(ii).call_list, 1)
+                Gl.glDeleteLists(fbxgrp(ii).vertex_pick_list, 1)
                 Gl.glFinish()
                 frmMain.m_show_fbx.Visible = False
                 frmMain.m_show_fbx.Checked = False
             Next
+            ReDim fbx_boneGroups(0)
+
             ReDim fbxgrp(0)
             GC.Collect() 'clean up garbage
             GC.WaitForFullGCComplete()
@@ -95,6 +98,11 @@ Module modFBX
         remove_loaded_fbx()
         frmMain.info_Label.Visible = True
         frmMain.info_Label.Text = frmMain.OpenFileDialog1.FileName
+        Application.DoEvents()
+        'frmMain.pb1.Visible = False
+        Application.DoEvents()
+        Application.DoEvents()
+        frmMain.pb1.Visible = True
         Application.DoEvents()
         frmMain.m_show_bsp2.Checked = False
 
@@ -158,6 +166,7 @@ Module modFBX
         Dim mesh As FbxMesh = Nothing
         'Dim geo As FbxGeometry = Nothing
         ReDim fbx_boneGroups(0)
+        LOADING_FBX = True ' so we dont read from the res_Mods folder
         For i = 1 To rootnode.GetChildCount
             childnode = rootnode.GetChild(i - 1)
 
@@ -244,6 +253,17 @@ Module modFBX
         pManager.Destroy()
         Try
             process_fbx_data()
+            For i = 1 To object_count - 1
+                tank_center_X += _object(i).center_x
+                tank_center_Y += _object(i).center_y
+                tank_center_Z += _object(i).center_z
+            Next
+            tank_center_X /= object_count
+            tank_center_Y /= object_count
+            tank_center_Z /= object_count
+            look_point_x = tank_center_X
+            look_point_y = tank_center_Y
+            look_point_z = tank_center_Z
 
         Catch ex As Exception
 
@@ -265,6 +285,8 @@ outofhere:
         If MODEL_LOADED Then
             frmMain.m_show_fbx.Visible = True
         End If
+        LOADING_FBX = False ' so we dont read from the res_Mods folder
+
     End Sub
 
     Public Sub export_fbx()
@@ -1301,9 +1323,7 @@ outahere:
             Dim ta = file_name.Split("\normal")
             current_tank_package = m_groups(i).package_id(kk)
             TANK_NAME = ta(0) + ":" + current_tank_package.ToString
-            LOADING_FBX = True ' so we dont read from the res_Mods folder
             Dim success = build_primitive_data(True)
-            LOADING_FBX = False
         Next
         '---------------------------------------------------------------------------------------------------
         'sort out how many are of what type in the existing model

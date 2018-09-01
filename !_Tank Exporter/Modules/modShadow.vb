@@ -364,7 +364,7 @@ Module modShadow
         'adjust bluring based on shadow map size
         Select Case shadowMapSize
             Case 4096
-                qual = 0
+                qual = 1
             Case 2048
                 qual = 4
             Case 1024

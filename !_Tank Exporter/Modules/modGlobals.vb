@@ -13,6 +13,11 @@ Module modGlobals
     Public g_decal_translate As vect3
 
     '##################################
+    Public tank_center_X As Single
+    Public tank_center_Y As Single
+    Public tank_center_Z As Single
+
+    '##################################
     Public S_level, A_level, T_level As Single
     Public selected_light As Integer = 0
     '##################################

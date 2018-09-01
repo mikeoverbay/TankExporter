@@ -11,7 +11,7 @@ in vec2 TC1;
 void main(){
 
 vec3 shade = vec3(texture2D(shadow,TC1).r);
-if (shade.r == 0.0) shade.b = 0.4;
+if (shade.r == 0.0) shade = vec3(1.0);
 gl_FragColor.rgb = shade;
 gl_FragColor.a = 1.0;
 

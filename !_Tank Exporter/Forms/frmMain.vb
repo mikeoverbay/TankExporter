@@ -103,6 +103,7 @@ Public Class frmMain
     Private Sub frmMain_FormClosing(sender As Object, e As FormClosingEventArgs) Handles Me.FormClosing
         _Started = False
         Try
+            update_thread.Resume()
             While update_thread.IsAlive
                 _Started = False
                 update_thread.Abort()
@@ -587,6 +588,7 @@ Public Class frmMain
         Ilut.ilutInit()
         EnableOpenGL()
         make_shadow_fbo()
+        pb1.Visible = False
         '---------------------------------------------------------------------------------------------------------------------
         m_export_tank_list.Visible = False
         m_load_file.Visible = False
@@ -1023,7 +1025,7 @@ Public Class frmMain
         Cam_Y_angle = -PI * 0.25
         view_radius = -10.0
         l_rot = PI * 0.25 + PI * 2
-
+        pb1.Visible = True
 
         Startup_Timer.Enabled = True
         Application.DoEvents()
@@ -3397,7 +3399,7 @@ tryagain:
 
         'pass one FXAA
         'Gl.glBindFramebufferEXT(Gl.GL_FRAMEBUFFER_EXT, 0)
-        If m_FXAA.Checked Then
+        If m_FXAA.Checked And Not LOADING_FBX Then
 
             G_Buffer.attachFXAAtexture()
             Gl.glClear(Gl.GL_COLOR_BUFFER_BIT Or Gl.GL_DEPTH_BUFFER_BIT)
@@ -3431,7 +3433,7 @@ tryagain:
 fuckit:
         '=============================================================
         'do bloom mixing
-        If Not m_bloom_off.Checked Then
+        If m_bloom_off.Checked And Not LOADING_FBX Then
 
             Gl.glBindFramebufferEXT(Gl.GL_FRAMEBUFFER_EXT, blm_fbo.blm_fbo)
             blm_fbo.blur()
@@ -3481,7 +3483,7 @@ fuckit:
         'GoTo over
         Gl.glEnable(Gl.GL_TEXTURE_2D)
         Gl.glActiveTexture(Gl.GL_TEXTURE0)
-        If m_FXAA.Checked Then
+        If m_FXAA.Checked And Not LOADING_FBX Then
             Gl.glBindTexture(Gl.GL_TEXTURE_2D, gFXAA)
         Else
             Gl.glBindTexture(Gl.GL_TEXTURE_2D, gColor)
@@ -4570,10 +4572,11 @@ fuckit:
         frmModelInfo.Close() ' close so it resets on load
         frmTextureViewer.Hide() ' hide.. so we dont kill settings
         frmEditVisual.Close() ' close so it resets on load
-
+        tank_center_X = 0.0
+        tank_center_Y = 0.0
+        tank_center_Z = 0.0
         'reset data params
         MODEL_LOADED = False
-        FBX_LOADED = False
         m_pick_camo.Enabled = False
         LAST_SEASON = 10
         season_Buttons_VISIBLE = False
@@ -5268,6 +5271,17 @@ fuckit:
             Gl.glEndList()
         Next
         log_text.Append(" ======== Model Load Complete =========" + vbCrLf)
+        For i = 1 To object_count - 1
+            tank_center_X += _object(i).center_x
+            tank_center_Y += _object(i).center_y
+            tank_center_Z += _object(i).center_z
+        Next
+        tank_center_X /= object_count
+        tank_center_Y /= object_count
+        tank_center_Z /= object_count
+        look_point_x = tank_center_X
+        look_point_y = tank_center_Y
+        look_point_z = tank_center_Z
 
         If save_tank Then
             'get rotation limits for the turret and gun
@@ -6614,7 +6628,7 @@ make_this_tank:
                 n.ForeColor = Color.Black
             End If
         Next
-        m_export_tank_list.Visible = True
+        'm_export_tank_list.Visible = True
         Return False
         Application.DoEvents()
     End Function
@@ -6727,7 +6741,7 @@ make_this_tank:
                 n.ForeColor = Color.Black
             End If
         Next
-        m_export_tank_list.Visible = True
+        'm_export_tank_list.Visible = True
         Application.DoEvents()
     End Sub
 
@@ -6939,7 +6953,13 @@ make_this_tank:
     Private Sub m_Import_FBX_Click(sender As Object, e As EventArgs) Handles m_Import_FBX.Click
         MM.Enabled = False
         TC1.Enabled = False
+        info_Label.Parent = SplitContainer3.Panel2
+        info_Label.Text = "Select Tank to import...."
+        info_Label.Visible = True
+        G_Buffer.init()
         import_FBX()
+        info_Label.Visible = False
+        info_Label.Parent = Me
         MM.Enabled = True
         m_ExportExtract.Enabled = True
         TC1.Enabled = True
@@ -7550,5 +7570,15 @@ make_this_tank:
 
     Private Sub grid_cb_CheckStateChanged(sender As Object, e As EventArgs)
 
+    End Sub
+
+    Private Sub m_view_res_mods_folder_Click(sender As Object, e As EventArgs) Handles m_view_res_mods_folder.Click
+        Dim p = TANK_NAME.Split(":")
+        Dim f = My.Settings.res_mods_path + "\" + p(0)
+        If Directory.Exists(f) Then
+            Process.Start(f)
+        Else
+            MsgBox("You have not extracted anything to res_mods for this tank", MsgBoxStyle.Exclamation, "Path not found!")
+        End If
     End Sub
 End Class
