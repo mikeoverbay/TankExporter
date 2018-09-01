@@ -6954,13 +6954,9 @@ make_this_tank:
     Private Sub m_Import_FBX_Click(sender As Object, e As EventArgs) Handles m_Import_FBX.Click
         MM.Enabled = False
         TC1.Enabled = False
-        info_Label.Parent = SplitContainer3.Panel2
+        info_Label.Parent = pb1
         info_Label.Text = "Select Tank to import...."
         info_Label.Visible = True
-        update_thread.Suspend()
-        Thread.Sleep(100)
-        'G_Buffer.init()
-        update_thread.Resume()
         import_FBX()
         info_Label.Visible = False
         info_Label.Parent = Me

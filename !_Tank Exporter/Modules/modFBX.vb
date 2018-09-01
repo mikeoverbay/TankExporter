@@ -96,7 +96,7 @@ Module modFBX
         My.Settings.fbx_path = Path.GetDirectoryName(frmMain.OpenFileDialog1.FileName)
         frmMain.clean_house()
         remove_loaded_fbx()
-        frmMain.info_Label.Visible = True
+        'frmMain.info_Label.Visible = True
         frmMain.info_Label.Text = frmMain.OpenFileDialog1.FileName
         Application.DoEvents()
         'frmMain.pb1.Visible = False
