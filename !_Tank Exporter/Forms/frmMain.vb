@@ -3483,6 +3483,7 @@ fuckit:
         'GoTo over
         Gl.glEnable(Gl.GL_TEXTURE_2D)
         Gl.glActiveTexture(Gl.GL_TEXTURE0)
+        'm_show_fbx.Checked = True
         If m_FXAA.Checked And Not LOADING_FBX Then
             Gl.glBindTexture(Gl.GL_TEXTURE_2D, gFXAA)
         Else
@@ -6956,7 +6957,10 @@ make_this_tank:
         info_Label.Parent = SplitContainer3.Panel2
         info_Label.Text = "Select Tank to import...."
         info_Label.Visible = True
-        G_Buffer.init()
+        update_thread.Suspend()
+        Thread.Sleep(100)
+        'G_Buffer.init()
+        update_thread.Resume()
         import_FBX()
         info_Label.Visible = False
         info_Label.Parent = Me

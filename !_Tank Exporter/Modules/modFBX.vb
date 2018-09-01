@@ -50,9 +50,9 @@ Module modFBX
                 Gl.glDeleteLists(fbxgrp(ii).call_list, 1)
                 Gl.glDeleteLists(fbxgrp(ii).vertex_pick_list, 1)
                 Gl.glFinish()
-                frmMain.m_show_fbx.Visible = False
-                frmMain.m_show_fbx.Checked = False
             Next
+            frmMain.m_show_fbx.Visible = False
+            frmMain.m_show_fbx.Checked = False
             ReDim fbx_boneGroups(0)
 
             ReDim fbxgrp(0)
