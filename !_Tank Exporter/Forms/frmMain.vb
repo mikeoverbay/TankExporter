@@ -3433,7 +3433,7 @@ tryagain:
 fuckit:
         '=============================================================
         'do bloom mixing
-        If m_bloom_off.Checked And Not LOADING_FBX Then
+        If Not m_bloom_off.Checked And Not LOADING_FBX Then
 
             Gl.glBindFramebufferEXT(Gl.GL_FRAMEBUFFER_EXT, blm_fbo.blm_fbo)
             blm_fbo.blur()
