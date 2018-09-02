@@ -197,6 +197,30 @@ Namespace My
                 Me("selected_light") = value
             End Set
         End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("False")>  _
+        Public Property m_bloom() As Boolean
+            Get
+                Return CType(Me("m_bloom"),Boolean)
+            End Get
+            Set
+                Me("m_bloom") = value
+            End Set
+        End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("True")>  _
+        Public Property m_fxaa() As Boolean
+            Get
+                Return CType(Me("m_fxaa"),Boolean)
+            End Get
+            Set
+                Me("m_fxaa") = value
+            End Set
+        End Property
     End Class
 End Namespace
 

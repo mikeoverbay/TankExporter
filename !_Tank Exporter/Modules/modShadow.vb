@@ -271,7 +271,6 @@ Module modShadow
         If MODEL_LOADED _
                         And frmMain.m_load_textures.Checked _
                         And Not frmMain.m_show_fbx.Checked _
-                        And Not frmMain.m_show_bsp2.Checked _
                         And Not frmMain.m_simple_lighting.Checked Then
 
             Gl.glCullFace(Gl.GL_BACK)
@@ -421,7 +420,6 @@ nope:
         If MODEL_LOADED _
                 And frmMain.m_load_textures.Checked _
                 And Not frmMain.m_show_fbx.Checked _
-                And Not frmMain.m_show_bsp2.Checked _
                 And Not frmMain.m_simple_lighting.Checked Then
 
             Gl.glUseProgram(shader_list.shadowTest_shader)
@@ -544,7 +542,6 @@ nope:
         If MODEL_LOADED _
                 And frmMain.m_load_textures.Checked _
                 And Not frmMain.m_show_fbx.Checked _
-                And Not frmMain.m_show_bsp2.Checked _
                 And Not frmMain.m_simple_lighting.Checked Then
 
             Gl.glUseProgram(shader_list.shadowTest_shader)

@@ -104,7 +104,6 @@ Module modFBX
         Application.DoEvents()
         frmMain.pb1.Visible = True
         Application.DoEvents()
-        frmMain.m_show_bsp2.Checked = False
 
         Dim pManager As FbxSdkManager
         Dim scene As FbxScene

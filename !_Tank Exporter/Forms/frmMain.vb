@@ -52,6 +52,8 @@ Public Class frmMain
     Public found_triangle_tv As Integer
     Private TOTAL_TANKS_FOUND As Integer = 0
 
+    Private sorted As Boolean
+
     Dim delay As Integer = 0
     Dim stepper As Integer = 0
 
@@ -72,8 +74,18 @@ Public Class frmMain
     Dim time As New Stopwatch
     Dim pick_timer As New Stopwatch
     Structure pngs
-        Public img() As System.Drawing.Bitmap
+        Public img() As entry_
+
     End Structure
+    Public Class entry_ : Implements IComparable(Of entry_)
+        Public img As System.Drawing.Bitmap
+        Public name As String
+        Public short_name As string
+        Public Function CompareTo(other As entry_) As Integer Implements IComparable(Of entry_).CompareTo
+            If other Is Nothing Then Return 1
+            Return name.CompareTo(other.name)
+        End Function
+    End Class
     Public node_list(10) As t_array
     Public Structure t_array
         Public item() As t_items_
@@ -1021,7 +1033,7 @@ Public Class frmMain
         look_point_x = 0
         look_point_y = 0
         look_point_z = 0
-        Cam_X_angle = PI * 0.25
+        Cam_X_angle = (PI * 0.25) + PI
         Cam_Y_angle = -PI * 0.25
         view_radius = -10.0
         l_rot = PI * 0.25 + PI * 2
@@ -1549,6 +1561,7 @@ tryagain:
 
         End Try
     End Sub
+
     Private Sub set_treeview(ByRef tv As TreeView)
         Dim st_index = TC1.SelectedIndex
         Dim st = TC1.SelectedTab
@@ -1860,42 +1873,211 @@ tryagain:
     End Sub
 
     Private Sub load_tabs()
-        Try
-            For i = 1 To 10
-                info_Label.Text = " Creating Nodes by tier (" + i.ToString("00") + ")"
-                Application.DoEvents()
-                store_in_treeview(i, treeviews(i))
-                If i > 4 Then
-                    store_in_treeview_1(i, treeviews(i))
-                End If
-                Application.DoEvents()
-            Next
-            get_tanks_shared()
-            'add count to log
-            start_up_log.AppendLine("Total Tanks Found:" + TOTAL_TANKS_FOUND.ToString("000"))
-            'get_tanks_sandbox()
-            For i = 1 To 10
-                info_Label.Text = "Adding Nodes to TreeView Lists (" + i.ToString("00") + ")"
-                Dim l = node_list(i).item.Length - 2
-                ReDim Preserve node_list(i).item(l) ' remove last empty item
-                ReDim Preserve icons(i).img(l)
-                'sort the array
-                node_list(i).item = node_list(i).item.OrderByDescending(Function(c) c.node.Name).ToArray
+        'Try
+        For i = 1 To 10
+            info_Label.Text = " Creating Nodes by tier (" + i.ToString("00") + ")"
+            Application.DoEvents()
+            store_in_treeview(i, treeviews(i))
+            If i > 4 Then
+                store_in_treeview_1(i, treeviews(i))
+            End If
+            Application.DoEvents()
+        Next
+        'get_tanks_shared()
+        'add count to log
+        start_up_log.AppendLine("Total Tanks Found:" + TOTAL_TANKS_FOUND.ToString("000"))
+        'get_tanks_sandbox()
+        For i = 1 To 10
+            info_Label.Text = "Adding Nodes to TreeView Lists (" + i.ToString("00") + ")"
+            Dim l = node_list(i).item.Length - 2
+            ReDim Preserve node_list(i).item(l) ' remove last empty item
+            ReDim Preserve icons(i).img(l)
+            'sort the array
+            'node_list(i).item = node_list(i).item.OrderByDescending(Function(c) c.node.Name).ToArray
 
-                Application.DoEvents()
-                Application.DoEvents()
-                TC1.SelectedIndex = i - 1
-                Dim tn = treeviews(i)
-                For j = 0 To node_list(i).item.Length - 2
-                    icons(i).img(j) = node_list(i).item(j).icon
-                    tn.Nodes.Add(node_list(i).item(j).node)
-                Next
+            Application.DoEvents()
+            Application.DoEvents()
+            TC1.SelectedIndex = i - 1
+            Dim tn = treeviews(i)
+            'add the nodes crated to the treeviews on the form
+            tn.BeginUpdate()
+            For j = 0 To node_list(i).item.Length - 1
+                icons(i).img(j).img = node_list(i).item(j).icon
+                tn.Nodes.Add(node_list(i).item(j).node)
             Next
-        Catch ex As Exception
-            MsgBox("Something went wrong adding to the Treeviews." + ex.Message, MsgBoxStyle.Exclamation, "Opps!")
-        End Try
+
+            'tn.Visible = False
+            For k = 0 To tn.Nodes.Count - 1
+                tn.Nodes(k).Text = num_3_places(tn.Nodes(k).Text)
+                icons(i).img(k).name = num_3_places(icons(i).img(k).name)
+            Next
+            tn.Sort()
+            Array.Sort(icons(i).img)
+            For k = 0 To tn.Nodes.Count - 1
+                tn.Nodes(k).Text = back_2_places(tn.Nodes(k).Text)
+                icons(i).img(k).name = back_2_places(icons(i).img(k).name)
+            Next
+            info_Label.Text = "Sorting Nodes (" + i.ToString("00") + ")"
+            'tn.Visible = True
+            tn.EndUpdate()
+
+        Next
+        'Catch ex As Exception
+        '    MsgBox("Something went wrong adding to the Treeviews." + ex.Message, MsgBoxStyle.Exclamation, "Opps!")
+        'End Try
     End Sub
+
+    Public Function num_3_places(ByRef s As String) As String
+        Dim a = s.ToCharArray
+        Dim o(s.Length) As Char
+        Dim p As Integer = 0
+        Dim nf As Boolean = True
+        Dim c_cnt As Integer = 0
+        For i = 0 To a.Length - 1
+            o(p) = a(i)
+            If IsNumeric(a(i)) Then
+                c_cnt += 1 ' only if there are 2 digits
+            Else
+                p += 1
+            End If
+            If a(i) = "_" And nf And c_cnt = 2 Then
+                nf = False
+                o(p - 1) = "0"
+                o(i + 1) = "~"
+                o(p + 0) = a(i - 2)
+                o(p + 1) = a(i - 1)
+                p = i + 1
+                For z = p To a.Length - 1
+                    o(z + 1) = a(z)
+                Next
+                'ReDim Preserve o(a.Length)
+                Return New String(o).Trim
+            End If
+            If c_cnt = 3 Then
+                Return s.Trim
+            End If
+        Next
+        Return New String(o)
+    End Function
+    Public Function back_2_places(ByRef s As String) As String
+        If s.Contains("~") Then
+            Dim p = 0
+            Dim l = InStr(s, "~")
+            s = s.Replace("~", "_")
+            Dim a = s.ToCharArray
+            Dim o(s.Length - 2) As Char
+            o(0) = a(0)
+            If l = 6 Then
+                o(1) = a(1)
+                For i = 3 To a.Length - 1
+                    o(i - 1) = a(i)
+                Next
+                'ReDim Preserve o(a.Length - 2)
+
+                Return New String(o).Trim
+            Else
+                For i = 2 To a.Length - 1
+                    o(i - 1) = a(i)
+                Next
+                'ReDim Preserve o(a.Length - 2)
+
+                Return New String(o).Trim
+
+            End If
+
+        Else
+            Return s
+        End If
+    End Function
+
+
     '================================================================================= Store in treeview
+
+    Private Sub get_tanks_shared()
+        For Each entry As ZipEntry In packages(11)
+            If entry.FileName.Contains("collision_client/Chassis") Then
+                Dim t_name = entry.FileName
+                Dim ta = t_name.Split("/")
+                t_name = ""
+                For j = 0 To 2
+                    t_name += ta(j) + "/"
+                Next
+                Dim n As New TreeNode
+                n.Text = ta(2)
+                n.Tag = packages(11).Name + ":" + t_name
+                'need this to look up actual tanks game name in the
+                '\res\packages\scripts.pkg\scripts\item_defs\vehicles\***poland***\list.xml
+                Dim s As String = ""
+                Dim i As Integer = 0
+                Select Case ta(1)
+                    Case "american"
+                        n.Name = "usa"
+                        s = get_user_name(n.Text)
+                        i = CInt(get_tier_id(n.Text))
+                    Case "british"
+                        n.Name = "uk"
+                        s = get_user_name(n.Text)
+                        i = CInt(get_tier_id(n.Text))
+                    Case "chinese"
+                        n.Name = "china"
+                        s = get_user_name(n.Text)
+                        i = CInt(get_tier_id(n.Text))
+                    Case "czech"
+                        n.Name = "czech"
+                        s = get_user_name(n.Text)
+                        i = CInt(get_tier_id(n.Text))
+                    Case "french"
+                        n.Name = "france"
+                        s = get_user_name(n.Text)
+                        i = CInt(get_tier_id(n.Text))
+                    Case "german"
+                        n.Name = "germany"
+                        s = get_user_name(n.Text)
+                        i = CInt(get_tier_id(n.Text))
+                    Case "japan"
+                        n.Name = "japan"
+                        s = get_user_name(n.Text)
+                        i = CInt(get_tier_id(n.Text))
+                    Case "poland"
+                        n.Name = "poland"
+                        s = get_user_name(n.Text)
+                        i = CInt(get_tier_id(n.Text))
+                    Case "russian"
+                        n.Name = "ussr"
+                        s = get_user_name(n.Text)
+                        i = CInt(get_tier_id(n.Text))
+                    Case "sweden"
+                        n.Name = "sweden"
+                        s = get_user_name(n.Text)
+                        i = CInt(get_tier_id(n.Text))
+                End Select
+                If s.Length > 0 Then ' only save what actually exist
+                    TOTAL_TANKS_FOUND += 1
+                    Dim cnt As Integer = node_list(i).item.Length
+                    ReDim Preserve node_list(i).item(cnt)
+                    ReDim Preserve icons(i).img(cnt)
+
+                    cnt -= 1
+                    node_list(i).item(cnt) = New t_items_
+
+                    node_list(i).item(cnt).name = n.Text
+                    node_list(i).item(cnt).node = n
+                    node_list(i).item(cnt).package = packages(11).Name
+                    icons(i).img(cnt) = New entry_
+                    icons(i).img(cnt).img = get_tank_icon(n.Text).Clone
+                    icons(i).img(cnt).name = n.Text
+                    If icons(i).img(cnt) IsNot Nothing Then
+                        node_list(i).item(cnt).icon = icons(i).img(cnt).img.Clone
+                        node_list(i).item(cnt).icon.Tag = current_png_path
+                        'tn.Nodes.Add(n)
+                    End If
+                End If
+            End If
+        Next
+
+        Application.DoEvents()
+    End Sub
+
     Private Sub store_in_treeview(ByVal i As Integer, ByRef tn As TreeView)
         AddHandler tn.NodeMouseClick, AddressOf Me.tv_clicked
         AddHandler tn.NodeMouseHover, AddressOf Me.tv_mouse_enter
@@ -1964,9 +2146,11 @@ tryagain:
             node_list(i).item(cnt).name = t.tag
             node_list(i).item(cnt).node = n
             node_list(i).item(cnt).package = packages(i).Name
-            icons(i).img(cnt) = get_tank_icon(n.Text).Clone
+            icons(i).img(cnt) = New entry_
+            icons(i).img(cnt).img = get_tank_icon(n.Text).Clone
+            icons(i).img(cnt).name = t.tag
             If icons(i).img(cnt) IsNot Nothing Then
-                node_list(i).item(cnt).icon = icons(i).img(cnt).Clone
+                node_list(i).item(cnt).icon = icons(i).img(cnt).img.Clone
                 node_list(i).item(cnt).icon.Tag = current_png_path
                 cnt += 1
                 TOTAL_TANKS_FOUND += 1
@@ -1984,17 +2168,6 @@ tryagain:
     End Sub
 
     Private Sub store_in_treeview_1(ByVal i As Integer, ByRef tn As TreeView)
-        'AddHandler tn.NodeMouseClick, AddressOf Me.tv_clicked
-        'AddHandler tn.NodeMouseHover, AddressOf Me.tv_mouse_enter
-        'AddHandler tn.MouseLeave, AddressOf Me.tv_mouse_leave
-        'tn.BackColor = Color.DimGray
-        'tn.CheckBoxes = False
-        'tn.ItemHeight = 17
-        'tn.HotTracking = True
-        'tn.ShowRootLines = False
-        'tn.ShowLines = False
-        'tn.Margin = New Padding(0)
-        'tn.BorderStyle = BorderStyle.None
         Dim cnt As Integer = 0
         Dim fpath = My.Settings.game_path + "/res/packages/vehicles_level_" + i.ToString("00") + "-part2.pkg"
         If File.Exists(fpath) Then
@@ -2011,7 +2184,7 @@ tryagain:
         Else
             'todo
         End If
-
+        Return
         get_tank_info_by_tier(i.ToString)
         ReDim node_list(i).item(tier_list.Length)
         ReDim icons(i).img(tier_list.Length)
@@ -2047,9 +2220,11 @@ tryagain:
             node_list(i).item(cnt).name = t.tag
             node_list(i).item(cnt).node = n
             node_list(i).item(cnt).package = packages_2(i).Name
-            icons(i).img(cnt) = get_tank_icon(n.Text).Clone
+            icons(i).img(cnt) = New entry_
+            icons(i).img(cnt).img = get_tank_icon(n.Text).Clone
+            icons(i).img(cnt).name = t.tag
             If icons(i).img(cnt) IsNot Nothing Then
-                node_list(i).item(cnt).icon = icons(i).img(cnt).Clone
+                node_list(i).item(cnt).icon = icons(i).img(cnt).img.Clone
                 node_list(i).item(cnt).icon.Tag = current_png_path
                 cnt += 1
                 TOTAL_TANKS_FOUND += 1
@@ -2097,173 +2272,6 @@ tryagain:
 
 
 
-    Private Sub get_tanks_shared()
-        For Each entry As ZipEntry In packages(11)
-            If entry.FileName.Contains("collision_client/Chassis.model") Then
-                Dim t_name = entry.FileName
-                Dim ta = t_name.Split("/")
-                t_name = ""
-                For j = 0 To 2
-                    t_name += ta(j) + "/"
-                Next
-                Dim n As New TreeNode
-                n.Text = ta(2)
-                n.Tag = My.Settings.game_path + "\res\packages\shared_content_build.pkg" + ":" + t_name
-                'need this to look up actual tanks game name in the
-                '\res\packages\scripts.pkg\scripts\item_defs\vehicles\***poland***\list.xml
-                Dim s As String = ""
-                Dim i As Integer = 0
-                Select Case ta(1)
-                    Case "american"
-                        n.Name = "usa"
-                        s = get_user_name(n.Text)
-                        i = CInt(get_tier_id(n.Text))
-                    Case "british"
-                        n.Name = "uk"
-                        s = get_user_name(n.Text)
-                        i = CInt(get_tier_id(n.Text))
-                    Case "chinese"
-                        n.Name = "china"
-                        s = get_user_name(n.Text)
-                        i = CInt(get_tier_id(n.Text))
-                    Case "czech"
-                        n.Name = "czech"
-                        s = get_user_name(n.Text)
-                        i = CInt(get_tier_id(n.Text))
-                    Case "french"
-                        n.Name = "france"
-                        s = get_user_name(n.Text)
-                        i = CInt(get_tier_id(n.Text))
-                    Case "german"
-                        n.Name = "germany"
-                        s = get_user_name(n.Text)
-                        i = CInt(get_tier_id(n.Text))
-                    Case "japan"
-                        n.Name = "japan"
-                        s = get_user_name(n.Text)
-                        i = CInt(get_tier_id(n.Text))
-                    Case "poland"
-                        n.Name = "poland"
-                        s = get_user_name(n.Text)
-                        i = CInt(get_tier_id(n.Text))
-                    Case "russian"
-                        n.Name = "ussr"
-                        s = get_user_name(n.Text)
-                        i = CInt(get_tier_id(n.Text))
-                    Case "sweden"
-                        n.Name = "sweden"
-                        s = get_user_name(n.Text)
-                        i = CInt(get_tier_id(n.Text))
-                End Select
-                If s.Length > 0 Then ' only save what actually exist
-                    TOTAL_TANKS_FOUND += 1
-                    Dim cnt As Integer = node_list(i).item.Length
-                    ReDim Preserve node_list(i).item(cnt)
-                    ReDim Preserve icons(i).img(cnt)
-                    cnt -= 1
-                    node_list(i).item(cnt) = New t_items_
-                    Dim na = n.Text.Split("_")
-                    If na(0).Length = 3 Then
-                        na(0) += "99"
-                    End If
-                    node_list(i).item(cnt).name = na(0)
-                    node_list(i).item(cnt).node = n
-                    node_list(i).item(cnt).package = My.Settings.game_path + "\res\packages\shared_content.pkg"
-                    icons(i).img(cnt) = get_tank_icon(n.Text).Clone
-                    If icons(i).img(cnt) IsNot Nothing Then
-                        node_list(i).item(cnt).icon = icons(i).img(cnt).Clone
-                        node_list(i).item(cnt).icon.Tag = current_png_path
-                        'tn.Nodes.Add(n)
-                    End If
-                End If
-            End If
-        Next
-
-        Application.DoEvents()
-    End Sub
-    'Private Sub get_tanks_sandbox()
-    '    For Each entry As ZipEntry In packages(11)
-    '        If entry.FileName.Contains("normal/lod0/Chassis.model") Then
-    '            Dim t_name = entry.FileName
-    '            Dim ta = t_name.Split("/")
-    '            t_name = ""
-    '            For j = 0 To 2
-    '                t_name += ta(j) + "/"
-    '            Next
-    '            Dim n As New TreeNode
-    '            n.Text = ta(2)
-    '            n.Tag = My.Settings.game_path + "\res\packages\shared_content_sandbox.pkg" + ":" + t_name
-    '            'need this to look up actual tanks game name in the
-    '            '\res\packages\scripts.pkg\scripts\item_defs\vehicles\***poland***\list.xml
-    '            Dim s As String = ""
-    '            Dim i As Integer = 0
-    '            Select Case ta(1)
-    '                Case "american"
-    '                    n.Name = "usa"
-    '                    s = get_user_name(n.Text)
-    '                    i = CInt(get_tier_id(n.Text))
-    '                Case "british"
-    '                    n.Name = "uk"
-    '                    s = get_user_name(n.Text)
-    '                    i = CInt(get_tier_id(n.Text))
-    '                Case "chinese"
-    '                    n.Name = "china"
-    '                    s = get_user_name(n.Text)
-    '                    i = CInt(get_tier_id(n.Text))
-    '                Case "czech"
-    '                    n.Name = "czech"
-    '                    s = get_user_name(n.Text)
-    '                    i = CInt(get_tier_id(n.Text))
-    '                Case "french"
-    '                    n.Name = "france"
-    '                    s = get_user_name(n.Text)
-    '                    i = CInt(get_tier_id(n.Text))
-    '                Case "german"
-    '                    n.Name = "germany"
-    '                    s = get_user_name(n.Text)
-    '                    i = CInt(get_tier_id(n.Text))
-    '                Case "japan"
-    '                    n.Name = "japan"
-    '                    s = get_user_name(n.Text)
-    '                    i = CInt(get_tier_id(n.Text))
-    '                Case "poland"
-    '                    n.Name = "poland"
-    '                    s = get_user_name(n.Text)
-    '                    i = CInt(get_tier_id(n.Text))
-    '                Case "russian"
-    '                    n.Name = "ussr"
-    '                    s = get_user_name(n.Text)
-    '                    i = CInt(get_tier_id(n.Text))
-    '                Case "sweden"
-    '                    n.Name = "sweden"
-    '                    s = get_user_name(n.Text)
-    '                    i = CInt(get_tier_id(n.Text))
-    '            End Select
-    '            If s.Length > 0 Then ' only save what actually exist
-    '                Dim cnt As Integer = node_list(i).item.Length
-    '                ReDim Preserve node_list(i).item(cnt)
-    '                ReDim Preserve icons(i).img(cnt)
-    '                cnt -= 1
-    '                node_list(i).item(cnt) = New t_items_
-    '                Dim na = n.Text.Split("_")
-    '                If na(0).Length = 3 Then
-    '                    na(0) += "99"
-    '                End If
-    '                node_list(i).item(cnt).name = na(0)
-    '                node_list(i).item(cnt).node = n
-    '                node_list(i).item(cnt).package = My.Settings.game_path + "\res\packages\shared_content_sandbox.pkg"
-    '                icons(i).img(cnt) = get_tank_icon(n.Text).Clone
-    '                If icons(i).img(cnt) IsNot Nothing Then
-    '                    node_list(i).item(cnt).icon = icons(i).img(cnt).Clone
-    '                    node_list(i).item(cnt).icon.Tag = current_png_path
-    '                    'tn.Nodes.Add(n)
-    '                End If
-    '            End If
-    '        End If
-    '    Next
-
-    '    Application.DoEvents()
-    'End Sub
     Private Sub get_tank_info_by_tier(ByVal t As String)
         ReDim tier_list(200)
         Dim count As Integer = 0
@@ -2348,7 +2356,7 @@ tryagain:
         If e.Button = Forms.MouseButtons.Right Then
             file_name = e.Node.Tag
             iconbox.Visible = True
-            iconbox.BackgroundImage = icons(tn.Tag).img(e.Node.Index)
+            iconbox.BackgroundImage = icons(tn.Tag).img(e.Node.Index).img
             Dim s = get_shortname(e.Node)
             Dim ar = s.Split(":")
             tank_label.Text = ar(0)
@@ -2379,7 +2387,7 @@ tryagain:
         iconbox.Visible = True
         'iconbox.BringToFront()
         tn.Focus()
-        iconbox.BackgroundImage = icons(tn.Tag).img(e.Node.Index)
+        iconbox.BackgroundImage = icons(tn.Tag).img(e.Node.Index).img
         If Not MODEL_LOADED Then
             old_backgound_icon = iconbox.BackgroundImage.Clone
         End If
@@ -2775,10 +2783,10 @@ tryagain:
             Else
                 view_status_string = ": Model View "
             End If
-            If m_show_bsp2.Checked Then
-                view_status_string = ": BSP2 View "
+            'If m_show_bsp2.Checked Then
+            '    view_status_string = ": BSP2 View "
 
-            End If
+            'End If
         Else
             view_status_string = ": Nothing Loaded "
         End If
@@ -2886,7 +2894,7 @@ tryagain:
 
         Gl.glColor3fv(l_color)
         'Draw Imported FBX if it exists?
-        If FBX_LOADED And m_show_fbx.Checked And Not m_show_bsp2.Checked Then
+        If FBX_LOADED And m_show_fbx.Checked Then
             Gl.glEnable(Gl.GL_TEXTURE_2D)
             Gl.glDisable(Gl.GL_CULL_FACE)
             If wire_cb.Checked Then
@@ -2962,7 +2970,7 @@ tryagain:
             End If
         End If
         'Dont draw textures?
-        If MODEL_LOADED And Not m_load_textures.Checked And Not m_show_fbx.Checked And Not m_show_bsp2.Checked Then
+        If MODEL_LOADED And Not m_load_textures.Checked And Not m_show_fbx.Checked Then
             view_status_string += "Light Only : "
             If wire_cb.Checked Then
                 Gl.glEnable(Gl.GL_POLYGON_OFFSET_FILL)
@@ -3003,36 +3011,18 @@ tryagain:
             End If
         End If
         'draw BSP2?
-        If MODEL_LOADED And m_show_bsp2.Checked Then
-            Gl.glEnable(Gl.GL_LIGHTING)
-            Gl.glEnable(Gl.GL_POLYGON_OFFSET_FILL)
-            Gl.glPolygonMode(Gl.GL_FRONT_AND_BACK, Gl.GL_FILL)
-            For jj = 1 To object_count
-                If _object(jj).visible Then
-                    Gl.glCallList(_group(jj).bsp2_id)
-                End If
-            Next
-            Gl.glDisable(Gl.GL_POLYGON_OFFSET_FILL)
-            Gl.glPolygonMode(Gl.GL_FRONT_AND_BACK, Gl.GL_LINE)
-            Gl.glColor3f(0.1, 0.1, 0.1)
-            For jj = 1 To object_count
-                If _object(jj).visible Then
-                    Gl.glCallList(_group(jj).bsp2_id)
-                End If
-            Next
-        End If
         'draw BSP2_Tree?
-        If MODEL_LOADED And Not m_show_fbx.Checked And m_show_bsp2_tree.Checked Then
-            view_status_string += ": BSP2 Tree Visiable : "
-            For jj = 1 To object_count
-                If _object(jj).visible Then
-                    Gl.glCallList(_group(jj).bsp2_tree_id)
-                End If
-            Next
-        End If
+        'If MODEL_LOADED And Not m_show_fbx.Checked And m_show_bsp2_tree.Checked Then
+        '    view_status_string += ": BSP2 Tree Visiable : "
+        '    For jj = 1 To object_count
+        '        If _object(jj).visible Then
+        '            Gl.glCallList(_group(jj).bsp2_tree_id)
+        '        End If
+        '    Next
+        'End If
         Dim id As Integer = SELECTED_CAMO_BUTTON
         'Draw fully rendered?
-        If MODEL_LOADED And m_load_textures.Checked And Not m_show_fbx.Checked And Not m_show_bsp2.Checked And Not m_simple_lighting.Checked Then
+        If MODEL_LOADED And m_load_textures.Checked And Not m_show_fbx.Checked And Not m_simple_lighting.Checked Then
             view_status_string += "Textured : "
 
             G_Buffer.attachColor_And_blm_tex1()
@@ -3190,7 +3180,7 @@ tryagain:
         End If
         Gl.glEnable(Gl.GL_CULL_FACE)
         'simple lighting
-        If MODEL_LOADED And m_load_textures.Checked And Not m_show_fbx.Checked And Not m_show_bsp2.Checked And m_simple_lighting.Checked Then
+        If MODEL_LOADED And m_load_textures.Checked And Not m_show_fbx.Checked And m_simple_lighting.Checked Then
             view_status_string += "Simple Lighting : "
             Gl.glEnable(Gl.GL_TEXTURE_2D)
             Gl.glEnable(Gl.GL_LIGHTING)
@@ -3266,11 +3256,7 @@ tryagain:
                 Else
                     For jj = 1 To object_count
                         If _object(jj).visible Then
-                            If m_show_bsp2.Checked Then
-                                Gl.glCallList(_group(jj).bsp2_id) 'BSP2
-                            Else
-                                Gl.glCallList(_object(jj).main_display_list) 'Model
-                            End If
+                            Gl.glCallList(_object(jj).main_display_list) 'Model
                         End If
                     Next
                 End If
@@ -4570,12 +4556,19 @@ fuckit:
 #End Region
 
     Public Sub clean_house()
+        Cam_X_angle = (PI * 0.25) + PI
+        Cam_Y_angle = -PI * 0.25
+        view_radius = -10.0
         frmModelInfo.Close() ' close so it resets on load
         frmTextureViewer.Hide() ' hide.. so we dont kill settings
         frmEditVisual.Close() ' close so it resets on load
         tank_center_X = 0.0
         tank_center_Y = 0.0
         tank_center_Z = 0.0
+        look_point_x = 0
+        look_point_y = 0
+        look_point_z = 0
+
         'reset data params
         MODEL_LOADED = False
         m_pick_camo.Enabled = False
@@ -4588,7 +4581,6 @@ fuckit:
         show_textures_cb.Checked = False
         m_write_primitive.Enabled = False
         m_show_fbx.Checked = False
-        m_show_bsp2.Checked = False
 
         GLOBAL_exclusionMask = 0
         exclusionMask_sd = -1
@@ -6478,7 +6470,7 @@ make_this_tank:
                 tank_label.Text = ar(0)
                 old_tank_name = ar(0)
                 iconbox.Visible = True
-                old_backgound_icon = icons(1).img(n.Index)
+                old_backgound_icon = icons(1).img(n.Index).img
                 iconbox.BackgroundImage = old_backgound_icon
                 n.ForeColor = Color.White
             Else
@@ -6494,7 +6486,7 @@ make_this_tank:
                 tank_label.Text = ar(0)
                 old_tank_name = ar(0)
                 iconbox.Visible = True
-                old_backgound_icon = icons(2).img(n.Index)
+                old_backgound_icon = icons(2).img(n.Index).img
                 iconbox.BackgroundImage = old_backgound_icon
                 n.ForeColor = Color.White
             Else
@@ -6510,7 +6502,7 @@ make_this_tank:
                 tank_label.Text = ar(0)
                 old_tank_name = ar(0)
                 iconbox.Visible = True
-                old_backgound_icon = icons(3).img(n.Index)
+                old_backgound_icon = icons(3).img(n.Index).img
                 iconbox.BackgroundImage = old_backgound_icon
                 n.ForeColor = Color.White
             Else
@@ -6526,7 +6518,7 @@ make_this_tank:
                 tank_label.Text = ar(0)
                 old_tank_name = ar(0)
                 iconbox.Visible = True
-                old_backgound_icon = icons(4).img(n.Index)
+                old_backgound_icon = icons(4).img(n.Index).img
                 iconbox.BackgroundImage = old_backgound_icon
                 n.ForeColor = Color.White
             Else
@@ -6542,7 +6534,7 @@ make_this_tank:
                 tank_label.Text = ar(0)
                 old_tank_name = ar(0)
                 iconbox.Visible = True
-                old_backgound_icon = icons(5).img(n.Index)
+                old_backgound_icon = icons(5).img(n.Index).img
                 iconbox.BackgroundImage = old_backgound_icon
                 n.ForeColor = Color.White
             Else
@@ -6558,7 +6550,7 @@ make_this_tank:
                 tank_label.Text = ar(0)
                 old_tank_name = ar(0)
                 iconbox.Visible = True
-                old_backgound_icon = icons(6).img(n.Index)
+                old_backgound_icon = icons(6).img(n.Index).img
                 iconbox.BackgroundImage = old_backgound_icon
                 n.ForeColor = Color.White
             Else
@@ -6574,7 +6566,7 @@ make_this_tank:
                 tank_label.Text = ar(0)
                 old_tank_name = ar(0)
                 iconbox.Visible = True
-                old_backgound_icon = icons(7).img(n.Index)
+                old_backgound_icon = icons(7).img(n.Index).img
                 iconbox.BackgroundImage = old_backgound_icon
                 n.ForeColor = Color.White
             Else
@@ -6590,7 +6582,7 @@ make_this_tank:
                 tank_label.Text = ar(0)
                 old_tank_name = ar(0)
                 iconbox.Visible = True
-                old_backgound_icon = icons(8).img(n.Index)
+                old_backgound_icon = icons(8).img(n.Index).img
                 iconbox.BackgroundImage = old_backgound_icon
                 n.ForeColor = Color.White
             Else
@@ -6606,7 +6598,7 @@ make_this_tank:
                 tank_label.Text = ar(0)
                 old_tank_name = ar(0)
                 iconbox.Visible = True
-                old_backgound_icon = icons(9).img(n.Index)
+                old_backgound_icon = icons(9).img(n.Index).img
                 iconbox.BackgroundImage = old_backgound_icon
                 n.ForeColor = Color.White
             Else
@@ -6622,7 +6614,7 @@ make_this_tank:
                 tank_label.Text = ar(0)
                 old_tank_name = ar(0)
                 iconbox.Visible = True
-                old_backgound_icon = icons(10).img(n.Index)
+                old_backgound_icon = icons(10).img(n.Index).img
                 iconbox.BackgroundImage = old_backgound_icon
                 n.ForeColor = Color.White
             Else
@@ -6762,7 +6754,7 @@ make_this_tank:
             For Each n As TreeNode In TreeView1.Nodes
                 If n.Text = tank Then
                     get_tank_xml_data(n)
-                    out_string.Append(icons(1).img(n.Index).Tag.ToString + vbCrLf)
+                    out_string.Append(icons(1).img(n.Index).img.Tag.ToString + vbCrLf)
                 End If
             Next
 
@@ -6770,7 +6762,7 @@ make_this_tank:
             For Each n As TreeNode In TreeView2.Nodes
                 If n.Text = tank Then
                     get_tank_xml_data(n)
-                    out_string.Append(icons(2).img(n.Index).Tag.ToString + vbCrLf)
+                    out_string.Append(icons(2).img(n.Index).img.Tag.ToString + vbCrLf)
                 End If
             Next
 
@@ -6778,7 +6770,7 @@ make_this_tank:
             For Each n As TreeNode In TreeView3.Nodes
                 If n.Text = tank Then
                     get_tank_xml_data(n)
-                    out_string.Append(icons(3).img(n.Index).Tag.ToString + vbCrLf)
+                    out_string.Append(icons(3).img(n.Index).img.Tag.ToString + vbCrLf)
                 End If
             Next
 
@@ -6786,7 +6778,7 @@ make_this_tank:
             For Each n As TreeNode In TreeView4.Nodes
                 If n.Text = tank Then
                     get_tank_xml_data(n)
-                    out_string.Append(icons(4).img(n.Index).Tag.ToString + vbCrLf)
+                    out_string.Append(icons(4).img(n.Index).img.Tag.ToString + vbCrLf)
                 End If
             Next
 
@@ -6794,7 +6786,7 @@ make_this_tank:
             For Each n As TreeNode In TreeView5.Nodes
                 If n.Text = tank Then
                     get_tank_xml_data(n)
-                    out_string.Append(icons(5).img(n.Index).Tag.ToString + vbCrLf)
+                    out_string.Append(icons(5).img(n.Index).img.Tag.ToString + vbCrLf)
                 End If
             Next
 
@@ -6802,7 +6794,7 @@ make_this_tank:
             For Each n As TreeNode In TreeView6.Nodes
                 If n.Text = tank Then
                     get_tank_xml_data(n)
-                    out_string.Append(icons(6).img(n.Index).Tag.ToString + vbCrLf)
+                    out_string.Append(icons(6).img(n.Index).img.Tag.ToString + vbCrLf)
                 End If
             Next
 
@@ -6810,7 +6802,7 @@ make_this_tank:
             For Each n As TreeNode In TreeView7.Nodes
                 If n.Text = tank Then
                     get_tank_xml_data(n)
-                    out_string.Append(icons(7).img(n.Index).Tag.ToString + vbCrLf)
+                    out_string.Append(icons(7).img(n.Index).img.Tag.ToString + vbCrLf)
                 End If
             Next
 
@@ -6818,7 +6810,7 @@ make_this_tank:
             For Each n As TreeNode In TreeView8.Nodes
                 If n.Text = tank Then
                     get_tank_xml_data(n)
-                    out_string.Append(icons(8).img(n.Index).Tag.ToString + vbCrLf)
+                    out_string.Append(icons(8).img(n.Index).img.Tag.ToString + vbCrLf)
                 End If
             Next
 
@@ -6826,7 +6818,7 @@ make_this_tank:
             For Each n As TreeNode In TreeView9.Nodes
                 If n.Text = tank Then
                     get_tank_xml_data(n)
-                    out_string.Append(icons(9).img(n.Index).Tag.ToString + vbCrLf)
+                    out_string.Append(icons(9).img(n.Index).img.Tag.ToString + vbCrLf)
                 End If
             Next
 
@@ -6834,7 +6826,7 @@ make_this_tank:
             For Each n As TreeNode In TreeView10.Nodes
                 If n.Text = tank Then
                     get_tank_xml_data(n)
-                    out_string.Append(icons(10).img(n.Index).Tag.ToString + vbCrLf)
+                    out_string.Append(icons(10).img(n.Index).img.Tag.ToString + vbCrLf)
                 End If
             Next
 
@@ -6943,13 +6935,6 @@ make_this_tank:
         Process.Start(Application.StartupPath + "\html\MainPage.html")
     End Sub
 
-    Private Sub m_show_bsp2_CheckedChanged(sender As Object, e As EventArgs) Handles m_show_bsp2.CheckedChanged
-        If m_show_bsp2.Checked Then
-            m_show_bsp2.ForeColor = Color.Red
-        Else
-            m_show_bsp2.ForeColor = Color.Black
-        End If
-    End Sub
 
     Private Sub m_Import_FBX_Click(sender As Object, e As EventArgs) Handles m_Import_FBX.Click
         MM.Enabled = False
@@ -7074,13 +7059,13 @@ make_this_tank:
         If stop_updating Then draw_scene()
     End Sub
 
-    Private Sub m_show_bsp2_tree_CheckedChanged(sender As Object, e As EventArgs) Handles m_show_bsp2_tree.CheckedChanged
-        If m_show_bsp2_tree.Checked Then
-            m_show_bsp2_tree.ForeColor = Color.Red
-        Else
-            m_show_bsp2_tree.ForeColor = Color.Black
-        End If
-    End Sub
+    'Private Sub m_show_bsp2_tree_CheckedChanged(sender As Object, e As EventArgs)
+    '    If m_show_bsp2_tree.Checked Then
+    '        m_show_bsp2_tree.ForeColor = Color.Red
+    '    Else
+    '        m_show_bsp2_tree.ForeColor = Color.Black
+    '    End If
+    'End Sub
 
     Private Sub show_textures_cb_CheckedChanged(sender As Object, e As EventArgs) Handles show_textures_cb.CheckedChanged
         'make sure camo crap is not visible
@@ -7581,4 +7566,5 @@ make_this_tank:
             MsgBox("You have not extracted anything to res_mods for this tank", MsgBoxStyle.Exclamation, "Path not found!")
         End If
     End Sub
+
 End Class
