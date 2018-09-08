@@ -5,6 +5,11 @@
 
 #### This is an ongoing project by me.. Coffee_
 
+## Version 61:
+Created new and much better Help Pages for Tank Exporter.
+Added buttons to the Texture View window to hide/show the color channels on the texture. Cleaned up mousing between Texture View window and the rendering window.
+Added code to change the user name in texture paths when importing a FBX file. This helps with transporting FBX between friends and others working on the same FBX that is located in folder on a users desktop. The folder names must be exactly the same for this to work correctly.
+
 ## Version 60:
 Added code to sort the tank list.
 Found a bug that was removing the last tank found in each tier while creating the tank list.

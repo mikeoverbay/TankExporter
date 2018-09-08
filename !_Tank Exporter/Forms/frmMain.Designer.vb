@@ -252,12 +252,14 @@ Partial Class frmMain
         '
         Me.ToolStripSeparator8.Name = "ToolStripSeparator8"
         Me.ToolStripSeparator8.Size = New System.Drawing.Size(219, 6)
+        Me.ToolStripSeparator8.Visible = False
         '
         'm_open_temp_folder
         '
         Me.m_open_temp_folder.Name = "m_open_temp_folder"
         Me.m_open_temp_folder.Size = New System.Drawing.Size(222, 22)
         Me.m_open_temp_folder.Text = "Open Tank Folder"
+        Me.m_open_temp_folder.Visible = False
         '
         'ToolStripSeparator4
         '
@@ -313,18 +315,17 @@ Partial Class frmMain
         '
         'm_FXAA
         '
-        Me.m_FXAA.Checked = Global.Tank_Exporter.My.MySettings.Default.m_fxaa
+        Me.m_FXAA.Checked = True
         Me.m_FXAA.CheckOnClick = True
-        Me.m_FXAA.CheckState = System.Windows.Forms.CheckState.Checked
+        Me.m_FXAA.CheckState = Global.Tank_Exporter.My.MySettings.Default.FXAA_CheckedState
         Me.m_FXAA.Name = "m_FXAA"
         Me.m_FXAA.Size = New System.Drawing.Size(222, 22)
         Me.m_FXAA.Text = "FXAA Anti-Aliasing"
         '
         'm_bloom_off
         '
-        Me.m_bloom_off.Checked = Global.Tank_Exporter.My.MySettings.Default.m_bloom
         Me.m_bloom_off.CheckOnClick = True
-        Me.m_bloom_off.CheckState = System.Windows.Forms.CheckState.Checked
+        Me.m_bloom_off.CheckState = Global.Tank_Exporter.My.MySettings.Default.bloom_off_checkedState
         Me.m_bloom_off.Name = "m_bloom_off"
         Me.m_bloom_off.Size = New System.Drawing.Size(222, 22)
         Me.m_bloom_off.Text = "Bloom Off"
@@ -568,7 +569,7 @@ Partial Class frmMain
         Me.SplitContainer1.Panel2.BackColor = System.Drawing.Color.FromArgb(CType(CType(30, Byte), Integer), CType(CType(30, Byte), Integer), CType(CType(30, Byte), Integer))
         Me.SplitContainer1.Panel2.Controls.Add(Me.SplitContainer2)
         Me.SplitContainer1.Size = New System.Drawing.Size(968, 506)
-        Me.SplitContainer1.SplitterDistance = 855
+        Me.SplitContainer1.SplitterDistance = 867
         Me.SplitContainer1.SplitterWidth = 1
         Me.SplitContainer1.TabIndex = 2
         '
@@ -604,7 +605,7 @@ Partial Class frmMain
         Me.SplitContainer3.Panel2.Controls.Add(Me.font_holder)
         Me.SplitContainer3.Panel2.Controls.Add(Me.PG1)
         Me.SplitContainer3.Panel2.Controls.Add(Me.pb2)
-        Me.SplitContainer3.Size = New System.Drawing.Size(855, 483)
+        Me.SplitContainer3.Size = New System.Drawing.Size(867, 483)
         Me.SplitContainer3.SplitterDistance = 56
         Me.SplitContainer3.SplitterWidth = 1
         Me.SplitContainer3.TabIndex = 3
@@ -804,7 +805,7 @@ Partial Class frmMain
         Me.decal_panel.ForeColor = System.Drawing.Color.White
         Me.decal_panel.Location = New System.Drawing.Point(367, 54)
         Me.decal_panel.Name = "decal_panel"
-        Me.decal_panel.Size = New System.Drawing.Size(439, 382)
+        Me.decal_panel.Size = New System.Drawing.Size(463, 382)
         Me.decal_panel.TabIndex = 5
         '
         'copy_Decal_btn
@@ -1022,7 +1023,7 @@ Partial Class frmMain
         Me.d_move_down.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center
         Me.d_move_down.FlatStyle = System.Windows.Forms.FlatStyle.Popup
         Me.d_move_down.Image = Global.Tank_Exporter.My.Resources.Resources.control_270
-        Me.d_move_down.Location = New System.Drawing.Point(394, 165)
+        Me.d_move_down.Location = New System.Drawing.Point(418, 165)
         Me.d_move_down.Name = "d_move_down"
         Me.d_move_down.Size = New System.Drawing.Size(20, 20)
         Me.d_move_down.TabIndex = 5
@@ -1035,7 +1036,7 @@ Partial Class frmMain
         Me.d_move_up.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center
         Me.d_move_up.FlatStyle = System.Windows.Forms.FlatStyle.Popup
         Me.d_move_up.Image = Global.Tank_Exporter.My.Resources.Resources.control_090
-        Me.d_move_up.Location = New System.Drawing.Point(394, 145)
+        Me.d_move_up.Location = New System.Drawing.Point(418, 145)
         Me.d_move_up.Name = "d_move_up"
         Me.d_move_up.Size = New System.Drawing.Size(20, 20)
         Me.d_move_up.TabIndex = 4
@@ -1085,7 +1086,7 @@ Partial Class frmMain
         Me.d_list_tb.Multiline = True
         Me.d_list_tb.Name = "d_list_tb"
         Me.d_list_tb.ScrollBars = System.Windows.Forms.ScrollBars.Vertical
-        Me.d_list_tb.Size = New System.Drawing.Size(435, 237)
+        Me.d_list_tb.Size = New System.Drawing.Size(459, 237)
         Me.d_list_tb.TabIndex = 0
         '
         'current_decal_lable
@@ -1116,7 +1117,7 @@ Partial Class frmMain
         Me.pb1.Dock = System.Windows.Forms.DockStyle.Fill
         Me.pb1.Location = New System.Drawing.Point(0, 23)
         Me.pb1.Name = "pb1"
-        Me.pb1.Size = New System.Drawing.Size(794, 456)
+        Me.pb1.Size = New System.Drawing.Size(806, 456)
         Me.pb1.TabIndex = 0
         Me.pb1.TabStop = False
         '
@@ -1137,7 +1138,7 @@ Partial Class frmMain
         Me.PG1.Dock = System.Windows.Forms.DockStyle.Top
         Me.PG1.Location = New System.Drawing.Point(0, 0)
         Me.PG1.Name = "PG1"
-        Me.PG1.Size = New System.Drawing.Size(794, 23)
+        Me.PG1.Size = New System.Drawing.Size(806, 23)
         Me.PG1.TabIndex = 2
         Me.PG1.Visible = False
         '
@@ -1157,7 +1158,7 @@ Partial Class frmMain
         Me.info_Label.ForeColor = System.Drawing.Color.Silver
         Me.info_Label.Location = New System.Drawing.Point(0, 0)
         Me.info_Label.Name = "info_Label"
-        Me.info_Label.Size = New System.Drawing.Size(855, 23)
+        Me.info_Label.Size = New System.Drawing.Size(867, 23)
         Me.info_Label.TabIndex = 1
         Me.info_Label.Text = "Label1"
         '
@@ -1180,7 +1181,7 @@ Partial Class frmMain
         Me.SplitContainer2.Panel2.BackColor = System.Drawing.Color.FromArgb(CType(CType(30, Byte), Integer), CType(CType(30, Byte), Integer), CType(CType(30, Byte), Integer))
         Me.SplitContainer2.Panel2.Controls.Add(Me.tank_label)
         Me.SplitContainer2.Panel2.Controls.Add(Me.iconbox)
-        Me.SplitContainer2.Size = New System.Drawing.Size(112, 506)
+        Me.SplitContainer2.Size = New System.Drawing.Size(100, 506)
         Me.SplitContainer2.SplitterDistance = 480
         Me.SplitContainer2.SplitterWidth = 1
         Me.SplitContainer2.TabIndex = 1
@@ -1202,7 +1203,7 @@ Partial Class frmMain
         Me.TC1.Location = New System.Drawing.Point(0, 0)
         Me.TC1.Name = "TC1"
         Me.TC1.SelectedIndex = 0
-        Me.TC1.Size = New System.Drawing.Size(112, 480)
+        Me.TC1.Size = New System.Drawing.Size(100, 480)
         Me.TC1.SizeMode = System.Windows.Forms.TabSizeMode.Fixed
         Me.TC1.TabIndex = 0
         '
@@ -1212,7 +1213,7 @@ Partial Class frmMain
         Me.TabPage1.Location = New System.Drawing.Point(4, 25)
         Me.TabPage1.Name = "TabPage1"
         Me.TabPage1.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage1.Size = New System.Drawing.Size(104, 451)
+        Me.TabPage1.Size = New System.Drawing.Size(92, 451)
         Me.TabPage1.TabIndex = 0
         Me.TabPage1.Text = "1"
         '
@@ -1222,7 +1223,7 @@ Partial Class frmMain
         Me.TabPage2.Location = New System.Drawing.Point(4, 25)
         Me.TabPage2.Name = "TabPage2"
         Me.TabPage2.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage2.Size = New System.Drawing.Size(104, 451)
+        Me.TabPage2.Size = New System.Drawing.Size(92, 451)
         Me.TabPage2.TabIndex = 1
         Me.TabPage2.Text = "2"
         '
@@ -1232,7 +1233,7 @@ Partial Class frmMain
         Me.TabPage3.Location = New System.Drawing.Point(4, 25)
         Me.TabPage3.Name = "TabPage3"
         Me.TabPage3.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage3.Size = New System.Drawing.Size(104, 451)
+        Me.TabPage3.Size = New System.Drawing.Size(92, 451)
         Me.TabPage3.TabIndex = 2
         Me.TabPage3.Text = "3"
         '
@@ -1242,7 +1243,7 @@ Partial Class frmMain
         Me.TabPage4.Location = New System.Drawing.Point(4, 25)
         Me.TabPage4.Name = "TabPage4"
         Me.TabPage4.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage4.Size = New System.Drawing.Size(104, 451)
+        Me.TabPage4.Size = New System.Drawing.Size(92, 451)
         Me.TabPage4.TabIndex = 3
         Me.TabPage4.Text = "4"
         '
@@ -1252,7 +1253,7 @@ Partial Class frmMain
         Me.TabPage5.Location = New System.Drawing.Point(4, 25)
         Me.TabPage5.Name = "TabPage5"
         Me.TabPage5.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage5.Size = New System.Drawing.Size(104, 451)
+        Me.TabPage5.Size = New System.Drawing.Size(92, 451)
         Me.TabPage5.TabIndex = 4
         Me.TabPage5.Text = "5"
         '
@@ -1262,7 +1263,7 @@ Partial Class frmMain
         Me.TabPage6.Location = New System.Drawing.Point(4, 25)
         Me.TabPage6.Name = "TabPage6"
         Me.TabPage6.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage6.Size = New System.Drawing.Size(104, 451)
+        Me.TabPage6.Size = New System.Drawing.Size(92, 451)
         Me.TabPage6.TabIndex = 5
         Me.TabPage6.Text = "6"
         '
@@ -1272,7 +1273,7 @@ Partial Class frmMain
         Me.TabPage7.Location = New System.Drawing.Point(4, 25)
         Me.TabPage7.Name = "TabPage7"
         Me.TabPage7.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage7.Size = New System.Drawing.Size(104, 451)
+        Me.TabPage7.Size = New System.Drawing.Size(92, 451)
         Me.TabPage7.TabIndex = 6
         Me.TabPage7.Text = "7"
         '
@@ -1282,7 +1283,7 @@ Partial Class frmMain
         Me.TabPage8.Location = New System.Drawing.Point(4, 25)
         Me.TabPage8.Name = "TabPage8"
         Me.TabPage8.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage8.Size = New System.Drawing.Size(104, 451)
+        Me.TabPage8.Size = New System.Drawing.Size(92, 451)
         Me.TabPage8.TabIndex = 7
         Me.TabPage8.Text = "8"
         '
@@ -1292,7 +1293,7 @@ Partial Class frmMain
         Me.TabPage9.Location = New System.Drawing.Point(4, 25)
         Me.TabPage9.Name = "TabPage9"
         Me.TabPage9.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage9.Size = New System.Drawing.Size(104, 451)
+        Me.TabPage9.Size = New System.Drawing.Size(92, 451)
         Me.TabPage9.TabIndex = 8
         Me.TabPage9.Text = "9"
         '
@@ -1302,7 +1303,7 @@ Partial Class frmMain
         Me.TabPage10.Location = New System.Drawing.Point(4, 25)
         Me.TabPage10.Name = "TabPage10"
         Me.TabPage10.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage10.Size = New System.Drawing.Size(104, 451)
+        Me.TabPage10.Size = New System.Drawing.Size(92, 451)
         Me.TabPage10.TabIndex = 9
         Me.TabPage10.Text = "10"
         '
@@ -1325,7 +1326,7 @@ Partial Class frmMain
         Me.iconbox.Dock = System.Windows.Forms.DockStyle.Fill
         Me.iconbox.Location = New System.Drawing.Point(0, 0)
         Me.iconbox.Name = "iconbox"
-        Me.iconbox.Size = New System.Drawing.Size(112, 25)
+        Me.iconbox.Size = New System.Drawing.Size(100, 25)
         Me.iconbox.TabIndex = 2
         Me.iconbox.TabStop = False
         '

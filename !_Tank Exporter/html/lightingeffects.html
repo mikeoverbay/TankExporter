@@ -1,0 +1,45 @@
+<style type="text/css">
+<!--
+body {
+	background-image: url(Images/carbon.jpg);
+	background-repeat: repeat;
+}
+body,td,th {
+	color: #FFFFFF;
+}
+a:link {
+	color: #FFFFFF;
+}
+a:visited {
+	color: #CCCCCC;
+}
+a:hover {
+	color: #33CCFF;
+}
+a:active {
+	color: #CC6600;
+}
+.style1 {
+	font-size: 24px;
+	font-weight: bold;
+	color: #CC6600;
+}
+-->
+</style>
+<p class="style1">Information on Tank Exporters lighting model. </p>
+<p>Tank Exporter supports FXAA and Bloom. TE also renders using PBR shading (<a href="http://wiki.polycount.com/wiki/PBR" target="_blank">Physically Based Rendering</a>).<br />
+  As part of the rendering pipeline, TE also uses a cube map for shading effects. Cube maps add color and reflection.<br />
+  You can turn its visibility on under File/Settings.<br />
+  Here is an image of the Obj-261's gun showing the influence of the cube map on the colors of the steel.<br />
+    <img src="Images/cubemapreflections.jpg" alt="Cube Map" width="586" height="501" />  <br />
+There is a setting under File/Settings that can be used to put TE in a very simple rendering mode. &quot;Simple Lighting&quot;<br />
+  This can be useful if TE is crashing on your video hardware.<br />
+  Shadow mapping uses a great deal of memory and is slow on older hardware.<br />
+  If rendering times are slow, set the window to blank or grid display. The box on the left with the &quot;NO&quot; symbol. <br />
+The fully rendered terrain uses a lot of the GPU's resources.  </p>
+<hr />
+<br />
+<img src="Images/fxaa.jpg" alt="FXAA" width="660" height="562" /><br />
+<hr />
+<br />
+<img src="Images/bloom.jpg" alt="Bloom" width="616" height="704" />

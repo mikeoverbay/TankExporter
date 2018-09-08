@@ -32,6 +32,11 @@ Partial Class frmTextureViewer
         Me.ToolStripSeparator2 = New System.Windows.Forms.ToolStripSeparator()
         Me.m_save_image = New System.Windows.Forms.ToolStripButton()
         Me.ToolStripSeparator3 = New System.Windows.Forms.ToolStripSeparator()
+        Me.m_r = New System.Windows.Forms.ToolStripButton()
+        Me.m_g = New System.Windows.Forms.ToolStripButton()
+        Me.m_b = New System.Windows.Forms.ToolStripButton()
+        Me.m_a = New System.Windows.Forms.ToolStripButton()
+        Me.ToolStripSeparator4 = New System.Windows.Forms.ToolStripSeparator()
         Me.m_top_most = New System.Windows.Forms.ToolStripButton()
         Me.SaveFileDialog1 = New System.Windows.Forms.SaveFileDialog()
         Me.ToolStrip1.SuspendLayout()
@@ -40,12 +45,12 @@ Partial Class frmTextureViewer
         'ToolStrip1
         '
         Me.ToolStrip1.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden
-        Me.ToolStrip1.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.m_alpha_enabled, Me.m_show_uvs, Me.m_uvs_only, Me.ToolStripSeparator1, Me.zoom, Me.ToolStripSeparator2, Me.m_save_image, Me.ToolStripSeparator3, Me.m_top_most})
+        Me.ToolStrip1.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.m_alpha_enabled, Me.m_show_uvs, Me.m_uvs_only, Me.ToolStripSeparator1, Me.zoom, Me.ToolStripSeparator2, Me.m_save_image, Me.ToolStripSeparator3, Me.m_r, Me.m_g, Me.m_b, Me.m_a, Me.ToolStripSeparator4, Me.m_top_most})
         Me.ToolStrip1.Location = New System.Drawing.Point(0, 0)
         Me.ToolStrip1.Name = "ToolStrip1"
         Me.ToolStrip1.RenderMode = System.Windows.Forms.ToolStripRenderMode.System
         Me.ToolStrip1.ShowItemToolTips = False
-        Me.ToolStrip1.Size = New System.Drawing.Size(474, 25)
+        Me.ToolStrip1.Size = New System.Drawing.Size(568, 25)
         Me.ToolStrip1.TabIndex = 0
         Me.ToolStrip1.Text = "ToolStrip1"
         '
@@ -106,6 +111,62 @@ Partial Class frmTextureViewer
         Me.ToolStripSeparator3.Name = "ToolStripSeparator3"
         Me.ToolStripSeparator3.Size = New System.Drawing.Size(6, 25)
         '
+        'm_r
+        '
+        Me.m_r.Checked = True
+        Me.m_r.CheckOnClick = True
+        Me.m_r.CheckState = System.Windows.Forms.CheckState.Checked
+        Me.m_r.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text
+        Me.m_r.Font = New System.Drawing.Font("Segoe UI", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.m_r.ForeColor = System.Drawing.Color.Red
+        Me.m_r.ImageTransparentColor = System.Drawing.Color.Magenta
+        Me.m_r.Name = "m_r"
+        Me.m_r.Size = New System.Drawing.Size(23, 22)
+        Me.m_r.Text = "R"
+        '
+        'm_g
+        '
+        Me.m_g.Checked = True
+        Me.m_g.CheckOnClick = True
+        Me.m_g.CheckState = System.Windows.Forms.CheckState.Checked
+        Me.m_g.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text
+        Me.m_g.Font = New System.Drawing.Font("Segoe UI", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.m_g.ForeColor = System.Drawing.Color.FromArgb(CType(CType(0, Byte), Integer), CType(CType(192, Byte), Integer), CType(CType(0, Byte), Integer))
+        Me.m_g.ImageTransparentColor = System.Drawing.Color.Magenta
+        Me.m_g.Name = "m_g"
+        Me.m_g.Size = New System.Drawing.Size(23, 22)
+        Me.m_g.Text = "G"
+        '
+        'm_b
+        '
+        Me.m_b.Checked = True
+        Me.m_b.CheckOnClick = True
+        Me.m_b.CheckState = System.Windows.Forms.CheckState.Checked
+        Me.m_b.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text
+        Me.m_b.Font = New System.Drawing.Font("Segoe UI", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.m_b.ForeColor = System.Drawing.Color.Blue
+        Me.m_b.ImageTransparentColor = System.Drawing.Color.Magenta
+        Me.m_b.Name = "m_b"
+        Me.m_b.Size = New System.Drawing.Size(23, 22)
+        Me.m_b.Text = "B"
+        '
+        'm_a
+        '
+        Me.m_a.Checked = True
+        Me.m_a.CheckOnClick = True
+        Me.m_a.CheckState = System.Windows.Forms.CheckState.Checked
+        Me.m_a.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text
+        Me.m_a.Font = New System.Drawing.Font("Segoe UI", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.m_a.ImageTransparentColor = System.Drawing.Color.Magenta
+        Me.m_a.Name = "m_a"
+        Me.m_a.Size = New System.Drawing.Size(23, 22)
+        Me.m_a.Text = "A"
+        '
+        'ToolStripSeparator4
+        '
+        Me.ToolStripSeparator4.Name = "ToolStripSeparator4"
+        Me.ToolStripSeparator4.Size = New System.Drawing.Size(6, 25)
+        '
         'm_top_most
         '
         Me.m_top_most.Checked = True
@@ -130,7 +191,7 @@ Partial Class frmTextureViewer
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackgroundImage = Global.Tank_Exporter.My.Resources.Resources.gradiant
         Me.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
-        Me.ClientSize = New System.Drawing.Size(474, 462)
+        Me.ClientSize = New System.Drawing.Size(568, 462)
         Me.Controls.Add(Me.ToolStrip1)
         Me.DoubleBuffered = True
         Me.Icon = CType(resources.GetObject("$this.Icon"), System.Drawing.Icon)
@@ -154,4 +215,9 @@ Partial Class frmTextureViewer
     Friend WithEvents SaveFileDialog1 As System.Windows.Forms.SaveFileDialog
     Friend WithEvents m_uvs_only As System.Windows.Forms.ToolStripButton
     Friend WithEvents ToolStripSeparator3 As System.Windows.Forms.ToolStripSeparator
+    Friend WithEvents m_r As System.Windows.Forms.ToolStripButton
+    Friend WithEvents m_g As System.Windows.Forms.ToolStripButton
+    Friend WithEvents m_b As System.Windows.Forms.ToolStripButton
+    Friend WithEvents m_a As System.Windows.Forms.ToolStripButton
+    Friend WithEvents ToolStripSeparator4 As System.Windows.Forms.ToolStripSeparator
 End Class

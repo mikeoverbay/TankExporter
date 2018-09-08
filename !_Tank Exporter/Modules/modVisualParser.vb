@@ -218,7 +218,7 @@ Module modVisualParser
                 v_r.models(i).type = 5
                 v_r.models(i).color = vc5
                 v_r.models(i).displayId = boneMarker4
-
+                Return
         End Select
         If Not v_r.isTrack Then
             v_r.models(i).displayId = boneMarker2

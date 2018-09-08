@@ -1,0 +1,83 @@
+<style type="text/css">
+<!--
+body {
+	background-image: url(Images/carbon.jpg);
+	background-repeat: repeat;
+}
+body,td,th {
+	color: #FFFFFF;
+}
+.style1 {
+	color: #CC6600;
+	font-weight: bold;
+}
+.style2 {color: #CC6600}
+.style3 {
+	font-size: 18px;
+	font-weight: bold;
+}
+.style5 {
+	font-size: 24px;
+	color: #CC6600;
+	font-weight: bold;
+}
+a:link {
+	color: #FFFFFF;
+}
+a:visited {
+	color: #CCCCCC;
+}
+a:hover {
+	color: #66CCFF;
+}
+a:active {
+	color: #CC6600;
+}
+-->
+</style>
+<p><span class="style5">This is Tank Exporter.</span></p>
+<p> When Tank Exporter is started for the first time, It will create data from the PKG files it needs to lookup and load tank files.<br />
+  This takes a long time.. Be patient.. It's worth the wait.</p>
+<p><img src="Images/tankexportermain.jpg" alt="TE's main window" width="880" height="565" /></p>
+<p>The <span class="style2"><strong>Main Window</strong></span> is the Render Window. This is where all visualization of the tank occurs.<br />
+In the bottom of this window the current frames per second is displayed and other information.</p>
+<p>To the right is the Tank Tier lists. They are labeled by tier 1-10. Each of these tabs has a list of every tank by every nation in that tier's group.<br />
+  The tier lists shows a small icon of the tanks type.. Heavy, Medium, Light, Tank Destroyer and Arty followed by its name in the PKG files. <br />
+  The lower right window shows the tanks large icon when you mouse over one of the names on the tier lists. It also shows the name of the tank as seen in the game engine.<br />
+  If you load a tank, this window will always return to the tank that's loaded.</p>
+<p>To the left of the render window is a set of buttons that control different view settings.<br />
+  Starting at the top these are.<br />
+  1. Hide/Show the Chassis section.<br />
+  2. Hide/Show the Hull section. <br />
+  3. Hide/Show the Turret section. <br />
+  4. Hide/Show the Gun section. <br />
+5. Hide/Show the Visual Markers. <br />
+  6. Hide/Show Terrain - Blank - Grid Pattern.<br />
+  7. Hide/Show Polygon Edges. <br />
+8. Hide/Show Texture Selection Buttons. <br />
+9. Hide/Show  Vertex Colors. <br />
+</p>
+<p><span class="style3">The Main Top Menu..</span>.<br />
+  Under <span class="style1">File/Settings</span>, there are a number of settings to control what TE draws.<br />
+  <span class="style1">This is where you set the paths to the game folder (World of Tanks) and res_mods folder. The res_mods path must point to the current game version I.E. 1.0.0.1</span><br />
+You can turn on and off shadows, bloom and other rendering items.<br />
+You can set the shadow quality and  a few other things.<br />
+At the bottom of this menu are the debug settings for rendering, shadows and other tools I used while writing TE.<br />
+You can also edit the shaders though I don't recommend messing with them!<br /> 
+There are other items that will be covered in other areas of the help pages.</p>
+<p>Under <span class="style1">Export/Extract</span> there are a few important items.<br />
+  This menu item is <em>disabled</em> until a tank is loaded. <br /> 
+  Extract to res_mods folder. This item is used to create the paths and files in the res_mods folder you will work. There will be much more about this under The Process Pages.<br /> 
+  Export FBX is used to write out the loaded tank in FBX format. FBX is a widely used format for exchanging 3D model data.<br /> 
+View in res_mods folder will open explore and point it at the data in res_mods for the currently opened tank. If you have not extracted the data from the PKG files, A popup will tell let you know there is no data extracted for the loaded tank.<br /> 
+Remove Tank from res_mods. This will delete everything for the tank that resides in res_mods including the folders. DO NOT DELETE IMPORTANT WORK!</p>
+<p><span class="style1">Model Info</span> opens a window that shows the vertex count and some other information. It also shows the information for any FBX that has been imported as well.</p>
+<p><span class="style2"><strong>Camouflage</strong></span> opens the buttons on the bottom of the render window to pick different camos for the three seasons.<br />
+First.. Click season button followed by a camo pattern button. To remove a camo, click a different season button.<br />
+  There are a few bugs with this process.. There are camos that are repeated and that are not available in the game.</p>
+<p><span class="style2"><strong>Show Textures</strong></span>. This turns color mapping on and off.. While off, the tank is rendered with no texturing.</p>
+<p><span class="style2"><strong>Lighting</strong></span>. This opens up the lighting control panel. On that panel, you can set the ambient, specular and overall brightness of the lighting.</p>
+<p><span class="style2"><strong>Help</strong></span>. These help pages.</p>
+<p><span class="style2"><strong>Decal Tool</strong></span>. This opens up the decal editing tool for adding, deleting and changing the decal layout in Tank Exporter. You can save your changes and they will be loaded every time TE starts up.</p>
+<p><span class="style2"><strong><a href="donate.html" target="_blank">DONATE</a></strong></span>. Please feel free to make a contribution if you find my tools useful and fun.<br />
+</p>

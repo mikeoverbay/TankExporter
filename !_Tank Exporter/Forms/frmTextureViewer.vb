@@ -30,7 +30,13 @@ Imports System.Drawing.Imaging
 
 Public Class frmTextureViewer
     Dim center As vec2
+    Dim mask As Integer = 15
     Public Sub set_current_image()
+        m_r.Checked = True
+        m_g.Checked = True
+        m_b.Checked = True
+        m_a.Checked = True
+        mask = 15
         Dim w, h As Integer
         Dim miplevel As Integer = 0
         Gl.glEnable(Gl.GL_TEXTURE_2D)
@@ -207,6 +213,10 @@ Public Class frmTextureViewer
             Gl.glDisable(Gl.GL_BLEND)
         End If
 
+        Gl.glUseProgram(shader_list.channelMute_shader)
+        Gl.glUniform1i(chMute_texture, 0)
+        Gl.glUniform1i(chMute_channels, mask)
+
         Gl.glBindTexture(Gl.GL_TEXTURE_2D, current_image)
 
 
@@ -250,8 +260,8 @@ Public Class frmTextureViewer
         End If
         '#######################################################################################
         'reset things
-        Gl.glBindTexture(Gl.GL_TEXTURE_2D, 0)
         Gl.glUseProgram(0)
+        Gl.glBindTexture(Gl.GL_TEXTURE_2D, 0)
         Gl.glEnable(Gl.GL_DEPTH_TEST)
         Gl.glDisable(Gl.GL_BLEND)
         Gl.glDisable(Gl.GL_TEXTURE_2D)
@@ -797,5 +807,37 @@ Public Class frmTextureViewer
             m_show_uvs.Checked = False
         End If
 
+    End Sub
+
+    Private Sub m_r_CheckedChanged(sender As Object, e As EventArgs) Handles m_r.CheckedChanged
+        mask = mask Or 1
+        If Not m_r.Checked Then
+            mask = mask Xor 1
+        End If
+        draw()
+    End Sub
+
+    Private Sub m_g_CheckedChanged(sender As Object, e As EventArgs) Handles m_g.CheckedChanged
+        mask = mask Or 2
+        If Not m_g.Checked Then
+            mask = mask Xor 2
+        End If
+        draw()
+    End Sub
+
+    Private Sub m_b_CheckedChanged(sender As Object, e As EventArgs) Handles m_b.CheckedChanged
+        mask = mask Or 4
+        If Not m_b.Checked Then
+            mask = mask Xor 4
+        End If
+        draw()
+    End Sub
+
+    Private Sub m_a_CheckedChanged(sender As Object, e As EventArgs) Handles m_a.CheckedChanged
+        mask = mask Or 8
+        If Not m_a.Checked Then
+            mask = mask Xor 8
+        End If
+        draw()
     End Sub
 End Class

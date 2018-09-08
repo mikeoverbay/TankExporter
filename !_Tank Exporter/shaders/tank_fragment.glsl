@@ -23,6 +23,7 @@ uniform vec2 detailTiling;
 uniform vec4 tile_vec4;
 uniform float detailPower;
 uniform int use_camo;
+uniform int is_track;
         // used for debuging
 uniform vec4 u_ScaleFGDSpec;
 uniform vec4 u_ScaleDiffBaseMR;
@@ -313,9 +314,11 @@ vec4   cc = vec4(0.0);
             color.rgb *= AO.g;
             base.rgb  = color.rgb;
         }else{
-            if (AO.g == 0.0 ){
+            if (is_track == 1 ){
             // If we are here, we are on the track treads
-            AO = vec4(0.5,0.5,0.5,0.5);
+            // AO is stored in the tracks color channel's alpha!
+            AO = vec4(base.a);
+            color.rgb *= AO.g;
             base = color;
             }else{
             // If we land here, we are on chassis

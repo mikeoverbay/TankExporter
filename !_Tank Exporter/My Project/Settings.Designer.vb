@@ -200,25 +200,25 @@ Namespace My
         
         <Global.System.Configuration.UserScopedSettingAttribute(),  _
          Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
-         Global.System.Configuration.DefaultSettingValueAttribute("False")>  _
-        Public Property m_bloom() As Boolean
+         Global.System.Configuration.DefaultSettingValueAttribute("Unchecked")>  _
+        Public Property bloom_off_checkedState() As Global.System.Windows.Forms.CheckState
             Get
-                Return CType(Me("m_bloom"),Boolean)
+                Return CType(Me("bloom_off_checkedState"),Global.System.Windows.Forms.CheckState)
             End Get
             Set
-                Me("m_bloom") = value
+                Me("bloom_off_checkedState") = value
             End Set
         End Property
         
         <Global.System.Configuration.UserScopedSettingAttribute(),  _
          Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
-         Global.System.Configuration.DefaultSettingValueAttribute("True")>  _
-        Public Property m_fxaa() As Boolean
+         Global.System.Configuration.DefaultSettingValueAttribute("Checked")>  _
+        Public Property FXAA_CheckedState() As Global.System.Windows.Forms.CheckState
             Get
-                Return CType(Me("m_fxaa"),Boolean)
+                Return CType(Me("FXAA_CheckedState"),Global.System.Windows.Forms.CheckState)
             End Get
             Set
-                Me("m_fxaa") = value
+                Me("FXAA_CheckedState") = value
             End Set
         End Property
     End Class

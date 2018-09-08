@@ -215,6 +215,8 @@ Module ModTankLoader
         Public bb_min As vect3
         Public colorMap As String
         Public normalMap As String
+        Public is_track As Integer
+
         Public Sub find_center()
             If Me.count = 0 Then Return
             Me.x_max = -10000 : Me.x_min = 10000
@@ -1092,6 +1094,11 @@ next_m:
                 _group(jj).name = file_name + ":" + current_tank_package.ToString + ":" + jj.ToString
                 _group(jj).header = vh.header_text ' save vertex type
                 If _object(jj).name.ToLower.Contains("chassis") Then
+                    If _group(jj).color_name.ToLower.Contains("chass") Then
+                        _object(jj).is_track = 0
+                    Else
+                        _object(jj).is_track = 1
+                    End If
                     If XML_Strings(1).Length = 0 Then
                         XML_Strings(1) = TheXML_String
                     End If

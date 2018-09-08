@@ -1,0 +1,55 @@
+<style type="text/css">
+<!--
+body {
+	background-image: url(Images/carbon.jpg);
+	background-repeat: repeat;
+}
+body,td,th {
+	color: #FFFFFF;
+}
+.style1 {
+	font-size: 24px;
+	color: #CC6600;
+	font-weight: bold;
+}
+.style2 {
+	color: #CC6600;
+	font-weight: bold;
+}
+.style4 {color: #CC6600; font-weight: bold; font-size: 18px; }
+-->
+</style>
+<p class="style1">Plan Your Work.</p>
+<p>Keeping things in order is always a good idea. Working with FBX and Texture files is no different.<br />
+  TE can help with some of this work load.</p>
+<p><span class="style4">A word about folders....</span><br />
+  Decide where you will place your main work area.. The place where the FBX and Textures will be saved by TE.<br />
+  <br />
+  When Exporter imports a FBX, if it sees \Users\ in the path of a texture, it will change it to the current logged in Windows users name.<br />
+  This is so sharing files with others doesn't break texture paths.. This only works if the folders the FBX and its textures are in exactly match the original creators paths.<br /> 
+  When passing FBX files on to others to work on.. ZIP the entire folder from the desktop. This way, TE will be able to find the textures for the FBX during import.<br />
+You can always open a zip and delete files and folders you do not want to be passed on to others. </p>
+<p><span class="style4">How Tank Exporter writes information.</span><br />
+  When you export a tank as FBX, Tank Exporter creates a sub folder under the name of the tank where you exported and places every texture it finds associates with that tank in that folder.<br />
+Tank Exporter saves these files to PNGs as most 3D apps and paint programs can load them.</p>
+<p> When you Extract to the res_mods folder, the Extraction Settings panel pops up with settings for what you want to extract.<br />
+Here is that panel and what each check box does.<br />
+</p>
+<table width="100%" border="0">
+  <tr>
+    <td width="184"><img src="Images/extractpanel.jpg" alt="Extract Panel" width="183" height="335" /></td>
+    <td width="100%" valign="middle"><p>&nbsp;</p>
+    <p>The LODs group defines what models to extract.<br />
+      Normally you would only extract LOD ZERO but extracting all LODS will create the folders needed for copying the primitives from LOD0.<br />
+      Extract No Models will not extract the models, Only the Textures associated with the components you check below..</p>
+    <p>Next are the component check boxes. If you plan on only working on the Hull models and/or its textures, only check the Hull check box.<br />
+      <span class="style2">Tank Exporter CAN NOT write the Gun primitives! You can extract them and their textures but doing so is a waste of time. </span></p>
+    <p>Create Work Area will create a sub folder in the tanks res_mods path and place a few PNGs there for you to have easy access to for texture painting.</p>
+    <p>Customization.xml extracts the customization.xml from the gui.pkg file and creates the path to it in res_mods.<br />
+    This file can be used to change camo colors and other things. This is for those that truly understand the XML files in World of Tanks.</p></td>
+  </tr>
+</table>
+<p>A note about LODs.. As a tank moves away from you, the detail needed becomes less. You wont notice a reduction in polygon counts that make up the model.<br />
+  That process is where the LODs come from.. Each primitive set in each higher numbered LOD has less polygons than the previous LOD.<br />
+Once you have your tank component(s) edited to your liking, you will need to copy the primitive(s) from LOD to all the higher numbers LODS otherwise, the tank will revert to its original when the LOD changes to LOD1.</p>
+<p>&nbsp; </p>

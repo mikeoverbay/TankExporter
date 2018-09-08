@@ -1,0 +1,83 @@
+<style type="text/css">
+<!--
+body {
+	background-image: url(Images/carbon.jpg);
+	background-repeat: repeat;
+}
+body,td,th {
+	color: #FFFFFF;
+}
+.style1 {
+	font-size: 24px;
+	color: #CC6600;
+	font-weight: bold;
+}
+.style2 {
+	color: #CC6600;
+	font-weight: bold;
+	font-size: 24;
+}
+a:link {
+	color: #FFFFFF;
+}
+a:visited {
+	color: #CCCCCC;
+}
+a:hover {
+	color: #66CCFF;
+}
+a:active {
+	color: #CC6600;
+}
+-->
+</style>
+<p class="style1">Using Tank Exporters Texture View features.</p>
+<table width="100%" border="0">
+  <tr>
+    <td width="341"><p>On the left there is a button that looks like a mountain.</p></td>
+    <td width="1229"><img src="Images/texturebutton.jpg" alt="Texture Button" width="50" height="51" /></td>
+  </tr>
+</table>
+<p>  This will show the four buttons for picking the textures of each tank section.<br />
+  Clicking on one of the section buttons will show the textures associated with that tanks section.<br />
+  <img src="Images/texturesections.jpg" alt="Associated Textures" width="259" height="114" /><br />
+  The order of these textures is:<br />
+  AM, AO, GMM and ANM .<br />
+  Albedo Map, Ambient Occlusion, Gloss Metal Map, Albedo Normal Map.<br />
+  Track sections do not have an AO map. AO levels are stored in the AM maps alpha channel instead. <br />
+  Clicking on one of the texture buttons opens that texture in the Texture View Window.</p>
+<table width="100%" border="0">
+  <tr>
+    <td width="586"><img src="Images/textureviewwindow.jpg" alt="Texture View Window" width="586" height="501" /></td>
+    <td width="100%" valign="top"><p>&nbsp;</p>
+    <p>The top menu has a number of buttons that control how the texture looks in the window.<br />
+      You can turn the Alpha channel display mode on. This uses the textures alpha if it exists to show the transparency.<br />
+      You can show the UVS or JUST the UVs (Texture map coordinates).<br />
+      You can also save the image as  a PNG to use as a mask during texture painting operations.<br />
+      You can turn on and off different color channels.<br />
+      If R,G and B are off, Alpha is shown as gray scale, lighter being less transparent.<br />
+    Top Most keeps the window on top of all other windows. </p>
+    <p>Mousing over the tank or in the window while Show UVS or UVs Only is on will show the triangle in the texture window OR on the tank model its self.<br />
+      If while mousing over the tank and no triangle is tracked in the TV window, you are mousing over a part of the tank that is not using the currently selected texture.</p>
+    <p>Here is a basic list of what colors do what in each texture.</p>
+    <p><span class="style2">_AM:</span><br />
+      RGB color of the tank. Alpha is only used in Track textures. It contains the AO levels. <br />
+      <span class="style2">_AO:</span><br />
+        R is specular level. It is unused in PBR shading. 
+        G is the ambient occlusion. B some times has values but I'm unsure what they are.. Alpha is the Camouflage mask.<br />
+        <span class="style2">_GMM:</span><br />
+        R is roughness.. G is metalness, B is the Paint Mask. Alpha is unused. Information about GMM maps is located <a href="http://forum.worldoftanks.eu/index.php?/topic/524031-tutorialnew-gmm-value-range-since-099-and-its-effect-on-metallic-detail-map/" target="_blank">HERE.</a> <br />
+        <span class="style2">_ANM:</span><br />
+        R is used for Alpha. 
+      G and A contain X and Y normal values. B is unused. </p>
+    <p> <br />
+        <br />
+    </p></td>
+  </tr>
+</table>
+<p><br />
+  <br />
+  Here is a GIF showing how mousing over polygons on the tank show in the Texture View Window. <br />
+  This also works the other way... mousing over triangles in the TV window will show them as red polygons on the tank in the main window.<br />
+  In the upper left corner, the vertex color and weights are displayed. R,G,B,A values.. Weights are NEVER exported with the FBX as there is no way to do this so far. Hull has no vertex colors or weights. <br />
+  <img src="Images/uvpicking.gif" alt="UV Picking" width="1278" height="717" /></p>

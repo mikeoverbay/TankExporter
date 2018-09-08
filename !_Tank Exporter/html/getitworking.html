@@ -1,0 +1,82 @@
+<style type="text/css">
+<!--
+body {
+	background-image: url(Images/carbon.jpg);
+	background-repeat: repeat;
+}
+body,td,th {
+	color: #FFFFFF;
+}
+.style1 {
+	font-size: 24px;
+	color: #CC6600;
+	font-weight: bold;
+}
+.style2 {color: #CC6600}
+.style3 {
+	font-size: 16px;
+	font-weight: bold;
+	color: #CC6600;
+}
+-->
+</style>
+<p class="style1">Step one. Get it all working!</p>
+<p>Before you dive into creating the worlds greatest tank remodel, lets make sure everything is working.</p>
+<p>The first thing we need to do is...<br />
+  Load a tank from the right menu. Find a tank and right click it and than &quot;Load This...&quot;<br />
+Once the tank loads, play around with the different view settings.. Textures on/off.. Show Edges.. <br />
+Hide parts of the tank.. Changing the back ground.<br />
+Check out the Texture viewing and UV mapping display features. Play with the Camouflage if you wish. <br />
+Practice moving around in the render window.<br />
+Get used to navigating and placing the view cross hair on areas of the tank you want to zoom up on.</p>
+<p><span class="style3">Step 1.<br />
+</span>Lets export our first FBX file.<br />
+  Go to the menu and select Export/Extract and than Export FBX.</p>
+<p><em>Do not get Export and Extract confused. Export creates a FBX file.<br />
+  Extract 'Extracts&quot; data from the PKG files and places it in the res_mods where the game can load it from.</em></p>
+<p>A window will popup asking where you want to export your FBX.</p>
+<table width="100%" border="0">
+  <tr>
+    <td width="218"><img src="Images/fbxpanel.jpg" alt="FBX Panel" width="219" height="279" /></td>
+    <td width="100%"><p>After you pick where to save and click OK. The FBX Xporter panel will pop up<br />
+      If you have issues with Textures being backwards, you can flip either U, V or both.</p>
+      <p>Export Textures does what it says. It will create s sub folder to write the textures there under the tanks name.<br />
+      Tank Exporter converts from DDS to PNG while saving the textures with the FBX. </p>
+      <p>Create Binary writes a much smaller but non-human readable file. </p></td>
+  </tr>
+</table>
+<p>  <span class="style3">Step 2.</span><br />
+  Load up your 3D editing/creation software and import the FBX.<br />
+  Export the FBX from that 3D app and saving it under a NEW NAME. I usually just add _Max to the end. (I use 3DS Max)</p>
+<p><span class="style3">Step 3.</span> <br />
+  Import the new FBX in to Tank Exporter.. ( File/Settings --&gt; Import FBX)</p>
+<p>Tank Exporter will read the FBX and also load the tank from the PKG files.<br />
+The reason TE also loads the tank from the PGKs is so data can be compared to the FBX and find changes.<br />
+Also.. the Track part of the Chassis and Visual files are needed to write the prmitive file(s).</p>
+<table width="100%" border="0">
+  <tr>
+    <td width="359"><img src="Images/ask_extract.jpg" alt="Need to Extract?" width="359" height="193" /></td>
+    <td width="100%">If this window pops up while inporting a FBX, it simply means that no data exists in the res_mods for the tank you imported.<br />
+      In order for Tank Exporter to save primitive files, it needs the folder structure. Also, the game needs a place to load from too.<br />
+      If you have NOT set the path to res_mods, you will get a message telling you.<br />
+      Click Yes... The Extract widow will popup and you can decide what to extract from there.<br />
+      See the Folders and Paths section. <br />
+      <span class="style2">DO NOT FORGET TO UPDATE THE res_mods PATH IN TE WHEN THE GAME IS UPDATED!</span></td>
+  </tr>
+</table>
+<p><span class="style3">Step 4.</span> <br />
+  Once the tank is loaded, flip the view between View Model and View FBX.<br />
+  What you are looking for is a difference in the size of the imported FBX and the tank read from the PKG files.<br />
+  THEY MUST BE THE SAME SIZE!<br />
+  If there is a difference in the size of the two models, you have a scaling issue with your 3D app.<br />
+  In 3DS Max you can set this under the top menu item &quot;Customize --&gt; Units Setup..&quot;<br />
+  A window will open.. On the top of that window, select &quot;System Unit Setup&quot;.<br />
+Set the System Unit Scale to 1 Unit = 1.0 Centimeters and click OK. Max will save this until you change it again.<br />
+Clean the scene and re-import the ORIGINAL FBX exported from Tank Exporter. Export the tank with the new scale setting go back to Step 4.<br />
+I can not stress enough how important it is to make sure the scaling is not being changed by your 3D application! <br />
+<br />
+If you can export a tank.. import it in your 3D app... export it from there as FBX and import it in to Tank Exporter as FBX with not scale problems,,,<br />
+CONGRATULATIONS! 
+You have completed the first step in setting up to work with FBX in Tank Exporter and your 3D software!<br />
+Now lets do some simple editing of a tank! <br />
+</p>

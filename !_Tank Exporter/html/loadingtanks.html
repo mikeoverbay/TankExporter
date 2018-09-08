@@ -1,0 +1,54 @@
+<style type="text/css">
+<!--
+body {
+	background-image: url(Images/carbon.jpg);
+	background-repeat: repeat;
+}
+body,td,th {
+	color: #FFFFFF;
+}
+.style2 {
+	color: #CC6600;
+	font-size: 24px;
+	font-weight: bold;
+}
+.style3 {color: #CC6600}
+.style4 {color: #66CCFF}
+-->
+</style>
+<p><span class="style2">Loading a tank.</span></p>
+<p>This is done by right clicking on a tank in the tier list to the right of the render window.<br />
+  A small context window will open with 2 options.. Load This.. and Reload Textures.<br />
+  <span class="style2">NOTE:</span><span class="style3"><span class="style4"> If Tank Exporter finds a tank in res_mods, it will load the tank from that location and NOT the PKG files.<br />
+  This includes any textures, visual and primitive files. </span></span><span class="style3"><span class="style4">TE does this to preview any geometry or texture changes. </span><br />
+  Never export FBX from a tank loaded from the res_mods unless you have NEVER changed the chassis!<br />
+  Because of the way Tank Exporter modifies the Chassis.visual_processed file, it loses the changes to the Marker locations.<br />
+  Re-exporting a previously modified chassis primitive will break the FBX.
+  </span><br />
+</p>
+<table width="100%" border="0">
+  <tr>
+    <td width="287"><img src="Images/contextmenu.jpg" alt="Context Menu" width="287" height="188" /></td>
+    <td width="1100%" valign="top"><p align="left"><br />
+      Click Load This.. to load a tank in to Tank Exporter.<br />
+      Tank exporter will find and loaded every thing it can find that belongs to this tank.<br />
+      After this search, a panel will open with a list of items it found for the tank.</p>
+      <p align="left">You can also Reload Textures.<br />
+        This is handy if you are painting the DDS files and want to preview them in TE <br />
+        </p></td>
+  </tr>
+</table>
+<p>&nbsp;</p>
+<table width="100%" border="0">
+  <tr>
+    <td width="217"><img src="Images/components.jpg" alt="components" width="217" height="421" /></td>
+    <td width="100%" valign="top"><p align="left"><br />
+    There may or may not be multiple items for the Turret and Gun depending on what tank it is. </p>
+      <p align="left">Select the items you wish to load and Click Continue.<br />
+      Tank Exporter will load the geometry and textures for the different components of the tank.</p>
+      <p align="left"><span class="style3">The labeling of components does not mean they are the top level ones in a research tree.<br />
+      Gun_01 is not necessarily better than Gun_02. </span><br />
+        <br />
+      </p></td>
+  </tr>
+</table>

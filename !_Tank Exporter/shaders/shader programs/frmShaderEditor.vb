@@ -53,17 +53,17 @@ Public Class frmShaderEditor
         'stop opengl so the FCTBs work correctly!
         stop_updating = True
         'disable use of things that we dont have to have to edit shaders!
-        If frmMain.m_pick_camo.Checked Then
-            frmMain.m_pick_camo.PerformClick()
-            frmMain.m_pick_camo.Enabled = False
-        End If
-        If frmMain.show_textures_cb.Checked Then
-            frmMain.show_textures_cb.Checked = False
-            If frmTextureViewer.Visible Then
-                frmTextureViewer.Close()
-            End If
-        End If
-        frmMain.show_textures_cb.Enabled = False
+        'If frmMain.m_pick_camo.Checked Then
+        '    frmMain.m_pick_camo.PerformClick()
+        '    frmMain.m_pick_camo.Enabled = False
+        'End If
+        'If frmMain.show_textures_cb.Checked Then
+        '    frmMain.show_textures_cb.Checked = False
+        '    If frmTextureViewer.Visible Then
+        '        frmTextureViewer.Close()
+        '    End If
+        'End If
+        'frmMain.show_textures_cb.Enabled = False
         vert_tb.AcceptsTab = True
         geo_tb.AcceptsTab = True
         frag_tb.AcceptsTab = True

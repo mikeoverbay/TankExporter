@@ -24,6 +24,7 @@ Module shader_loader
         Public dome_shader As Integer
         Public bloom_shader As Integer
         Public colorMult_shader As Integer
+        Public channelMute_shader As Integer
     End Class
 
 #Region "variables"
@@ -324,7 +325,7 @@ Module shader_loader
     Public tank_use_CM, tank_Camera As Integer
     Public tank_ambient, tank_specular, tank_total, tank_cubeMap, tank_LUT, tank_shadowMap As Integer
     Public tank_a_group, tank_b_group, tank_lightMatrix, tank_use_shadow As Integer
-    Public tank_colorEnable As Integer
+    Public tank_colorEnable, tank_is_Track As Integer
     Private Sub set_tank_shader_variables()
         tank_a_group = Gl.glGetUniformLocation(shader_list.tank_shader, "u_ScaleFGDSpec")
         tank_b_group = Gl.glGetUniformLocation(shader_list.tank_shader, "u_ScaleDiffBaseMR")
@@ -358,6 +359,7 @@ Module shader_loader
         tank_lightMatrix = Gl.glGetUniformLocation(shader_list.tank_shader, "shadowProjection")
         tank_use_shadow = Gl.glGetUniformLocation(shader_list.tank_shader, "use_shadow")
         tank_colorEnable = Gl.glGetUniformLocation(shader_list.tank_shader, "enableVertexColor")
+        tank_is_Track = Gl.glGetUniformLocation(shader_list.tank_shader, "is_track")
 
     End Sub
 
@@ -527,6 +529,13 @@ Module shader_loader
         colorMult_color2 = Gl.glGetUniformLocation(shader_list.colorMult_shader, "color2")
     End Sub
 
+    Public chMute_channels, chMute_texture As Integer
+    '==============================================================================================================
+    Public Sub set_channelMute_variables()
+        chMute_channels = Gl.glGetUniformLocation(shader_list.channelMute_shader, "mask")
+        chMute_texture = Gl.glGetUniformLocation(shader_list.channelMute_shader, "colorMap")
+    End Sub
+
     Public Sub set_shader_variables()
         set_tank_shader_variables()
         set_normal_shader_variables()
@@ -545,6 +554,7 @@ Module shader_loader
         set_dome_variables()
         set_bloom_variables()
         set_colorMult_variables()
+        set_channelMute_variables()
         Return
     End Sub
     '==============================================================================================================

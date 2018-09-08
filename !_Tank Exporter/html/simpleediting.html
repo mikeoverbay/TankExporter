@@ -1,0 +1,125 @@
+<style type="text/css">
+<!--
+body {
+	background-image: url(Images/carbon.jpg);
+	background-repeat: repeat;
+}
+body,td,th {
+	color: #FFFFFF;
+}
+.style1 {
+	font-size: 24px;
+	color: #CC6600;
+	font-weight: bold;
+}
+a:link {
+	color: #FFFFFF;
+}
+a:visited {
+	color: #CCCCCC;
+}
+a:hover {
+	color: #66CCFF;
+}
+a:active {
+	color: #CC6600;
+}
+.style2 {color: #CC6600}
+.style4 {
+	color: #CC6600;
+	font-size: 18px;
+	font-weight: bold;
+}
+-->
+</style>
+<p class="style1">Lets Change Something!</p>
+<p>Now that you know you can export and import a tank in to Tank Export and the scaling is correct, it's time to do some editing.</p>
+<ul>
+  <p>Knowing now how to create a FBX and load it in your 3D app.. DO IT!<br />
+    Do some simple editing just to get used to a few concepts.<br />
+    Here is a list of key things you should know.<br />
+  1. The names of each item is VERY important. DO NOT CHANGE THEM! it will break importing the FBX in Tank Exporter.<br />
+    2. The helper entries that all the visual markers are layered in to.,, DO NOT CHANGE ANY OF THIS! you can hide anything you want.<br />
+    3. You can add lights to the scene. Tank Export ignores these but this is not tested with any app but 3DS Max!<br />
+    4. Adding models that are not associated with a tank component will make writing a primitive impossible unless they contain &quot;clone&quot; in their name.<br />
+    5. To associate added geometry to a tank component, add that tank components name to its name. &quot;hull_new_object&quot; for example.<br />
+    6. UV COORDINATES can mess things up bad! Every vertex must have a UV assigned to it.<br />
+    7. Cleaning up of dead vertices and UVs is critical. The game will crash if there are more UVs than is expected!<br />
+    Cleaning up has to be done so often, <a href="http://forum.worldoftanks.com/index.php?/user/jldragon-1001893248/">JLdragon</a> has got his hands on a script for Max that does this in one click. The script and instructions are at the bottom of this page.<br />
+  8. Vertex Colors control the Chassis and Guns deform in the game. Messing them up can cause unexpected results. There will be more on this in a different process page. <br />
+  9. Make sure you set the FBX exporter to write TRIANGLES if you created quads or changing things to quads!<br />
+  <br />
+  So.. With the model loaded in Max, deleted something off the tanks Hull.. Maybe removes all the fender sheet metal polygons.<br />
+  After you have deleted some things and BEFORE you export the FBX, you must clean up the dead vertices left in the model.<br />
+  If you don't want to mess with adding a script and button.. these are the steps needed.<br />
+  1. Add a Unwrap UVW to the stack. You can get to this under Modifiers on the top menu in Max.<br />
+  2. Add 2 Vertex Paint Modifiers. Set one of them so the Channel is Vertex Alpha.<br />
+  3. Right Click in the 
+  modifier stack panel and than Collapse all.<br />
+  After you have cleaned the dead vertices, you can export the FBX.<br />
+  <span class="style4">Hint:</span> Under Tools on the top menu in Max, there is one called 
+  &quot;Channel Info...&quot; That tool shows a list of vertices, uvs and other information about the selected object. </p>
+  <p>Import the FBX in to Tank Exporter. You should see a window popup and close very fast.. This is TE updating the check boxes of what it thinks needs to be written to the primitive file. <br />
+  On the File/Settings menu, select Write Primitive.<br />
+    A window will pop up that looks like this:<br />
+</p>
+  <table width="100%" border="0">
+    <tr>
+      <td width="286" valign="middle" bordercolor="#999999"><img src="Images/writepriitive.jpg" alt="Write Primitives" width="281" height="237" /></td>
+      <td width="100%" align="left" valign="top"><p>That girl is Kate Upton. One of the best looking super models there is.<br />
+        You might know here from the <a href="https://www.google.com/url?sa=i&amp;rct=j&amp;q=&amp;esrc=s&amp;source=images&amp;cd=&amp;cad=rja&amp;uact=8&amp;ved=2ahUKEwj7zt-RpandAhXIm-AKHTlnCp0QjB16BAgBEAQ&amp;url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DuHskC7JRL9M&amp;psig=AOvVaw2ES0uMI35IMfxzVkIlivJQ&amp;ust=1536423350072885" target="_blank">Game Of War</a> adds on TV.</p>
+        <p>If TE found a difference between the data in the FBX and the PKG files, the check box for that component will be checked.<br />
+        You can always check any box you want but don't write or extract things to the res_mods that have not changed. Doing so wastes time loading the game.</p>
+        <p>Flipping the <a href="https://cmichel.io/understanding-front-faces-winding-order-and-normals" target="_blank">Vertex Winding Orde</a>r causes the vertices to be saved in the opposite winding order. <br />
+        You can hide the tracks on the chassis by checking that box. Note that this works on most but NOT all tanks do to locations of texture files.</p>
+        <p>Click the Write File(s) under Upton's lovely left breast once you are ready.<br />
+          If you are offended by the image of Upton..  Stay away from children! <br /> 
+         </p></td>
+    </tr>
+  </table>
+  <p><br/>
+    You might get the pop up about extracting if you didn't do it when asked before.. That's fine.. do it now.<br />
+    Also.. you can extract to res_mods any time after loading a tank. Be aware that TE will NOT overwrite an existing primitive or texture file.<br />
+    <span class="style2">Writing primitive file(s) DOES over write the existing file(s) </span>Extracting does not! <br />
+    If you want to clear the folder and write fresh unchanged tank data, use the &quot;Remove Tank From res_mods&quot; menu item.<br />
+    You will need to re-extract that tank to res_mods again before being able to write out a primitive. <br />
+    Be careful! TE doesn't care about your files when it deletes them.. If you have important work there on textures, BACK THEM UP SOME WHERE SAFE!<br />
+  I have done my best to prevent Tank Exporter from destroying work you may have preformed on textures. Use &quot;Remove Tank From res_mods&quot; at your own risk! </p>
+  <p>Once you have written the primitive to the res_mods folder, load up the game and check out your newly edited tank.<br />
+    If the game crashes, chances are you forgot to clean the dead vertices of one of the parts OR, you have a model that has bad UV mapping.<br />
+    These pages are not to teach you how to do UV mapping or edit them. It would take a book full of pages to explain all of it.<br />
+  There is plenty of videos and tutorials on the internet that can help you learn UV mapping and other aspects of model editing.<br />
+  Getting a good working knowledge of how editing works in Max or any other 3D program is essential to being successful at modding tanks! </p>
+</ul>
+<table width="100%" border="1">
+  <tr>
+    <td width="300"><div>
+      <pre><ol><li>sel = selection as array</li><li></li><li>max modify mode</li><li></li><li>for obj in sel do </li><li>(</li><li></li><li>	mod_unwrap = Unwrap_UVW ()</li><li></li><li>	mod_vColor = VertexPaint ()</li><li></li><li>	mod_vAlpha = VertexPaint ()</li><li>	mod_vAlpha.mapChannel = -2</li><li></li><li>	addmodifier obj mod_unwrap</li><li>	addmodifier obj mod_vColor</li><li>	addmodifier obj mod_vAlpha</li><li></li><li>	collapsestack obj</li><li>	--update obj</li><li>)</li></ol>
+    </pre>
+    </div>
+      <div>
+    <br /></td>
+    <td width="81%" valign="top"><ol><br />
+        <span class="style4">Adding The Clean Up Script to Max 2017. </span><br/>
+      <li>First copy all in the text to the left. Drag your mouse over it with left button down and press CTRL + C </li>
+      <li>Open 3DS Max.</li>
+      <li>In the Bottom Left text box, pink one / white one.</li>
+      <li>Right click White text box, select Open Editor window.</li>
+      <li>Paste (Control V to paste the script text). <span class="style2">Leave window open</span>.</li>
+      <li>File &gt; Save as. whatever you want. File type should default to .mcr</li>
+      <li>KEEP Editor window open.</li>
+      <li>Go to Customize on Main menu bar. Select customize Menu.</li>
+      <li>Clink on Toolbar Tab. Select New.</li>
+      <li>Give name. Hit OK</li>
+      <li>A small toolbar box should appear on screen. By default should be in middle of the main 3d view window. might have to move the editor window to find it.</li>
+      <li>Now select all of the macro's text. mouse drag it to the new small toolbar window.. in the Black area of it.. you will get a small text looking ICON.</li>
+      <li>Right click that Icon. Choose Edit button appearance.</li>
+      <li>Choose Text button for now. Give it a name.</li>
+      <li>Click the OK button. just hitting enter does no good.</li>
+      <li>Close Editor and Customize ONLY.. now move that newly created button anywhere you like.</li>
+      <li>Congratulations!!  You just made a custom Macro button!</li>
+    </ol>
+    </td>
+  </tr>
+</table>
+<p>&nbsp;</p>

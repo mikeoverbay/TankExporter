@@ -74,7 +74,9 @@ Module modFBX
         Console.Write(vbCrLf)
 
     End Sub
+    Public Sub purge_fbx()
 
+    End Sub
 
 
     Public Sub import_FBX()
@@ -122,7 +124,7 @@ Module modFBX
         Dim importOptions = Skill.FbxSDK.IO.FbxStreamOptionsFbxReader.Create(pManager, "")
         Dim importer As Skill.FbxSDK.IO.FbxImporter = Skill.FbxSDK.IO.FbxImporter.Create(pManager, "")
 
-        importer.FileFormat = fileformat    ' ascii only for now
+        importer.FileFormat = fileformat    ' get file format
         Dim imp_status As Boolean = importer.Initialize(filename)
         If Not imp_status Then
             MsgBox("Failed to open " + frmMain.OpenFileDialog1.FileName, MsgBoxStyle.Exclamation, "FBX Load Error...")
@@ -168,7 +170,10 @@ Module modFBX
         LOADING_FBX = True ' so we dont read from the res_Mods folder
         For i = 1 To rootnode.GetChildCount
             childnode = rootnode.GetChild(i - 1)
-
+            Dim nCnt = childnode.GetChildCount
+            If nCnt = 0 Then
+                'Stop
+            End If
             mesh = childnode.Mesh
             If mesh IsNot Nothing Then
                 If Not childnode.Name.ToLower.Contains("clone") Then
@@ -826,6 +831,9 @@ outahere:
         '##############################################
         'get sizes
         Dim polycnt As UInt32 = mesh.PolygonCount
+        Dim uvlayer1 As FbxLayerElementUV = mesh.GetLayer(0).GetUVs
+        Dim uvCount As UInt32 = uvlayer1.IndexArray.Count / 3
+        'If uvCount <> polycnt Then polycnt = uvCount
         Dim nVertices = mesh.Normals.Count
         ReDim Preserve fbxgrp(i).vertices(nVertices)
         ReDim Preserve fbxgrp(i).indicies(polycnt)
@@ -834,7 +842,6 @@ outahere:
         fbxgrp(i).startIndex_ = start_index : start_index += polycnt * 3
         fbxgrp(i).startVertex_ = start_vertex : start_vertex += nVertices * 40
         '###############################################
-        Dim uvlayer1 As FbxLayerElementUV = mesh.GetLayer(0).GetUVs
         Dim colorLayer1 As FbxLayerElementVertexColor = mesh.GetLayer(0).VertexColors
         Dim index_mode = uvlayer1.Reference_Mode
         Dim eNormals As FbxLayerElementNormal = mesh.GetLayer(0).Normals
@@ -859,9 +866,9 @@ outahere:
         cnt = 0
         ' get indices
         For j = 0 To polycnt - 1
-            fbxgrp(i).indicies(j).v1 = mesh.GetPolygonVertex(j, 0)
-            fbxgrp(i).indicies(j).v2 = mesh.GetPolygonVertex(j, 1)
-            fbxgrp(i).indicies(j).v3 = mesh.GetPolygonVertex(j, 2)
+            fbxgrp(i).indicies(j).v1 = Abs(mesh.GetPolygonVertex(j, 0))
+            fbxgrp(i).indicies(j).v2 = Abs(mesh.GetPolygonVertex(j, 1))
+            fbxgrp(i).indicies(j).v3 = Abs(mesh.GetPolygonVertex(j, 2))
             If fbxgrp(i).indicies(j).v1 > cnt Then cnt = fbxgrp(i).indicies(j).v1
             If fbxgrp(i).indicies(j).v2 > cnt Then cnt = fbxgrp(i).indicies(j).v2
             If fbxgrp(i).indicies(j).v3 > cnt Then cnt = fbxgrp(i).indicies(j).v3
@@ -925,9 +932,9 @@ outahere:
 
                         Dim cp = mesh.GetControlPointAt(j)
                         Dim mapMode = colorLayer1.Mapping_Mode
-                        Dim v1 = mesh.GetPolygonVertex(j, 0)
-                        Dim v2 = mesh.GetPolygonVertex(j, 1)
-                        Dim v3 = mesh.GetPolygonVertex(j, 2)
+                        Dim v1 = Abs(mesh.GetPolygonVertex(j, 0))
+                        Dim v2 = Abs(mesh.GetPolygonVertex(j, 1))
+                        Dim v3 = Abs(mesh.GetPolygonVertex(j, 2))
 
                         color1 = colorLayer1.DirectArray(pnt)
                         color2 = colorLayer1.DirectArray(pnt + 1)
@@ -961,9 +968,9 @@ outahere:
             Application.DoEvents()
 
 
-            Dim v1 = mesh.GetPolygonVertex(j, 0)
-            Dim v2 = mesh.GetPolygonVertex(j, 1)
-            Dim v3 = mesh.GetPolygonVertex(j, 2)
+            Dim v1 = Abs(mesh.GetPolygonVertex(j, 0))
+            Dim v2 = Abs(mesh.GetPolygonVertex(j, 1))
+            Dim v3 = Abs(mesh.GetPolygonVertex(j, 2))
             Dim vt1 = mesh.GetControlPointAt(v1) 'verts
             Dim vt2 = mesh.GetControlPointAt(v2)
             Dim vt3 = mesh.GetControlPointAt(v3)

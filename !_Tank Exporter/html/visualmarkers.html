@@ -1,0 +1,61 @@
+<style type="text/css">
+<!--
+body {
+	background-image: url(Images/carbon.jpg);
+	background-repeat: repeat;
+}
+body,td,th {
+	color: #FFFFFF;
+}
+.style1 {color: #CC6600}
+.style2 {
+	font-size: 24px;
+	color: #CC6600;
+	font-weight: bold;
+}
+-->
+</style>
+<p><span class="style2">Visual Markers and how they are used.</span><br />
+  <br />
+When you load a tank, Tank Exporter reads the visual files and gathers information such as textures and transforms.<br />
+Along with this information, TE grabs the locations of the Blendbones from the chassis.visual_processed file.<br />
+Inside the chassis visual file there is a stack of information about deforming.<br />
+This is the Chassis_RShape stack from a typical Chassis.visual_processed file. </p>
+<p>  <span class="style1">&lt;node&gt;WD_R0_BlendBone&lt;/node&gt;<br />
+  &lt;node&gt;WD_R1_BlendBone&lt;/node&gt;<br />
+  &lt;node&gt;WD_R2_BlendBone&lt;/node&gt;<br />
+  &lt;node&gt;WD_R3_BlendBone&lt;/node&gt;<br />
+  &lt;node&gt;WD_R4_BlendBone&lt;/node&gt;<br />
+  &lt;node&gt;W_R5_BlendBone&lt;/node&gt;<br />
+  &lt;node&gt;W_R4_BlendBone&lt;/node&gt;<br />
+  &lt;node&gt;W_R3_BlendBone&lt;/node&gt;<br />
+  &lt;node&gt;W_R2_BlendBone&lt;/node&gt;<br />
+  &lt;node&gt;W_R1_BlendBone&lt;/node&gt;<br />
+  &lt;node&gt;W_R0_BlendBone&lt;/node&gt;<br />
+  &lt;node&gt;V_BlendBone&lt;/node&gt;<br />
+  &lt;node&gt;Track_R2_BlendBone&lt;/node&gt;<br />
+  &lt;node&gt;Track_R3_BlendBone&lt;/node&gt;<br />
+  &lt;node&gt;Track_R4_BlendBone&lt;/node&gt;<br />
+  &lt;node&gt;Track_R5_BlendBone&lt;/node&gt;<br />
+  &lt;node&gt;Track_R0_BlendBone&lt;/node&gt;<br />
+  &lt;node&gt;Track_R1_BlendBone&lt;/node&gt;<br />
+  &lt;node&gt;Tank_BlendBone&lt;/node&gt;</span><br /> 
+  <br />
+  These locations are shown on the screen by Color Coded Visual Markers.<br />
+  There are 5 different types.<br />
+  Blue colored markers are Track_ locations with in the Track Section of the visual file.<br />
+  All other markers are from the Chassis sections in the visual file. <br />
+  White markers have the same locations as in the Track_ markers but are in the chassis blendbone stack.<br />
+  Red markers are WD_ wheel locations that never move with the terrain.<br />
+  Green makers are the W_ wheel locations of wheels that move/deflect with the terrain.<br />
+  The Yellow Ball is the V_Blendbone location.<br />
+  The Fuchsia colored is the Tank_BlendBone location. Not all stacks have a tank_Blendbone location.</p>
+<p>These markers are exported with the FBX and can be used to modify the location of the wheels in 3DS Max or similar program.<br />
+  Moving a green marker will cause the wheel associated with it to move as well. There is no need to move a wheel. You can scale them or edit their meshes.<br />
+  You can delete entire wheels and their markers and the game loads the tanks correctly.<br />
+One thing that is critical is the UVs.. There will be a lot more information about this in &quot;The Process&quot; pages.</p>
+<p> Here are a couple of images with the Gun, Turret and Hull hidden so you can see the markers more clearly.<br />
+  <img src="Images/markerstracks.jpg" alt="Markers Tracks" width="566" height="388" /></p>
+<p><img src="Images/markersnotracks.jpg" alt="Markers no tracks" width="566" height="388" /><br /> 
+  <br />
+</p>

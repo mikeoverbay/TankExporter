@@ -39,6 +39,23 @@ Module modTextures
         'frmMain.gl_stop = True
 
         Dim ext = Path.GetExtension(name)
+        Dim username = Environment.UserName
+        If name.Contains("Users") Then
+            Dim a = name.Split("\")
+            Dim os As String = ""
+            For i = 0 To a.Length - 1
+                If a(i).Contains("Users") Then
+                    a(i + 1) = username
+                    Exit For
+                End If
+            Next
+            For i = 0 To a.Length - 2
+                os += a(i) + "\"
+            Next
+            os += a(a.Length - 1)
+            name = os
+        End If
+
         Dim id As Integer = -1
         If ext.ToLower.Contains(".png") Then
             id = load_png_file(name)
@@ -95,6 +112,9 @@ Module modTextures
     Public Sub save_fbx_texture(ByVal id As Integer, ByVal save_path As String)
         If id = -1 Then Return
         frmMain.info_Label.Text = "Exporting : " + save_path + ".png"
+        If File.Exists(save_path + ".png") Then ' stop saving exiting FBX textures.. It crashes 3DS Max
+            Return
+        End If
         frmMain.pb2.Visible = False
         frmMain.pb2.Location = New Point(0, 0)
         frmMain.pb2.BringToFront()
@@ -360,23 +380,26 @@ Module modTextures
                 Dim ar = TANK_NAME.Split(":")
                 Dim name As String = Path.GetFileName(ar(0))
                 FBX_Texture_path = Path.GetDirectoryName(My.Settings.fbx_path) + "\" + name
-                'create directory for the textures
-                If Not IO.Directory.Exists(FBX_Texture_path) Then
-                    System.IO.Directory.CreateDirectory(FBX_Texture_path)
-                End If
-                Dim abs_name = Path.GetFileNameWithoutExtension(file_path)
-                'we have to save to a temp file.. from devil.. open and lock a new file with the correct name...
-                'save the data from the temp file in to it and finally close the new file....
-                'ALL BECAUSE 3DS MAX Crashes if its using one of PNGs... SUCH BS! Its the file change monitoring.
-                'It tries to load the image as soon as we change it and that makes it corupt!
-                Dim save_path As String = Path.GetDirectoryName(My.Settings.fbx_path)
-                Il.ilSave(Il.IL_PNG, FBX_Texture_path + "\" + abs_name + ".png" + "_temp") ' save to temp
-                Dim ta = File.ReadAllBytes(FBX_Texture_path + "\" + abs_name + ".png" + "_temp") 'read temp to an arry
-                Dim hnd = File.Open(FBX_Texture_path + "\" + abs_name + ".png", FileMode.OpenOrCreate, FileAccess.Write, FileShare.None) ' open and lock a new file
-                hnd.Write(ta, 0, ta.Length) ' save the temp array
-                hnd.Close() ' close the file
-                If File.Exists(FBX_Texture_path + "\" + abs_name + ".png" + "_temp") Then ' delete the temp file
-                    File.Delete(FBX_Texture_path + "\" + abs_name + ".png" + "_temp")
+                If Not File.Exists(FBX_Texture_path) Then
+
+                    'create directory for the textures
+                    If Not IO.Directory.Exists(FBX_Texture_path) Then
+                        System.IO.Directory.CreateDirectory(FBX_Texture_path)
+                    End If
+                    Dim abs_name = Path.GetFileNameWithoutExtension(file_path)
+                    'we have to save to a temp file.. from devil.. open and lock a new file with the correct name...
+                    'save the data from the temp file in to it and finally close the new file....
+                    'ALL BECAUSE 3DS MAX Crashes if its using one of PNGs... SUCH BS! Its the file change monitoring.
+                    'It tries to load the image as soon as we change it and that makes it corupt!
+                    Dim save_path As String = Path.GetDirectoryName(My.Settings.fbx_path)
+                    Il.ilSave(Il.IL_PNG, FBX_Texture_path + "\" + abs_name + ".png" + "_temp") ' save to temp
+                    Dim ta = File.ReadAllBytes(FBX_Texture_path + "\" + abs_name + ".png" + "_temp") 'read temp to an arry
+                    Dim hnd = File.Open(FBX_Texture_path + "\" + abs_name + ".png", FileMode.OpenOrCreate, FileAccess.Write, FileShare.None) ' open and lock a new file
+                    hnd.Write(ta, 0, ta.Length) ' save the temp array
+                    hnd.Close() ' close the file
+                    If File.Exists(FBX_Texture_path + "\" + abs_name + ".png" + "_temp") Then ' delete the temp file
+                        File.Delete(FBX_Texture_path + "\" + abs_name + ".png" + "_temp")
+                    End If
                 End If
             End If
 

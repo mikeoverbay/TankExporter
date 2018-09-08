@@ -179,9 +179,9 @@ Module modShadow
 
 
         Dim lx, ly, lz As Single
-        lx = 0.0!
-        ly = 1.0!
-        lz = 0.0!
+        lx = tank_center_X
+        ly = tank_center_Y
+        lz = tank_center_Z
         Dim cx, cy, cz As Single
         Select Case selected_light
 
@@ -363,7 +363,7 @@ Module modShadow
         'adjust bluring based on shadow map size
         Select Case shadowMapSize
             Case 4096
-                qual = 1
+                qual = 0
             Case 2048
                 qual = 4
             Case 1024
