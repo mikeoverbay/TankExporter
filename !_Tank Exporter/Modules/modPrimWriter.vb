@@ -526,7 +526,7 @@ found_it:
                     If Not check_visual_matrix(xmlArray, fbx_boneGroups(j).node_list(i), j, i) Then
                         visual_changed = True
                     End If
-        Next
+                Next
 
             End If
         Next
@@ -879,7 +879,7 @@ found_section:
         Next
         Dim r As FileStream = Nothing
         obj_cnt = m_groups(ID).cnt
-        try
+        Try
 
             r = New FileStream(My.Settings.res_mods_path + "\" + m_groups(ID).f_name(0), FileMode.Create, FileAccess.Write)
         Catch e As Exception
@@ -1066,7 +1066,7 @@ noBSP_anymore:
 
 
             '------------------------
-          
+
             Dim inst_start As Integer = 0
             Dim pgrp As Integer = 0
             For pos = 0 To m_groups(ID).cnt
@@ -1121,17 +1121,17 @@ noBSP_anymore:
 
                 Try ' this will change shortly
                     Dim new_s As String = fbxgrp(fbx_id).normal_name
-                    primObj = primObj.Replace("NORMAL_NAME", new_s)
+                    primObj = primObj.Replace("NORMAL_NAME", move_convert_new_textures(new_s))
                 Catch ex As Exception
                 End Try
                 Try
                     Dim new_s As String = fbxgrp(fbx_id).color_name
-                    primObj = primObj.Replace("COLOR_NAME", new_s) ' update diffuse texture name
+                    primObj = primObj.Replace("COLOR_NAME", move_convert_new_textures(new_s)) ' update diffuse texture name
                 Catch ex As Exception
                 End Try
                 Try
                     Dim new_s As String = fbxgrp(fbx_id).specular_name
-                    primObj = primObj.Replace("SPECULAR_NAME", new_s) ' update diffuse texture name
+                    primObj = primObj.Replace("SPECULAR_NAME", move_convert_new_textures(new_s)) ' update diffuse texture name
                 Catch ex As Exception
                 End Try
                 Try
@@ -1163,6 +1163,35 @@ noBSP_anymore:
         File.WriteAllText(My.Settings.res_mods_path + "\" + fn, f)
 
     End Sub
+
+    Private Function move_convert_new_textures(ByVal path As String) As String
+        Dim new_path As String = ""
+        Dim r_path = My.Settings.res_mods_path
+        Dim res_path As String = My.Settings.res_mods_path + "\"
+        Dim a = m_groups(1).f_name(0).Split("\normal")
+        Dim p = a(0)
+        Dim status As Boolean
+        Try
+
+            Dim id = Il.ilGenImage
+            Il.ilBindImage(id)
+            Il.ilLoadImage(path)
+            new_path = IO.Path.GetFileNameWithoutExtension(path)
+            new_path = p + "\" + new_path + ".DDS"
+            Ilu.iluBuildMipmaps()
+            status = Il.ilSave(Il.IL_DDS, res_path + new_path)
+            Il.ilBindImage(0)
+            Il.ilDeleteImage(id)
+            If Not status Then
+                MsgBox("Could not write " + res_path + new_path, MsgBoxStyle.Exclamation, "Oh No!!")
+                Return path
+            End If
+        Catch ex As Exception
+            MsgBox("Could not write " + res_path + new_path, MsgBoxStyle.Exclamation, "Oh No!!")
+            Return path
+        End Try
+        Return new_path.Replace("\", "/")
+    End Function
 
     Private Sub write_vertex_data(ByVal id As Integer)
         Dim j As Integer
@@ -1441,5 +1470,5 @@ noBSP_anymore:
 
 
     End Sub
- 
+
 End Module

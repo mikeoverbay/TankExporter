@@ -5,6 +5,10 @@
 
 #### This is an ongoing project by me.. Coffee_
 
+# Version 63:
+Tank Exporter will now copy and convert the textures of new models that have been added to the Turret or Tank components.
+Updated Help pages with this new information.
+
 ## Version 62:
 After trying a few things to hide the tracks, I think I finally have the solution. In sniper mode, the tracks would show up again even with the ANM map cleared out.
 Now.... If you check the Hide Tracks box, Tank Exporter will replaced the primitive(s) for the 'REAL' track segments with a primitive that has only 8 vertices and all the data for each is zeroed out.

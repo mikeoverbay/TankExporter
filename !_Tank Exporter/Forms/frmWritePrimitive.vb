@@ -42,28 +42,28 @@ Public Class frmWritePrimitive
             p = IO.Path.GetDirectoryName(p)
             If Directory.Exists(p) Then
                 'Return
-            Dim d = New DirectoryInfo(p)
-            Dim di = d.GetFiles
-            For Each n In di
-                If n.Name.Contains(".prim") Or n.Name.Contains(".visu") Then
-                    'we are going to loop for 1 to 4, rename the path, create the directry
-                    'if it doesn't exist and copy the file to it.
-                    For num = 1 To 4
+                Dim d = New DirectoryInfo(p)
+                Dim di = d.GetFiles
+                For Each n In di
+                    If n.Name.Contains(".prim") Or n.Name.Contains(".visu") Then
+                        'we are going to loop for 1 to 4, rename the path, create the directry
+                        'if it doesn't exist and copy the file to it.
+                        For num = 1 To 4
                             Dim np = n.FullName.ToLower.Replace("lod0", "lod" + num.ToString)
-                        If Not Directory.Exists(IO.Path.GetDirectoryName(np)) Then 'if not exist, create it!
-                            Directory.CreateDirectory(IO.Path.GetDirectoryName(np))
-                        End If
-                        If File.Exists(np) Then ' If file exist, delete it!
-                            File.Delete(np)
-                        End If
-                        File.Copy(n.FullName, np) 'Copy the file.. Visual or Primitives
-                    Next
+                            If Not Directory.Exists(IO.Path.GetDirectoryName(np)) Then 'if not exist, create it!
+                                Directory.CreateDirectory(IO.Path.GetDirectoryName(np))
+                            End If
+                            If File.Exists(np) Then ' If file exist, delete it!
+                                File.Delete(np)
+                            End If
+                            File.Copy(n.FullName, np) 'Copy the file.. Visual or Primitives
+                        Next
 
 
-                End If
-            Next
+                    End If
+                Next
 
-        End If
+            End If
         End If
         frmMain.Focus()
         Me.Hide()

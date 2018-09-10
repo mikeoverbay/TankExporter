@@ -93,45 +93,48 @@ We imported a dice.. cloned a copy, translated and scaled them.. set up their ma
   Next.. Import the new _Max FBX in to Tank Exporter.<br />
   During the import of the FBX, Tank Exporter will figure out that you added something to the turret. In this case, 2 new dice models.<br />
   If you set up the materials correctly, you will see them in the render window like this:<br />
-  <img src="Images/tedicenow.jpg" alt="New Dice!" width="474" height="288" />  <br />
-  Now the not so fun part...<br />
+<img src="Images/tedicenow.jpg" alt="New Dice!" width="474" height="288" />  </p>
+<p><span class="style2">As of version 63 of Tank Exporter, the texture files of added models will be converted to DDS, Mip-Maps are created and the new DDS is saved in the res_mods with the other textures for the imported tank.<br />
+  If for what ever reason, this fails.... You can manually do this using the instructions below.
+  </span><br />
+  And now the not so fun part...<br />
   You need to copy the textures for the dice you applied (the color and normal) to the tanks root folder with the other textures that are there.<br />
   You can delete all the other .DDS files. We are not doing any texture editing in this tutorial.<br />
   If you have not <a href="https://github.com/mikeoverbay/Swizzler" target="_blank">downloaded Swizzler</a>, get it NOW! You will need it for this next step.<br />
   Start Swizzler and load one of the .jpg dice images.. We are going to convert them to .DDS<br />
   Go to the top menu and select File--&gt; Open Image.<br />
   In the Load Image window, at the bottom right, change the file type to PNG.<br />
-  Navigate to the res-mods folder where the  A0_T1_Cunningham is located and load one of the dice PNGs.<br /> 
+  Navigate to the res-mods folder where the  A0_T1_Cunningham is located and load one of the dice PNGs.<br />
   Go to File --&gt; Save. A window will pop up..<br />
   Select DDS and check Create MipMaps. There is a question mark that will bring up a help window that describes how we need to save files in DDS for the game when clicked.<br />
   Click it. 
   If you can't see the help window, close the window using the Task Bar  in Windows (right click--&gt; Close), cancel the Save window is Swizzler and Click on Top Most on menu. Click File --&gt; Save again.<br />
   When the saving window opens again.. click on the Blue Question mark icon.<br />
-That window that pops up will tell you that color maps are type BC1. Close the Help window.<br />
-Because we have no HD maps (though you could create them) we are going to write the DDS with MipMaps.. HD maps have no MipMaps.<br />
+  That window that pops up will tell you that color maps are type BC1. Close the Help window.<br />
+  Because we have no HD maps (though you could create them) we are going to write the DDS with MipMaps.. HD maps have no MipMaps.<br />
   So.. at this point, BC1 is checked, Save as DDS is checked and Create MipMaps is checked.. Go ahead and click Save.<br />
   A window will open and should be pointing to the same place we loaded the PNG from. You wont see any PNGs as the filter is set to DDS in the save window.<br />
   You don't need to rename the file.. Just click Save at the bottom.<br />
-Do this for the normal map as well.. only, <span class="style4">check BC3 as the type before saving</span>. This is because normal maps are in BC3 DDS format in the game engine.<br />
-Next we are going to edit the Visual_processed file for the Turret.<br />
-If you have not <a href="https://github.com/mikeoverbay/XML_Editor" target="_blank">downloaded XML Editor</a>.. get it NOW!<br />
-After you install it, it should associate .xml files to open using Xml_Editor. If not, associate it manually.<br />
-You can also just start XML_Editor, click the Open File icon and navigate to the folder where the xml is located and open it.<br />
-Under the tanks name, got to normal--&gt; LOD0 and open the turret visual.. If you have more than one turret visual, look for the one with the current date.<br />
-Once you open it, scroll to the bottom and look for the entries for the Dice.<br />
-They should look something like this:<br /> 
-<img src="Images/xmldiceedit.jpg" alt="XML Editing" width="1145" height="621" /><br />
+  Do this for the normal map as well.. only, <span class="style4">check BC3 as the type before saving</span>. This is because normal maps are in BC3 DDS format in the game engine.<br />
+  Next we are going to edit the Visual_processed file for the Turret.<br />
+  If you have not <a href="https://github.com/mikeoverbay/XML_Editor" target="_blank">downloaded XML Editor</a>.. get it NOW!<br />
+  After you install it, it should associate .xml files to open using Xml_Editor. If not, associate it manually.<br />
+  You can also just start XML_Editor, click the Open File icon and navigate to the folder where the xml is located and open it.<br />
+  Under the tanks name, got to normal--&gt; LOD0 and open the turret visual.. If you have more than one turret visual, look for the one with the current date.<br />
+  Once you open it, scroll to the bottom and look for the entries for the Dice.<br />
+  They should look something like this:<br /> 
+  <img src="Images/xmldiceedit.jpg" alt="XML Editing" width="1145" height="621" /><br />
   <br />
-What you what to do is change the path and replace the .png with .dds<br />
-Change the path to match the other textures.. (Copy / Paste).<br />
-After your edits, it should look like this:<br /> 
+  What you what to do is change the path and replace the .png with .dds<br />
+  Change the path to match the other textures.. (Copy / Paste).<br />
+  After your edits, it should look like this:<br /> 
   <br /> 
   <img src="Images/Postxmldiceedit.jpg" alt="After XML Editing" width="1145" height="621" /><br /> 
   <br />
-Save the Visual.. File ---&gt; Save ---&gt; Save ---&gt; Yes <br />
-At this point.. the only thing left is to load the game and see if your work, works :)<br />
-And it does!<br />
-<img src="Images/diceingame.jpg" alt="Dice in Game" width="505" height="359" /><br />
+  Save the Visual.. File ---&gt; Save ---&gt; Save ---&gt; Yes <br />
+  At this point.. the only thing left is to load the game and see if your work, works :)<br />
+  And it does!<br />
+  <img src="Images/diceingame.jpg" alt="Dice in Game" width="505" height="359" /><br />
   You need to reload World of Tanks after adding anything to res_mods. The game only scans that folder at start up!<br />
   <br />
   Hope this all worked out. If not, try again.. Its rather east once you get used to it. <br />
