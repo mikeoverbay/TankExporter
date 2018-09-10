@@ -21,6 +21,8 @@ Public Class frmWritePrimitive
             End If
 
         End If
+
+        Dim wrote_something = cew_cb.Checked Or hew_cb.Checked Or tew_cb.Checked
         If cew_cb.Checked Then
             write_chassis_primitives(1)
         End If
@@ -33,6 +35,35 @@ Public Class frmWritePrimitive
         End If
         If hide_tracks_cb.Checked Then
             hide_tracks()
+        End If
+        If wrote_something And copy_lods_cb.Checked Then 'only if told to write to LODs
+            Dim path = My.Settings.res_mods_path
+            Dim p = path + "\" + m_groups(1).f_name(0)
+            p = IO.Path.GetDirectoryName(p)
+            If Directory.Exists(p) Then
+                'Return
+            Dim d = New DirectoryInfo(p)
+            Dim di = d.GetFiles
+            For Each n In di
+                If n.Name.Contains(".prim") Or n.Name.Contains(".visu") Then
+                    'we are going to loop for 1 to 4, rename the path, create the directry
+                    'if it doesn't exist and copy the file to it.
+                    For num = 1 To 4
+                            Dim np = n.FullName.ToLower.Replace("lod0", "lod" + num.ToString)
+                        If Not Directory.Exists(IO.Path.GetDirectoryName(np)) Then 'if not exist, create it!
+                            Directory.CreateDirectory(IO.Path.GetDirectoryName(np))
+                        End If
+                        If File.Exists(np) Then ' If file exist, delete it!
+                            File.Delete(np)
+                        End If
+                        File.Copy(n.FullName, np) 'Copy the file.. Visual or Primitives
+                    Next
+
+
+                End If
+            Next
+
+        End If
         End If
         frmMain.Focus()
         Me.Hide()

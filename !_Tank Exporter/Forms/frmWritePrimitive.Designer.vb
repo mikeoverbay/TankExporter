@@ -32,6 +32,7 @@ Partial Class frmWritePrimitive
         Me.SaveFileDialog1 = New System.Windows.Forms.SaveFileDialog()
         Me.flipWindingOrder_cb = New System.Windows.Forms.CheckBox()
         Me.hide_tracks_cb = New System.Windows.Forms.CheckBox()
+        Me.copy_lods_cb = New System.Windows.Forms.CheckBox()
         Me.SuspendLayout()
         '
         'Label1
@@ -102,7 +103,7 @@ Partial Class frmWritePrimitive
         'Button1
         '
         Me.Button1.ForeColor = System.Drawing.Color.Black
-        Me.Button1.Location = New System.Drawing.Point(178, 169)
+        Me.Button1.Location = New System.Drawing.Point(180, 189)
         Me.Button1.Name = "Button1"
         Me.Button1.Size = New System.Drawing.Size(75, 23)
         Me.Button1.TabIndex = 5
@@ -135,6 +136,21 @@ Partial Class frmWritePrimitive
         Me.hide_tracks_cb.Text = "Hide Tracks on Chassis"
         Me.hide_tracks_cb.UseVisualStyleBackColor = False
         '
+        'copy_lods_cb
+        '
+        Me.copy_lods_cb.AutoSize = True
+        Me.copy_lods_cb.BackColor = System.Drawing.Color.Transparent
+        Me.copy_lods_cb.Checked = True
+        Me.copy_lods_cb.CheckState = System.Windows.Forms.CheckState.Checked
+        Me.copy_lods_cb.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.copy_lods_cb.ForeColor = System.Drawing.Color.White
+        Me.copy_lods_cb.Location = New System.Drawing.Point(15, 195)
+        Me.copy_lods_cb.Name = "copy_lods_cb"
+        Me.copy_lods_cb.Size = New System.Drawing.Size(126, 17)
+        Me.copy_lods_cb.TabIndex = 8
+        Me.copy_lods_cb.Text = "Copy to LODs 1-4"
+        Me.copy_lods_cb.UseVisualStyleBackColor = False
+        '
         'frmWritePrimitive
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -142,7 +158,8 @@ Partial Class frmWritePrimitive
         Me.BackColor = System.Drawing.Color.FromArgb(CType(CType(30, Byte), Integer), CType(CType(30, Byte), Integer), CType(CType(30, Byte), Integer))
         Me.BackgroundImage = Global.Tank_Exporter.My.Resources.Resources.upton
         Me.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None
-        Me.ClientSize = New System.Drawing.Size(256, 194)
+        Me.ClientSize = New System.Drawing.Size(256, 214)
+        Me.Controls.Add(Me.copy_lods_cb)
         Me.Controls.Add(Me.hide_tracks_cb)
         Me.Controls.Add(Me.flipWindingOrder_cb)
         Me.Controls.Add(Me.Button1)
@@ -170,4 +187,5 @@ Partial Class frmWritePrimitive
     Friend WithEvents SaveFileDialog1 As System.Windows.Forms.SaveFileDialog
     Friend WithEvents flipWindingOrder_cb As System.Windows.Forms.CheckBox
     Friend WithEvents hide_tracks_cb As System.Windows.Forms.CheckBox
+    Friend WithEvents copy_lods_cb As System.Windows.Forms.CheckBox
 End Class

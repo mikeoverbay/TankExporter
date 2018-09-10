@@ -26,61 +26,75 @@ Module modPrimWriter
         Dim path = My.Settings.res_mods_path
         Dim a = m_groups(1).f_name(0).ToLower.Split("normal")
         Dim p = path + "\" + a(0) + "track\"
-        Dim d As New DirectoryInfo(p)
-        Dim di = d.GetFiles
-        For Each n In di
-            If n.Name.Contains("_ANM.") Then
-                path = n.FullName
-                GoTo found_it
-            End If
-        Next
-        MsgBox("I didn't find the ANM file under the track folder!", MsgBoxStyle.Exclamation, "Well Shit!")
-        Return
+        If Directory.Exists(p) Then 'make sure the directory exist!
+            Dim d As New DirectoryInfo(p)
+            Dim di = d.GetFiles
+            'We are going to replace the existing segments with the blank one.
+            Dim segment = File.ReadAllBytes(Application.StartupPath + "\resources\primitive\segment.blank")
+            For Each n In di
+                If n.Name.Contains("primitives_pr") Then
+                    File.WriteAllBytes(n.FullName, segment)
+                End If
+            Next
+            ReDim segment(0) 'clean up 
+            GC.Collect()
+            For Each n In di
+                If n.Name.Contains("_ANM.") Then
+                    path = n.FullName
+                    GoTo found_it
+                End If
+            Next
+            MsgBox("I didn't find the ANM file under the track folder!", MsgBoxStyle.Exclamation, "Well Shit!")
+            Return
 found_it:
-        Dim sr_file = Application.StartupPath + "\resources\blank_dds.dds"
-        File.Delete(path)
-        File.Copy(sr_file, path)
-        Try
-            path = path.ToLower.Replace("anm.dds", "ANM_hd.dds")
+            Dim sr_file = Application.StartupPath + "\resources\blank_dds.dds"
             File.Delete(path)
             File.Copy(sr_file, path)
-        Catch ex As Exception
+            Try
+                path = path.ToLower.Replace("anm.dds", "ANM_hd.dds")
+                File.Delete(path)
+                File.Copy(sr_file, path)
+            Catch ex As Exception
 
-        End Try
+            End Try
 
-        For Each n In di
-            If n.Name.Contains(".visual_processed") Then
-                path = n.FullName
-                Dim ok = get_xml_in_resmods(path)
-                If ok Then
+            For Each n In di
+                If n.Name.Contains(".visual_processed") Then
+                    path = n.FullName
+                    Dim ok = get_xml_in_resmods(path)
+                    If ok Then
 
-                    Dim s = TheXML_String.Replace(vbCrLf, vbLf)
-                    s = s.Replace("  ", "")
-                    Dim ar = s.Split(vbLf)
-                    For i = 0 To ar.Length - 1
-                        If ar(i).ToLower.Contains("alphatestenable") Then
-                            ar(i) = ar(i).Replace("false", "true")
-                        End If
-                        If ar(i).ToLower.Contains("alphareference") Then
-                            ar(i) = ar(i).Replace("0", "192")
-                        End If
-                    Next
-                    Dim out_file As String = ar(0)
-                    For i = 1 To ar.Length - 1
-                        out_file += vbLf
-                        out_file += ar(i)
-                    Next
-                    For i = 0 To 100
-                        out_file = out_file.Replace("<primitiveGroup>" + vbLf + "<PG_ID>" + i.ToString + "</PG_ID>", "<primitiveGroup>" + i.ToString)
-                    Next
-                    s = ""
+                        Dim s = TheXML_String.Replace(vbCrLf, vbLf)
+                        s = s.Replace("  ", "")
+                        Dim ar = s.Split(vbLf)
+                        For i = 0 To ar.Length - 1
+                            If ar(i).ToLower.Contains("alphatestenable") Then
+                                ar(i) = ar(i).Replace("false", "true")
+                            End If
+                            If ar(i).ToLower.Contains("alphareference") Then
+                                ar(i) = ar(i).Replace("0", "192")
+                            End If
+                        Next
+                        Dim out_file As String = ar(0)
+                        For i = 1 To ar.Length - 1
+                            out_file += vbLf
+                            out_file += ar(i)
+                        Next
+                        For i = 0 To 100
+                            out_file = out_file.Replace("<primitiveGroup>" + vbLf + "<PG_ID>" + i.ToString + "</PG_ID>", "<primitiveGroup>" + i.ToString)
+                        Next
+                        s = ""
 
-                    out_file = out_file.Replace("SceneRoot", "Scene Root")
-                    out_file = out_file.Replace("map_", IO.Path.GetFileName(path))
-                    File.WriteAllText(path, out_file)
-                End If 'ok
-            End If
-        Next
+                        out_file = out_file.Replace("SceneRoot", "Scene Root")
+                        out_file = out_file.Replace("map_", IO.Path.GetFileName(path))
+                        File.WriteAllText(path, out_file)
+                    End If 'ok
+                End If
+            Next
+        Else
+            MsgBox("You need to extract the files before writing!", MsgBoxStyle.Exclamation, "Well Shit!")
+        End If
+
         GC.Collect()
     End Sub
     Private Function get_xml_in_resmods(ByVal path As String) As Boolean
@@ -236,9 +250,15 @@ found_it:
                     'write primitive count
                     br.Write(_group(pnt_id).nVertices_)
                     For i = 0 To _group(pnt_id).nVertices_ - 1
-                        br.Write(_group(pnt_id).vertices(i).x)
-                        br.Write(_group(pnt_id).vertices(i).y)
-                        br.Write(_group(pnt_id).vertices(i).z)
+                        If frmWritePrimitive.hide_tracks_cb.Checked Then
+                            br.Write(0.0!)
+                            br.Write(0.0!)
+                            br.Write(0.0!)
+                        Else
+                            br.Write(_group(pnt_id).vertices(i).x)
+                            br.Write(_group(pnt_id).vertices(i).y)
+                            br.Write(_group(pnt_id).vertices(i).z)
+                        End If
 
                         br.Write(_group(pnt_id).vertices(i).n)
                         br.Write(_group(pnt_id).vertices(i).u)

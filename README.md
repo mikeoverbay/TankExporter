@@ -5,6 +5,16 @@
 
 #### This is an ongoing project by me.. Coffee_
 
+## Version 62:
+After trying a few things to hide the tracks, I think I finally have the solution. In sniper mode, the tracks would show up again even with the ANM map cleared out.
+Now.... If you check the Hide Tracks box, Tank Exporter will replaced the primitive(s) for the 'REAL' track segments with a primitive that has only 8 vertices and all the data for each is zeroed out.
+Like wise, the rubber band phony tracks vertices are zerored out as well. The normal maps ANM is over written with a blank DDS and the visual is edited to make sure alpha is enables and the references is at least set to 64. I tested this and I see no artifacts showing up anywhere.
+
+I added code to automatically copy the visual and prmitives files from LOD0 to the other LOD1 to LOD4. You don't have to extract to 1 to 4 as the new check box on the Primitive Writer window will create the folders if they do not exist.
+
+I also updated the HTML help pages with the new changes.
+
+
 ## Version 61:
 Created new and much better Help Pages for Tank Exporter.
 Added buttons to the Texture View window to hide/show the color channels on the texture. Cleaned up mousing between Texture View window and the rendering window.
