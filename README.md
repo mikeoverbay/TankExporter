@@ -7,6 +7,7 @@
 
 ## Version 63:
 Tank Exporter will now copy and convert the textures of new models that have been added to the Turret or Tank components.
+The Visuals will automatically be edited so the paths are changed to match the folder and name of the new textures
 Updated Help pages with this new information.
 
 ## Version 62:
