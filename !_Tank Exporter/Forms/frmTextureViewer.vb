@@ -622,6 +622,7 @@ Public Class frmTextureViewer
     End Sub
     Public Sub draw_current_vertex()
         'draw()
+        If Not MODEL_LOADED Then Return
         If current_vertex = 0 Then
             Return
         End If

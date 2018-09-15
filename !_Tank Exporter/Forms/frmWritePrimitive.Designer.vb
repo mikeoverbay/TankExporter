@@ -90,7 +90,6 @@ Partial Class frmWritePrimitive
         '
         Me.gew_cb.AutoSize = True
         Me.gew_cb.BackColor = System.Drawing.Color.Transparent
-        Me.gew_cb.Enabled = False
         Me.gew_cb.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.gew_cb.ForeColor = System.Drawing.Color.Black
         Me.gew_cb.Location = New System.Drawing.Point(15, 103)

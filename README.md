@@ -5,6 +5,13 @@
 
 #### This is an ongoing project by me.. Coffee_
 
+## Version 64:
+This version adds the ability to edit the Gun models!
+You can also add other models to the gun provided you set up the vertex colors correctly.
+I spent 2 days 20 + hours working on adding items to the chassis carriage. It can NOT be done.. Adding even one polygon that is not attached to the chassis models with out a matching vertex color causes the shader for the chassis to mess up. The Video driver crashes hard and the game locks up. You can add a ball and attach its vertices to a wheel and it works.. It crashes when there is a model that is not part of the carriage or tracks.
+
+I'm leaving version 63 on GitHub in case there are issues with 64.
+
 ## Version 63:
 Tank Exporter will now copy and convert the textures of new models that have been added to the Turret or Tank components.
 The Visuals will automatically be edited so the paths are changed to match the folder and name of the new textures.

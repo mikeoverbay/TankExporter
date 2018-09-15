@@ -54,9 +54,10 @@ Module ModTankLoader
     Public color_data() As Byte
     Public bsp_materials_data() As Byte
     Public save_has_uv2, MODEL_LOADED, IGNORE_TEXTURES As Boolean
+    Public loaded_from_resmods As Boolean
     Dim ih As IndexHeader
     Dim vh As VerticesHeader
-    Dim temo_text_string As String = ""
+    'Dim temo_text_string As String = ""
     Public turret_trans, tank_location, hull_trans As vect3
     Public turret_location, gun_trans2, gun_trans, gun_location As vect3
 
@@ -548,6 +549,7 @@ Module ModTankLoader
             buf = File.ReadAllBytes(t_path)
             r = New MemoryStream(buf)
             File_len = r.Length
+            loaded_from_resmods = True
         Else
             'no.. get the file from the package...
             Dim entry As ZipEntry = frmMain.packages(current_tank_package)(file_name)
@@ -2428,5 +2430,41 @@ get_visual:
         Return vo
 
     End Function
+
+    Public Function gun_new_transform(ByVal v As vect3, ByVal m() As Double) As vect3
+        Dim vo As vect3
+        vo.x = (m(0) * v.x) + (m(4) * v.y) + (m(8) * v.z)
+        vo.y = (m(1) * v.x) + (m(5) * v.y) + (m(9) * v.z)
+        vo.z = (m(2) * v.x) + (m(6) * v.y) + (m(10) * v.z)
+        'vo = v
+        vo.x += m(12)
+        vo.y += m(13)
+        vo.z += m(14)
+        vo.x *= -1.0
+        vo.z *= -1.0
+        Return vo
+
+    End Function
+    Public Function gun_new_rotate_transform(ByVal v As vect3, ByVal m() As Double) As vect3
+        Dim vo As vect3
+        vo.x = (m(0) * v.x) + (m(4) * v.y) + (m(8) * v.z)
+        vo.y = (m(1) * v.x) + (m(5) * v.y) + (m(9) * v.z)
+        vo.z = (m(2) * v.x) + (m(6) * v.y) + (m(10) * v.z)
+        'vo = v
+        'vo.y += m(12)
+        'vo.y += m(13)
+        'vo.z += m(14)
+        vo.x *= -1.0
+        vo.z *= -1.0
+        Dim l = Sqrt(vo.x ^ 2 + vo.y ^ 2 + vo.z ^ 2)
+        If l = 0.0 Then l = 1.0
+        vo.x /= l
+        vo.y /= l
+        vo.z /= l
+
+        Return vo
+
+    End Function
+
 
 End Module

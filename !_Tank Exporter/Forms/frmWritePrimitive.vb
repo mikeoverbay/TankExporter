@@ -22,7 +22,7 @@ Public Class frmWritePrimitive
 
         End If
 
-        Dim wrote_something = cew_cb.Checked Or hew_cb.Checked Or tew_cb.Checked
+        Dim wrote_something = cew_cb.Checked Or hew_cb.Checked Or tew_cb.Checked Or gew_cb.Checked
         If cew_cb.Checked Then
             write_chassis_primitives(1)
         End If
@@ -33,9 +33,14 @@ Public Class frmWritePrimitive
         If tew_cb.Checked Then
             write_primitives(3)
         End If
+        If gew_cb.Checked Then
+            write_primitives(4)
+        End If
+
         If hide_tracks_cb.Checked Then
             hide_tracks()
         End If
+
         If wrote_something And copy_lods_cb.Checked Then 'only if told to write to LODs
             Dim path = My.Settings.res_mods_path
             Dim p = path + "\" + m_groups(1).f_name(0)

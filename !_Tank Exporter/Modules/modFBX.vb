@@ -35,6 +35,7 @@ Module modFBX
         Public m_type As Integer
         Public cnt As Integer
         Public f_name() As String
+        Public section_names() As String
         Public package_id() As Integer
         Public changed As Boolean
         Public new_objects As Boolean
@@ -1173,7 +1174,7 @@ outahere:
             fbx_in.vertices(j).nz = fbx_out.vertices(j).nz
 
             fbx_in.vertices(j).n = fbx_out.vertices(j).n
-            fbx_in.vertices(j).t = fbx_out.vertices(j).b
+            fbx_in.vertices(j).t = fbx_out.vertices(j).t
             fbx_in.vertices(j).bn = fbx_out.vertices(j).bn
 
             fbx_in.vertices(j).u = fbx_out.vertices(j).u
@@ -1244,6 +1245,7 @@ outahere:
                 ReDim Preserve m_groups(1).list(ct)
                 ReDim Preserve m_groups(1).group_list(ct)
                 ReDim Preserve m_groups(1).f_name(ct)
+                ReDim Preserve m_groups(1).section_names(ct)
                 ReDim Preserve m_groups(1).package_id(ct)
                 m_groups(1).list(ct) = i
                 m_groups(1).cnt = ct + 1
@@ -1253,8 +1255,10 @@ outahere:
                 If ar.Length > 1 Then
                     m_groups(1).package_id(ct) = CInt(ar(1))
                     m_groups(1).group_list(ct) = ar(2)
+                    m_groups(1).section_names(ct) = ar(0)
                 Else
                     m_groups(1).package_id(ct) = -1
+                    m_groups(1).section_names(ct) = ar(0)
                 End If
                 ct += 1
             End If
@@ -1406,8 +1410,8 @@ whichone:
                         If _group(i).color_name.ToLower.Contains("tracks") And CB Then
                             MsgBox("It appears you have removed or added" + vbCrLf + _
                                    " vertices to the rubber band tracks!" + vbCrLf + _
-                                   "This will cause a failure in the game!!", _
-                                   MsgBoxStyle.Exclamation, "Tread Error")
+                                   "You can ignore this warning!!", _
+                                   MsgBoxStyle.Exclamation, "Oh My..")
                         Else
                             CB = True
 
@@ -1480,9 +1484,9 @@ whichone:
         m_groups(3).changed = TB
         m_groups(3).new_objects = t_new
 
-        frmWritePrimitive.gew_cb.Checked = False ' = GB
-        frmWritePrimitive.gew_cb.Enabled = False
-        m_groups(4).changed = False '= GB
+        frmWritePrimitive.gew_cb.Checked = GB
+        'frmWritePrimitive.gew_cb.Enabled = False
+        m_groups(4).changed = GB
         m_groups(4).new_objects = g_new
 
 

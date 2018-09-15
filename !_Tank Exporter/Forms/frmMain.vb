@@ -2838,13 +2838,16 @@ tryagain:
                 Else
                     Gl.glFrontFace(Gl.GL_CCW)
                 End If
-                If _group(jj).doubleSided Then
+                If _group(jj).doubleSided Or Not _group(jj).metal_textured Then
+                    'Gl.glCullFace(Gl.GL_NONE)
                     Gl.glDisable(Gl.GL_CULL_FACE)
                     Gl.glPolygonMode(Gl.GL_FRONT_AND_BACK, Gl.GL_FILL)
                 Else
+                    'Gl.glCullFace(Gl.GL_BACK)
                     Gl.glEnable(Gl.GL_CULL_FACE)
                     Gl.glPolygonMode(Gl.GL_FRONT, Gl.GL_FILL)
                 End If
+                'Gl.glDisable(Gl.GL_CULL_FACE)
                 If _object(jj).visible Then
                     Gl.glCallList(_object(jj).main_display_list)
                 End If
@@ -3105,7 +3108,6 @@ tryagain:
                     view_status_string += " Normal View by Vertex : "
                 End If
                 If FBX_LOADED And m_show_fbx.Checked Then ' FBX if loaded
-                    view_status_string += " Textured : "
                     For jj = 1 To fbxgrp.Length - 1
                         Gl.glPushMatrix()
                         Gl.glMultMatrixd(fbxgrp(jj).matrix)
@@ -4494,6 +4496,8 @@ fuckit:
         ReDim _object(0)
         _object(0) = New obj
         object_count = 0
+        GC.Collect()
+        GC.WaitForFullGCComplete()
     End Sub
 
     Private Function validate_path(ByVal name As String)
@@ -5016,6 +5020,10 @@ fuckit:
 
         End If
         '================================= end testing
+        '======================================================================================
+        '======================================================================================
+        'Start of tank loading
+        loaded_from_resmods = False
         file_name = chassis_name
         Dim LOAD_ERROR As Boolean = True
 
@@ -6704,6 +6712,13 @@ make_this_tank:
 
     Private Sub m_export_fbx_Click(sender As Object, e As EventArgs)
 
+        If Not loaded_from_resmods Then
+            If MsgBox("You are about to write a FBX loaded from the res_mods folder!" + vbCrLf + _
+                       "Doing so will corrupt the chassis if the markers have been modified." _
+                       , MsgBoxStyle.YesNo, "DANGER Will Robinson!") Then
+            End If
+            Return
+        End If
         SaveFileDialog1.Filter = "AutoDesk (*.FBX)|*.fbx"
         SaveFileDialog1.Title = "Export FBX..."
         SaveFileDialog1.InitialDirectory = My.Settings.fbx_path

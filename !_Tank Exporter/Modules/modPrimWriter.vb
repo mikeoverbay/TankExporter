@@ -606,6 +606,7 @@ found_it:
             File.WriteAllText(p, out_file.Replace("map_", "chassis.visual_processed"))
         End If
     End Sub
+
     Private Function check_visual_matrix(ByRef data() As String, ByVal str As String, ByVal v_id As Integer, ByVal idx As Integer) As Boolean
         'used to find out if the user moved a bendbone location
         If str Is Nothing Then Return False
@@ -940,6 +941,14 @@ found_section:
         '-------------------------------------------------------------
         'write indices table entry
         tsa = "indices".ToArray
+        If ID = 4 Then
+            For i = 0 To section_names(ID).names.Length - 1
+                If section_names(ID).names(i).ToLower.Contains("indices") Then
+                    tsa = section_names(ID).names(i).ToArray
+
+                End If
+            Next
+        End If
 
         br.Write(indi_size) ' size of data
         br.Write(dummy) : br.Write(dummy) : br.Write(dummy) : br.Write(dummy) ' fill data
@@ -958,6 +967,13 @@ found_section:
         'write vertice table entry
         Dim tvn As String = ""
         tsa = "vertices".ToArray ' convert to char array
+        If ID = 4 Then
+            For i = 0 To section_names(ID).names.Length - 1
+                If section_names(ID).names(i).ToLower.Contains("vertices") Then
+                    tsa = section_names(ID).names(i).ToArray
+                End If
+            Next
+        End If
         br.Write(vert_size)
         br.Write(dummy) : br.Write(dummy) : br.Write(dummy) : br.Write(dummy) ' padding
         br.Write(Convert.ToUInt32(tsa.Length))
@@ -1078,16 +1094,20 @@ noBSP_anymore:
                     pgrp += 1
                 End If
             Next
-            'pos = f.IndexOf("<node>", 2)
-            'pos = f.IndexOf("<node>", pos + 10)
-            'f = f.Insert(pos, ns)
 
             pos = 0
-            Dim rp As String = Application.StartupPath
-            rp += "\Templates\templateColorOnly.txt"
-            Dim templateColorOnly As String = File.ReadAllText(Application.StartupPath + "\Templates\templateColorOnly.txt")
-            Dim templateNormal As String = File.ReadAllText(Application.StartupPath + "\Templates\templateNormal.txt")
-            Dim templateNormalSpec As String = File.ReadAllText(Application.StartupPath + "\Templates\templateNormalSpec.txt")
+            Dim templateColorOnly As String
+            Dim templateNormal As String
+            Dim templateNormalSpec As String
+            If ID = 4 Then
+                templateColorOnly = File.ReadAllText(Application.StartupPath + "\Templates\templateColorOnlyGUN.txt")
+                templateNormal = File.ReadAllText(Application.StartupPath + "\Templates\templateNormalGUN.txt")
+                templateNormalSpec = File.ReadAllText(Application.StartupPath + "\Templates\templateNormalSpecGUN.txt")
+            Else
+                templateColorOnly = File.ReadAllText(Application.StartupPath + "\Templates\templateColorOnly.txt")
+                templateNormal = File.ReadAllText(Application.StartupPath + "\Templates\templateNormal.txt")
+                templateNormalSpec = File.ReadAllText(Application.StartupPath + "\Templates\templateNormalSpec.txt")
+            End If
             Dim first, last As Integer
             first = m_groups(ID).existingCount
             last = m_groups(ID).cnt - first
@@ -1166,6 +1186,7 @@ noBSP_anymore:
 
     Private Function move_convert_new_textures(ByVal path As String) As String
         Dim new_path As String = ""
+        If path Is Nothing Then Return Nothing
         Dim r_path = My.Settings.res_mods_path
         Dim res_path As String = My.Settings.res_mods_path + "\"
         Dim a = m_groups(1).f_name(0).Split("\normal")
@@ -1173,11 +1194,12 @@ noBSP_anymore:
         Dim status As Boolean
         Try
 
+            new_path = IO.Path.GetFileNameWithoutExtension(path)
+            new_path = p + "\" + new_path + ".DDS"
+            If File.Exists(res_path + new_path) Then Return new_path
             Dim id = Il.ilGenImage
             Il.ilBindImage(id)
             Il.ilLoadImage(path)
-            new_path = IO.Path.GetFileNameWithoutExtension(path)
-            new_path = p + "\" + new_path + ".DDS"
             Ilu.iluBuildMipmaps()
             status = Il.ilSave(Il.IL_DDS, res_path + new_path)
             Il.ilBindImage(0)
@@ -1205,6 +1227,10 @@ noBSP_anymore:
         End If
         h = "BPVTxyznuvtb".ToArray
         Dim h2 = "set3/xyznuvtbpc".ToArray
+        If id = 4 Then
+            h2 = "set3/xyznuviiiwwtbpc".ToArray
+            h = "BPVTxyznuviiiwwtb".ToArray
+        End If
         ReDim Preserve h(67)
         ReDim Preserve h2(63)
         br.Write(h)
@@ -1237,10 +1263,18 @@ noBSP_anymore:
                     v.x = fbxgrp(pnter).vertices(k).x
                     v.y = fbxgrp(pnter).vertices(k).y
                     v.z = fbxgrp(pnter).vertices(k).z
-                    v = transform(v, fbxgrp(pnter).matrix)
-                    v.x -= fbxgrp(parent).matrix(12)
-                    v.y -= fbxgrp(parent).matrix(13)
-                    v.z -= fbxgrp(parent).matrix(14)
+                    If id = 4 Then
+                        v = gun_new_transform(v, fbxgrp(pnter).matrix)
+                        v.x -= fbxgrp(parent).matrix(12)
+                        v.y -= fbxgrp(parent).matrix(13)
+                        v.z += fbxgrp(parent).matrix(14)
+                    Else
+                        v = transform(v, fbxgrp(pnter).matrix)
+                        v.x -= fbxgrp(parent).matrix(12)
+                        v.y -= fbxgrp(parent).matrix(13)
+                        v.z -= fbxgrp(parent).matrix(14)
+
+                    End If
                     'sucks but we have to transform N, T and Bt
                     ' N --------------------------------------------------
                     Dim n As vect3
@@ -1248,21 +1282,33 @@ noBSP_anymore:
                     n.y = fbxgrp(pnter).vertices(k).ny
                     n.z = fbxgrp(pnter).vertices(k).nz
 
-                    n = rotate_transform(n, fbxgrp(pnter).matrix)
+                    If id = 4 Then
+                        n = gun_new_rotate_transform(n, fbxgrp(pnter).matrix)
+                    Else
+                        n = rotate_transform(n, fbxgrp(pnter).matrix)
+                    End If
                     fbxgrp(pnter).vertices(k).n = packnormalFBX888_writePrimitive(toFBXv(n))
                     ' T --------------------------------------------------
                     n.x = fbxgrp(pnter).vertices(k).tx
                     n.y = fbxgrp(pnter).vertices(k).ty
                     n.z = fbxgrp(pnter).vertices(k).tz
 
-                    n = rotate_transform(n, fbxgrp(pnter).matrix)
+                    If id = 4 Then
+                        n = gun_new_rotate_transform(n, fbxgrp(pnter).matrix)
+                    Else
+                        n = rotate_transform(n, fbxgrp(pnter).matrix)
+                    End If
                     'fbxgrp(pnter).vertices(k).t = packnormalFBX888(toFBXv(n))
                     ' Tb --------------------------------------------------
                     n.x = fbxgrp(pnter).vertices(k).bnx
                     n.y = fbxgrp(pnter).vertices(k).bny
                     n.z = fbxgrp(pnter).vertices(k).bnz
 
-                    n = rotate_transform(n, fbxgrp(pnter).matrix)
+                    If id = 4 Then
+                        n = gun_new_rotate_transform(n, fbxgrp(pnter).matrix)
+                    Else
+                        n = rotate_transform(n, fbxgrp(pnter).matrix)
+                    End If
                     'fbxgrp(pnter).vertices(k).bn = packnormalFBX888(toFBXv(n))
 
 
@@ -1271,9 +1317,16 @@ noBSP_anymore:
                     br.Write(v.z)
 
                 Else
-                    br.Write(fbxgrp(pnter).vertices(k).x)
-                    br.Write(fbxgrp(pnter).vertices(k).y)
-                    br.Write(fbxgrp(pnter).vertices(k).z)
+                    If id = 3333 Then 'set to 3 to hide the turret, 2 for hull and so on.
+                        br.Write(0.0!)
+                        br.Write(0.0!)
+                        br.Write(0.0!)
+                    Else
+                        br.Write(fbxgrp(pnter).vertices(k).x)
+                        br.Write(fbxgrp(pnter).vertices(k).y)
+                        br.Write(fbxgrp(pnter).vertices(k).z)
+
+                    End If
                 End If
                 br.Write(fbxgrp(pnter).vertices(k).n)
                 br.Write(fbxgrp(pnter).vertices(k).u)
@@ -1284,6 +1337,18 @@ noBSP_anymore:
                     br.Write(fbxgrp(pnter).vertices(k).index_3)
                     br.Write(fbxgrp(pnter).vertices(k).weight_1)
                     br.Write(fbxgrp(pnter).vertices(k).weight_2)
+                End If
+                If id = 4 Then
+                    br.Write(fbxgrp(pnter).vertices(k).index_1)
+                    br.Write(fbxgrp(pnter).vertices(k).index_2)
+                    br.Write(fbxgrp(pnter).vertices(k).index_3)
+                    br.Write(CByte(0))
+
+                    br.Write(fbxgrp(pnter).vertices(k).weight_1)
+                    br.Write(fbxgrp(pnter).vertices(k).weight_2)
+                    br.Write(CByte(255))
+                    br.Write(CByte(0))
+
                 End If
                 br.Write(fbxgrp(pnter).vertices(k).t)
                 br.Write(fbxgrp(pnter).vertices(k).bn)
@@ -1351,7 +1416,7 @@ noBSP_anymore:
                 'note: my routine uses other rotation
                 If fbxgrp(pnter).is_new_model Then
                     If ind_scale = 2 Then
-                        If frmWritePrimitive.flipWindingOrder_cb.Checked Then
+                        If frmWritePrimitive.flipWindingOrder_cb.Checked And Not id = 4 Then
                             br.Write(Convert.ToUInt16(fbxgrp(pnter).indicies(j).v1 + off))
                             br.Write(Convert.ToUInt16(fbxgrp(pnter).indicies(j).v2 + off))
                             br.Write(Convert.ToUInt16(fbxgrp(pnter).indicies(j).v3 + off))
@@ -1365,7 +1430,7 @@ noBSP_anymore:
                         If fbxgrp(pnter).indicies(j).v2 + off > cnt Then cnt = fbxgrp(pnter).indicies(j).v2
                         If fbxgrp(pnter).indicies(j).v3 + off > cnt Then cnt = fbxgrp(pnter).indicies(j).v3
                     Else
-                        If frmWritePrimitive.flipWindingOrder_cb.Checked Then
+                        If frmWritePrimitive.flipWindingOrder_cb.Checked And Not id = 4 Then
                             br.Write(fbxgrp(pnter).indicies(j).v1 + off)
                             br.Write(fbxgrp(pnter).indicies(j).v2 + off)
                             br.Write(fbxgrp(pnter).indicies(j).v3 + off)
@@ -1381,7 +1446,7 @@ noBSP_anymore:
                     End If
                 Else
                     If ind_scale = 2 Then
-                        If frmWritePrimitive.flipWindingOrder_cb.Checked Then
+                        If frmWritePrimitive.flipWindingOrder_cb.Checked Or id = 4 Then
                             br.Write(Convert.ToUInt16(fbxgrp(pnter).indicies(j).v2 + off))
                             br.Write(Convert.ToUInt16(fbxgrp(pnter).indicies(j).v1 + off))
                             br.Write(Convert.ToUInt16(fbxgrp(pnter).indicies(j).v3 + off))
@@ -1394,7 +1459,7 @@ noBSP_anymore:
                         If fbxgrp(pnter).indicies(j).v2 + off > cnt Then cnt = fbxgrp(pnter).indicies(j).v2
                         If fbxgrp(pnter).indicies(j).v3 + off > cnt Then cnt = fbxgrp(pnter).indicies(j).v3
                     Else
-                        If frmWritePrimitive.flipWindingOrder_cb.Checked Then
+                        If frmWritePrimitive.flipWindingOrder_cb.Checked Or id = 4 Then
                             br.Write(fbxgrp(pnter).indicies(j).v2 + off)
                             br.Write(fbxgrp(pnter).indicies(j).v1 + off)
                             br.Write(fbxgrp(pnter).indicies(j).v3 + off)
