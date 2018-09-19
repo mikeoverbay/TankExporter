@@ -35,13 +35,13 @@ a:active {
 <p class="style1">Lets Change Something!</p>
 <p>Now that you know you can export and import a tank in to Tank Export and the scaling is correct, it's time to do some editing.</p>
 <ul>
-  <p>Knowing now how to create a FBX and load it in your 3D app.. DO IT!<br />
+  <p>Now that you know how to  create a FBX and load it in your 3D app.. DO IT!<br />
     Do some simple editing just to get used to a few concepts.<br />
     Here is a list of key things you should know.<br />
   1. The names of each item is VERY important. DO NOT CHANGE THEM! it will break importing the FBX in Tank Exporter.<br />
-    2. The helper entries that all the visual markers are layered in to.,, DO NOT CHANGE ANY OF THIS! you can hide anything you want.<br />
+    2. The helper entries that all the visual markers are layered in to. DO NOT CHANGE ANY OF THIS! you can hide anything you want.<br />
     3. You can add lights to the scene. Tank Export ignores these but this is not tested with any app but 3DS Max!<br />
-    4. Adding models that are not associated with a tank component will make writing a primitive impossible unless they contain &quot;clone&quot; in their name.<br />
+    4. Adding models that are not associated with a tank component will make writing a primitive impossible unless they <span class="style2">contain &quot;clone&quot; in their name</span>.<br />
     5. To associate added geometry to a tank component, add that tank components name to its name. &quot;hull_new_object&quot; for example.<br />
     6. UV COORDINATES can mess things up bad! Every vertex must have a UV assigned to it.<br />
     7. Cleaning up of dead vertices and UVs is critical. The game will crash if there are more UVs than is expected!<br />
@@ -57,24 +57,28 @@ a:active {
   3. Right Click in the 
   modifier stack panel and than Collapse all.<br />
   After you have cleaned the dead vertices, you can export the FBX.<br />
+  <span class="style2">Don't over write the original FBX!</span> Rename the one you export from Max. I usually just add &quot;_Max&quot; to its name. <br />
   <span class="style4">Hint:</span> Under Tools on the top menu in Max, there is one called 
-  &quot;Channel Info...&quot; That tool shows a list of vertices, uvs and other information about the selected object. </p>
+  &quot;Channel Info...&quot;. That tool shows a list of Vertices, UVs and other information about the selected object. </p>
   <p>Import the FBX in to Tank Exporter. You should see a window popup and close very fast.. This is TE updating the check boxes of what it thinks needs to be written to the primitive file. <br />
   On the File/Settings menu, select Write Primitive.<br />
     A window will pop up that looks like this:<br />
 </p>
   <table width="100%" border="0">
     <tr>
-      <td width="286" valign="middle" bordercolor="#999999"><img src="Images/writepriitive.jpg" alt="Write Primitives" width="278" height="255" /></td>
-      <td width="100%" align="left" valign="top"><p>That girl is Kate Upton. One of the best looking super models there is.<br />
+      <td width="286" valign="middle" bordercolor="#999999"><img src="Images/writepriitive.jpg" alt="Write Primitives" width="293" height="367" /></td>
+      <td width="100%" align="left" valign="top"><p>The girl is Kate Upton. One of the best looking super models there is.<br />
         You might know here from the <a href="https://www.google.com/url?sa=i&amp;rct=j&amp;q=&amp;esrc=s&amp;source=images&amp;cd=&amp;cad=rja&amp;uact=8&amp;ved=2ahUKEwj7zt-RpandAhXIm-AKHTlnCp0QjB16BAgBEAQ&amp;url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DuHskC7JRL9M&amp;psig=AOvVaw2ES0uMI35IMfxzVkIlivJQ&amp;ust=1536423350072885" target="_blank">Game Of War</a> adds on TV.</p>
         <p>If TE found a difference between the data in the FBX and the PKG files, the check box for that component will be checked.<br />
-        You can always check any box you want but don't write or extract things to the res_mods that have not changed. Doing so wastes time loading the game.</p>
-        <p>Flipping the <a href="https://cmichel.io/understanding-front-faces-winding-order-and-normals" target="_blank">Vertex Winding Orde</a>r causes the vertices to be saved in the opposite winding order. <br />
-        You can hide the tracks on the chassis by checking that box. This should work on all models now.<br />
-        Copy to LODs 1-4 will copy the prmitives and visuals from LOD0 to LODS 1-4. Leave this checked. </p>
-        <p>Click the Write File(s) under Upton's lovely left breast once you are ready.<br />
-          If you are offended by the image of Upton..  Stay away from children! <br /> 
+        You can always check any box you want but <span class="style2">don't write or extract things to the res_mods that have not changed.</span> <span class="style2">Doing so wastes time loading the game.</span></p>
+        <p><span class="style2">Flipping </span>the <a href="https://cmichel.io/understanding-front-faces-winding-order-and-normals" target="_blank">Vertex Winding Orde</a>r causes the vertices to be saved in the opposite winding order.<br />
+            <span class="style2">Save as Crash</span> will be set if you imported a crashed model.<br />
+        TE manages this setting based on paths in the FBX. <span class="style2">You should never need to change this setting!<br />
+        </span><br />
+          You can <span class="style2">hide the tracks</span> on the chassis by checking that box. This should work on all models now.<br />
+        <span class="style2">Copy to LODs 1-4</span> will copy the prmitives and visuals from LOD0 to LODS 1-4. Leave this checked. </p>
+        <p>Click the <span class="style2">Write File(s)</span> under Upton's lovely left breast once you are ready.<br />
+          If you are offended by the image of Upton..  Stay away from children!<br /> 
         </p></td>
     </tr>
   </table>

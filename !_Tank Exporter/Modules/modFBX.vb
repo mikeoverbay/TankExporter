@@ -1237,10 +1237,14 @@ outahere:
         m_groups(2) = New mgrp_
         m_groups(3) = New mgrp_
         m_groups(4) = New mgrp_
+        CRASH_MODE = False
         Dim ar() As String
         For i = 1 To fbxgrp.Length - 1
             fbxgrp(i).is_carraige = False
             If fbxgrp(i).name.ToLower.Contains("chassis") Then
+                If fbxgrp(i).name.ToLower.Contains("\crash\") Then
+                    CRASH_MODE = True
+                End If
                 fbxgrp(i).is_carraige = True
                 ReDim Preserve m_groups(1).list(ct)
                 ReDim Preserve m_groups(1).group_list(ct)
@@ -1470,6 +1474,11 @@ whichone:
         End If
         'set which group has new models or changed data
         frmWritePrimitive.Visible = True
+        If CRASH_MODE Then
+            frmWritePrimitive.m_write_crashed.Checked = True
+        Else
+            frmWritePrimitive.m_write_crashed.Checked = False
+        End If
         frmWritePrimitive.cew_cb.Checked = CB
         'frmWritePrimitive.cew_cb.Enabled = False
         'm_groups(1).changed = False ' = CB

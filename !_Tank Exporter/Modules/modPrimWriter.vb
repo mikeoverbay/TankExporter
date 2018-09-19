@@ -23,6 +23,9 @@ Module modPrimWriter
     Dim padding As Integer
 
     Public Sub hide_tracks()
+        If CRASH_MODE Then
+            Return 'no sense in hiding the non-crashed models tracks.
+        End If
         Dim path = My.Settings.res_mods_path
         Dim a = m_groups(1).f_name(0).ToLower.Split("normal")
         Dim p = path + "\" + a(0) + "track\"

@@ -10,6 +10,11 @@ Public Class frmWritePrimitive
             Return
         End If
         'We give the user the opertunity again to extract the model. We need some where to write any changed data too.
+        If m_write_crashed.Checked Then
+            CRASH_MODE = True
+        Else
+            CRASH_MODE = False
+        End If
         If Not Directory.Exists(SAVE_NAME) Then
             If MsgBox("It appears You have not extracted data for this model." + vbCrLf + _
                        "Would you like to extract the data from the .PKG files?", MsgBoxStyle.YesNo, "Extract?") = MsgBoxResult.Yes Then
@@ -21,7 +26,6 @@ Public Class frmWritePrimitive
             End If
 
         End If
-
         Dim wrote_something = cew_cb.Checked Or hew_cb.Checked Or tew_cb.Checked Or gew_cb.Checked
         If cew_cb.Checked Then
             write_chassis_primitives(1)
@@ -73,4 +77,22 @@ Public Class frmWritePrimitive
         frmMain.Focus()
         Me.Hide()
     End Sub
+    Private Sub hide_broken_tracks(ByVal p As String)
+        Dim path = My.Settings.res_mods_path
+        Dim a = p.Split("\normal")
+        path = path + "\" + a(0) + "\crash"
+        If Not Directory.Exists(path) Then
+            Directory.CreateDirectory(path)
+        End If
+        For num = 0 To 4
+            Dim np = path + "\lod" + num.ToString
+            If Not Directory.Exists(np) Then 'if not exist, create it!
+                Directory.CreateDirectory(np)
+            End If
+            If Not File.Exists(np + "\Chassis.primitives_processed") Then 'stop possible exception
+                File.Copy(Application.StartupPath + "\resources\primitive\Chassis.primitives_processed", np + "\Chassis.primitives_processed") 'Copy the file.. Visual or Primitives
+            End If
+        Next
+    End Sub
+
 End Class

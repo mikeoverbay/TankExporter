@@ -430,6 +430,9 @@ Module ModTankLoader
         Else
             has_bsp = True
         End If
+        If CRASH_MODE Then
+            file_name = file_name.Replace("/normal/", "/crash/")
+        End If
         '============================'============================
         'open visual
         If Not openVisual(file_name) Then

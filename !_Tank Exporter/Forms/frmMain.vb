@@ -4520,6 +4520,7 @@ fuckit:
     Public Sub process_tank(ByVal save_tank As Boolean)
         'need to set these before loading anyhing
         clean_house()
+        remove_loaded_fbx()
         '===================================
         log_text.Append(" ======== Model Load Start =========" + vbCrLf)
         Dim ar = file_name.Split(":")
@@ -5639,12 +5640,15 @@ fuckit:
             sb.AppendLine("My.Settings.res_mods_path: " + My.Settings.res_mods_path)
 
             'Throw New ArgumentException("Exception Occured")
-
+            Dim crash As String = "crash"
+            If CRASH_MODE Then
+                crash = "donky_smuggler"
+            End If
             For i = 1 To packages.Length - 2
                 For Each ent In packages(i)
                     If ent.FileName.Contains(ar(2)) Then
                         If Not ent.FileName.Contains("collision_client") Then
-                            If Not ent.FileName.Contains("crash") Then
+                            If Not ent.FileName.Contains(crash) Then
                                 If Not models Then
                                     Select Case all_lods
                                         Case True
@@ -5753,7 +5757,7 @@ fuckit:
                 For Each ent In packages_2(i)
                     If ent.FileName.Contains(ar(2)) Then
                         If Not ent.FileName.Contains("collision_client") Then
-                            If Not ent.FileName.Contains("crash") Then
+                            If Not ent.FileName.Contains(crash) Then
                                 If Not models Then
                                     Select Case all_lods
                                         Case True
@@ -5863,7 +5867,7 @@ fuckit:
                     For Each ent In packages_HD(i)
                         If ent.FileName.Contains(ar(2)) Then
                             If Not ent.FileName.Contains("collision_client") Then
-                                If Not ent.FileName.Contains("crash") Then
+                                If Not ent.FileName.Contains(crash) Then
                                     If Not models Then
                                         Select Case all_lods
                                             Case True
@@ -5978,7 +5982,7 @@ fuckit:
                     For Each ent In packages_HD(i)
                         If ent.FileName.Contains(ar(2)) Then
                             If Not ent.FileName.Contains("collision_client") Then
-                                If Not ent.FileName.Contains("crash") Then
+                                If Not ent.FileName.Contains(crash) Then
                                     If Not models Then
                                         Select Case all_lods
                                             Case True
@@ -6119,6 +6123,19 @@ fuckit:
 
 #Region "menu_button_functions"
     Private Sub m_load_Click(sender As Object, e As EventArgs) Handles m_load.Click
+        CRASH_MODE = False
+        TC1.Enabled = False
+        m_show_fbx.Visible = False
+        m_show_fbx.Checked = False
+        current_tank_name = file_name
+        short_tank_name = tank_label.Text
+        process_tank(False) 'false .. don't save the binary tank file
+        m_ExportExtract.Enabled = True
+        TC1.Enabled = True
+        find_icon_image(TANK_NAME)
+    End Sub
+    Private Sub m_load_crashed_Click(sender As Object, e As EventArgs) Handles m_load_crashed.Click
+        CRASH_MODE = True
         TC1.Enabled = False
         m_show_fbx.Visible = False
         m_show_fbx.Checked = False
@@ -7358,11 +7375,23 @@ make_this_tank:
     End Sub
 
     Private Sub m_export_to_fbx_Click(sender As Object, e As EventArgs) Handles m_export_to_fbx.Click
+        If loaded_from_resmods Then
+            If MsgBox("You are about to write a FBX loaded from the res_mods folder!" + vbCrLf + _
+                       "Doing so will corrupt the chassis if the markers have been modified." _
+                       , MsgBoxStyle.YesNo, "DANGER Will Robinson!") = MsgBoxResult.Yes Then
+            Else
+                Return
+            End If
+        End If
         SaveFileDialog1.Filter = "AutoDesk (*.FBX)|*.fbx"
         SaveFileDialog1.Title = "Export FBX..."
         SaveFileDialog1.InitialDirectory = My.Settings.fbx_path
+        If CRASH_MODE Then
+            SaveFileDialog1.FileName = short_tank_name.Replace("\/", "_") + "_CRASHED.fbx"
+        Else
+            SaveFileDialog1.FileName = short_tank_name.Replace("\/", "_") + ".fbx"
+        End If
 
-        SaveFileDialog1.FileName = short_tank_name.Replace("\/", "_") + ".fbx"
         info_Label.Parent = pb1
 
         If SaveFileDialog1.ShowDialog = Forms.DialogResult.OK Then
@@ -7448,4 +7477,6 @@ make_this_tank:
     Private Sub m_FXAA_CheckedChanged(sender As Object, e As EventArgs) Handles m_FXAA.CheckedChanged
 
     End Sub
+
+    
 End Class

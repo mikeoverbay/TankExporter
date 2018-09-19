@@ -5,6 +5,9 @@
 
 #### This is an ongoing project by me.. Coffee_
 
+## Version 65:
+This version adds the ability to load and export crash models from the packages. Editing of the crash models is the same as the regular models. Tank Exporter handles all the paths so you do not need to worry about it. Just load the tank using Load Crashed... on the context menu. Tank Exporter will add _CRASH to the name when the FBX is exported.
+
 ## Version 64:
 This version adds the ability to edit the Gun models!
 You can also add other models to the gun provided you set up the vertex colors correctly.

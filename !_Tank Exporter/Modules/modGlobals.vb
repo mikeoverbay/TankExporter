@@ -3,6 +3,7 @@ Imports System.IO
 Module modGlobals
     Public LOADING_FBX As Boolean = False
     '##################################
+    Public CRASH_MODE As Boolean = False
     Public TESTING As Boolean = False
     Public jogg As Boolean = False
     '##################################
