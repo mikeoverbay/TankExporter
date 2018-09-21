@@ -513,12 +513,13 @@ Module shader_loader
         dome_colorMap = Gl.glGetUniformLocation(shader_list.dome_shader, "colorMap")
     End Sub
 
-    Public bloom_gcolor, bloom_blm_tex1, bloom_enableBloom As Integer
+    Public bloom_gcolor, bloom_blm_tex1, bloom_enableBloom, bloom_transparent As Integer
     '==============================================================================================================
     Public Sub set_bloom_variables()
         bloom_gcolor = Gl.glGetUniformLocation(shader_list.bloom_shader, "gColor")
         bloom_blm_tex1 = Gl.glGetUniformLocation(shader_list.bloom_shader, "blm_tex1")
         bloom_enableBloom = Gl.glGetUniformLocation(shader_list.bloom_shader, "show_bloom")
+        bloom_transparent = Gl.glGetUniformLocation(shader_list.bloom_shader, "transparent")
 
     End Sub
 

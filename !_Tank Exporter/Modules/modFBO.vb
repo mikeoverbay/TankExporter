@@ -162,7 +162,7 @@ Module modFBO
             'Gl.glBindTexture(Gl.GL_TEXTURE_2D, gFXAA)
             Gl.glFramebufferTexture2DEXT(Gl.GL_FRAMEBUFFER_EXT, Gl.GL_COLOR_ATTACHMENT0_EXT, Gl.GL_TEXTURE_2D, gFXAA, 0)
             Gl.glDrawBuffers(1, attachments)
-            Gl.glBindTexture(Gl.GL_TEXTURE_2D, 0)
+            'Gl.glBindTexture(Gl.GL_TEXTURE_2D, 0)
             'Dim er = Gl.glGetError
         End Sub
         Public Sub detachFBOtextures()

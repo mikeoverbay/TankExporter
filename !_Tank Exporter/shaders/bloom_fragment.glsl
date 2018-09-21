@@ -6,7 +6,7 @@
 uniform sampler2D gColor;
 uniform sampler2D blm_tex1;
 uniform int show_bloom;
-
+uniform int transparent;
 in vec2 TC1;
 out vec4 fColor;
 void main()
@@ -23,4 +23,9 @@ void main()
         fColor.rgb = color.rgb + clamp(bloom.rgb *2.5, 0.0, 0.6);
     }
     fColor.a = 1.0;
-}
+
+	if (transparent == 1)
+	{
+		fColor.a = color.a;
+	}
+	}

@@ -44,9 +44,9 @@ float R_fxaaReduceMin = 1.0/128.0;
     float lumaResult2 = dot(luma, result2);
     
     if(lumaResult2 < lumaMin || lumaResult2 > lumaMax){
-        gl_FragColor = vec4(result1, 1.0);
+        gl_FragColor = vec4(result1, texture2D(colorMap, TexCoords.xy).a);
     }else{
-        gl_FragColor = vec4(result2, 1.0);
+        gl_FragColor = vec4(result2, texture2D(colorMap, TexCoords.xy).a);
     }
 
 

@@ -24,7 +24,7 @@
     <UpdatePeriodically>false</UpdatePeriodically>
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
-    <ApplicationRevision>65</ApplicationRevision>
+    <ApplicationRevision>66</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
@@ -229,6 +229,12 @@
     <Compile Include="Forms\frmModelInfo.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Forms\frmScreenCap.Designer.vb">
+      <DependentUpon>frmScreenCap.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\frmScreenCap.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Forms\frmShaderDebugSettings.Designer.vb">
       <DependentUpon>frmShaderDebugSettings.vb</DependentUpon>
     </Compile>
@@ -353,6 +359,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\frmModelInfo.resx">
       <DependentUpon>frmModelInfo.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\frmScreenCap.resx">
+      <DependentUpon>frmScreenCap.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\frmShaderDebugSettings.resx">
       <DependentUpon>frmShaderDebugSettings.vb</DependentUpon>
@@ -615,6 +624,9 @@
     <Content Include="html\images\scalemode.jpg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="html\images\screencapture.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="html\images\shadows.jpg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -691,6 +703,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="html\othertools.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="html\screencapture.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="html\simpleediting.html">

@@ -2317,6 +2317,9 @@ tryagain:
     Dim tv As Single
     Private Sub draw_environment()
         '############################################
+        If frmScreenCap.RENDER_OUT And Not frmScreenCap.r_terrain Then
+            Return
+        End If
         G_Buffer.attachColor_And_NormalTexture()
         Dim t = time.ElapsedMilliseconds
         If CSng(t) > 5000 Then
@@ -2413,6 +2416,9 @@ tryagain:
     '###########################################################################################################################################
     'decals
     Private Sub draw_decals()
+        If frmScreenCap.RENDER_OUT And Not frmScreenCap.r_terrain Then
+            Return
+        End If
         Dim w, h As Integer
         Dim l_array(8) As Single
 
@@ -2590,6 +2596,16 @@ tryagain:
         Gl.glLineWidth(1)
         Gl.glPointSize(2.0)
         Gl.glClearColor(0.0F, 0.0F, 0.0F, 1.0F)
+        Dim no_background As Boolean = False
+        If frmScreenCap.RENDER_OUT And frmScreenCap.r_color_flag Then
+            Gl.glClearColor(frmScreenCap.r_color_val(0), frmScreenCap.r_color_val(1), frmScreenCap.r_color_val(2), 1.0)
+            no_background = True
+        End If
+        If frmScreenCap.RENDER_OUT And frmScreenCap.r_trans Then
+            Gl.glClearColor(0.0F, 0.0F, 0.0F, 0.0F)
+            no_background = True
+        End If
+
         Gl.glClear(Gl.GL_COLOR_BUFFER_BIT Or Gl.GL_DEPTH_BUFFER_BIT)
 
         G_Buffer.attachColorTexture()
@@ -2607,25 +2623,27 @@ tryagain:
         ResizeGL(w, h)
         Dim v As Point = pb1.Size
         Gl.glDisable(Gl.GL_DEPTH_TEST)
-        Gl.glClearColor(0.0F, 0.0F, 0.2353F, 1.0F)
         Gl.glClear(Gl.GL_DEPTH_BUFFER_BIT)
+        If Not no_background Then
+            Gl.glClearColor(0.0F, 0.0F, 0.2353F, 1.0F)
+            'gradiant background
+            ViewOrtho()
+            Gl.glDisable(Gl.GL_LIGHTING)
+            Gl.glDisable(Gl.GL_DEPTH_TEST)
 
-        ViewOrtho()
-        Gl.glDisable(Gl.GL_LIGHTING)
-        Gl.glDisable(Gl.GL_DEPTH_TEST)
+            Gl.glBegin(Gl.GL_QUADS)
+            Dim aspect = v.Y / v.X
+            Gl.glColor3ubv(color_top)
+            Gl.glVertex3f(0.0, -v.Y, 0)
 
-        Gl.glBegin(Gl.GL_QUADS)
-        Dim aspect = v.Y / v.X
-        Gl.glColor3ubv(color_top)
-        Gl.glVertex3f(0.0, -v.Y, 0)
+            Gl.glColor3ubv(color_bottom)
+            Gl.glVertex3f(0.0, 0.0, 0)
+            Gl.glVertex3f(v.X, 0.0, 0)
 
-        Gl.glColor3ubv(color_bottom)
-        Gl.glVertex3f(0.0, 0.0, 0)
-        Gl.glVertex3f(v.X, 0.0, 0)
-
-        Gl.glColor3ubv(color_top)
-        Gl.glVertex3f(v.X, -v.Y, 0)
-        Gl.glEnd()
+            Gl.glColor3ubv(color_top)
+            Gl.glVertex3f(v.X, -v.Y, 0)
+            Gl.glEnd()
+        End If
 
         Gl.glFrontFace(Gl.GL_CCW)
 
@@ -3281,10 +3299,13 @@ fuckit:
         '=============================================================
         'do bloom mixing
         If Not m_bloom_off.Checked And Not LOADING_FBX Then
+            If frmScreenCap.RENDER_OUT And frmScreenCap.r_color_flag Then
+            Else
+                Gl.glBindFramebufferEXT(Gl.GL_FRAMEBUFFER_EXT, blm_fbo.blm_fbo)
+                blm_fbo.blur()
+                blm_fbo.detach_textures()
 
-            Gl.glBindFramebufferEXT(Gl.GL_FRAMEBUFFER_EXT, blm_fbo.blm_fbo)
-            blm_fbo.blur()
-            blm_fbo.detach_textures()
+            End If
 
             ResizeGL(w, h)
             ViewOrtho()
@@ -3292,6 +3313,11 @@ fuckit:
             Gl.glBindFramebufferEXT(Gl.GL_FRAMEBUFFER_EXT, 0)
             Gl.glClear(Gl.GL_COLOR_BUFFER_BIT Or Gl.GL_DEPTH_BUFFER_BIT)
             Gl.glUseProgram(shader_list.bloom_shader)
+            If frmScreenCap.RENDER_OUT And frmScreenCap.r_trans Then
+                Gl.glUniform1i(bloom_transparent, 1)
+            Else
+                Gl.glUniform1i(bloom_transparent, 0)
+            End If
             Gl.glUniform1i(bloom_gcolor, 0)
             Gl.glUniform1i(bloom_blm_tex1, 1)
             If m_enableBloom.Checked Then
@@ -3336,13 +3362,16 @@ fuckit:
         Else
             Gl.glBindTexture(Gl.GL_TEXTURE_2D, gColor)
         End If
-        Gl.glColor3f(1.0, 1.0, 1.0)
+        Gl.glColor4f(1.0, 1.0, 1.0, 1.0)
         draw_main_rec(P, w, h)
         Gl.glBindTexture(Gl.GL_TEXTURE_2D, 0)
         Gl.glUseProgram(0)
         'menu
         'draw_menu()
-
+        'if we are doing a screen cap, dont draw any text, timing or the bottom red panel
+        If frmScreenCap.RENDER_OUT Then
+            Return
+        End If
         '######################################################################
         'draw bottom hightlighted area
         Dim top As Integer = 20
@@ -4333,7 +4362,7 @@ fuckit:
             u_View_Radius = view_radius
             update = True
         End If
-        If stop_updating And update Then update_screen()
+        If Not frmScreenCap.Visible And stop_updating And update Then update_screen()
 
         Return update
     End Function
@@ -4356,36 +4385,36 @@ fuckit:
             Application.DoEvents()
             If Not gl_busy And Not Me.WindowState = FormWindowState.Minimized Then
 
-                If spin_light And l_timer.ElapsedMilliseconds > 32 Then
-                    l_timer.Restart()
-                    l_rot += 0.015
-                    If l_rot > 2 * PI Then
-                        l_rot -= (2 * PI)
-                    End If
-                    sun_angle = l_rot
-                    x = Cos(l_rot) * (sun_radius * s)
-                    z = Sin(l_rot) * (sun_radius * s)
-
-                    position0(0) = x
-                    position0(1) = 10.0
-                    position0(2) = z
-
-                End If
-
-
                 If Not w_changing And Not stop_updating Then
+                    If spin_light And l_timer.ElapsedMilliseconds > 32 Then
+                        l_timer.Restart()
+                        l_rot += 0.015
+                        If l_rot > 2 * PI Then
+                            l_rot -= (2 * PI)
+                        End If
+                        sun_angle = l_rot
+                        x = Cos(l_rot) * (sun_radius * s)
+                        z = Sin(l_rot) * (sun_radius * s)
+
+                        position0(0) = x
+                        position0(1) = 10.0
+                        position0(2) = z
+
+                    End If
+
+
                     update_screen()
-                End If
-                screen_draw_time = CDbl(swat.ElapsedMilliseconds)
-                swat.Reset()
-                swat.Start()
-                If screen_avg_counter > 10 Then
-                    screen_totaled_draw_time = screen_avg_draw_time / screen_avg_counter
-                    screen_avg_counter = 0.0
-                    screen_avg_draw_time = 0.0
-                Else
-                    screen_avg_counter += 1.0
-                    screen_avg_draw_time += screen_draw_time
+                    screen_draw_time = CDbl(swat.ElapsedMilliseconds)
+                    swat.Reset()
+                    swat.Start()
+                    If screen_avg_counter > 10 Then
+                        screen_totaled_draw_time = screen_avg_draw_time / screen_avg_counter
+                        screen_avg_counter = 0.0
+                        screen_avg_draw_time = 0.0
+                    Else
+                        screen_avg_counter += 1.0
+                        screen_avg_draw_time += screen_draw_time
+                    End If
                 End If
             End If
 
@@ -7479,4 +7508,9 @@ make_this_tank:
     End Sub
 
     
+    Private Sub m_screen_cap_Click(sender As Object, e As EventArgs) Handles m_screen_cap.Click
+        stop_updating = True
+        frmScreenCap.ShowDialog(Me)
+        stop_updating = False
+    End Sub
 End Class

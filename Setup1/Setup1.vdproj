@@ -993,6 +993,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_DB7E6ECFB9E0450EB0D9F8E6511DF58C"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_DBFA635C9279455BBD554A2EE650F738"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -1018,6 +1024,12 @@
         "Entry"
         {
         "MsmKey" = "8:_E427AC02474C4FBE99693C46DB660A71"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_E45D64EA4D8C4735B3A1A2F171B7C3E2"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1234,7 +1246,7 @@
         "DisplayName" = "8:Release"
         "IsDebugOnly" = "11:FALSE"
         "IsReleaseOnly" = "11:TRUE"
-        "OutputFilename" = "8:..\\TankExporter_065.msi"
+        "OutputFilename" = "8:..\\TankExporter_066.msi"
         "PackageFilesAs" = "3:2"
         "PackageFileSize" = "3:-2147483648"
         "CabType" = "3:1"
@@ -4623,6 +4635,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_DB7E6ECFB9E0450EB0D9F8E6511DF58C"
+            {
+            "SourcePath" = "8:..\\!_Tank Exporter\\html\\Images\\screencapture.jpg"
+            "TargetName" = "8:screencapture.jpg"
+            "Tag" = "8:"
+            "Folder" = "8:_589FDE83079A4FB68CA57637595D2D5A"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_DBFA635C9279455BBD554A2EE650F738"
             {
             "SourcePath" = "8:..\\!_Tank Exporter\\resources\\models\\marker.x"
@@ -4709,6 +4741,26 @@
             "TargetName" = "8:terrainShader_vertex.glsl"
             "Tag" = "8:"
             "Folder" = "8:_1B07A285BAA74365A2EBEF572AC0A089"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_E45D64EA4D8C4735B3A1A2F171B7C3E2"
+            {
+            "SourcePath" = "8:..\\!_Tank Exporter\\html\\screencapture.html"
+            "TargetName" = "8:screencapture.html"
+            "Tag" = "8:"
+            "Folder" = "8:_87C614F83BA1480492E90F368FEAFD06"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -5262,15 +5314,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Tank Exporter"
-        "ProductCode" = "8:{7EA07A4B-E9C2-4A20-B33A-A731EABC01D5}"
-        "PackageCode" = "8:{C2453A7D-58EA-4EC1-B9E2-85879535FFDF}"
+        "ProductCode" = "8:{2D6E41E9-6BA5-4333-8008-572D644EB4A4}"
+        "PackageCode" = "8:{8FBE30D0-4108-478E-9B33-F9D6189506A4}"
         "UpgradeCode" = "8:{6ABAF23A-CB3D-4411-B78A-4855B5B5A0CD}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:1.0.65"
+        "ProductVersion" = "8:1.0.66"
         "Manufacturer" = "8:Coffee_"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
