@@ -7,7 +7,7 @@
 
 ## Version 66:
 This version adds screen capturing to Tank Exporter.
-Please read the Help Pages for more imformation.
+Please read the Help Pages for more information.
 
 ## Version 65:
 This version adds the ability to load and export crash models from the packages. Editing of the crash models is the same as the regular models. Tank Exporter handles all the paths so you do not need to worry about it. Just load the tank using Load Crashed... on the context menu. Tank Exporter will add _CRASH to the name when the FBX is exported.
