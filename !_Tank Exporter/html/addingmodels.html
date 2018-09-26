@@ -31,11 +31,14 @@ a:active {
 <p class="style1">Adding Models to Tank Components</p>
 <p>This is where things get fun.</p>
 <p>Not only can you edit the hull and turret models, you can also add new models to them including their own texture maps!</p>
-<p>Adding a new model requires a few steps BEFORE adding it to the Hull or Turret. <span class="style2">You can NOT add models to the gun or chassis!</span> <br />
+<p>Adding a new model requires a few steps BEFORE adding it to the Hull or Turret. <span class="style2">You can NOT add models to  chassis!<br />
+You can add models to the Gun but special care must be taken to insure you get the vertex colors correct! </span><br />
   Please read this over before diving in!<br />
 First.. Export a FBX tank to a folder somewhere. I'm using the T1 Cunningham. Read &quot;Get It Working&quot; in the help pages if you have not before continuing! </p>
 <p>First.. you need a model that has textures and is UV mapped. Tank Exporter can add up to three textures to a primitive and do all the editing of the visual for you.<br />
-You will however need to do some final editing of the visual because of texture paths and their types.. More on this later.<br />
+However, you may need to do some final editing of the visual because of texture paths and their types..<br />
+TE will edit the visual for you and setup the correct FX shader depending on how many textures your added model's material has assigned...
+More on this later.<br />
   <br />
   So.. you found this cool model you want to add. These steps are the same as long as the model can be loaded in to 3DS. <br />
 For this tutorial, I have included a royalty free model of a dice. Grab it <a href="DiceFBX.zip" target="_blank">HERE. </a><br />
@@ -94,6 +97,9 @@ We imported a dice.. cloned a copy, translated and scaled them.. set up their ma
   During the import of the FBX, Tank Exporter will figure out that you added something to the turret. In this case, 2 new dice models.<br />
   If you set up the materials correctly, you will see them in the render window like this:<br />
 <img src="Images/tedicenow.jpg" alt="New Dice!" width="474" height="288" />  </p>
+<p><br />
+  Next.. Write out the modified primitive. Refer to &quot;Simple Editing&quot; to learn how to do this.<br />
+</p>
 <p><span class="style2">As of version 63 of Tank Exporter, the texture files of added models will be converted to DDS, Mip-Maps are created and the new DDS is saved in the res_mods with the other textures for the imported tank.<br />
   If for what ever reason, this fails.... You can manually do this using the instructions below.
   </span><br />
@@ -135,9 +141,10 @@ We imported a dice.. cloned a copy, translated and scaled them.. set up their ma
   At this point.. the only thing left is to load the game and see if your work, works :)<br />
   And it does!<br />
   <img src="Images/diceingame.jpg" alt="Dice in Game" width="505" height="359" /><br />
-  You need to reload World of Tanks after adding anything to res_mods. The game only scans that folder at start up!<br />
+  <span class="style1">You need to reload World of Tanks after adding anything to res_mods.<br />
+  The game only scans that folder at start up!</span><br />
   <br />
-  Hope this all worked out. If not, try again.. Its rather east once you get used to it. <br />
+  Hope this all worked out. If not, try again.. Its rather east once you get use to it. <br />
 </p>
 <p>  <br />
 </p>

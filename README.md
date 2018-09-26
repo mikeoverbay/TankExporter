@@ -5,6 +5,9 @@
 
 #### This is an ongoing project by me.. Coffee_
 
+## Version 67:
+Added a hack to load the GB93_Caernarvon_AX tank. For what ever reason, this tank has a folder named _skins that causes TE to not find it.. I'm deleting this part of the path so TE can find the primtive files. If you want the new custom textures, copy them over from the _skins folder after extracting the tank to res_mods. When you load the tank in TE, the custom paint should show up.
+
 ## Version 66:
 This version adds screen capturing to Tank Exporter.
 Please read the Help Pages for more information.
