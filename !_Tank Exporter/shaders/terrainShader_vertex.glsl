@@ -12,7 +12,7 @@ out vec2 TC1;
 out vec3 vertex;
 void main(void){
 
-    TC1 = gl_MultiTexCoord0.xy;
+    TC1 = gl_MultiTexCoord0.xy * 4.0;
     ShadowCoord= shadowProjection * gl_Vertex;
     vertex = gl_Vertex.xyz;
     v_Normal = gl_NormalMatrix * gl_Normal;

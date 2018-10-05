@@ -117,7 +117,8 @@ Module modOpenGL
         Glut.glutInit()
         Gl.glGetFloatv(Gl.GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, largestAnsio)
 
-        Glut.glutInitDisplayMode(GLUT_RGBA Or GLUT_DOUBLE Or GLUT_MULTISAMPLE)
+        'Glut.glutInitDisplayMode(GLUT_RGBA Or GLUT_DOUBLE Or GLUT_MULTISAMPLE)
+        Glut.glutInitDisplayMode(GLUT_RGBA Or GLUT_DOUBLE)
 
         Gl.glViewport(0, 0, frmMain.pb1.Width, frmMain.pb1.Height)
 
@@ -130,8 +131,17 @@ Module modOpenGL
 
         gl_set_lights()
         'build_shaders()
+        Dim pa = Wgl.wglGetProcAddress("wglGetExtensionsStringEXT")
+
+        'If Wgl.wglSwapIntervalEXT(0) Then
+
+        'End If
 
     End Sub
+    Private Function get_support_sync() As Boolean
+        'Dim wglswap As Wgl.PFNWGLSWAPINTERVALEXTPROC
+    End Function
+
     Public Sub DisableOpenGL()
         G_Buffer.shut_down()
         Wgl.wglMakeCurrent(IntPtr.Zero, IntPtr.Zero)

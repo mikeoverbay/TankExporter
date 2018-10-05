@@ -73,6 +73,8 @@ Public Class frmMain
 
     Dim time As New Stopwatch
     Dim pick_timer As New Stopwatch
+
+
     Structure pngs
         Public img() As entry_
 
@@ -230,6 +232,7 @@ Public Class frmMain
         relocate_camobuttons()
         relocate_tankbuttons()
         relocate_texturebuttons()
+
         'End If
         If Not _Started Then Return
         If stop_updating Then draw_scene()
@@ -258,6 +261,16 @@ Public Class frmMain
         End If
         If Not _Started Then Return
         'If season_Buttons_VISIBLE Then
+        Dim wm = pb1.Width Mod 2
+        Dim hm = pb1.Height Mod 2
+        'If hm = 0 Then
+        '    hm = 1
+        'Else
+        '    hm = 0
+        'End If
+        Me.Width += wm
+        Me.Height += hm
+        Application.DoEvents()
         WINDOW_HEIGHT_DELTA = pb1.Height - OLD_WINDOW_HEIGHT
         relocate_season_Bottons()
         relocate_camobuttons()
@@ -542,6 +555,8 @@ Public Class frmMain
         position0(0) = x
         position0(1) = 10.0
         position0(2) = z
+
+
 
         tank_label.Text = ""
         SplitContainer1.SplitterDistance = 720
@@ -1481,12 +1496,12 @@ Public Class frmMain
         ResizeGL(w, h)
         ViewPerspective(w, h)
         ViewOrtho()
-        Dim e = Gl.glGetError
+        'Dim e = Gl.glGetError
         Dim sw! = pb1.Width
         Dim sh! = pb1.Height
         Dim p As New Point(0.0!, 0.0!)
         'Gl.glClear(Gl.GL_COLOR_BUFFER_BIT Or Gl.GL_DEPTH_BUFFER_BIT)
-        e = Gl.glGetError
+        'e = Gl.glGetError
 
         Gl.glActiveTexture(Gl.GL_TEXTURE0)
         Gl.glBindTexture(Gl.GL_TEXTURE_2D, Background_image_id)
@@ -1537,7 +1552,7 @@ Public Class frmMain
         Gl.glEnd()
         Gl.glBindTexture(Gl.GL_TEXTURE_2D, 0)
         Gdi.SwapBuffers(pb1_hDC)
-        e = Gl.glGetError
+        'e = Gl.glGetError
 
     End Sub
     Private Sub load_back_ground()
@@ -2588,19 +2603,21 @@ tryagain:
         Gl.glPolygonMode(Gl.GL_FRONT_AND_BACK, Gl.GL_FILL)
 
         Gl.glTexEnvi(Gl.GL_TEXTURE_ENV, Gl.GL_TEXTURE_ENV_MODE, Gl.GL_MODULATE)
-        Dim er = Gl.glGetError
+        'Dim er = Gl.glGetError
         Gl.glDepthFunc(Gl.GL_LEQUAL)
         Gl.glFrontFace(Gl.GL_CW)
 
         Gl.glPolygonOffset(1.0, 1.0)
         Gl.glLineWidth(1)
         Gl.glPointSize(2.0)
+
         Gl.glClearColor(0.0F, 0.0F, 0.0F, 1.0F)
         Dim no_background As Boolean = False
         If frmScreenCap.RENDER_OUT And frmScreenCap.r_color_flag Then
             Gl.glClearColor(frmScreenCap.r_color_val(0), frmScreenCap.r_color_val(1), frmScreenCap.r_color_val(2), 1.0)
             no_background = True
         End If
+
         If frmScreenCap.RENDER_OUT And frmScreenCap.r_trans Then
             Gl.glClearColor(0.0F, 0.0F, 0.0F, 0.0F)
             no_background = True
@@ -3373,6 +3390,11 @@ fuckit:
             Return
         End If
         '######################################################################
+        'handle upton if needed
+        If m_decal.Checked Then
+            upton.draw_upton()
+        End If
+        '######################################################################
         'draw bottom hightlighted area
         Dim top As Integer = 20
         If season_Buttons_VISIBLE Then
@@ -3397,10 +3419,6 @@ fuckit:
             show_depth_texture()
         End If
         '######################################################################
-        'handle upton if needed
-        If m_decal.Checked Then
-            upton.draw_upton()
-        End If
         '######################################################################
         Dim fps As Integer = 1.0 / (screen_totaled_draw_time * 0.001)
         Dim str = " FPS: ( " + fps.ToString + " )" + "  " + cur_texture_name
@@ -3409,7 +3427,7 @@ fuckit:
             glutPrintBox(10, -40, os1.ToString, 0.0, 1.0, 0.0, 1.0) ' fps string
 
         End If
-
+        'glutPrintBox(10, -60, "W = " + pb1.Width.ToString + " H = " + pb1.Height.ToString, 1.0, 1.0, 1.0, 1.0) ' fps string
 
         glutPrint(10, 8 - pb1.Height, str.ToString, 0.0, 1.0, 0.0, 1.0) ' fps string
         glutPrint(10, -20, view_status_string, 0.0, 1.0, 0.0, 1.0) ' view status
@@ -3438,6 +3456,7 @@ fuckit:
         End If
         '====================================
         Gdi.SwapBuffers(pb1_hDC)
+        Gl.glFinish()
         '====================================
         'has to be AFTER the buffer swap
         Dim et = pick_timer.ElapsedMilliseconds
@@ -3466,6 +3485,7 @@ fuckit:
                 End If
             End If
             '==============================================================================
+            ViewOrtho()
             If Not STOP_BUTTON_SCAN Then
                 Gl.glFrontFace(Gl.GL_CW)
                 If season_Buttons_VISIBLE Then
@@ -3492,18 +3512,18 @@ fuckit:
                 'Gdi.SwapBuffers(pb1_hDC)
             End If
             '====================================
-            If m_decal.Checked Then
-                upton.pick_upton()
-            End If
-            '====================================
             'this put the view in perspective!
             If mouse_pick_cb.Checked Then
                 mouse_pick_decal()
             End If
             '====================================
         End If
+        If m_decal.Checked Then
+            upton.pick_upton()
+        End If
+        '====================================
         Gl.glFlush()
-        er = Gl.glGetError
+        'er = Gl.glGetError
         OLD_WINDOW_HEIGHT = pb1.Height
     End Sub
     Private Sub draw_main_rec(ByVal p As Point, ByVal w As Integer, ByVal h As Integer)
@@ -4405,8 +4425,7 @@ fuckit:
 
                     update_screen()
                     screen_draw_time = CDbl(swat.ElapsedMilliseconds)
-                    swat.Reset()
-                    swat.Start()
+                    swat.Restart()
                     If screen_avg_counter > 10 Then
                         screen_totaled_draw_time = screen_avg_draw_time / screen_avg_counter
                         screen_avg_counter = 0.0
@@ -4418,7 +4437,8 @@ fuckit:
                 End If
             End If
 
-            Thread.Sleep(14)
+            Thread.Sleep(3)
+            'Application.DoEvents()
         End While
         'Thread.CurrentThread.Abort()
     End Sub

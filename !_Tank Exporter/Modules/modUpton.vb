@@ -42,7 +42,7 @@ Module modUpton
         Public upton_pick_image As Integer
 
         Public Sub pick_upton()
-            Dim er = Gl.glGetError
+            'Dim er = Gl.glGetError
 
             If M_DOWN Then
                 Return
@@ -55,6 +55,7 @@ Module modUpton
             'Dim type = pixel(3)
 
             Gl.glDisable(Gl.GL_DEPTH_TEST)
+            'Gl.glDisable(Gl.GL_BLEND)
             Gl.glPolygonMode(Gl.GL_FRONT_AND_BACK, Gl.GL_FILL)
             Gl.glEnable(Gl.GL_TEXTURE_2D)
             Gl.glDisable(Gl.GL_CULL_FACE)
@@ -62,21 +63,21 @@ Module modUpton
 
             Gl.glClearColor(0.0, 0.0, 0.0, 1.0)
             Gl.glClear(Gl.GL_COLOR_BUFFER_BIT)
-
+            Gl.glActiveTexture(Gl.GL_TEXTURE0)
             Gl.glBindTexture(Gl.GL_TEXTURE_2D, upton_pick_image)
-            draw_rect_preview(position, w, h)
+            draw_rect_preview(position, Me.w, Me.h)
             Gl.glBindTexture(Gl.GL_TEXTURE_2D, 0)
 
 
             'pick function
             Gl.glGetIntegerv(Gl.GL_VIEWPORT, viewport)
             Gl.glReadPixels(x, viewport(3) - y, 1, 1, Gl.GL_RGBA, Gl.GL_UNSIGNED_BYTE, pixel)
-            er = Gl.glGetError
+            'er = Gl.glGetError
             If pixel(0) = 102 Then 'mouse is on upton window
                 state = pixel(0)
                 Return
             End If
-            If pixel(0) > 0 Then 'red holds state index
+            If pixel(0) > 0 And pixel(0) < 11 Then 'red holds state index
                 state = pixel(0)
                 Return
             End If
@@ -90,6 +91,7 @@ Module modUpton
             Gl.glPolygonMode(Gl.GL_FRONT_AND_BACK, Gl.GL_FILL)
             Gl.glEnable(Gl.GL_TEXTURE_2D)
             Gl.glDisable(Gl.GL_CULL_FACE)
+            Gl.glEnable(Gl.GL_BLEND)
             Gl.glTexEnvf(Gl.GL_TEXTURE_ENV, Gl.GL_TEXTURE_ENV_MODE, Gl.GL_REPLACE)
             If state = 255 Then state = 0
             If state = 0 Or state = 102 Then
@@ -105,7 +107,7 @@ Module modUpton
                     End Try
                 End If
             End If
-            draw_rect_preview(position, w, h)
+            draw_rect_preview(position, Me.w, Me.h)
             Gl.glBindTexture(Gl.GL_TEXTURE_2D, 0)
             Gl.glDisable(Gl.GL_TEXTURE_2D)
 
