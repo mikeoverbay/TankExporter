@@ -5,6 +5,17 @@
 
 #### This is an ongoing project by me.. Coffee_
 
+## Version 68:
+It would seem Windows 10 does not like having OpenGL render context windows with odd sizes.. This has never been a problem with Windows 7. I have always made the FBO an even size as the rendering textures MUST be powers of 2.
+This version resizes the window to a power of 2 after the user manually drags a border causing a resize.
+If you are seeing an odd tearing artifact in the center of the window this is because the render window size is not an even number.
+
+I removed a bunch of decals from the terrain. This will speed up rendering a bit. If you are having any issues with the decals showing up as black, please report this along with the OS and Video hardware you are using.
+
+Tank Exporter runs well under SLI (Not tested in crossfire).
+Use the NVIDIA control panel to turn SLI on. Add Tank Exporter to the list of programs and than set the SLI setting.
+It may take a few trials and error attempts to get the SLI running.
+
 ## Version 67:
 Added a hack to load the GB93_Caernarvon_AX tank. For what ever reason, this tank has a folder named _skins that causes TE to not find it.. I'm deleting this part of the path so TE can find the primitive files. If you want the new custom textures, copy them over from the _skins folder after extracting the tank to res_mods. When you load the tank in TE, the custom paint should show up.
 

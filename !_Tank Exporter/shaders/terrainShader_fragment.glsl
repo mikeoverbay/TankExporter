@@ -113,7 +113,7 @@ if (dist > 150.0) {
     if (y > -range) y_fog = abs(y/range);
     y_fog2 = y_fog*.5;
     }
-    y_fog *= texture2D(noise,(TC1*15)+time).r*1.5;
+    y_fog *= texture2D(noise,(TC1*5)+time).r*1.5;
     y_fog = clamp(y_fog+y_fog2,0.0 , 1.0)*0.9;
     
     //=========================================================

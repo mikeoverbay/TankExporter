@@ -233,7 +233,15 @@ Public Class frmMain
         relocate_tankbuttons()
         relocate_texturebuttons()
 
+        Dim wm = pb1.Width Mod 2
+        Dim hm = pb1.Height Mod 2
+        'If hm = 0 Then
+        '    hm = 1
+        'Else
+        '    hm = 0
         'End If
+        Me.Width += wm
+        Me.Height += hm
         If Not _Started Then Return
         If stop_updating Then draw_scene()
         w_changing = False
@@ -261,16 +269,7 @@ Public Class frmMain
         End If
         If Not _Started Then Return
         'If season_Buttons_VISIBLE Then
-        Dim wm = pb1.Width Mod 2
-        Dim hm = pb1.Height Mod 2
-        'If hm = 0 Then
-        '    hm = 1
-        'Else
-        '    hm = 0
-        'End If
-        Me.Width += wm
-        Me.Height += hm
-        Application.DoEvents()
+
         WINDOW_HEIGHT_DELTA = pb1.Height - OLD_WINDOW_HEIGHT
         relocate_season_Bottons()
         relocate_camobuttons()
