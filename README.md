@@ -1,7 +1,7 @@
 # Tank Exporter
 
 ## A tool to export Tanks from World of Tanks.
-<a><img src="https://i.imgur.com/e6yc0SR.png" title="source: imgur.com" /></a>
+<a><img src="https://i.imgur.com/xJkItBK.png" title="source: imgur.com" /></a>
 
 #### This is an ongoing project by me.. Coffee_
 
