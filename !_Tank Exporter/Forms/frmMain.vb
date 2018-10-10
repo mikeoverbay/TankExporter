@@ -278,6 +278,7 @@ Public Class frmMain
         OLD_WINDOW_HEIGHT = pb1.Height
         G_Buffer.init()
         'End If
+        If Not _Started Then Return
         draw_scene()
     End Sub
 
@@ -1052,6 +1053,7 @@ Public Class frmMain
         view_radius = -10.0
         l_rot = PI * 0.25 + PI * 2
         pb1.Visible = True
+        G_Buffer.init()
 
         Startup_Timer.Enabled = True
         Application.DoEvents()
@@ -1466,6 +1468,10 @@ Public Class frmMain
                     "Would you like to continue?", MsgBoxStyle.YesNo, "Warning..") = MsgBoxResult.No Then
             Return
         End If
+        _Started = False
+        While update_thread.IsAlive
+            Application.DoEvents()
+        End While
         Dim f As DirectoryInfo = New DirectoryInfo(Temp_Storage)
         shared_contents_build.Dispose()
         packages(11).Dispose()
@@ -1482,6 +1488,7 @@ Public Class frmMain
         End Try
         DisableOpenGL()
         Application.Restart()
+        End
     End Sub
 
     Private Sub draw_background()

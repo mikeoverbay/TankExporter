@@ -171,7 +171,9 @@ Module modFBO
             Gl.glFramebufferTexture2DEXT(Gl.GL_FRAMEBUFFER_EXT, Gl.GL_COLOR_ATTACHMENT2_EXT, Gl.GL_TEXTURE_2D, 0, 0)
         End Sub
         Public Function init() As Boolean
-            frmMain.update_thread.Suspend()
+            If frmMain.update_thread.IsAlive Then
+                frmMain.update_thread.Suspend()
+            End If
             Threading.Thread.Sleep(50)
             Dim SCR_WIDTH, SCR_HEIGHT As Integer
             getsize(SCR_WIDTH, SCR_HEIGHT)
@@ -214,7 +216,10 @@ Module modFBO
 
 
             Gl.glBindFramebufferEXT(Gl.GL_FRAMEBUFFER_EXT, 0)
-            frmMain.update_thread.Resume()
+            If frmMain.update_thread.IsAlive Then
+                frmMain.update_thread.Resume()
+            End If
+
             Return True
         End Function
 
