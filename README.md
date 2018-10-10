@@ -6,7 +6,7 @@
 #### This is an ongoing project by me.. Coffee_
 
 ## Version 69:
-Fixed a issue with the a tanks item_def file messing up finding camuflage texture tile information.
+Fixed a issue with the a tanks item_def file messing up finding camouflage texture tile information.
 Replaced the season ICONS with edited versions from the game data.
 
 ## Version 68:
