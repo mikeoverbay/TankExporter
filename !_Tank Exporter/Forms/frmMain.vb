@@ -1739,9 +1739,11 @@ tryagain:
                         Dim camo_cnt As Integer = 0
                         For Each camo In gun_name.Descendants("camouflage")
                             Dim nd_c = doc.CreateElement("gun_camouflage")
-                            nd_c.InnerText = camo.Value
-                            nd_gun.AppendChild(nd_c)
-                            camo_cnt += 1
+                            If Not camo.Value.ToLower.Contains("gun") Then
+                                nd_c.InnerText = camo.Value
+                                nd_gun.AppendChild(nd_c)
+                                camo_cnt += 1
+                            End If
                         Next
                         If camo_cnt = 0 Then
                             Dim nd_c = doc.CreateElement("gun_camouflage")
@@ -1802,14 +1804,16 @@ tryagain:
                 Dim hn = doc.CreateElement("model")
                 hn.InnerText = h.Value.ToString
                 For Each camo As XElement In n.Descendants("camouflage")
-                    cnt += 1
-                    Dim hull = doc.CreateElement("hull")
-                    root_node.AppendChild(hull)
+                    If Not camo.Value.ToLower.Contains("hull") Then
+                        cnt += 1
+                        Dim hull = doc.CreateElement("hull")
+                        root_node.AppendChild(hull)
 
-                    Dim nd = doc.CreateElement("hull_camouflage")
-                    nd.InnerText = camo.Value
-                    hull.AppendChild(hn)
-                    hull.AppendChild(nd)
+                        Dim nd = doc.CreateElement("hull_camouflage")
+                        nd.InnerText = camo.Value
+                        hull.AppendChild(hn)
+                        hull.AppendChild(nd)
+                    End If
                 Next
                 If cnt = 0 Then
                     Dim hull = doc.CreateElement("hull")

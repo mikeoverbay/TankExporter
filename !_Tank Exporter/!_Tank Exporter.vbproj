@@ -24,7 +24,7 @@
     <UpdatePeriodically>false</UpdatePeriodically>
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
-    <ApplicationRevision>68</ApplicationRevision>
+    <ApplicationRevision>69</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
@@ -799,6 +799,9 @@
     <Content Include="resources\cube\env_brdf_lut.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="resources\desert.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="resources\grid_blank.png" />
     <Content Include="resources\models\borderGradient.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -829,6 +832,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="resources\Paste_6520.png" />
+    <Content Include="resources\summer.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="resources\t_footer.txt" />
     <Content Include="resources\t_header.txt" />
     <None Include="resources\upton.jpg" />
@@ -891,6 +897,9 @@
     <None Include="shaders\bloom_vertex.glsl">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <Content Include="resources\winter.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="tank.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

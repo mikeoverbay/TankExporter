@@ -100,7 +100,7 @@ Module modGlobals
     Public FBX_OUT_NAME As String = ""
     Public Temp_Storage As String = ""
     Public CAMO_BUTTON_DOWN As Boolean
-    Public SUMMER_ICON, WINTER_ICON, DESSERT_ICON As Integer
+    Public SUMMER_ICON, WINTER_ICON, DESERT_ICON As Integer
     Public NBUTT_norm, NBUTT_over, NBUTT_down As Integer
     Public CBUTT_norm, CBUTT_over, CBUTT_down, CBUTT_selected As Integer
     Public SELECTED_SEASON_BUTTON As Integer

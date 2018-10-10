@@ -316,7 +316,7 @@ Module modGLbuttons
 
 
     Public Sub test_buttons()
-        Dim dumb() = {SUMMER_ICON, WINTER_ICON, DESSERT_ICON}
+        Dim dumb() = {SUMMER_ICON, WINTER_ICON, DESERT_ICON}
         Dim rn As New Random
         For k = 0 To 9
             For j = 0 To 9
@@ -340,26 +340,11 @@ Module modGLbuttons
 
 
     Public Sub load_season_icons()
-        Dim sw = frmMain.gui_pkg("gui\maps\icons\customization\property_sheet\winter_season_icon.png")
-        Dim ss = frmMain.gui_pkg("gui\maps\icons\customization\property_sheet\summer_season_icon.png")
-        Dim sd = frmMain.gui_pkg("gui\maps\icons\customization\property_sheet\desert_season_icon.png")
-        Dim ms As New MemoryStream
-        Try
-            sw.Extract(ms)
-            WINTER_ICON = get_png_id(ms)
 
-            ms = New MemoryStream
-            ss.Extract(ms)
-            SUMMER_ICON = get_png_id(ms)
+        WINTER_ICON = load_png_file(Application.StartupPath + "\resources\winter.png")
+        SUMMER_ICON = load_png_file(Application.StartupPath + "\resources\summer.png")
+        DESERT_ICON = load_png_file(Application.StartupPath + "\resources\desert.png")
 
-            ms = New MemoryStream
-            sd.Extract(ms)
-            DESSERT_ICON = get_png_id(ms)
-
-        Catch ex As Exception
-            MsgBox("Bad path to empty_camouflage textures!", MsgBoxStyle.Exclamation, "Well shit!")
-        End Try
-        ms.Dispose()
         NBUTT_norm = load_png_file(Application.StartupPath + "\resources\Nbutt_norm.png")
         NBUTT_over = load_png_file(Application.StartupPath + "\resources\Nbutt_over.png")
         NBUTT_down = load_png_file(Application.StartupPath + "\resources\Nbutt_down.png")

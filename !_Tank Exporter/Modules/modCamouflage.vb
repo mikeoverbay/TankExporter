@@ -301,7 +301,7 @@ skip:
         Next
         season_Buttons(0).gl_textureID = WINTER_ICON
         season_Buttons(1).gl_textureID = SUMMER_ICON
-        season_Buttons(2).gl_textureID = DESSERT_ICON
+        season_Buttons(2).gl_textureID = DESERT_ICON
         relocate_season_Bottons()
         season_Buttons_VISIBLE = True
     End Sub

@@ -5,6 +5,10 @@
 
 #### This is an ongoing project by me.. Coffee_
 
+## Version 69:
+Fixed a issue with the a tanks item_def file messing up finding camuflage texture tile information.
+Replaced the season ICONS with edited versions from the game data.
+
 ## Version 68:
 It would seem Windows 10 does not like having OpenGL render context windows with odd sizes.. This has never been a problem with Windows 7. I have always made the FBO an even size as the rendering textures MUST be powers of 2.
 This version resizes the window to a power of 2 after the user manually drags a border causing a resize.
