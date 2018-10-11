@@ -261,6 +261,7 @@ Public Class frmMain
                 'End If
                 w_changing = False
                 window_state = Me.WindowState
+                If Not _Started Then Return
                 If stop_updating Then draw_scene()
                 Return
                 gl_stop = False
@@ -1746,7 +1747,7 @@ tryagain:
                         Dim camo_cnt As Integer = 0
                         For Each camo In gun_name.Descendants("camouflage")
                             Dim nd_c = doc.CreateElement("gun_camouflage")
-                            If Not camo.Value.ToLower.Contains("gun") Then
+                            If Not camo.Value.ToLower.Contains("gun") And camo.Value.Length > 2 Then
                                 nd_c.InnerText = camo.Value
                                 nd_gun.AppendChild(nd_c)
                                 camo_cnt += 1
@@ -1811,7 +1812,7 @@ tryagain:
                 Dim hn = doc.CreateElement("model")
                 hn.InnerText = h.Value.ToString
                 For Each camo As XElement In n.Descendants("camouflage")
-                    If Not camo.Value.ToLower.Contains("hull") Then
+                    If Not camo.Value.ToLower.Contains("hull") And camo.Value.Length > 2 Then
                         cnt += 1
                         Dim hull = doc.CreateElement("hull")
                         root_node.AppendChild(hull)
