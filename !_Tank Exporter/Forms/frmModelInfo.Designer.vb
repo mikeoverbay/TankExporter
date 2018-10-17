@@ -35,14 +35,15 @@ Partial Class frmModelInfo
         Me.infotb.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.infotb.Multiline = True
         Me.infotb.Name = "infotb"
-        Me.infotb.Size = New System.Drawing.Size(572, 323)
+        Me.infotb.ScrollBars = System.Windows.Forms.ScrollBars.Vertical
+        Me.infotb.Size = New System.Drawing.Size(738, 323)
         Me.infotb.TabIndex = 0
         '
         'frmModelInfo
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(7.0!, 12.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(572, 323)
+        Me.ClientSize = New System.Drawing.Size(738, 323)
         Me.Controls.Add(Me.infotb)
         Me.Font = New System.Drawing.Font("Lucida Console", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.Icon = CType(resources.GetObject("$this.Icon"), System.Drawing.Icon)

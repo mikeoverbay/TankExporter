@@ -281,7 +281,7 @@ outofhere:
             Dim id = Gl.glGenLists(1)
             Gl.glNewList(id, Gl.GL_COMPILE)
             fbxgrp(i).call_list = id
-            make_fbx_display_lists(fbxgrp(i).nPrimitives_, i)
+            make_fbx_display_lists(fbxgrp(i).nPrimitives_ * 3, i)
             Gl.glEndList()
         Next
         FBX_LOADED = True
@@ -828,6 +828,9 @@ outahere:
 
         End Try
 
+        Return get_mesh_geo(i, childnode, start_vertex, start_index, scene, rootnode, mesh)
+
+
         'geo = childnode.NodeAttribute
         '##############################################
         'get sizes
@@ -859,7 +862,7 @@ outahere:
 
         '------ we use this to resize the vertices array and get the right count of vertices.
         '-----------------------------------------------------------------------------------
-        Dim uv1_, uv2_, uv3_ As FbxVector2
+        Dim uv1_, uv2_, uv3_ As New FbxVector2
         Dim uv1_2, uv2_2, uv3_2 As New FbxVector2
         Dim vtc1, vtc2, vtc3 As New vertice_
         Dim n1, n2, n3 As New FbxVector4
@@ -900,7 +903,6 @@ outahere:
                         Dim v2 = mesh.GetPolygonVertex(j, 1)
                         Dim v3 = mesh.GetPolygonVertex(j, 2)
 
-                        color1 = colorLayer1.DirectArray(colorLayer1.IndexArray.GetAt(pnt))
                         color2 = colorLayer1.DirectArray(colorLayer1.IndexArray.GetAt(pnt + 1))
                         color3 = colorLayer1.DirectArray(colorLayer1.IndexArray.GetAt(pnt + 2))
                         '1
@@ -965,20 +967,27 @@ outahere:
             End If
 
         End If
+        Dim vt1, vt2, vt3 As FbxVector4
+        Dim vdx1, vdx2, vdx3 As Integer
+        Dim Reference_Mode = uvlayer1.Reference_Mode
+        Dim mapping_mode = uvlayer1.Mapping_Mode
+        Dim index_max As Integer = 0
         For j = 0 To polycnt - 1
+            'bl.AppendLine("=============")
+
             Application.DoEvents()
 
 
             Dim v1 = Abs(mesh.GetPolygonVertex(j, 0))
             Dim v2 = Abs(mesh.GetPolygonVertex(j, 1))
             Dim v3 = Abs(mesh.GetPolygonVertex(j, 2))
-            Dim vt1 = mesh.GetControlPointAt(v1) 'verts
-            Dim vt2 = mesh.GetControlPointAt(v2)
-            Dim vt3 = mesh.GetControlPointAt(v3)
+            vt1 = mesh.GetControlPointAt(v1) 'verts
+            vt2 = mesh.GetControlPointAt(v2)
+            vt3 = mesh.GetControlPointAt(v3)
             mesh.GetPolygonVertexNormal(j, 0, n1) 'normals
             mesh.GetPolygonVertexNormal(j, 1, n2)
             mesh.GetPolygonVertexNormal(j, 2, n3)
-            If index_mode = FbxLayerElement.ReferenceMode.Direct Then ' uvs
+            If Reference_Mode = FbxLayerElement.ReferenceMode.Direct Then ' uvs
                 uv1_ = uvlayer1.DirectArray(v1) * uv_scaling + uv_offset
                 uv2_ = uvlayer1.DirectArray(v2) * uv_scaling + uv_offset
                 uv3_ = uvlayer1.DirectArray(v3) * uv_scaling + uv_offset
@@ -989,21 +998,30 @@ outahere:
 
                 End If
             Else
-                Dim uvp = uvlayer1.IndexArray.GetAt(k)
-                uv1_ = uvlayer1.DirectArray.GetAt(uvp) * uv_scaling + uv_offset
-                uvp = uvlayer1.IndexArray.GetAt(k + 1)
-                uv2_ = uvlayer1.DirectArray.GetAt(uvp) * uv_scaling + uv_offset
-                uvp = uvlayer1.IndexArray.GetAt(k + 2)
-                uv3_ = uvlayer1.DirectArray.GetAt(uvp) * uv_scaling + uv_offset
-                If uv2Layer IsNot Nothing Then
-                    uvp = uv2Layer.IndexArray.GetAt(k)
-                    uv1_2 = uv2Layer.DirectArray.GetAt(uvp) * uv_scaling + uv_offset
-                    uvp = uv2Layer.IndexArray.GetAt(k + 1)
-                    uv2_2 = uv2Layer.DirectArray.GetAt(uvp) * uv_scaling + uv_offset
-                    uvp = uv2Layer.IndexArray.GetAt(k + 2)
-                    uv3_2 = uv2Layer.DirectArray.GetAt(uvp) * uv_scaling + uv_offset
+                If Reference_Mode = FbxLayerElement.ReferenceMode.IndexToDirect Then ' uvs
+                    vdx1 = mesh.GetTextureUVIndex(j, 0)
+                    uv1_ = uvlayer1.DirectArray.GetAt(vdx1) * uv_scaling + uv_offset
+                    If index_max < vdx1 Then index_max = vdx1
+                    If vdx1 <> v1 Then
+                        'Stop
+                    End If
+                    vdx2 = mesh.GetTextureUVIndex(j, 1)
+                    uv2_ = uvlayer1.DirectArray.GetAt(vdx2) * uv_scaling + uv_offset
+                    If index_max < vdx2 Then index_max = vdx2
+
+                    vdx3 = mesh.GetTextureUVIndex(j, 2)
+                    uv3_ = uvlayer1.DirectArray.GetAt(vdx3) * uv_scaling + uv_offset
+                    If index_max < vdx3 Then index_max = vdx3
+                    If uv2Layer IsNot Nothing Then
+                        vdx1 = mesh.GetTextureUVIndex(j, 0)
+                        uv1_2 = uv2Layer.DirectArray.GetAt(vdx1) * uv_scaling + uv_offset
+                        vdx2 = mesh.GetTextureUVIndex(j, 1)
+                        uv2_2 = uv2Layer.DirectArray.GetAt(vdx2) * uv_scaling + uv_offset
+                        vdx3 = mesh.GetTextureUVIndex(j, 2)
+                        uv3_2 = uv2Layer.DirectArray.GetAt(vdx3) * uv_scaling + uv_offset
+                    End If
+                    k += 3
                 End If
-                k += 3
             End If
             n1.Normalize()
             n2.Normalize()
@@ -1066,6 +1084,7 @@ outahere:
 
         Next
         create_TBNS(i)
+        Debug.WriteLine("Max " + index_max.ToString)
         '------ Look for vertexColor information
         '-----------------------------------------------------------------------------------
         '3DS Max crashes exporting FBX files that contain a VC channel.
@@ -1086,6 +1105,202 @@ outahere:
 
         Return True
     End Function
+    Private Function get_mesh_geo(ByVal fbx_idx As Integer, ByRef childnode As FbxNode, _
+                                  start_vertex As Integer, start_index As Integer, _
+                                  scene As FbxScene, rootnode As FbxNode, mesh As FbxMesh)
+
+        Dim uvlayer1 As FbxLayerElementUV = mesh.GetLayer(0).GetUVs
+        Dim property_ As FbxProperty = Nothing
+        Dim texture As FbxTexture
+        Dim material As FbxSurfaceMaterial = mesh.Node.GetSrcObject(FbxSurfaceMaterial.ClassId, 0)
+        'If uvCount <> polycnt Then polycnt = uvCount
+        Dim nVertices = mesh.Normals.Count
+        '###############################################
+        Dim index_mode = uvlayer1.Reference_Mode
+        Dim eNormals As FbxLayerElementNormal = mesh.GetLayer(0).Normals
+        Dim uv2_Layer As FbxLayerElementUV = Nothing
+        If mesh.UVLayerCount = 2 Then
+            property_ = material.FindProperty(FbxSurfaceMaterial.SSpecularFactor)
+            texture = property_.GetSrcObject(FbxTexture.ClassId, 0)
+            If texture Is Nothing Then
+                uv2_Layer = mesh.GetLayer(1).GetUVs
+                'Stop
+            End If
+        End If
+        Dim cp_cnt As UInt32 = mesh.ControlPoints.Length
+        Dim polycnt = mesh.PolygonCount
+        Dim uvCount As UInt32 = uvlayer1.IndexArray.Count / 3
+        fbxgrp(fbx_idx).nPrimitives_ = polycnt
+        fbxgrp(fbx_idx).nVertices_ = nVertices
+        fbxgrp(fbx_idx).startIndex_ = start_index : start_index += polycnt * 3
+        fbxgrp(fbx_idx).startVertex_ = start_vertex : start_vertex += nVertices * 40
+
+        ReDim fbxgrp(fbx_idx).cPoints(cp_cnt)
+        mesh.ControlPoints.CopyTo(fbxgrp(fbx_idx).cPoints, 0)
+        ReDim Preserve fbxgrp(fbx_idx).vertices(polycnt * 3)
+        ReDim Preserve fbxgrp(fbx_idx).indicies(polycnt * 3)
+        Dim vertexId As Integer = 0
+        For k = 0 To polycnt * 3 - 1
+            fbxgrp(fbx_idx).vertices(k) = New vertice_
+            fbxgrp(fbx_idx).indicies(k) = New uvect3
+        Next
+
+        Dim colorLayer1 As FbxLayerElementVertexColor = mesh.GetLayer(0).VertexColors
+        Dim normal_layer = mesh.GetLayer(0).Normals
+        Dim uv_layer = mesh.GetLayer(0).DiffuseUV
+        'If mesh.UVLayerCount = 3 Then
+        '    uv2_Layer = mesh.GetLayer(1).DiffuseUV
+        'End If
+        Dim max_cp_index As Integer
+        For i = 0 To polycnt - 1
+            Dim pv_cnt As Integer = mesh.GetPolygonSize(0)
+            If pv_cnt < 3 Or pv_cnt > 3 Then
+                MsgBox("Your mesh is not made of triangles! ID:" + fbxgrp(fbx_idx).name, MsgBoxStyle.Exclamation, "FBX Mesh Problem")
+                Return False
+            End If
+
+            For j = 0 To 2
+
+                '===============================================================================
+                'position
+                Dim cp_index As Integer = Math.Abs(mesh.GetPolygonVertex(i, j))
+                If cp_index > max_cp_index Then max_cp_index = cp_index
+                'Debug.WriteLine(vertexId.ToString + " " + cp_index.ToString)
+                Dim vertex As FbxVector4 = fbxgrp(fbx_idx).cPoints(cp_index)
+                'fbxgrp(fbx_idx).vertices(vertexId).x = vertex.X
+                fbxgrp(fbx_idx).indicies(vertexId).v1 = vertexId
+                '===============================================================================
+                'normals
+                Dim normal As New FbxVector4
+                If normal_layer.Mapping_Mode = FbxLayerElement.MappingMode.ByPolygonVertex Then
+                    Select Case normal_layer.Reference_Mode
+
+                        Case FbxLayerElement.ReferenceMode.Direct
+                            normal = normal_layer.DirectArray.GetAt(vertexId)
+                            Exit Select
+                        Case FbxLayerElement.ReferenceMode.IndexToDirect
+                            Dim n_id = normal_layer.IndexArray.GetAt(vertexId)
+                            normal = normal_layer.DirectArray.GetAt(n_id)
+
+                    End Select
+
+                ElseIf normal_layer.Mapping_Mode = FbxLayerElement.MappingMode.ByControlPoint Then
+                    Select Case normal_layer.Reference_Mode
+                        Case FbxLayerElement.ReferenceMode.Direct
+                            normal = normal_layer.DirectArray.GetAt(cp_index)
+                            Exit Select
+                        Case FbxLayerElement.ReferenceMode.IndexToDirect
+                            Dim n_id = normal_layer.IndexArray.GetAt(vertexId)
+                            normal = normal_layer.DirectArray.GetAt(n_id)
+                    End Select
+
+                End If
+                '===============================================================================
+                'UVs
+                Dim uv As New FbxVector2
+                If uv_layer Is Nothing Then
+                    MsgBox("No Uvs for mesh! ID:" + fbxgrp(fbx_idx).name, MsgBoxStyle.Exclamation, "FBX Mesh Problem!")
+                    Return False
+                End If
+                Select Case uv_layer.Mapping_Mode
+                    Case FbxLayerElement.MappingMode.ByControlPoint
+                        Select Case uv_layer.Reference_Mode
+                            Case FbxLayerElement.ReferenceMode.Direct
+                                uv = uv_layer.DirectArray.GetAt(cp_index)
+                                Exit Select
+                            Case FbxLayerElement.ReferenceMode.IndexToDirect
+                                Dim n_id = uv_layer.IndexArray.GetAt(cp_index)
+                                uv = uv_layer.DirectArray.GetAt(n_id)
+
+                        End Select
+                        Exit Select
+                    Case FbxLayerElement.MappingMode.ByPolygonVertex
+                        Dim uv_index = mesh.GetTextureUVIndex(i, j)
+                        Select Case uv_layer.Reference_Mode
+                            Case FbxLayerElement.ReferenceMode.Direct
+                            Case FbxLayerElement.ReferenceMode.IndexToDirect
+                                uv = uv_layer.DirectArray.GetAt(uv_index)
+                        End Select
+                End Select
+                '===============================================================================
+                'UVs
+                Dim uv2 As New FbxVector2
+                If mesh.UVLayerCount = 2 Then
+
+                    If uv2_layer IsNot Nothing Then
+                        fbxgrp(fbx_idx).has_uv2 = 1
+                        Select Case uv2_layer.Mapping_Mode
+                            Case FbxLayerElement.MappingMode.ByControlPoint
+                                Select Case uv2_layer.Reference_Mode
+                                    Case FbxLayerElement.ReferenceMode.Direct
+                                        uv2 = uv2_Layer.DirectArray.GetAt(cp_index)
+                                        Exit Select
+                                    Case FbxLayerElement.ReferenceMode.IndexToDirect
+                                        Dim n_id = uv2_layer.IndexArray.GetAt(cp_index)
+                                        uv2 = uv2_layer.DirectArray.GetAt(n_id)
+
+                                End Select
+                                Exit Select
+                            Case FbxLayerElement.MappingMode.ByPolygonVertex
+                                Dim uv2_index = mesh.GetTextureUVIndex(i, j)
+                                Select Case uv2_layer.Reference_Mode
+                                    Case FbxLayerElement.ReferenceMode.Direct
+                                    Case FbxLayerElement.ReferenceMode.IndexToDirect
+                                        uv2 = uv2_layer.DirectArray.GetAt(uv2_index)
+                                End Select
+
+                        End Select
+                    End If
+                End If
+                '===============================================================================
+                'vertex color
+                Dim color1 As New FbxColor
+                If colorLayer1 IsNot Nothing Then
+                    If colorLayer1.IndexArray.Count > 0 Then
+                        fbxgrp(fbx_idx).has_Vcolor = 1
+                    Else
+                        fbxgrp(fbx_idx).has_Vcolor = 0
+                    End If
+                    Dim cv_refmode = colorLayer1.Reference_Mode
+                    If cv_refmode = FbxLayerElement.ReferenceMode.IndexToDirect Then
+                        color1 = colorLayer1.DirectArray(colorLayer1.IndexArray.GetAt(vertexId))
+
+                    Else
+                        If cv_refmode = FbxLayerElement.ReferenceMode.Direct Then
+                            color1 = colorLayer1.DirectArray(vertexId)
+                        End If
+                    End If
+                End If
+                fbxgrp(fbx_idx).vertices(vertexId).x = vertex.X
+                fbxgrp(fbx_idx).vertices(vertexId).y = vertex.Y
+                fbxgrp(fbx_idx).vertices(vertexId).z = vertex.Z
+                fbxgrp(fbx_idx).vertices(vertexId).u = uv.X
+                fbxgrp(fbx_idx).vertices(vertexId).v = -uv.Y
+                fbxgrp(fbx_idx).vertices(vertexId).u2 = uv2.X
+                fbxgrp(fbx_idx).vertices(vertexId).v2 = -uv2.Y
+                fbxgrp(fbx_idx).vertices(vertexId).nx = normal.X
+                fbxgrp(fbx_idx).vertices(vertexId).ny = normal.Y
+                fbxgrp(fbx_idx).vertices(vertexId).nz = normal.Z
+                fbxgrp(fbx_idx).vertices(vertexId).n = packnormalFBX888(normal)
+                fbxgrp(fbx_idx).vertices(vertexId).index_1 = CByte(color1.Red * 255)
+                fbxgrp(fbx_idx).vertices(vertexId).index_2 = CByte(color1.Green * 255)
+                fbxgrp(fbx_idx).vertices(vertexId).index_3 = CByte(color1.Blue * 255)
+                fbxgrp(fbx_idx).vertices(vertexId).index_4 = CByte(color1.Alpha * 255)
+
+
+                vertexId += 1
+            Next
+        Next
+        ReDim Preserve fbxgrp(fbx_idx).vertices(vertexId - 1)
+        ReDim Preserve fbxgrp(fbx_idx).indicies(vertexId - 1)
+        fbxgrp(fbx_idx).nVertices_ = max_cp_index + 1
+        create_TBNS2(fbx_idx)
+        'frmMain.info_Label.Text = "Compacting Data"
+        'Application.DoEvents()
+        'compact_primitive(fbx_idx)
+        Return True
+    End Function
+
     Private Function fix_texture_path(s As String) As String
         If s.ToLower.Contains("vehicles") Then
             s = s.Replace("vehicles", "~")
@@ -1201,8 +1416,8 @@ outahere:
         For j = 0 To fbx_out.indicies.Length - 1
             fbx_in.indicies(j) = New uvect3
             fbx_in.indicies(j).v1 = fbx_out.indicies(j).v1
-            fbx_in.indicies(j).v2 = fbx_out.indicies(j).v2
-            fbx_in.indicies(j).v3 = fbx_out.indicies(j).v3
+            'fbx_in.indicies(j).v2 = fbx_out.indicies(j).v2
+            'fbx_in.indicies(j).v3 = fbx_out.indicies(j).v3
         Next
 
     End Sub
@@ -1333,6 +1548,9 @@ outahere:
                 MODEL_LOADED = False
                 Return
             End If
+            frmMain.info_Label.Text = "Loading Tank Component: " + file_name
+            Application.DoEvents()
+
             file_name = file_name.Replace(".primitives", ".model")
             Dim ta = file_name.Split("\normal")
             current_tank_package = m_groups(i).package_id(kk)
@@ -1389,19 +1607,60 @@ outahere:
         Else
             For i = 1 To object_count
                 flg = False
-                If _group(i).nVertices_ <> fbxgrp(i).nVertices_ Then 'something removed or added?
+                If (_group(i).indicies.Length - 1) * 3 <> fbxgrp(i).indicies.Length Then 'something removed or added?
                     flg = True : GoTo whichOne
                 End If
-                For j As UInt32 = 0 To _group(i).nVertices_ - 1
-                    If _group(i).vertices(j).x <> fbxgrp(i).vertices(j).x Then
+                For j As UInt32 = 0 To _group(i).indicies.Length - 3
+                    Dim p1 = _group(i).indicies(j + 1).v1
+                    Dim p2 = _group(i).indicies(j + 1).v2
+                    Dim p3 = _group(i).indicies(j + 1).v3
+                    Dim vg_1 = _group(i).vertices(p1)
+                    Dim vg_2 = _group(i).vertices(p2)
+                    Dim vg_3 = _group(i).vertices(p3)
+                    Dim f1 = fbxgrp(i).indicies((j * 3) + 0).v1
+                    Dim f2 = fbxgrp(i).indicies((j * 3) + 1).v1
+                    Dim f3 = fbxgrp(i).indicies((j * 3) + 2).v1
+                    Dim vf_1 = fbxgrp(i).vertices(f1)
+                    Dim vf_2 = fbxgrp(i).vertices(f2)
+                    Dim vf_3 = fbxgrp(i).vertices(f3)
+
+                    'check every verts x,y and z for non match
+                    'p1 -----------------------------------------
+                    If vg_1.x <> vf_1.x Then
                         flg = True
                         GoTo whichOne
                     End If
-                    If _group(i).vertices(j).y <> fbxgrp(i).vertices(j).y Then
+                    If vg_1.y <> vf_1.y Then
                         flg = True
                         GoTo whichOne
                     End If
-                    If _group(i).vertices(j).z <> fbxgrp(i).vertices(j).z Then
+                    If vg_1.z <> vf_1.z Then
+                        flg = True
+                        GoTo whichOne
+                    End If
+                    'p2 -----------------------------------------
+                    If vg_2.x <> vf_2.x Then
+                        flg = True
+                        GoTo whichOne
+                    End If
+                    If vg_2.y <> vf_2.y Then
+                        flg = True
+                        GoTo whichOne
+                    End If
+                    If vg_2.z <> vf_2.z Then
+                        flg = True
+                        GoTo whichOne
+                    End If
+                    'p3 -----------------------------------------
+                    If vg_3.x <> vf_3.x Then
+                        flg = True
+                        GoTo whichOne
+                    End If
+                    If vg_3.y <> vf_3.y Then
+                        flg = True
+                        GoTo whichOne
+                    End If
+                    If vg_3.z <> vf_3.z Then
                         flg = True
                         GoTo whichOne
                     End If
@@ -1412,10 +1671,10 @@ whichone:
                     If _group(i).name.ToLower.Contains("chassis") Then
                         'check if the treads have been changed. The can NOT 
                         If _group(i).color_name.ToLower.Contains("tracks") And CB Then
-                            MsgBox("It appears you have removed or added" + vbCrLf + _
-                                   " vertices to the rubber band tracks!" + vbCrLf + _
-                                   "You can ignore this warning!!", _
-                                   MsgBoxStyle.Exclamation, "Oh My..")
+                            'MsgBox("It appears you have removed or added" + vbCrLf + _
+                            '       " vertices to the rubber band tracks!" + vbCrLf + _
+                            '       "You can ignore this warning!!", _
+                            '       MsgBoxStyle.Exclamation, "Oh My..")
                         Else
                             CB = True
 
@@ -1511,15 +1770,15 @@ whichone:
             Gl.glNewList(cpl, Gl.GL_COMPILE)
             a = i + 10
             Gl.glBegin(Gl.GL_TRIANGLES)
-            For k As UInt32 = 0 To fbxgrp(i).nPrimitives_ - 1
+            For k As UInt32 = 0 To fbxgrp(i).nPrimitives_ * 3 - 1 Step 3
 
-                Dim p1 = fbxgrp(i).indicies(k).v1
-                Dim p2 = fbxgrp(i).indicies(k).v2
-                Dim p3 = fbxgrp(i).indicies(k).v3
+                Dim p1 = fbxgrp(i).indicies(k + 0).v1
+                Dim p2 = fbxgrp(i).indicies(k + 1).v1
+                Dim p3 = fbxgrp(i).indicies(k + 2).v1
                 Dim v1 = fbxgrp(i).vertices(p1)
                 Dim v2 = fbxgrp(i).vertices(p2)
                 Dim v3 = fbxgrp(i).vertices(p3)
-                Dim t = k + 1
+                Dim t = CInt((k / 3) + 1)
                 r = t And &HFF
                 g = (t And &HFF00) >> 8
                 b = (t And &HFF0000) >> 16
@@ -1571,8 +1830,8 @@ whichone:
         'trans_vertex(jj)
         For z As UInt32 = 0 To (cnt) - 1
             make_triangle(jj, fbxgrp(jj).indicies(z).v1)
-            make_triangle(jj, fbxgrp(jj).indicies(z).v2)
-            make_triangle(jj, fbxgrp(jj).indicies(z).v3)
+            'make_triangle(jj, fbxgrp(jj).indicies(z).v2)
+            'make_triangle(jj, fbxgrp(jj).indicies(z).v3)
         Next
         Gl.glEnd()
     End Sub
@@ -1621,6 +1880,51 @@ whichone:
             p1 = fbxgrp(id).indicies(i).v1
             p2 = fbxgrp(id).indicies(i).v2
             p3 = fbxgrp(id).indicies(i).v3
+            Dim tan, bn As vect3
+            Dim v1, v2, v3 As vect3
+            Dim u1, u2, u3 As vect3
+            v1.x = -fbxgrp(id).vertices(p1).x
+            v1.y = fbxgrp(id).vertices(p1).y
+            v1.z = fbxgrp(id).vertices(p1).z
+
+            v2.x = -fbxgrp(id).vertices(p2).x
+            v2.y = fbxgrp(id).vertices(p2).y
+            v2.z = fbxgrp(id).vertices(p2).z
+
+            v3.x = -fbxgrp(id).vertices(p3).x
+            v3.y = fbxgrp(id).vertices(p3).y
+            v3.z = fbxgrp(id).vertices(p3).z
+            '
+            u1.x = fbxgrp(id).vertices(p1).u
+            u1.y = fbxgrp(id).vertices(p1).v
+
+            u2.x = fbxgrp(id).vertices(p2).u
+            u2.y = fbxgrp(id).vertices(p2).v
+
+            u3.x = fbxgrp(id).vertices(p3).u
+            u3.y = fbxgrp(id).vertices(p3).v
+            ComputeTangentBasis(v1, v2, v3, u1, u2, u3, tan, bn) ' calculate tan and biTan
+
+            save_tbn(id, tan, bn, p1) ' puts xyz values in vertex
+            save_tbn(id, tan, bn, p2)
+            save_tbn(id, tan, bn, p3)
+
+            fbxgrp(id).vertices(p1).t = packnormalFBX888(toFBXv(tan)) 'packs and puts the uint value in to the vertex
+            fbxgrp(id).vertices(p1).bn = packnormalFBX888(toFBXv(bn))
+            fbxgrp(id).vertices(p2).t = packnormalFBX888(toFBXv(tan))
+            fbxgrp(id).vertices(p2).bn = packnormalFBX888(toFBXv(bn))
+            fbxgrp(id).vertices(p3).t = packnormalFBX888(toFBXv(tan))
+            fbxgrp(id).vertices(p3).bn = packnormalFBX888(toFBXv(bn))
+        Next
+        Return
+    End Sub
+    Public Sub create_TBNS2(ByVal id As UInt32)
+        Dim cnt = fbxgrp(id).nPrimitives_ * 3
+        Dim p1, p2, p3 As UInt32
+        For i As UInt32 = 0 To cnt - 1 Step 3
+            p1 = fbxgrp(id).indicies(i).v1
+            p2 = fbxgrp(id).indicies(i + 1).v1
+            p3 = fbxgrp(id).indicies(i + 2).v1
             Dim tan, bn As vect3
             Dim v1, v2, v3 As vect3
             Dim u1, u2, u3 As vect3

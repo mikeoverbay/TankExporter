@@ -2594,8 +2594,8 @@ tryagain:
         End If
 
         If Not (Wgl.wglMakeCurrent(pb1_hDC, pb1_hRC)) Then
-            MessageBox.Show("Unable to make rendering context current")
-            End
+            '  MessageBox.Show("Unable to make rendering context current")
+            Return
         End If
         'gl_busy = False
         'Return
@@ -2759,6 +2759,11 @@ tryagain:
         End If
         Gl.glEnable(Gl.GL_DEPTH_TEST)
         '-----------------------------------------------------------------------------
+        'If temp_list > 0 Then
+        '    Gl.glFrontFace(Gl.GL_CCW)
+        '    Gl.glColor3f(0.25, 0.25, 0.25)
+        '    Gl.glCallList(temp_list)
+        'End If
         '-----------------------------------------------------------------------------
         'show bone markers if told to
         If MODEL_LOADED And showMarkers_cb.Checked Then
@@ -3575,14 +3580,14 @@ fuckit:
             Gl.glColor4f(1.0, 0.0, 0.0, 0.5)
             Gl.glDisable(Gl.GL_LIGHTING)
             Gl.glPolygonMode(Gl.GL_FRONT_AND_BACK, Gl.GL_FILL)
-
+            Dim tv = CInt((found_triangle_tv - 1) * 3)
             If m_show_fbx.Checked Then
                 Gl.glPushMatrix()
                 Gl.glMultMatrixd(fbxgrp(current_tank_part).matrix)
                 Gl.glBegin(Gl.GL_TRIANGLES)
-                Dim p1 = fbxgrp(current_tank_part).indicies(found_triangle_tv - 1).v1
-                Dim p2 = fbxgrp(current_tank_part).indicies(found_triangle_tv - 1).v2
-                Dim p3 = fbxgrp(current_tank_part).indicies(found_triangle_tv - 1).v3
+                Dim p1 = fbxgrp(current_tank_part).indicies(tv + 0).v1
+                Dim p2 = fbxgrp(current_tank_part).indicies(tv + 1).v1
+                Dim p3 = fbxgrp(current_tank_part).indicies(tv + 2).v1
                 Dim v1 = fbxgrp(current_tank_part).vertices(p1)
                 Dim v2 = fbxgrp(current_tank_part).vertices(p2)
                 Dim v3 = fbxgrp(current_tank_part).vertices(p3)
@@ -3593,11 +3598,16 @@ fuckit:
                 Gl.glEnd()
                 Gl.glPopMatrix()
             Else
+                tv = found_triangle_tv
+                If tv > _object(current_tank_part).tris.Length Then
+                    tv = 0
+                    Gl.glDisable(Gl.GL_BLEND)
+                    Return
+                End If
                 Gl.glBegin(Gl.GL_TRIANGLES)
-
-                Dim v1 = _object(current_tank_part).tris(found_triangle_tv).v1
-                Dim v2 = _object(current_tank_part).tris(found_triangle_tv).v2
-                Dim v3 = _object(current_tank_part).tris(found_triangle_tv).v3
+                Dim v1 = _object(current_tank_part).tris(tv).v1
+                Dim v2 = _object(current_tank_part).tris(tv).v2
+                Dim v3 = _object(current_tank_part).tris(tv).v3
                 Gl.glVertex3f(v2.x, v2.y, v2.z)
                 Gl.glVertex3f(v1.x, v1.y, v1.z)
                 Gl.glVertex3f(v3.x, v3.y, v3.z)

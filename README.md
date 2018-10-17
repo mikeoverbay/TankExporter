@@ -5,6 +5,11 @@
 
 #### This is an ongoing project by me.. Coffee_
 
+## Version 71:
+This fixes a long time issue with importing FBX files with UV vertice counts larger than geometry vertice counts. Texture seams cause problems when rendering or writing the primitive if the vertices are not split based on UV mapping.
+The down side to this new FBX reading method is it requires repacking the vertices and indices back in to indexed lists.
+This takes time and you will see it when you write out a primitive. The code is not horribly slow but is worth the fix to UV map seams.
+
 ## Version 70:
 Fixed a bug with loading the Skorpion and other tanks.
 

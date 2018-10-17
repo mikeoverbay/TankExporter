@@ -23,7 +23,7 @@ Imports System.Runtime.CompilerServices
 Imports System.Collections.Generic
 Imports Ionic.Zip
 Imports System.Drawing.Imaging
-
+Imports Skill.FbxSDK
 #End Region
 
 
@@ -93,17 +93,18 @@ Module ModTankLoader
         Public has_bsp_material As Boolean
     End Structure
     Public Class vertice_
+        Public found As Boolean
         Public x, y, z As Single
         Public n As UInt32
         Public u, v As Single
-        Public index_1 As Byte = 0
-        Public index_2 As Byte = 0
-        Public index_3 As Byte = 0
-        Public index_4 As Byte = 0
-        Public weight_1 As Byte = 0
-        Public weight_2 As Byte = 0
-        Public weight_3 As Byte = 0
-        Public weight_4 As Byte = 0
+        Public index_1 As Byte
+        Public index_2 As Byte
+        Public index_3 As Byte
+        Public index_4 As Byte
+        Public weight_1 As Byte
+        Public weight_2 As Byte
+        Public weight_3 As Byte
+        Public weight_4 As Byte
         Public nx, ny, nz As Single
         Public tx, ty, tz As Single
         Public bnx, bny, bnz As Single
@@ -287,6 +288,8 @@ Module ModTankLoader
     End Class
     Public _group() As _grps
     Public Structure _grps
+        Public comp As comp_
+        Public cPoints() As FbxVector4
         Public vertex_pick_list As Integer
         Public is_GAmap As Integer
         Public texture_count As Integer
@@ -967,22 +970,32 @@ next_m:
                     _group(k).has_uv2 = 0
                 End If
                 Dim pos As UInt32
-                If pg_flag Then
-                    pos = pGroups(k - object_start).nVertices_ - 1
-                    _group(k).startVertex_ = pGroups(0).startVertex_
-                    _group(k).startIndex_ = pGroups(0).startIndex_
-                    _group(k).nVertices_ = pGroups(0).nVertices_
-                    _group(k).nPrimitives_ = pGroups(0).nPrimitives_
-                Else
-                    pos = pGroups(k - object_start).nVertices_ - 1
-                    _group(k).startVertex_ = pGroups(k - object_start).startVertex_
-                    _group(k).startIndex_ = pGroups(k - object_start).startIndex_
-                    _group(k).nVertices_ = pGroups(k - object_start).nVertices_
-                    _group(k).nPrimitives_ = pGroups(k - object_start).nPrimitives_
-                End If
+                Try
+
+                    If pg_flag Then
+                        pos = pGroups(k - object_start).nVertices_ - 1
+                        _group(k).startVertex_ = pGroups(0).startVertex_
+                        _group(k).startIndex_ = pGroups(0).startIndex_
+                        _group(k).nVertices_ = pGroups(0).nVertices_
+                        _group(k).nPrimitives_ = pGroups(0).nPrimitives_
+                    Else
+                        pos = pGroups(k - object_start).nVertices_ - 1
+                        _group(k).startVertex_ = pGroups(k - object_start).startVertex_
+                        _group(k).startIndex_ = pGroups(k - object_start).startIndex_
+                        _group(k).nVertices_ = pGroups(k - object_start).nVertices_
+                        _group(k).nPrimitives_ = pGroups(k - object_start).nPrimitives_
+                    End If
+                Catch ex As Exception
+                    Return False
+                End Try
                 ReDim _group(k).vertices(pos + 1)
                 For cnt = 0 To pos
-                    tbuf(i) = New vertice_
+                    Try
+                        tbuf(i) = New vertice_
+
+                    Catch ex As Exception
+                        Return False
+                    End Try
                     tbuf(i).x = vb_reader.ReadSingle '* -1.0!
                     tbuf(i).y = vb_reader.ReadSingle
                     tbuf(i).z = vb_reader.ReadSingle

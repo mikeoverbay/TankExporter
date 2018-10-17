@@ -35,6 +35,16 @@ Public Class frmModelInfo
             strings(n) = ""
             n += 1
         End If
+        If FBX_LOADED Then
+            For i = 1 To fbxgrp.Length - 1
+                strings(n) = pad_string("ID Number: " + i.ToString("00"))
+                strings(n) += "Name: " + fbxgrp(i).name
+                n += 1
+            Next
+
+        End If
+        strings(n) = ""
+        n += 1
 
         If MODEL_LOADED Then
             strings(n) += pad_string("Packaged Models") + pad_string("------------------") + pad_string("------------------") + pad_string2("------------") + pad_string2("-------------")
@@ -49,8 +59,18 @@ Public Class frmModelInfo
                 n += 1
             Next
         End If
+        strings(n) = ""
+        n += 1
+        If MODEL_LOADED Then
+            For i = 1 To object_count
+                strings(n) = pad_string("ID Number: " + i.ToString("00"))
+                strings(n) += "name: " + _group(i).name
+                n += 1
+            Next
+
+        End If
         infotb.Text = ""
-        For i = 0 To 30
+        For i = 0 To 49
             If strings(i) IsNot Nothing Then
                 infotb.Text += strings(i) + vbCrLf
             End If

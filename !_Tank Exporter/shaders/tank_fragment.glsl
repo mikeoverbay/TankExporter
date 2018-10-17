@@ -56,7 +56,6 @@ in vec3 vertexColor;
 
 vec4 ShadowCoordPostW;
 vec2 moments ;
-
 float chebyshevUpperBound( float distance)
 {
     moments = texture2D(shadowMap,ShadowCoordPostW.xy).rg;
@@ -271,6 +270,8 @@ vec4   cc = vec4(0.0);
     float  a;
     vec3   sumC = vec3(0.0);
     //--------------------------------
+
+
 // setup tiling values
     vec2 ctc = TC1 * camo_tiling.xy;
     // from scripts/vehicle/nation/customiztion.xml file 
