@@ -5,6 +5,10 @@
 
 #### This is an ongoing project by me.. Coffee_
 
+## Version 72:
+This adds a check box to the extraction screen to extract the tanks item_Def file from the scripts.pkg.
+Also... It fixes a bug of items not being found in the shared_content_build file I create for searching for data.
+
 ## Version 71:
 This fixes a long time issue with importing FBX files with UV vertice counts larger than geometry vertice counts. Texture seams cause problems when rendering or writing the primitive if the vertices are not split based on UV mapping.
 The down side to this new FBX reading method is it requires repacking the vertices and indices back in to indexed lists.

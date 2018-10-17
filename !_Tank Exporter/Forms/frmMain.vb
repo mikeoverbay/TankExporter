@@ -51,7 +51,8 @@ Public Class frmMain
     Public mouse_find_location As New Point
     Public found_triangle_tv As Integer
     Private TOTAL_TANKS_FOUND As Integer = 0
-
+    Private itemDefXmlString As String = ""
+    Private itemDefPathString As String = ""
     Private sorted As Boolean
 
     Dim delay As Integer = 0
@@ -1635,6 +1636,7 @@ tryagain:
 
 
         Dim f = scripts_pkg("scripts\item_defs\" + tank)
+        itemDefPathString = "scripts \ item_defs \ " + tank
         If f Is Nothing Then
             Return
         End If
@@ -1643,6 +1645,7 @@ tryagain:
         openXml_stream(ms, "nation")
         ms.Dispose()
         Dim docx = XDocument.Parse(TheXML_String)
+        itemDefXmlString = TheXML_String
         Dim doc As New XmlDocument
         Dim xmlroot As XmlNode = xDoc.CreateElement(XmlNodeType.Element, "root", "")
         Dim root_node As XmlNode = doc.CreateElement("model")
@@ -5668,6 +5671,24 @@ fuckit:
 
 
             Dim ar = file_name.Split(":")
+            If frmExtract.extract_item_def_cb.Checked Then
+                Try ' catch any exception thrown
+
+                    Dim ip = My.Settings.res_mods_path + "\" + itemDefPathString.Replace(" ", "")
+                    itemDefXmlString = itemDefXmlString.Replace(" ", "")
+                    itemDefXmlString = itemDefXmlString.Replace(vbCr, "")
+                    If Not Directory.Exists(Path.GetDirectoryName(ip)) Then
+                        Directory.CreateDirectory(Path.GetDirectoryName(ip))
+                    End If
+                    itemDefXmlString = itemDefXmlString.Replace("map_nation", Path.GetFileNameWithoutExtension(file_name) + ".xml")
+                    File.WriteAllText(ip, itemDefXmlString)
+                Catch ex As Exception
+                    MsgBox(file_name + vbCrLf + ex.Message, MsgBoxStyle.Critical, "Shit!!")
+                    Return
+                End Try
+
+
+            End If
             If frmExtract.m_customization.Checked Then ' export customization?
 
                 Try ' catch any exception thrown
@@ -6160,6 +6181,119 @@ fuckit:
                     Next ' next entry
                 End If 'isnot nothing
             Next 'next package
+            'now check built package
+            If shared_contents_build IsNot Nothing Then
+
+                For Each ent In shared_contents_build
+                    If ent.FileName.Contains(ar(2)) Then
+                        If Not ent.FileName.Contains("collision_client") Then
+                            If Not ent.FileName.Contains(crash) Then
+                                If Not models Then
+                                    Select Case all_lods
+                                        Case True
+                                            If ent.FileName.ToLower.Contains("track") Then
+                                                If frmExtract.ext_chassis.Checked Then
+                                                    If ent.FileName.ToLower.Contains("track") Then
+                                                        ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
+                                                    End If
+                                                End If
+                                            End If
+                                            Select Case frmExtract.ext_chassis.Checked
+                                                Case True
+                                                    If ent.FileName.ToLower.Contains("chassis") Then
+                                                        ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
+                                                    End If
+                                            End Select
+                                            Select Case frmExtract.ext_hull.Checked
+                                                Case True
+                                                    If ent.FileName.ToLower.Contains("hull") Then
+                                                        ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
+                                                    End If
+                                            End Select
+                                            Select Case frmExtract.ext_turret.Checked
+                                                Case True
+                                                    If ent.FileName.ToLower.Contains("turret") Then
+                                                        ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
+                                                    End If
+                                            End Select
+                                            Select Case frmExtract.ext_gun.Checked
+                                                Case True
+                                                    If ent.FileName.ToLower.Contains("gun") Then
+                                                        ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
+                                                    End If
+                                            End Select
+                                        Case False
+                                            If ent.FileName.ToLower.Contains("track") Then
+                                                If frmExtract.ext_chassis.Checked Then
+                                                    If ent.FileName.ToLower.Contains("track") Then
+                                                        ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
+                                                    End If
+                                                End If
+                                            End If
+                                            If ent.FileName.ToLower.Contains("lod0") Then
+                                                Select Case frmExtract.ext_chassis.Checked
+                                                    Case True
+                                                        If ent.FileName.ToLower.Contains("chassis") Then
+                                                            ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
+                                                        End If
+                                                End Select
+                                                Select Case frmExtract.ext_hull.Checked
+                                                    Case True
+                                                        If ent.FileName.ToLower.Contains("hull") Then
+                                                            ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
+                                                        End If
+                                                End Select
+                                                Select Case frmExtract.ext_turret.Checked
+                                                    Case True
+                                                        If ent.FileName.ToLower.Contains("turret") Then
+                                                            ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
+                                                        End If
+                                                End Select
+                                                Select Case frmExtract.ext_gun.Checked
+                                                    Case True
+                                                        If ent.FileName.ToLower.Contains("gun") Then
+                                                            ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
+                                                        End If
+                                                End Select
+                                            End If
+                                    End Select
+                                End If 'if model
+                                Select Case ent.FileName.Contains("dds")
+                                    Case True
+                                        Select Case frmExtract.ext_chassis.Checked
+                                            Case True
+                                                If ent.FileName.ToLower.Contains("chassis") Then
+                                                    ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
+                                                    p = ent.FileName
+                                                End If
+                                        End Select
+                                        Select Case frmExtract.ext_hull.Checked
+                                            Case True
+                                                If ent.FileName.ToLower.Contains("hull") Then
+                                                    ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
+                                                    p = ent.FileName
+                                                End If
+                                        End Select
+                                        Select Case frmExtract.ext_turret.Checked
+                                            Case True
+                                                If ent.FileName.ToLower.Contains("turret") Then
+                                                    ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
+                                                    p = ent.FileName
+                                                End If
+                                        End Select
+                                        Select Case frmExtract.ext_gun.Checked
+                                            Case True
+                                                If ent.FileName.ToLower.Contains("gun") Then
+                                                    ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
+                                                    p = ent.FileName
+                                                End If
+                                        End Select
+                                End Select
+                            End If ' crash
+                        End If ' collision_client
+                    End If ' filename match
+                Next ' next entry
+            End If 'isnot nothing
             If frmExtract.create_work_area_cb.Checked Then
                 p = My.Settings.res_mods_path + "\" + Path.GetDirectoryName(p)
                 Dim wap = p + "\Work Area"

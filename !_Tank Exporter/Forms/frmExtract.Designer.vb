@@ -37,6 +37,7 @@ Partial Class frmExtract
         Me.ext_gun = New System.Windows.Forms.CheckBox()
         Me.extract_btn = New System.Windows.Forms.Button()
         Me.cancel_btn = New System.Windows.Forms.Button()
+        Me.extract_item_def_cb = New System.Windows.Forms.CheckBox()
         Me.GroupBox1.SuspendLayout()
         Me.SuspendLayout()
         '
@@ -102,7 +103,7 @@ Partial Class frmExtract
         '
         Me.m_customization.AutoSize = True
         Me.m_customization.ForeColor = System.Drawing.Color.Red
-        Me.m_customization.Location = New System.Drawing.Point(27, 232)
+        Me.m_customization.Location = New System.Drawing.Point(27, 254)
         Me.m_customization.Name = "m_customization"
         Me.m_customization.Size = New System.Drawing.Size(109, 17)
         Me.m_customization.TabIndex = 8
@@ -161,7 +162,7 @@ Partial Class frmExtract
         'extract_btn
         '
         Me.extract_btn.ForeColor = System.Drawing.Color.Black
-        Me.extract_btn.Location = New System.Drawing.Point(12, 254)
+        Me.extract_btn.Location = New System.Drawing.Point(12, 277)
         Me.extract_btn.Name = "extract_btn"
         Me.extract_btn.Size = New System.Drawing.Size(53, 23)
         Me.extract_btn.TabIndex = 5
@@ -171,19 +172,32 @@ Partial Class frmExtract
         'cancel_btn
         '
         Me.cancel_btn.ForeColor = System.Drawing.Color.Black
-        Me.cancel_btn.Location = New System.Drawing.Point(92, 254)
+        Me.cancel_btn.Location = New System.Drawing.Point(92, 277)
         Me.cancel_btn.Name = "cancel_btn"
         Me.cancel_btn.Size = New System.Drawing.Size(52, 23)
         Me.cancel_btn.TabIndex = 6
         Me.cancel_btn.Text = "Cancel"
         Me.cancel_btn.UseVisualStyleBackColor = True
         '
+        'extract_item_def_cb
+        '
+        Me.extract_item_def_cb.AutoSize = True
+        Me.extract_item_def_cb.ForeColor = System.Drawing.Color.Red
+        Me.extract_item_def_cb.Location = New System.Drawing.Point(27, 231)
+        Me.extract_item_def_cb.Name = "extract_item_def_cb"
+        Me.extract_item_def_cb.Size = New System.Drawing.Size(86, 17)
+        Me.extract_item_def_cb.TabIndex = 9
+        Me.extract_item_def_cb.Text = "Item Def Xml"
+        Me.TT.SetToolTip(Me.extract_item_def_cb, "Extracts customization.xml if checked.")
+        Me.extract_item_def_cb.UseVisualStyleBackColor = True
+        '
         'frmExtract
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.Color.FromArgb(CType(CType(30, Byte), Integer), CType(CType(30, Byte), Integer), CType(CType(30, Byte), Integer))
-        Me.ClientSize = New System.Drawing.Size(156, 286)
+        Me.ClientSize = New System.Drawing.Size(156, 312)
+        Me.Controls.Add(Me.extract_item_def_cb)
         Me.Controls.Add(Me.m_customization)
         Me.Controls.Add(Me.create_work_area_cb)
         Me.Controls.Add(Me.cancel_btn)
@@ -219,4 +233,5 @@ Partial Class frmExtract
     Friend WithEvents cancel_btn As System.Windows.Forms.Button
     Friend WithEvents create_work_area_cb As System.Windows.Forms.CheckBox
     Friend WithEvents m_customization As System.Windows.Forms.CheckBox
+    Friend WithEvents extract_item_def_cb As System.Windows.Forms.CheckBox
 End Class
