@@ -5675,7 +5675,7 @@ fuckit:
                 Try ' catch any exception thrown
 
                     Dim ip = My.Settings.res_mods_path + "\" + itemDefPathString.Replace(" ", "")
-                    itemDefXmlString = itemDefXmlString.Replace(" ", "")
+                    itemDefXmlString = itemDefXmlString.Replace("  ", "")
                     itemDefXmlString = itemDefXmlString.Replace(vbCr, "")
                     If Not Directory.Exists(Path.GetDirectoryName(ip)) Then
                         Directory.CreateDirectory(Path.GetDirectoryName(ip))
