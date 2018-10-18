@@ -6070,7 +6070,7 @@ fuckit:
             For i = start_from To packages_HD.Length - 2
                 If packages_HD_2(i) IsNot Nothing Then
 
-                    For Each ent In packages_HD(i)
+                    For Each ent In packages_HD_2(i)
                         If ent.FileName.Contains(ar(2)) Then
                             If Not ent.FileName.Contains("collision_client") Then
                                 If Not ent.FileName.Contains(crash) Then
