@@ -7688,4 +7688,98 @@ make_this_tank:
         frmScreenCap.ShowDialog(Me)
         stop_updating = False
     End Sub
+
+    Private Sub m_build_wotmod_Click(sender As Object, e As EventArgs) Handles m_build_wotmod.Click
+        If Not MODEL_LOADED Then
+            MsgBox("You need to let me know what tank to package." + vbCrLf _
+                    + "Please load the tank you wish to create the wotmod from." _
+                    , MsgBoxStyle.Exclamation, "Load a tank first")
+            Return
+        End If
+        Dim p = My.Settings.res_mods_path
+        If Not p.Contains("res_mods") Then
+            MsgBox("You need to set the path to res_mods.", MsgBoxStyle.Exclamation, "No res_mods Path")
+            Return
+        End If
+        Dim tank = TANK_NAME
+        If tank.Contains(":") Then
+            Dim a = tank.Split(":")
+            tank = a(0)
+        End If
+        Dim tp = p + "\" + tank
+        If Not Directory.Exists(tp) Then
+            MsgBox("There is no data in res_mods for this tank", MsgBoxStyle.Exclamation, "No res_mods data")
+            Return
+        End If
+        Dim ar = tank.Split("\")
+        Dim tn = ar(ar.Length - 1)
+        info_Label.Visible = True
+        info_Label.Parent = pb1
+        info_Label.Text = "Select location and name for the wotmod file..."
+        SaveFileDialog1.FileName = tn
+        SaveFileDialog1.Filter = "wotmod file (*.wotmod)|*.wotmod"
+        SaveFileDialog1.Title = "Save wotmod..."
+        SaveFileDialog1.InitialDirectory = My.Settings.wotmod_path
+        If SaveFileDialog1.ShowDialog = Forms.DialogResult.OK Then
+            My.Settings.wotmod_path = SaveFileDialog1.FileName
+        Else
+            info_Label.Visible = False
+            info_Label.Parent = Me
+            Return
+        End If
+        If File.Exists(SaveFileDialog1.FileName) Then
+            File.Delete(SaveFileDialog1.FileName)
+        End If
+        Dim wotmod As New ZipFile(SaveFileDialog1.FileName)
+        wotmod.CompressionLevel = Ionic.Zlib.CompressionLevel.None
+        searched_files = 0
+        Dim di = getAllFolders(p)
+        searched_files = 0
+        For Each f In di
+            If f.Contains(tn) Then
+                If File.Exists(f) Then
+                    'wotmod.AddFile(f, "res" + f.Replace(p, ""))
+                    wotmod.AddFile(f, "res" + Path.GetDirectoryName(f.Replace(p, "")))
+                    searched_files += 1
+                End If
+            End If
+        Next
+        info_Label.Text = "Found " + searched_files.ToString("0000") + " relevant files."
+        wotmod.Save(SaveFileDialog1.FileName)
+        MsgBox("< wotmod built >", MsgBoxStyle.OkOnly, "DONE!")
+        info_Label.Visible = False
+        info_Label.Parent = Me
+    End Sub
+    Dim searched_files As Integer = 0
+    Private Function getAllFolders(ByVal directory As String) As String()
+        'Create object
+        Dim fi As New IO.DirectoryInfo(directory)
+        'Array to store paths
+        Dim path() As String = {}
+        'Loop through subfolders
+        For Each subfolder As IO.DirectoryInfo In fi.GetDirectories()
+            'Add this folders name
+            Array.Resize(path, path.Length + 1)
+            path(path.Length - 1) = subfolder.FullName
+            'Recall function with each subdirectory
+            For Each s As String In getAllFolders(subfolder.FullName)
+                Dim di As New IO.DirectoryInfo(s)
+                Try
+                    For Each f In di.GetFiles
+                        Array.Resize(path, path.Length + 1)
+                        path(path.Length - 1) = f.DirectoryName + "\" + f.Name
+                        searched_files += 1
+                    Next
+                Catch ex As Exception
+                    Array.Resize(path, path.Length + 1)
+                    path(path.Length - 1) = di.FullName
+                    searched_files += 1
+                End Try
+
+            Next
+        Next
+        info_Label.Text = "Searching files for relevance: " + searched_files.ToString("0000")
+        Application.DoEvents()
+        Return path
+    End Function
 End Class

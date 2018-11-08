@@ -1,0 +1,106 @@
+<style type="text/css">
+<!--
+body {
+	background-image: url(Images/carbon.jpg);
+	background-repeat: repeat;
+}
+body,td,th {
+	color: #FFFFFF;
+}
+a:link {
+	color: #FFFFFF;
+}
+a:visited {
+	color: #CCCCCC;
+}
+a:hover {
+	color: #66CCFF;
+}
+a:active {
+	color: #FF6600;
+}
+.style1 {
+	font-size: 36px;
+	color: #CC6600;
+}
+.style2 {
+	font-size: 24px;
+	font-weight: bold;
+	color: #CC6600;
+}
+.style3 {color: #66CCFF}
+.style5 {font-size: 12px}
+-->
+</style>
+<h1 align="center"><span class="style1">Tank Model Swap Guide Using Tank Exporter<br />
+  <span class="style2">Courtesy  JLdragon</span></span></h1>
+<p align="left" class="style1">Part 1. <span class="style2">Setting up the data</span></p>
+<p><span class="style2">1.</span> Navigate to Tier 7 in the Tank Tier list, Right click R59_A44 &gt; Select Load this<br />
+<img src="Images/JLD_1.jpg" alt="Open Tank" width="1000" height="563" /></p>
+<p><span class="style2">2.</span> Pop up will ask which Turret and Gun you want to load.<br />
+  a.
+We will use gun_08 (top gun) and Turret_02 (Top Turret)<br />
+b. IMPORTANT! Make note the turret and gun ID. IT WILL BE NEEDED LATER!<br />
+<img src="Images/JLD_2.jpg" alt="Pick Items" width="225" height="503" /></p>
+<p><span class="style2">3.</span> Select Export / Extract &gt; Remove Tank from Res_Mods &gt; select Yes<br />
+<img src="Images/JLD_3.jpg" alt="Loaded Tank" width="1000" height="563" /></p>
+<p>  A. This will ONLY Delete that tank from the Res_Mods folder.<br />
+NOTHING else will be deleted from the Res_Mod Folder Directory<br />
+B.
+If nothing is in the current folder just ok the pop up and continue.<br />
+<img src="Images/JLD_4.jpg" alt="POPUP warning" width="369" height="208" /></p>
+<p><span class="style2">4.</span> Select Export / Extract &gt; Select Extract to Res_mods folder.<br />
+  <img src="Images/JLD_5.jpg" alt="Extract Tank" width="1000" height="563" /></p>
+<p><span class="style2">5.</span> Select ONLY Chassis and Hull Data, and All available LOD<br />
+  <img src="Images/JLD_6.jpg" alt="Extract what popup" width="215" height="439" /></p>
+<p><span class="style2">6.</span> Select Export / Extract &gt; View in res_mod folder       a.<br />
+Minimize this window. DO NOT CLOSE, will be needed later.<br />
+<img src="Images/JLD_7.jpg" alt="View in Folder" width="1000" height="563" /></p>
+<p>Under File / Settings you can select remove models to clear the tank screen at this point.<br />
+  <br />
+    <span class="style2">8.</span> Right click F68_AMX_Chasseur_de_Char_46 &gt; Load This<br />
+      <span class="style2">9.</span> Pop up will ask again which gun and turret<br />
+A.
+This is a premium tank so therefore you will see gun_01, Turret_01<br />
+B. Again MAKE NOTE of THIS! Not as important but good practice.<br />
+<img src="Images/JLD_8.jpg" alt="Back to Blank" width="1000" height="563" /></p>
+<p><span class="style2">10.</span> Select Export / Extract &gt; Remove Tank from Res_Mods &gt; select Yes<br />
+  A. This will ONLY Delete that tank from the Res_Mods folder, NOTHING else will be deleted from the Res_Mod Folder Directory<br />
+B. If nothing is in the current folder just ok / cancel the pop up and continue.<br />
+<img src="Images/JLD_9.jpg" alt="Load other Tank" width="1000" height="563" /></p>
+<p><span class="style2">11.</span> Select Export / Extract &gt; Select Extract to Res_mods folder.<br />
+  <span class="style2">12.</span> Select ONLY GUN and TURRET Data, and All available LOD's.<br />
+  <span class="style2">13.</span> Select Export / Extract &gt; View in res_mod folder<br />
+  Minimize this window. DO NOT CLOSE, it will be needed later.<br />
+  <img src="Images/JLD_10.jpg" alt="Extract setup" width="215" height="439" /><br />
+</p>
+<hr />
+<p><span class="style1">PART 2.  </span><span class="style2">The manual Editing</span><br />
+If you have followed the above guide correctly you should have 2 Res_mod folder locations opened.<br />
+The A44 and the AMX CDC, and Tank Exporter.</p>
+<p><span class="style2">1.</span> Minimize Tank Exporter at this time.<br />
+  <span class="style2">2.</span> Go to the R59 AMX CDC window<br />
+  <span class="style2">3.</span> Select all Files and Folders in this window (Keyboard Shortcut: Control+A)<br />
+  <span class="style2">4.</span> Right click on any highlighted file / folder &gt; Select Copy (keyboard Shortcut: Control+C)<br />
+  <img src="Images/JLD_11.jpg" alt="Folder contents" width="1000" height="563" /></p>
+<p><span class="style2">5.</span> Swap to the opened A44 window directory (Keyboard Shortcut: Alt+Tab)<br />
+  <span class="style2">6.</span> Click anywhere inside this window, NOT on any file / folder (White space area)<br />
+<span class="style2">7.</span> Right Click &gt; Select Paste (Keyboard Shortcut: Control+V)<br />
+<img src="Images/JLD_12.jpg" alt="Folder contents" width="1000" height="563" /></p>
+<p>The A44 Tank Directory Folder should now look like THIS image.<br />
+<img src="Images/JLD_13.jpg" alt="Pasted" width="1000" height="515" /></p>
+<p><span class="style2">8.</span> Open Normal Folder &gt; Open Lod0 Folder<br />
+  <span class="style2">9.</span> In Step 2 Part 1 of this guide you were given the name of the A44's Gun ID: (GUN-08) and Turret ID (Turret_02).<br />
+This is why it was VERY important to take note in that process!<br />
+<img src="Images/JLD_14.jpg" alt="File List" width="933" height="585" /></p>
+<p><span class="style2">10.</span> Rename all of the current Gun ID's: <span class="style3">Gun_01 to Gun_08</span><br />
+BE Careful to NOT change the file type!<br />
+<span class="style2">11.</span> Rename all of the current Turret ID's: <span class="style3">Turret_01 to Turret_02</span><br />
+<span class="style2">12.</span> Repeat Step 10 and 11 for all remaining Lod Folders (Lod1 &ndash; Lod4)<br />
+<img src="Images/JLD_15.jpg" alt="Rename files" width="1146" height="528" /></p>
+<p><span class="style2">13.</span> Use Alt+Tab back to Tank Exporter<br />
+  <span class="style2">14.</span> Navigate Tank List 7 to the A44 (R59_A44)<br />
+<span class="style2">15.</span> Right Click and Select Load This<br />
+<span class="style2">16.</span> If all of the above steps were followed correctly your Tank should now Look like the Following.<br />
+<img src="Images/JLD_16.jpg" alt="ALL DONE!" width="1000" height="662" /></p>
+<p><span class="style2">17.</span> Grab a Beer and enjoy your tank!</p>

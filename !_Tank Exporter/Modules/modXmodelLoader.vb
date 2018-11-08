@@ -6,12 +6,12 @@ Module modXmodelLoader
         terrain_modelId = get_X_model(Application.StartupPath + "\resources\models\terrain.x")
         dome_modelId = get_X_model(Application.StartupPath + "\resources\models\dome.x")
     End Sub
-    Public Function load_binary_models()
+    Public Sub load_binary_models()
         cube_draw_id = load_binary_model(Application.StartupPath + "\resources\models\cube.te")
         terrain_modelId = load_binary_model(Application.StartupPath + "\resources\models\terrain.te")
         dome_modelId = load_binary_model(Application.StartupPath + "\resources\models\dome.te")
 
-    End Function
+    End Sub
 
     Public Function load_binary_model(m As String)
         Dim f As New FileStream(m, FileMode.Open, FileAccess.Read)
@@ -256,7 +256,7 @@ Module modXmodelLoader
         'At this point, we have all the data to make the mesh
         'Gen Display List ID.
         Dim a, b, c As Integer
-        If True Then
+        If False Then
 
             Dim f = File.Open("c:\" + foutname + ".te", FileMode.OpenOrCreate, FileAccess.Write)
             Dim br As New BinaryWriter(f)

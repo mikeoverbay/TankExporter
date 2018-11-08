@@ -163,6 +163,10 @@ remove_more:
         TheXML_String = fbr.ReadChars(fileS.Length)
         TheXML_String = PrettyPrint(TheXML_String)
 
+        TheXML_String = TheXML_String.Replace("  ", "")
+        TheXML_String = TheXML_String.Replace("> ", ">")
+        TheXML_String = TheXML_String.Replace(" <", "<")
+
         Id = xmlroot.Name + "/hull/armor"
         node = xDoc.SelectSingleNode(Id)
         If node IsNot Nothing Then
@@ -176,24 +180,10 @@ remove_more:
         Catch ex As Exception
             MsgBox("Please report this bug." + ex.Message, MsgBoxStyle.Exclamation, "packed XML file Error...")
         End Try
-        'Dim sw As New StringWriter
-        'Dim xtw As New XmlTextWriter(sw)
-        'xtw.Formatting = Formatting.Indented
-        'xtw.IndentChar = vbTab
-        'xtw.Indentation = 1
-        'data_set.WriteTo(xtw)
-        'xtw.Flush()
         fbr.Close()
         fbw.Close()
         fileS.Close()
         fileS.Dispose()
-
-        'Dim f As String = File.ReadAllText("C:\wot_temp\InnerXml.xml")
-        'f = f.Replace(vbCrLf, vbLf)
-
-        'muted .. to slow
-        'File.WriteAllText("C:\wot_temp\InnerXml.xml", f)
-        'frmMain.WebBrowser1.DocumentStream = TransformXML(f, My.Resources.xml_format)
     End Sub
     Private Function fix_bad_tags(xmlString As String)
         'box all primitive tags.. Dont think there will ever be over 30 :-)

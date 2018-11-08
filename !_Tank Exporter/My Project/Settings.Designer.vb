@@ -221,6 +221,18 @@ Namespace My
                 Me("FXAA_CheckedState") = value
             End Set
         End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("C:\")>  _
+        Public Property wotmod_path() As String
+            Get
+                Return CType(Me("wotmod_path"),String)
+            End Get
+            Set
+                Me("wotmod_path") = value
+            End Set
+        End Property
     End Class
 End Namespace
 

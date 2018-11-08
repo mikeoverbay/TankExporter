@@ -44,5 +44,8 @@
     <Setting Name="FXAA_CheckedState" Type="System.Windows.Forms.CheckState" Scope="User">
       <Value Profile="(Default)">Checked</Value>
     </Setting>
+    <Setting Name="wotmod_path" Type="System.String" Scope="User">
+      <Value Profile="(Default)">C:\</Value>
+    </Setting>
   </Settings>
 </SettingsFile>
