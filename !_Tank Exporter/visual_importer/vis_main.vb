@@ -80,6 +80,11 @@ Module vis_main
         'PackedFileName = PackedFileName.Replace("_back", "")
         Dim xmlroot As XmlNode = xDoc.CreateNode(XmlNodeType.Element, PackedFileName, "")
         xDoc.OuterXml.Replace("><", ">" + vbCrLf + "<")
+        xDoc.OuterXml.Replace("  ", "")
+        xDoc.OuterXml.Replace("> ", ">")
+        xDoc.OuterXml.Replace(">" + vbTab, ">")
+        xDoc.OuterXml.Replace(" <", "<")
+        xDoc.OuterXml.Replace(vbTab + "<", "<")
 
 
         PS.readElement(reader, xmlroot, xDoc, dictionary)
@@ -163,9 +168,6 @@ remove_more:
         TheXML_String = fbr.ReadChars(fileS.Length)
         TheXML_String = PrettyPrint(TheXML_String)
 
-        TheXML_String = TheXML_String.Replace("  ", "")
-        TheXML_String = TheXML_String.Replace("> ", ">")
-        TheXML_String = TheXML_String.Replace(" <", "<")
 
         Id = xmlroot.Name + "/hull/armor"
         node = xDoc.SelectSingleNode(Id)
@@ -199,6 +201,12 @@ remove_more:
         'another hack to fix WG's bad xml
         XML = XML.Replace("<_", "<G_")
         XML = XML.Replace("</_", "</G_")
+        XML = XML.Replace("><", ">" + vbCrLf + "<")
+        XML = XML.Replace("  ", "")
+        XML = XML.Replace("> ", ">")
+        XML = XML.Replace(">" + vbTab, ">")
+        XML = XML.Replace(" <", "<")
+        XML = XML.Replace(vbTab + "<", "<")
         Dim MS As New MemoryStream()
 
         Dim xmlsettings As New XmlWriterSettings

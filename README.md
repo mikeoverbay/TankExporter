@@ -5,10 +5,14 @@
 
 #### This is an ongoing project by me.. Coffee_
 
+## Version 74:
+Fixed a few bugs wirh cleaning up visual files.
+
 ## Version 73:
 This adds the ability to create and save WOTMOD files.
 Read the HELP files.
 Also, I fixed a small issue with saving current folder paths for later recall.
+There is new HELP file content and a new process page.
 
 ## Version 72:
 This adds a check box to the extraction screen to extract the tanks item_Def file from the scripts.pkg.

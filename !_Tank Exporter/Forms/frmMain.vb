@@ -1912,6 +1912,7 @@ tryagain:
         'get_tanks_shared()
         'add count to log
         start_up_log.AppendLine("Total Tanks Found:" + TOTAL_TANKS_FOUND.ToString("000"))
+        log_text.AppendLine("-= TANKS FOUND IN GAME =-")
         'get_tanks_sandbox()
         For i = 1 To 10
             info_Label.Text = "Adding Nodes to TreeView Lists (" + i.ToString("00") + ")"
@@ -1935,6 +1936,7 @@ tryagain:
 
             'tn.Visible = False
             info_Label.Text = "Sorting Nodes (" + i.ToString("00") + ")"
+            log_text.AppendLine("---- Teir : " + i.ToString("00") + " ----")
             For k = 0 To tn.Nodes.Count - 1
                 tn.Nodes(k).Text = num_3_places(tn.Nodes(k).Text)
                 icons(i).img(k).name = num_3_places(icons(i).img(k).name)
@@ -1944,6 +1946,8 @@ tryagain:
             For k = 0 To tn.Nodes.Count - 1
                 tn.Nodes(k).Text = back_2_places(tn.Nodes(k).Text)
                 icons(i).img(k).name = back_2_places(icons(i).img(k).name)
+                Dim s = get_shortname(tn.Nodes(k))
+                log_text.AppendLine(pad_string(tn.Nodes(k).Text + ":") + s)
             Next
             'tn.Visible = True
             tn.EndUpdate()
@@ -1954,6 +1958,9 @@ tryagain:
         '    MsgBox("Something went wrong adding to the Treeviews." + ex.Message, MsgBoxStyle.Exclamation, "Opps!")
         'End Try
     End Sub
+    Private Function pad_string(ByVal s As String) As String
+        Return s.PadRight(28, " ")
+    End Function
 
     Public Function num_3_places(ByRef s As String) As String
         Dim a = s.ToCharArray
