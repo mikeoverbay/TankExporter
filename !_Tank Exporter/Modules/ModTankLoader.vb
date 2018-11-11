@@ -1631,14 +1631,7 @@ no_more:
                 End If
 
                 TheXML_String = File.ReadAllText(My.Settings.res_mods_path + "\" + filename.Replace(".model", ".visual_processed"))
-                TheXML_String = TheXML_String.Replace("<_", "<G_")
-                TheXML_String = TheXML_String.Replace("</_", "</G_")
-                TheXML_String = TheXML_String.Replace("><", ">" + vbCrLf + "<")
-                TheXML_String = TheXML_String.Replace("  ", "")
-                TheXML_String = TheXML_String.Replace("> ", ">")
-                TheXML_String = TheXML_String.Replace(">" + vbTab, ">")
-                TheXML_String = TheXML_String.Replace(" <", "<")
-                TheXML_String = TheXML_String.Replace(vbTab + "<", "<")
+                TheXML_String = PrettyPrint(TheXML_String)
                 Dim tr As New StringReader(TheXML_String)
                 Dim xmlr = New XmlTextReader(tr)
                 xmldataset.ReadXml(xmlr)
