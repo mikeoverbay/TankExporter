@@ -1909,7 +1909,6 @@ tryagain:
             store_in_treeview(i, treeviews(i))
             Application.DoEvents()
         Next
-        'get_tanks_shared()
         'add count to log
         start_up_log.AppendLine("Total Tanks Found:" + TOTAL_TANKS_FOUND.ToString("000"))
         log_text.AppendLine("-= TANKS FOUND IN GAME =-")
