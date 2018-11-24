@@ -5,6 +5,10 @@
 
 #### This is an ongoing project by me.. Coffee_
 
+
+## Version 75:
+This fixes a silly bug introduced when I fixed the FBX shared vertex UV coordinates.
+
 ## Version 74:
 Fixed a few bugs wirh cleaning up visual files.
 

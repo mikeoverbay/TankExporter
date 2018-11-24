@@ -1610,10 +1610,10 @@ outahere:
                 If (_group(i).indicies.Length - 1) * 3 <> fbxgrp(i).indicies.Length Then 'something removed or added?
                     flg = True : GoTo whichOne
                 End If
-                For j As UInt32 = 0 To _group(i).indicies.Length - 3
-                    Dim p1 = _group(i).indicies(j + 1).v1
-                    Dim p2 = _group(i).indicies(j + 1).v2
-                    Dim p3 = _group(i).indicies(j + 1).v3
+                For j As UInt32 = 0 To _group(i).indicies.Length - 2
+                    Dim p1 = _group(i).indicies(j + 1).v1 - _group(i).startVertex_
+                    Dim p2 = _group(i).indicies(j + 1).v2 - _group(i).startVertex_
+                    Dim p3 = _group(i).indicies(j + 1).v3 - _group(i).startVertex_
                     Dim vg_1 = _group(i).vertices(p1)
                     Dim vg_2 = _group(i).vertices(p2)
                     Dim vg_3 = _group(i).vertices(p3)
