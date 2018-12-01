@@ -413,6 +413,8 @@ Module ModTankLoader
         'C:\Games\World_of_Tanks\res_mods\1.1.0.1\vehicles\british\GB93_Caernarvon_AX\_skins\RoyalCorps\normal\lod0
         If file_name.Contains("/_skins") Then
             file_name = file_name.Replace("/_skins/RoyalCorps", "")
+            file_name = file_name.Replace("/_skins/SD", "")
+
         End If
         If file_name.Contains("\_skins") Then
             file_name = file_name.Replace("\_skins\RoyalCorps", "")

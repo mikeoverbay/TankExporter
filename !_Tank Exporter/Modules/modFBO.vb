@@ -171,6 +171,7 @@ Module modFBO
             Gl.glFramebufferTexture2DEXT(Gl.GL_FRAMEBUFFER_EXT, Gl.GL_COLOR_ATTACHMENT2_EXT, Gl.GL_TEXTURE_2D, 0, 0)
         End Sub
         Public Function init() As Boolean
+            If Not _Started Then Return False
             If frmMain.update_thread.IsAlive Then
                 frmMain.update_thread.Suspend()
             End If

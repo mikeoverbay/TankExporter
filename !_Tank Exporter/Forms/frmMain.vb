@@ -29,11 +29,13 @@ Imports System.Globalization
 Public Class frmMain
     Protected Overrides Sub OnClientSizeChanged(e As EventArgs)
         If Not _Started Then Return
+        If Not allow_mouse Then Return
         G_Buffer.init()
         draw_scene()
         MyBase.OnClientSizeChanged(e)
     End Sub
 #Region "variables"
+    Private allow_mouse As Boolean = False
     Public cur_texture_name As String = ""
     Dim pb2_has_focus As Boolean = False
     Dim out_string As New StringBuilder
@@ -83,7 +85,7 @@ Public Class frmMain
     Public Class entry_ : Implements IComparable(Of entry_)
         Public img As System.Drawing.Bitmap
         Public name As String
-        Public short_name As string
+        Public short_name As String
         Public Function CompareTo(other As entry_) As Integer Implements IComparable(Of entry_).CompareTo
             If other Is Nothing Then Return 1
             Return name.CompareTo(other.name)
@@ -228,6 +230,7 @@ Public Class frmMain
     Private Sub frmMain_ResizeEnd(sender As Object, e As EventArgs) Handles Me.ResizeEnd
         'gl_stop = False
         'If season_Buttons_VISIBLE Then
+        If Not allow_mouse Then Return
         WINDOW_HEIGHT_DELTA = pb1.Height - OLD_WINDOW_HEIGHT
         relocate_season_Bottons()
         relocate_camobuttons()
@@ -249,6 +252,8 @@ Public Class frmMain
     End Sub
 
     Private Sub me_size_changed()
+        If Not _Started Then Return
+        If Not allow_mouse Then Return
         If window_state <> Me.WindowState Then
             If Not Me.WindowState = FormWindowState.Minimized Then
                 'gl_stop = True
@@ -269,18 +274,15 @@ Public Class frmMain
             End If
             window_state = Me.WindowState
         End If
-        If Not _Started Then Return
         'If season_Buttons_VISIBLE Then
-
         WINDOW_HEIGHT_DELTA = pb1.Height - OLD_WINDOW_HEIGHT
         relocate_season_Bottons()
         relocate_camobuttons()
         relocate_tankbuttons()
         relocate_texturebuttons()
         OLD_WINDOW_HEIGHT = pb1.Height
-        G_Buffer.init()
         'End If
-        If Not _Started Then Return
+        G_Buffer.init()
         draw_scene()
     End Sub
 
@@ -1062,7 +1064,7 @@ Public Class frmMain
         AddHandler Me.SizeChanged, AddressOf me_size_changed
         window_state = Me.WindowState
 
-
+        allow_mouse = True
     End Sub
     '############################################################################ form load
 
@@ -4795,10 +4797,12 @@ fuckit:
                     Dim n = New TreeNode
 
                     n.Text = Path.GetFileNameWithoutExtension(guns(i))
+                    If guns(i).Contains("_skins") Then GoTo n_gun
                     n.Tag = i
                     'tv_guns.Nodes.Add(n)
                     frmComponents.tv_guns.Nodes.Add(n)
                     cn += 1
+n_gun:
                 End If
             Next
             'frmComponents.tv_guns.Nodes.Add(tv_guns)
@@ -4811,9 +4815,11 @@ fuckit:
                 If validate_path(turrets(i)) = turrets(i) Then
                     Dim n = New TreeNode
                     n.Text = Path.GetFileNameWithoutExtension(turrets(i))
+                    If turrets(i).Contains("_skins") Then GoTo n_turret
                     n.Tag = i
                     frmComponents.tv_turrets.Nodes.Add(n)
                     cn += 1
+n_turret:
                 End If
             Next
             frmComponents.tv_turrets.SelectedNode = frmComponents.tv_turrets.Nodes(cn - 1)
@@ -7788,4 +7794,10 @@ make_this_tank:
         Application.DoEvents()
         Return path
     End Function
+
+    Private Sub frmMain_MouseDown(sender As Object, e As MouseEventArgs) Handles Me.MouseDown
+        If Not _Started Then
+
+        End If
+    End Sub
 End Class

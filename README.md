@@ -6,6 +6,11 @@
 #### This is an ongoing project by me.. Coffee_
 
 
+## Version 76:
+This fixes an issue with tanks that contain "_skin" sub folders.
+In order to for SD tanks to work, you will need to copy all primitives and visuals to the _"skins" lod folders. This is untested and may not work with SD run mode.
+Fixed a bug with the game crashing when the window was moved if a data rebuild is in progress.
+
 ## Version 75:
 This fixes a silly bug introduced when I fixed the FBX shared vertex UV coordinates.
 
