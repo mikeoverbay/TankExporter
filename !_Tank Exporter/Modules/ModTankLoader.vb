@@ -412,12 +412,11 @@ Module ModTankLoader
         'Hack to remove _skins from british tank
         'C:\Games\World_of_Tanks\res_mods\1.1.0.1\vehicles\british\GB93_Caernarvon_AX\_skins\RoyalCorps\normal\lod0
         If file_name.Contains("/_skins") Then
-            file_name = file_name.Replace("/_skins/RoyalCorps", "")
-            file_name = file_name.Replace("/_skins/SD", "")
+            Dim s_parts = file_name.Split("/")
+            file_name = s_parts(0) + "/" + s_parts(1) + "/" + s_parts(2) + "/" + s_parts(5) + "/" + s_parts(6) + "/" + s_parts(7)
+            'file_name = file_name.Replace("/_skins/RoyalCorps", "")
+            'file_name = file_name.Replace("/_skins/SD", "")
 
-        End If
-        If file_name.Contains("\_skins") Then
-            file_name = file_name.Replace("\_skins\RoyalCorps", "")
         End If
         If InStr(Path.GetFileNameWithoutExtension(file_name), "Chassis") > 0 Then
             xmlget_mode = 1
