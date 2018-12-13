@@ -5,6 +5,9 @@
 
 #### This is an ongoing project by me.. Coffee_
 
+## Version 77:
+Fixed how TE deals with tanks that contain the _Skins folder.
+Added JLDragon's Texture Save Format information to the help HTML pages.
 
 ## Version 76:
 This fixes an issue with tanks that contain "_skin" sub folders.
