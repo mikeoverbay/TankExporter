@@ -70,8 +70,7 @@ Public Class frmScreenCap
             r_size.Height = 768
         End If
         If x64_rb.Checked Then
-            r_size.Width = 114
-            r_size.Height = 64
+            set_custom_size()
         End If
 
     End Sub
@@ -127,6 +126,11 @@ Public Class frmScreenCap
     End Sub
 
     Private Sub save_btn_Click(sender As Object, e As EventArgs) Handles save_btn.Click
+        If r_size.Height = 0 Or r_size.Height = 0 Then
+            MsgBox("You need to put in a valid size!", MsgBoxStyle.Exclamation, "Opps...")
+            Return
+        End If
+
         SaveFileDialog1.Title = "Save Screen Capture PNG file..."
         SaveFileDialog1.Filter = "Save PNG Image (*.png*)|*.png"
         If SaveFileDialog1.ShowDialog = Forms.DialogResult.OK _
@@ -197,4 +201,28 @@ Public Class frmScreenCap
         Me.Hide()
     End Sub
 
+    Private Sub x_size_tb_TextChanged(sender As Object, e As EventArgs) Handles x_size_tb.TextChanged
+        If Not IsNumeric(x_size_tb.Text) Or x_size_tb.Text.Contains(" ") Or x_size_tb.Text.Contains(".") Then
+            x_size_tb.Text = Strings.Left(x_size_tb.Text, x_size_tb.Text.Length - 1)
+            x_size_tb.SelectionStart = x_size_tb.Text.Length
+        End If
+    End Sub
+
+    Private Sub y_size_tb_TextChanged(sender As Object, e As EventArgs) Handles y_size_tb.TextChanged
+        If Not IsNumeric(y_size_tb.Text) Or y_size_tb.Text.Contains(" ") Or y_size_tb.Text.Contains(".") Then
+            y_size_tb.Text = Strings.Left(y_size_tb.Text, y_size_tb.Text.Length - 1)
+            y_size_tb.SelectionStart = y_size_tb.Text.Length
+        End If
+
+    End Sub
+    Private Sub set_custom_size()
+        Try
+            r_size.Width = Convert.ToInt32(x_size_tb.Text)
+            r_size.Height = Convert.ToInt32(y_size_tb.Text)
+
+        Catch ex As Exception
+
+        End Try
+
+    End Sub
 End Class

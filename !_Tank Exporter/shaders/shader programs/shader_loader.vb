@@ -326,6 +326,7 @@ Module shader_loader
     Public tank_ambient, tank_specular, tank_total, tank_cubeMap, tank_LUT, tank_shadowMap As Integer
     Public tank_a_group, tank_b_group, tank_lightMatrix, tank_use_shadow As Integer
     Public tank_colorEnable, tank_is_Track As Integer
+    Public tank_GMM_Toy_value, tank_use_GMM_Toy As Integer
     Private Sub set_tank_shader_variables()
         tank_a_group = Gl.glGetUniformLocation(shader_list.tank_shader, "u_ScaleFGDSpec")
         tank_b_group = Gl.glGetUniformLocation(shader_list.tank_shader, "u_ScaleDiffBaseMR")
@@ -360,6 +361,8 @@ Module shader_loader
         tank_use_shadow = Gl.glGetUniformLocation(shader_list.tank_shader, "use_shadow")
         tank_colorEnable = Gl.glGetUniformLocation(shader_list.tank_shader, "enableVertexColor")
         tank_is_Track = Gl.glGetUniformLocation(shader_list.tank_shader, "is_track")
+        tank_use_GMM_Toy = Gl.glGetUniformLocation(shader_list.tank_shader, "use_GMM_Toy")
+        tank_GMM_Toy_value = Gl.glGetUniformLocation(shader_list.tank_shader, "GMM_Toy")
 
     End Sub
 

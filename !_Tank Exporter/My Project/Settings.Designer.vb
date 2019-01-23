@@ -233,6 +233,42 @@ Namespace My
                 Me("wotmod_path") = value
             End Set
         End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("True")>  _
+        Public Property default_uv_Scale() As Boolean
+            Get
+                Return CType(Me("default_uv_Scale"),Boolean)
+            End Get
+            Set
+                Me("default_uv_Scale") = value
+            End Set
+        End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("False")>  _
+        Public Property half_uv_scale() As Boolean
+            Get
+                Return CType(Me("half_uv_scale"),Boolean)
+            End Get
+            Set
+                Me("half_uv_scale") = value
+            End Set
+        End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("False")>  _
+        Public Property double_uv_scale() As Boolean
+            Get
+                Return CType(Me("double_uv_scale"),Boolean)
+            End Get
+            Set
+                Me("double_uv_scale") = value
+            End Set
+        End Property
     End Class
 End Namespace
 

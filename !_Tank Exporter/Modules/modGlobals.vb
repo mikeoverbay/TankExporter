@@ -30,6 +30,12 @@ Module modGlobals
     Public terrain_noise_id As Integer
     Public dome_modelId As Integer
     Public dome_textureId As Integer
+    Public arrow_textureID(3) As Integer
+    Public arrow_listID As Integer
+    Public pan_left, pan_right As Boolean
+    Public pan_left_over, pan_right_over As Boolean
+    Public pan_location As Single = 0
+    Public panST As New Stopwatch
     '##################################
     Public move_cam_z, M_DOWN, move_mod, z_move As Boolean
     '##################################

@@ -275,6 +275,7 @@ Public Class frmTextureViewer
         End If
         '#######################################################################################
         glutPrintBox(10, -20, frmMain.cur_texture_name, 1.0, 1.0, 1.0, 1.0) ' view status
+        glutPrintBox(10, -40, "Size: " + old_w.ToString + " X " + old_h.ToString, 1.0, 1.0, 1.0, 1.0) ' view status
         'flip the buffers
         Gdi.SwapBuffers(pb2_hDC)
         drawing_ = False
@@ -340,14 +341,17 @@ Public Class frmTextureViewer
 
         p1 = L
         p2 = L
-        p2.X += rect_size.X
+        p2.X = rect_size.X
         p3 = L + S
         p4 = L
-        p4.Y += S.Y
+        p4.Y = S.Y
 
         'draw and flip bufffers so the user can see the image
         If Not m_uvs_only.Checked Then
-
+            ' 1 ---- 2
+            ' :      :
+            ' :      :
+            ' 4 -----3
             Gl.glBegin(Gl.GL_QUADS)
             '---
             Gl.glTexCoord2fv(u1)
@@ -737,21 +741,52 @@ Public Class frmTextureViewer
     Private Sub m_save_image_Click(sender As Object, e As EventArgs) Handles m_save_image.Click
         ToolStrip1.Enabled = False
         frmMain.update_thread.Suspend()
+        Dim top_most = m_top_most.Checked
+        m_top_most.Checked = False
+        frmScaleUVexport.doit = False 'set flag
+        frmScaleUVexport.ShowDialog()
+        m_top_most.Checked = top_most
+        If frmScaleUVexport.doit = False Then ' exited form?
+            ToolStrip1.Enabled = True
+            frmMain.update_thread.Resume()
+            Return
+        End If
+        'My.Settings.Save()
         If Not SaveFileDialog1.ShowDialog = Forms.DialogResult.OK Then
             ToolStrip1.Enabled = True
             frmMain.update_thread.Resume()
 
             Return
         End If
+        Dim scale As New Point
+        If frmScaleUVexport.full_scale_cb.Checked Then
+            scale.X = old_w * 1.0
+            scale.Y = old_h * 1.0
+        End If
+        If frmScaleUVexport.half_scale_cb.Checked Then
+            scale.X = old_w * 0.5
+            scale.Y = old_h * 0.5
+        End If
+        If frmScaleUVexport.double_scale_cb.Checked Then
+            scale.X = old_w * 2.0
+            scale.Y = old_h * 2.0
+        End If
         Dim path = SaveFileDialog1.FileName
         Dim old_rect_size = rect_size
         Dim old_location = rect_location
         rect_location = New Point(0, 0)
-        rect_size = New Point(old_w, old_h)
+        rect_size = scale
         frmMain.pb2.Dock = DockStyle.None
-        frmMain.pb2.Width = old_w
-        frmMain.pb2.Height = old_h
-
+        Application.DoEvents()
+        Application.DoEvents()
+        frmMain.set_pb2_size(scale)
+        'frmMain.pb2.Location = New Point(0.0)
+        'frmMain.pb2.Width = scale.X
+        'frmMain.pb2.Height = scale.Y
+        'frmMain.pb2.Size = New Size(scale.X, scale.Y)
+        Application.DoEvents()
+        Application.DoEvents()
+        Application.DoEvents()
         draw_save()
 
 
@@ -762,6 +797,8 @@ Public Class frmTextureViewer
         Dim status = Il.ilSave(Il.IL_PNG, path)
         Il.ilDeleteImage(t_tex)
         Il.ilBindImage(0)
+
+
         rect_location = old_location
         rect_size = old_rect_size
         frmMain.pb2.Dock = DockStyle.Fill
@@ -779,9 +816,9 @@ Public Class frmTextureViewer
         Gl.glFinish()
         Dim Id As Integer = Il.ilGenImage
         Il.ilBindImage(Id)
-        Il.ilTexImage(old_w, old_h, 0, 4, Il.IL_RGBA, Il.IL_UNSIGNED_BYTE, Nothing)
+        Il.ilTexImage(rect_size.X, rect_size.Y, 0, 4, Il.IL_RGBA, Il.IL_UNSIGNED_BYTE, Nothing)
 
-        Gl.glReadPixels(0, 0, old_w, old_h, Gl.GL_RGBA, Gl.GL_UNSIGNED_BYTE, Il.ilGetData())
+        Gl.glReadPixels(0, 0, rect_size.X, rect_size.Y, Gl.GL_RGBA, Gl.GL_UNSIGNED_BYTE, Il.ilGetData())
 
         Gl.glFinish()
         Application.DoEvents()

@@ -168,6 +168,7 @@ Public Class frmShaderEditor
             vs = .vertex
             fs = .fragment
             gs = .geo
+            Gl.glDeleteProgram(.shader_id)
             Dim id = assemble_shader(vs, gs, fs, .shader_id, .shader_name, .has_geo)
             .set_call_id(id)
             .shader_id = id

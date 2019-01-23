@@ -242,10 +242,13 @@ Module modGLbuttons
         Public callmode As String
         Public selected As Boolean
         Public camo_texture_id As Integer
+        Public camoName As String
+        Public textureName As String
         Dim c0 As vect4
         Dim c1 As vect4
         Dim c2 As vect4
         Dim c3 As vect4
+        Dim p As Point
 
         Public Sub click()
             apply_texture(buttonID - 100)
@@ -262,7 +265,10 @@ Module modGLbuttons
             Gl.glColor4f(1.0, 1.0, 1.0, 1.0)
             'draw button state
             Gl.glBindTexture(Gl.GL_TEXTURE_2D, Me.gl_textureID)
-            draw_quad(Me.location + New Point(2, -2), Me.size + New Point(-4, -4))
+            p = New Point
+            p.X = Me.location.X + pan_location
+            p.Y = Me.location.Y
+            draw_quad(p + New Point(2, -2), Me.size + New Point(-4, -4))
 
             Select Case Me.state
                 Case 0
@@ -273,15 +279,24 @@ Module modGLbuttons
                     Gl.glBindTexture(Gl.GL_TEXTURE_2D, CBUTT_down)
             End Select
             Gl.glEnable(Gl.GL_BLEND)
-            draw_quad(Me.location, Me.size)
-
+            draw_quad(p, Me.size)
             Gl.glBindTexture(Gl.GL_TEXTURE_2D, 0)
+            If Me.camoName IsNot Nothing Then
+                glutPrintSmall(p.X, p.Y + 5, Me.camoName.ToString, 0.0, 1.0, 0.0, 1.0)
+                If Me.selected Then
+                    glutPrint(10.0, p.Y + 70, Me.textureName.ToString, 0.0, 1.0, 0.0, 1.0)
+                End If
+            End If
+
             Gl.glDisable(Gl.GL_BLEND)
         End Sub
         Public Sub draw_pick_box()
             'green colors
             Gl.glColor4ub(CByte(0), CByte(Me.buttonID), CByte(0), CByte(0))
-            draw_quad(Me.location, Me.size)
+            p = New Point
+            p.X = Me.location.X + pan_location
+            p.Y = Me.location.Y
+            draw_quad(p, Me.size)
         End Sub
     End Structure
 
@@ -525,6 +540,7 @@ Module modGLbuttons
                         STOP_BUTTON_SCAN = True
                         'stop repeteing the command over and over
                         season_Buttons(index).click()
+                        pan_location = 0
                     End If
 
                 Else

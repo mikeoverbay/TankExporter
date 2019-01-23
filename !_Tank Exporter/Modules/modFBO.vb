@@ -172,6 +172,7 @@ Module modFBO
         End Sub
         Public Function init() As Boolean
             If Not _Started Then Return False
+            pan_location = 0
             If frmMain.update_thread.IsAlive Then
                 frmMain.update_thread.Suspend()
             End If

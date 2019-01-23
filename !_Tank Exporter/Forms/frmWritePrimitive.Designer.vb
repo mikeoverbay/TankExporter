@@ -102,8 +102,9 @@ Partial Class frmWritePrimitive
         '
         'Button1
         '
+        Me.Button1.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
         Me.Button1.ForeColor = System.Drawing.Color.Black
-        Me.Button1.Location = New System.Drawing.Point(180, 208)
+        Me.Button1.Location = New System.Drawing.Point(169, 221)
         Me.Button1.Name = "Button1"
         Me.Button1.Size = New System.Drawing.Size(75, 23)
         Me.Button1.TabIndex = 5
@@ -115,8 +116,8 @@ Partial Class frmWritePrimitive
         Me.flipWindingOrder_cb.AutoSize = True
         Me.flipWindingOrder_cb.BackColor = System.Drawing.Color.Transparent
         Me.flipWindingOrder_cb.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.flipWindingOrder_cb.ForeColor = System.Drawing.Color.Black
-        Me.flipWindingOrder_cb.Location = New System.Drawing.Point(15, 135)
+        Me.flipWindingOrder_cb.ForeColor = System.Drawing.Color.White
+        Me.flipWindingOrder_cb.Location = New System.Drawing.Point(15, 158)
         Me.flipWindingOrder_cb.Name = "flipWindingOrder_cb"
         Me.flipWindingOrder_cb.Size = New System.Drawing.Size(131, 17)
         Me.flipWindingOrder_cb.TabIndex = 6
@@ -125,11 +126,12 @@ Partial Class frmWritePrimitive
         '
         'hide_tracks_cb
         '
+        Me.hide_tracks_cb.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
         Me.hide_tracks_cb.AutoSize = True
         Me.hide_tracks_cb.BackColor = System.Drawing.Color.Transparent
         Me.hide_tracks_cb.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.hide_tracks_cb.ForeColor = System.Drawing.Color.White
-        Me.hide_tracks_cb.Location = New System.Drawing.Point(15, 191)
+        Me.hide_tracks_cb.Location = New System.Drawing.Point(15, 204)
         Me.hide_tracks_cb.Name = "hide_tracks_cb"
         Me.hide_tracks_cb.Size = New System.Drawing.Size(160, 17)
         Me.hide_tracks_cb.TabIndex = 7
@@ -138,13 +140,14 @@ Partial Class frmWritePrimitive
         '
         'copy_lods_cb
         '
+        Me.copy_lods_cb.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
         Me.copy_lods_cb.AutoSize = True
         Me.copy_lods_cb.BackColor = System.Drawing.Color.Transparent
         Me.copy_lods_cb.Checked = True
         Me.copy_lods_cb.CheckState = System.Windows.Forms.CheckState.Checked
         Me.copy_lods_cb.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.copy_lods_cb.ForeColor = System.Drawing.Color.White
-        Me.copy_lods_cb.Location = New System.Drawing.Point(15, 214)
+        Me.copy_lods_cb.Location = New System.Drawing.Point(15, 225)
         Me.copy_lods_cb.Name = "copy_lods_cb"
         Me.copy_lods_cb.Size = New System.Drawing.Size(126, 17)
         Me.copy_lods_cb.TabIndex = 8
@@ -153,11 +156,12 @@ Partial Class frmWritePrimitive
         '
         'm_write_crashed
         '
+        Me.m_write_crashed.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
         Me.m_write_crashed.AutoSize = True
         Me.m_write_crashed.BackColor = System.Drawing.Color.Transparent
         Me.m_write_crashed.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.m_write_crashed.ForeColor = System.Drawing.Color.White
-        Me.m_write_crashed.Location = New System.Drawing.Point(15, 168)
+        Me.m_write_crashed.Location = New System.Drawing.Point(15, 181)
         Me.m_write_crashed.Name = "m_write_crashed"
         Me.m_write_crashed.Size = New System.Drawing.Size(122, 17)
         Me.m_write_crashed.TabIndex = 9
@@ -170,8 +174,8 @@ Partial Class frmWritePrimitive
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.Color.FromArgb(CType(CType(30, Byte), Integer), CType(CType(30, Byte), Integer), CType(CType(30, Byte), Integer))
         Me.BackgroundImage = Global.Tank_Exporter.My.Resources.Resources.upton
-        Me.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None
-        Me.ClientSize = New System.Drawing.Size(256, 237)
+        Me.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
+        Me.ClientSize = New System.Drawing.Size(256, 252)
         Me.Controls.Add(Me.m_write_crashed)
         Me.Controls.Add(Me.copy_lods_cb)
         Me.Controls.Add(Me.hide_tracks_cb)

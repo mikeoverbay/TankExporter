@@ -24,7 +24,7 @@
     <UpdatePeriodically>false</UpdatePeriodically>
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
-    <ApplicationRevision>77</ApplicationRevision>
+    <ApplicationRevision>78</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
@@ -211,6 +211,12 @@
     <Compile Include="Forms\frmExtract.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Forms\frmGMM.Designer.vb">
+      <DependentUpon>frmGMM.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\frmGMM.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Forms\frmLighting.Designer.vb">
       <DependentUpon>frmLighting.vb</DependentUpon>
     </Compile>
@@ -227,6 +233,12 @@
       <DependentUpon>frmModelInfo.vb</DependentUpon>
     </Compile>
     <Compile Include="Forms\frmModelInfo.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\frmScaleUVexport.Designer.vb">
+      <DependentUpon>frmScaleUVexport.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\frmScaleUVexport.vb">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Forms\frmScreenCap.Designer.vb">
@@ -349,6 +361,9 @@
     <EmbeddedResource Include="Forms\frmFBX.resx">
       <DependentUpon>frmFBX.vb</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Forms\frmGMM.resx">
+      <DependentUpon>frmGMM.vb</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\frmLighting.resx">
       <DependentUpon>frmLighting.vb</DependentUpon>
     </EmbeddedResource>
@@ -360,6 +375,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\frmModelInfo.resx">
       <DependentUpon>frmModelInfo.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\frmScaleUVexport.resx">
+      <DependentUpon>frmScaleUVexport.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\frmScreenCap.resx">
       <DependentUpon>frmScreenCap.vb</DependentUpon>
@@ -405,6 +423,9 @@
       <LastGenOutput>Settings.Designer.vb</LastGenOutput>
     </None>
     <None Include="packages.config" />
+    <None Include="resources\arrow.x">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="resources\blank_dds.dds">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -747,6 +768,15 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <None Include="resources\bone_off.png" />
+    <Content Include="resources\arrow_texture_down.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\arrow_texture_over.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\arrow_texture_up.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="resources\Cbutt_down.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -804,6 +834,7 @@
     <Content Include="resources\desert.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <None Include="resources\game_of_war.jpg" />
     <Content Include="resources\grid_blank.png" />
     <Content Include="resources\models\borderGradient.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

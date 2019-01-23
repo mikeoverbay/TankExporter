@@ -1,0 +1,91 @@
+AC3Db
+MATERIAL "ac3dmat1" rgb 1 1 1  amb 0.2 0.2 0.2  emis 0 0 0  spec 0.2 0.2 0.2  shi 128  trans 0
+OBJECT world
+kids 1
+OBJECT poly
+name "cylinder"
+loc -25 0 -0.287357
+texture "arrow_texture_down.png"
+crease 45.000000
+numvert 8
+75 -3.26335e-006 -0.0249996
+25 -37.5 -0.0249996
+25 -32.476 0
+25 -18.75 0.018301
+25 5.72204e-006 0.0249996
+25 18.75 0.018301
+25 32.476 0
+25 37.5 -0.0249996
+numsurf 13
+SURF 0x30
+mat 0
+refs 2
+1 1 0
+0 0 0.5
+SURF 0x30
+mat 0
+refs 3
+0 0 0.5
+2 1 0.066987
+1 1 0
+SURF 0x30
+mat 0
+refs 2
+2 1 0.066987
+0 0 0.5
+SURF 0x30
+mat 0
+refs 2
+0 0 0.5
+2 1 0.066987
+SURF 0x30
+mat 0
+refs 3
+2 1 0.066987
+0 0 0.5
+3 1 0.25
+SURF 0x30
+mat 0
+refs 2
+0 0 0.5
+3 1 0.25
+SURF 0x30
+mat 0
+refs 3
+3 1 0.25
+0 0 0.5
+4 1 0.5
+SURF 0x30
+mat 0
+refs 2
+0 0 0.5
+4 1 0.5
+SURF 0x30
+mat 0
+refs 3
+4 1 0.5
+0 0 0.5
+5 1 0.75
+SURF 0x30
+mat 0
+refs 3
+0 0 0.5
+6 1 0.933013
+5 1 0.75
+SURF 0x30
+mat 0
+refs 2
+6 1 0.933013
+0 0 0.5
+SURF 0x30
+mat 0
+refs 3
+0 0 0.5
+7 1 1
+6 1 0.933013
+SURF 0x30
+mat 0
+refs 2
+7 1 1
+0 0 0.5
+kids 0

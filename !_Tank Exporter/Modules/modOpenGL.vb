@@ -153,6 +153,26 @@ Module modOpenGL
         Gl.glViewport(0, 0, w, h)
 
     End Sub
+    Public Sub glutPrintSmall(ByVal x As Single, ByVal y As Single, _
+ByVal text As String, ByVal r As Single, ByVal g As Single, ByVal b As Single, ByVal a As Single)
+
+        Try
+            If text.Length = 0 Then Exit Sub
+        Catch ex As Exception
+            Return
+        End Try
+        Dim blending As Boolean = False
+        If Gl.glIsEnabled(Gl.GL_BLEND) Then blending = True
+        Gl.glEnable(Gl.GL_BLEND)
+        Gl.glColor3f(r, g, b)
+        Gl.glRasterPos2f(x, y)
+        For Each I In text
+
+            Glut.glutBitmapCharacter(Glut.GLUT_BITMAP_HELVETICA_10, Asc(I))
+
+        Next
+        If Not blending Then Gl.glDisable(Gl.GL_BLEND)
+    End Sub
     Public Sub glutPrint(ByVal x As Single, ByVal y As Single, _
 ByVal text As String, ByVal r As Single, ByVal g As Single, ByVal b As Single, ByVal a As Single)
 

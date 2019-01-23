@@ -44,6 +44,7 @@ Public Class frmMain
     Public Show_lights As Boolean = False
     Public gl_stop As Boolean = False
     Public update_thread As New Thread(AddressOf update_mouse)
+    Public pan_thread As New Thread(AddressOf update_pan)
     Public path_set As Boolean = False
     Public res_mods_path_set As Boolean = False
     Dim mouse As vec2
@@ -73,7 +74,8 @@ Public Class frmMain
     Public icons(10) As pngs
     Public view_status_string As String
     Public tank_mini_icons As New ImageList
-
+    Public GMM_R, GMM_B As Single
+    Public GMM_TOY_VISIBLE As Integer = 0
     Dim time As New Stopwatch
     Dim pick_timer As New Stopwatch
 
@@ -194,6 +196,27 @@ Public Class frmMain
                 Show_lights = True
             End If
         End If
+        If CAMO_BUTTONS_VISIBLE Then
+            If e.KeyCode = Keys.Right Then
+                'Debug.WriteLine("Right")
+                If camo_Buttons(camo_Buttons.Length - 2).location.X + pan_location > pb1.Width - 100 And Not pan_left Then
+                    pan_slide = 0
+                    pan_left = True
+                End If
+                Me.Focus()
+                pb1.Focus()
+            End If
+            If e.KeyCode = Keys.Left Then
+                'Debug.WriteLine("Left")
+                If camo_Buttons(0).location.X + pan_location < 0 And Not pan_right Then
+                    pan_slide = 0
+                    pan_right = True
+                    Me.Focus()
+                    pb1.Focus()
+                End If
+            End If
+        End If
+
         'If e.KeyCode = Keys.S Then
         '    frmEditFrag.Show()
         '    frmEditFrag.TopMost = True
@@ -559,7 +582,6 @@ Public Class frmMain
         position0(0) = x
         position0(1) = 10.0
         position0(2) = z
-
 
 
         tank_label.Text = ""
@@ -1149,6 +1171,13 @@ Public Class frmMain
         tt = t.ElapsedMilliseconds.ToString
         start_up_log.AppendLine("T = " + tt + "ms")
         '==========
+        iPath = Application.StartupPath + "\resources\"
+        arrow_textureID(0) = load_png_file(iPath + "arrow_texture_up.png")
+        arrow_textureID(1) = load_png_file(iPath + "arrow_texture_over.png")
+        arrow_textureID(2) = load_png_file(iPath + "arrow_texture_down.png")
+        arrow_listID = get_X_model(iPath + "arrow.x")
+        '==========
+
         t.Stop()
     End Sub
     Private Sub load_terrain()
@@ -1339,12 +1368,16 @@ Public Class frmMain
 
 
         Dim root_node = doc.CreateElement("camouflage")
+
         'get the armorcolor
         Dim armorcolor = docx.Descendants("armorColor")
         Dim n_armorcolor = doc.CreateElement("armorcolor")
         n_armorcolor.InnerText = armorcolor.Value.ToString
         root_node.AppendChild(n_armorcolor)
         Dim index As Integer = 0
+
+
+
         'get the textures
         For Each el In docx.Descendants("texture")
             Dim tex = doc.CreateElement("texture")
@@ -1353,7 +1386,14 @@ Public Class frmMain
             tex.InnerText = el.Value.ToString
             '---------
             Dim rr = el.Parent
-            Dim g_node = doc.CreateElement("camo")
+            Dim camoName = doc.CreateElement("camoName")
+
+            camoName.InnerText = rr.Name.ToString
+
+            Dim g_node = doc.CreateElement("root")
+
+
+
             Dim material = doc.CreateElement("material")
             'material.AppendChild(tex)
             'get kind
@@ -1366,6 +1406,8 @@ Public Class frmMain
             color.AppendChild(id_node)
             color.AppendChild(kind)
             color.AppendChild(tex)
+            color.AppendChild(camoName)
+
             For Each c In color_.Elements
                 Dim e = doc.CreateElement(c.Name.ToString)
                 e.InnerText = c.Value.ToString
@@ -2966,6 +3008,8 @@ tryagain:
             Gl.glUniform1f(tank_specular, S_level) ' convert to 0.0 to 1.0
             Gl.glUniform1f(tank_ambient, A_level)
             Gl.glUniform1f(tank_total, T_level)
+            Gl.glUniform1i(tank_use_GMM_Toy, GMM_TOY_VISIBLE)
+            Gl.glUniform2f(tank_GMM_Toy_value, GMM_R, GMM_B)
             If m_shadows.Checked Then
                 Gl.glUniform1i(tank_use_shadow, 1)
             Else
@@ -3447,8 +3491,7 @@ fuckit:
         End If
         '######################################################################
         '######################################################################
-        Dim fps As Integer = 1.0 / (screen_totaled_draw_time * 0.001)
-        Dim str = " FPS: ( " + fps.ToString + " )" + "  " + cur_texture_name
+        Dim str = " FPS: ( " + screen_totaled_draw_time.ToString + " )" + "  " + cur_texture_name
         'swat.Stop()
         If MODEL_LOADED And frmTextureViewer.Visible And (frmTextureViewer.m_show_uvs.Checked Or frmTextureViewer.m_uvs_only.Checked) Then
             glutPrintBox(10, -40, os1.ToString, 0.0, 1.0, 0.0, 1.0) ' fps string
@@ -3477,9 +3520,15 @@ fuckit:
             Next
         End If
         If CAMO_BUTTONS_VISIBLE Then
+
             For i = 0 To camo_Buttons.Length - 2
                 camo_Buttons(i).draw()
             Next
+            If camo_Buttons.Length > 1 Then
+                If camo_Buttons(0).location.X < 0 Or camo_Buttons(camo_Buttons.Length - 2).location.X > pb1.Width Then
+                    draw_pan_arrows()
+                End If
+            End If
         End If
         '====================================
         Gdi.SwapBuffers(pb1_hDC)
@@ -3521,6 +3570,12 @@ fuckit:
                     'Gdi.SwapBuffers(pb1_hDC)
                 End If
                 If CAMO_BUTTONS_VISIBLE Then
+                    If camo_Buttons.Length > 1 Then
+                        If camo_Buttons(0).location.X < 0 Or camo_Buttons(camo_Buttons.Length - 2).location.X > pb1.Width Then
+                            draw_pick_arrows()
+                            mouse_pick_arrows(m_mouse.x, m_mouse.y)
+                        End If
+                    End If
                     draw_pick_camo_buttons()
                     mouse_pick_camo_button(m_mouse.x, m_mouse.y)
                 End If
@@ -3552,6 +3607,7 @@ fuckit:
         Gl.glFlush()
         'er = Gl.glGetError
         OLD_WINDOW_HEIGHT = pb1.Height
+        refresh_counter += 1
     End Sub
     Private Sub draw_main_rec(ByVal p As Point, ByVal w As Integer, ByVal h As Integer)
         Gl.glBegin(Gl.GL_QUADS)
@@ -3578,6 +3634,178 @@ fuckit:
 
     End Sub
     '###########################################################################################################################################
+    Dim pan_slide As Single = 0
+    Private Sub update_pan()
+
+        While _Started
+
+            Dim p_speed As Single = 4.0!
+            If pan_slide < 112 Then
+                If pan_left Then
+                    pan_slide += p_speed
+                    pan_location -= p_speed
+                End If
+            Else
+                pan_left = False
+                'panST.Restart()
+            End If
+            If pan_slide < 112 Then
+                If pan_right Then
+                    pan_slide += p_speed
+                    pan_location += p_speed
+                End If
+            Else
+                pan_right = False
+                'panST.Restart()
+            End If
+            Thread.Sleep(8)
+        End While
+
+    End Sub
+    Private Sub draw_pan_arrows()
+        Dim p As New Point
+        p.Y = -pb1.Height + 77 + 72
+        Dim center = pb1.Width / 2
+        Dim c_off As Integer = 75
+        p.X = center + c_off
+        Gl.glEnable(Gl.GL_TEXTURE_2D)
+        Gl.glActiveTexture(Gl.GL_TEXTURE0)
+        Gl.glEnable(Gl.GL_LIGHTING)
+        Gl.glDisable(Gl.GL_DEPTH_TEST)
+        Gl.glPolygonMode(Gl.GL_FRONT, Gl.GL_FILL)
+        Dim level As Single = 0.76
+        Gl.glColor3f(level, level, level)
+        '===========================================
+        'left side
+        If pan_left_over Then
+            Gl.glBindTexture(Gl.GL_TEXTURE_2D, arrow_textureID(1))
+        Else
+            Gl.glBindTexture(Gl.GL_TEXTURE_2D, arrow_textureID(0))
+        End If
+        If pan_left Then
+            Gl.glBindTexture(Gl.GL_TEXTURE_2D, arrow_textureID(2))
+        End If
+        Gl.glPushMatrix()
+        Gl.glTranslatef(p.X, p.Y, 0.0)
+        Gl.glScalef(0.5, 0.5, 1.0)
+        Gl.glCallList(arrow_listID)
+        Gl.glPopMatrix()
+        '===========================================
+        'right side
+        If pan_right_over Then
+            Gl.glBindTexture(Gl.GL_TEXTURE_2D, arrow_textureID(1))
+        Else
+            Gl.glBindTexture(Gl.GL_TEXTURE_2D, arrow_textureID(0))
+        End If
+        If pan_right Then
+            Gl.glBindTexture(Gl.GL_TEXTURE_2D, arrow_textureID(2))
+        End If
+        Gl.glPushMatrix()
+        p.X = center - c_off
+        Gl.glTranslatef(p.X, p.Y, 0.0)
+        Gl.glScalef(-0.5, 0.5, 1.0)
+        Gl.glCallList(arrow_listID)
+        Gl.glPopMatrix()
+
+
+        Gl.glBindTexture(Gl.GL_TEXTURE_2D, 0)
+        Gl.glDisable(Gl.GL_TEXTURE_2D)
+
+    End Sub
+    Public Sub draw_pick_arrows()
+        Gl.glDisable(Gl.GL_LIGHTING)
+        Gl.glDisable(Gl.GL_BLEND)
+        Gl.glDisable(Gl.GL_DEPTH_TEST)
+
+        Gl.glClearColor(0, 0, 0, 0)
+        Gl.glClear(Gl.GL_COLOR_BUFFER_BIT Or Gl.GL_DEPTH_BUFFER_BIT)
+
+        Gl.glDisable(Gl.GL_CULL_FACE)
+        Gl.glPolygonMode(Gl.GL_FRONT_AND_BACK, Gl.GL_FILL)
+
+        Dim p As New Point
+        p.Y = -pb1.Height + 77 + 72
+        Dim center = pb1.Width / 2
+        Dim c_off As Integer = 75
+        p.X = center - c_off
+
+        'left side
+        Gl.glColor3ub(2, 0, 0)
+        Gl.glPushMatrix()
+        Gl.glTranslatef(p.X, p.Y, 0.0)
+        Gl.glScalef(-0.5, 0.5, 1.0)
+        Gl.glCallList(arrow_listID)
+        'Gl.glCallList(dome_modelId)
+        Gl.glPopMatrix()
+        'right side
+        Gl.glColor3ub(1, 0, 0)
+
+        Gl.glPushMatrix()
+        p.X = center + c_off
+        Gl.glTranslatef(p.X, p.Y, 0.0)
+        Gl.glScalef(0.5, 0.5, 1.0)
+        Gl.glCallList(arrow_listID)
+        Gl.glPopMatrix()
+    End Sub
+    Public Sub mouse_pick_arrows(ByVal x As Integer, ByVal y As Integer)
+        'If CAMO_BUTTON_DOWN Then Return
+
+        '==========================================
+        'pick function
+        Dim viewport(4) As Integer
+        Dim pixel() As Byte = {0, 0, 0, 0}
+        Gl.glGetIntegerv(Gl.GL_VIEWPORT, viewport)
+        Gl.glReadPixels(x, viewport(3) - y, 1, 1, Gl.GL_RGBA, Gl.GL_UNSIGNED_BYTE, pixel)
+        Dim type = pixel(3)
+        Dim index As UInt32 = CUInt(pixel(0))
+        If pan_left Or pan_right Then
+            Return
+        End If
+        If M_DOWN Then
+            If index = 1 Then
+                pan_left = True
+                If camo_Buttons(camo_Buttons.Length - 2).location.X + pan_location > pb1.Width - 100 Then
+                    If panST.ElapsedMilliseconds >= 500 Then
+                        pan_slide = 0
+                        'pan_location -= 110
+                        panST.Restart()
+                    End If
+                End If
+                Return
+            End If
+            If index = 2 Then
+                pan_right = True
+                If camo_Buttons(0).location.X + pan_location < 0 Then
+                    If panST.ElapsedMilliseconds >= 500 Then
+                        pan_slide = 0
+                        'pan_location += 110
+                        panST.Restart()
+                    End If
+                End If
+                Return
+            End If
+        Else
+            'pan_left = False
+            'pan_right = False
+            If index = 1 And Not pan_left Then
+                pan_left_over = True
+                Return
+            End If
+            If index = 2 And Not pan_right Then
+                pan_right_over = True
+                Return
+            End If
+        End If
+        If Not panST.IsRunning Then
+            panST.Start()
+        End If
+        'pan_left = False
+        'pan_right = False
+        pan_right_over = False
+        pan_left_over = False
+    End Sub
+
+
     Public Sub draw_triangle_mouse_texture_window()
         'If Not pb2.Focused Then Return
 
@@ -3862,6 +4090,8 @@ fuckit:
     End Sub
     Dim v1 As vertice_
     Dim os1 As String
+
+
     Public Sub mouse_pick_tank_vertex(ByVal x As Integer, ByVal y As Integer)
         'pick function
         Dim viewport(4) As Integer
@@ -4129,7 +4359,9 @@ fuckit:
         If BUTTON_ID > 0 Then
             Return
         End If
-
+        If pan_left Or pan_right Then
+            Return
+        End If
         'If check_menu_select() Then ' check if we are over a button
         '    Return
         'End If
@@ -4301,6 +4533,11 @@ fuckit:
             img_scale_down()
         End If
     End Sub
+    Public Sub set_pb2_size(ByVal size As Point)
+        pb2.Location = New Point(0, 0)
+        pb2.Width = size.X
+        pb2.Height = size.Y
+    End Sub
     Public Sub img_scale_up()
         If Zoom_Factor >= 4.0 Then
             Zoom_Factor = 4.0
@@ -4414,12 +4651,19 @@ fuckit:
             u_View_Radius = view_radius
             update = True
         End If
-        If Not frmScreenCap.Visible And stop_updating And update Then update_screen()
+        If Not frmScreenCap.Visible And stop_updating And update Then
+            update_screen()
+
+        End If
 
         Return update
     End Function
     Dim l_rot As Single
     Dim l_timer As New Stopwatch
+    Dim refresh_counter As Integer = 0
+    Private Sub mouse_movement()
+
+    End Sub
     Public Sub update_mouse()
         Dim sun_angle As Single = 0.0
         Dim sun_radius As Single = 5.0
@@ -4427,6 +4671,7 @@ fuckit:
         'Its in a closed loop
         screen_totaled_draw_time = 10.0
         Dim swat As New Stopwatch
+        swat.Start()
         Dim x, z As Single
         Dim s As Single = 2.0
         l_timer.Restart()
@@ -4456,20 +4701,16 @@ fuckit:
 
 
                     update_screen()
-                    screen_draw_time = CDbl(swat.ElapsedMilliseconds)
-                    swat.Restart()
-                    If screen_avg_counter > 10 Then
-                        screen_totaled_draw_time = screen_avg_draw_time / screen_avg_counter
-                        screen_avg_counter = 0.0
-                        screen_avg_draw_time = 0.0
-                    Else
-                        screen_avg_counter += 1.0
-                        screen_avg_draw_time += screen_draw_time
+                    If swat.ElapsedMilliseconds >= 1000 Then
+                        screen_totaled_draw_time = refresh_counter
+                        refresh_counter = 0
+                        swat.Restart()
                     End If
+
                 End If
             End If
 
-            Thread.Sleep(3)
+            Thread.Sleep(4)
             'Application.DoEvents()
         End While
         'Thread.CurrentThread.Abort()
@@ -4492,8 +4733,12 @@ fuckit:
         Startup_Timer.Enabled = False
         update_thread.IsBackground = True
         update_thread.Name = "mouse updater"
-        update_thread.Priority = ThreadPriority.Lowest
+        update_thread.Priority = ThreadPriority.Normal
         update_thread.Start()
+        pan_thread.IsBackground = True
+        pan_thread.Name = "mouse updater"
+        pan_thread.Priority = ThreadPriority.Normal
+        pan_thread.Start()
     End Sub
 #End Region
 
@@ -5644,6 +5889,48 @@ n_turret:
     End Sub
 
 
+    Private Sub export_camo()
+        export_camo_to_res_mods("summer")
+        export_camo_to_res_mods("winter")
+        export_camo_to_res_mods("desert")
+
+    End Sub
+    Public Sub export_camo_to_res_mods(ByVal type As String)
+
+        '===================================
+        Dim d = custom_tables(CURRENT_DATA_SET).Copy
+        Dim ar = TANK_NAME.Split(":")
+        Dim t_name = Path.GetFileNameWithoutExtension(ar(0))
+        '===================================
+        Dim t = d.Tables("colors")
+        Dim q = From row In t.AsEnumerable _
+                Where type = row.Field(Of String)("kind") _
+                Select _
+                texture = row.Field(Of String)("texture"), _
+                camoName = row.Field(Of String)("camoName")
+        Try
+
+        Catch ex As Exception
+            t.Dispose()
+            d.Dispose()
+            MsgBox("This tank can not have camouflage appied to it!", MsgBoxStyle.Information, "Not Going to happen...")
+            Return
+        End Try
+
+ 
+        Dim cnt As Integer = 0
+        Dim z_path As String = My.Settings.res_mods_path
+
+        For Each l In q
+            If l.camoName IsNot Nothing Then
+                Dim ent = frmMain.packages(11)(l.texture)
+                ent.Extract(z_path, ExtractExistingFileAction.DoNotOverwrite)
+                cnt += 1
+            End If
+        Next
+        t.Dispose()
+        d.Dispose()
+    End Sub
 
     Public Sub extract_selections()
         If Not My.Settings.res_mods_path.ToLower.Contains("res_mods") Then
@@ -5659,7 +5946,9 @@ n_turret:
                 Return
             End If
         End If
-
+        If frmExtract.m_export_camo_cb.Checked Then
+            export_camo()
+        End If
 
 
         Dim sb As New StringBuilder
@@ -7198,7 +7487,6 @@ make_this_tank:
         If stop_updating Then draw_scene()
 
     End Sub
-#End Region
 
 
     Private Sub m_edit_visual_Click(sender As Object, e As EventArgs) Handles m_edit_visual.Click
@@ -7288,6 +7576,7 @@ make_this_tank:
     Private Sub m_new_Click(sender As Object, e As EventArgs) Handles m_new.Click
         add_decal()
     End Sub
+#End Region
 
     Public d_sel_Len As Integer
     Public d_current_line As Integer
@@ -7800,4 +8089,27 @@ make_this_tank:
 
         End If
     End Sub
+
+    Private Sub pb1_PreviewKeyDown(sender As Object, e As PreviewKeyDownEventArgs) Handles pb1.PreviewKeyDown
+        'Debug.WriteLine(e.KeyCode.ToString)
+        Select Case e.KeyCode
+            Case Keys.Left, Keys.Right
+                e.IsInputKey = True
+        End Select
+    End Sub
+
+    Private Sub m_ExportExtract_EnabledChanged(sender As Object, e As EventArgs) Handles m_ExportExtract.EnabledChanged
+        m_GMM_toy_cb.Visible = m_ExportExtract.Enabled
+    End Sub
+
+    Private Sub m_GMM_toy_cb_CheckedChanged(sender As Object, e As EventArgs) Handles m_GMM_toy_cb.CheckedChanged
+        frmGMM.Visible = m_GMM_toy_cb.Checked
+        If m_GMM_toy_cb.Checked Then
+            GMM_TOY_VISIBLE = 1
+        Else
+            GMM_TOY_VISIBLE = 0
+        End If
+    End Sub
+
+
 End Class

@@ -34,6 +34,7 @@ Module modCamouflage
     Public bb_texture_ids(0) As Integer
     Public bb_camo_texture_ids(0) As Integer
     Public bb_processed_texture_ids(0) As Integer
+    Public bb_camoName() As String
     Public c0() As vect4
     Public c1() As vect4
     Public c2() As vect4
@@ -108,6 +109,7 @@ Module modCamouflage
                 Where type = row.Field(Of String)("kind") _
                 Select _
                 texture = row.Field(Of String)("texture"), _
+                camoName = row.Field(Of String)("camoName"), _
                 tank_tiling = row.Field(Of String)(t_name), _
                 c0 = row.Field(Of String)("c0"), _
                 c1 = row.Field(Of String)("c1"), _
@@ -129,21 +131,21 @@ Module modCamouflage
 
         ReDim bb_tank_tiling(q.Count)
         ReDim bb_texture_ids(q.Count)
+        ReDim bb_camoName(q.Count)
         ReDim c0(q.Count)
         ReDim c1(q.Count)
         ReDim c2(q.Count)
         ReDim c3(q.Count)
-
         Dim cnt As Integer = 0
         For Each l In q
             If l.texture.Contains("IGR") Or l.texture.Contains("Clan") Or l.texture.ToLower.Contains("victim") Then
-                GoTo skip
+                'GoTo skip
             End If
             Try
                 bb_texture_list(cnt) = l.texture
                 bb_tank_tiling(cnt) = New vect4
                 bb_tank_tiling(cnt) = get_vect4_no_conversion(l.tank_tiling)
-
+                bb_camoName(cnt) = l.camoName
             Catch ex As Exception
                 Dim v_t As vect4
                 v_t.x = 1.0
@@ -159,13 +161,15 @@ Module modCamouflage
             c1(cnt) = get_vect4(l.c1)
             c2(cnt) = get_vect4(l.c2)
             c3(cnt) = get_vect4(l.c3)
-
-
-            Dim ms As New MemoryStream
-            Dim ent = frmMain.packages(11)(l.texture)
-            If ent IsNot Nothing Then
-                ent.Extract(ms)
-                bb_texture_ids(cnt) = get_texture_from_stream(ms)
+            'check if this texture exist in res_mods
+            If File.Exists(My.Settings.res_mods_path + "\" + bb_texture_list(cnt)) Then
+                bb_texture_ids(cnt) = get_fbx_texture(My.Settings.res_mods_path + "\" + bb_texture_list(cnt))
+            Else ' otherwise load from pkg file
+                Dim ms As New MemoryStream
+                Dim ent = frmMain.packages(11)(l.texture)
+                If ent IsNot Nothing Then
+                    ent.Extract(ms)
+                End If
             End If
             cnt += 1
 skip:
@@ -174,6 +178,7 @@ skip:
         ReDim Preserve bb_texture_list(cnt)
         ReDim Preserve bb_tank_tiling(cnt)
         ReDim Preserve bb_texture_ids(cnt)
+        ReDim Preserve bb_camoName(cnt)
         ReDim Preserve c0(cnt)
         ReDim Preserve c1(cnt)
         ReDim Preserve c2(cnt)
@@ -186,6 +191,9 @@ skip:
             frmMain.pb2.Dock = DockStyle.None
         End If
         For i = 0 To cnt - 1
+            If bb_camoName(i) Is Nothing Then
+                GoTo skip_adding
+            End If
             Dim b = New Camobutton_
             b.c0 = c0(i)
             b.c1 = c1(i)
@@ -196,11 +204,14 @@ skip:
             b.location = New Point(100, -frmMain.pb1.Height + 110)
             b.size = New Point(100, 100)
             b.gl_textureID = make_mixed_texture(i)
+            b.camoName = bb_camoName(i)
+            b.textureName = bb_texture_list(i)
             bb_camo_texture_ids(i) = b.gl_textureID
 
             b.camo_texture_id = bb_texture_ids(i)
             b.callmode = type
             b.add()
+skip_adding:
         Next
         '===================================
         relocate_camobuttons()
@@ -258,7 +269,7 @@ skip:
     Public Sub relocate_camobuttons()
         Dim cnt = camo_Buttons.Length - 1
         Dim butt_width = camo_Buttons(0).size.X
-        Dim space As Integer = 10
+        Dim space As Integer = 12
         Dim sw = frmMain.pb1.Width
         Dim rw = (butt_width * cnt) + (space * (cnt - 1))
         Dim stepsize = butt_width + space
@@ -295,7 +306,7 @@ skip:
             Dim b As New Nbutton_
             b.state = 0
             b.size = New Point(47, 47)
-            b.location = New Point(100, -frmMain.pb1.Height + 167)
+            b.location = New Point(100, -frmMain.pb1.Height + 172)
             b.callmode = i
             b.add()
         Next

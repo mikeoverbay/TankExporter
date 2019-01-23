@@ -24,6 +24,7 @@ Partial Class frmScreenCap
     Private Sub InitializeComponent()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(frmScreenCap))
         Me.GroupBox1 = New System.Windows.Forms.GroupBox()
+        Me.x1980x1200_rb = New System.Windows.Forms.RadioButton()
         Me.x1440_rb = New System.Windows.Forms.RadioButton()
         Me.x1280_rb = New System.Windows.Forms.RadioButton()
         Me.x1366_rb = New System.Windows.Forms.RadioButton()
@@ -38,13 +39,16 @@ Partial Class frmScreenCap
         Me.cancel_btn = New System.Windows.Forms.Button()
         Me.ColorDialog1 = New System.Windows.Forms.ColorDialog()
         Me.SaveFileDialog1 = New System.Windows.Forms.SaveFileDialog()
-        Me.x1980x1200_rb = New System.Windows.Forms.RadioButton()
+        Me.x_size_tb = New System.Windows.Forms.TextBox()
+        Me.y_size_tb = New System.Windows.Forms.TextBox()
         Me.GroupBox1.SuspendLayout()
         Me.GroupBox2.SuspendLayout()
         Me.SuspendLayout()
         '
         'GroupBox1
         '
+        Me.GroupBox1.Controls.Add(Me.y_size_tb)
+        Me.GroupBox1.Controls.Add(Me.x_size_tb)
         Me.GroupBox1.Controls.Add(Me.x1980x1200_rb)
         Me.GroupBox1.Controls.Add(Me.x1440_rb)
         Me.GroupBox1.Controls.Add(Me.x1280_rb)
@@ -54,10 +58,20 @@ Partial Class frmScreenCap
         Me.GroupBox1.ForeColor = System.Drawing.Color.WhiteSmoke
         Me.GroupBox1.Location = New System.Drawing.Point(12, 12)
         Me.GroupBox1.Name = "GroupBox1"
-        Me.GroupBox1.Size = New System.Drawing.Size(98, 171)
+        Me.GroupBox1.Size = New System.Drawing.Size(98, 207)
         Me.GroupBox1.TabIndex = 0
         Me.GroupBox1.TabStop = False
         Me.GroupBox1.Text = "Output Size"
+        '
+        'x1980x1200_rb
+        '
+        Me.x1980x1200_rb.AutoSize = True
+        Me.x1980x1200_rb.Location = New System.Drawing.Point(6, 24)
+        Me.x1980x1200_rb.Name = "x1980x1200_rb"
+        Me.x1980x1200_rb.Size = New System.Drawing.Size(84, 17)
+        Me.x1980x1200_rb.TabIndex = 5
+        Me.x1980x1200_rb.Text = "1920 x 1200"
+        Me.x1980x1200_rb.UseVisualStyleBackColor = True
         '
         'x1440_rb
         '
@@ -105,10 +119,10 @@ Partial Class frmScreenCap
         Me.x64_rb.Checked = True
         Me.x64_rb.Location = New System.Drawing.Point(6, 139)
         Me.x64_rb.Name = "x64_rb"
-        Me.x64_rb.Size = New System.Drawing.Size(66, 17)
+        Me.x64_rb.Size = New System.Drawing.Size(60, 17)
         Me.x64_rb.TabIndex = 0
         Me.x64_rb.TabStop = True
-        Me.x64_rb.Text = "114 x 64"
+        Me.x64_rb.Text = "Custom"
         Me.x64_rb.UseVisualStyleBackColor = True
         '
         'GroupBox2
@@ -171,7 +185,7 @@ Partial Class frmScreenCap
         'save_btn
         '
         Me.save_btn.ForeColor = System.Drawing.Color.Black
-        Me.save_btn.Location = New System.Drawing.Point(123, 189)
+        Me.save_btn.Location = New System.Drawing.Point(123, 225)
         Me.save_btn.Name = "save_btn"
         Me.save_btn.Size = New System.Drawing.Size(81, 23)
         Me.save_btn.TabIndex = 2
@@ -181,29 +195,39 @@ Partial Class frmScreenCap
         'cancel_btn
         '
         Me.cancel_btn.ForeColor = System.Drawing.Color.Black
-        Me.cancel_btn.Location = New System.Drawing.Point(18, 189)
+        Me.cancel_btn.Location = New System.Drawing.Point(18, 225)
         Me.cancel_btn.Name = "cancel_btn"
         Me.cancel_btn.Size = New System.Drawing.Size(75, 23)
         Me.cancel_btn.TabIndex = 3
         Me.cancel_btn.Text = "Cancel"
         Me.cancel_btn.UseVisualStyleBackColor = True
         '
-        'x1980x1200_rb
+        'x_size_tb
         '
-        Me.x1980x1200_rb.AutoSize = True
-        Me.x1980x1200_rb.Location = New System.Drawing.Point(6, 24)
-        Me.x1980x1200_rb.Name = "x1980x1200_rb"
-        Me.x1980x1200_rb.Size = New System.Drawing.Size(84, 17)
-        Me.x1980x1200_rb.TabIndex = 5
-        Me.x1980x1200_rb.Text = "1920 x 1200"
-        Me.x1980x1200_rb.UseVisualStyleBackColor = True
+        Me.x_size_tb.BackColor = System.Drawing.Color.FromArgb(CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer))
+        Me.x_size_tb.ForeColor = System.Drawing.Color.White
+        Me.x_size_tb.Location = New System.Drawing.Point(6, 159)
+        Me.x_size_tb.Name = "x_size_tb"
+        Me.x_size_tb.Size = New System.Drawing.Size(76, 20)
+        Me.x_size_tb.TabIndex = 4
+        Me.x_size_tb.Text = "800"
+        '
+        'y_size_tb
+        '
+        Me.y_size_tb.BackColor = System.Drawing.Color.FromArgb(CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer))
+        Me.y_size_tb.ForeColor = System.Drawing.Color.White
+        Me.y_size_tb.Location = New System.Drawing.Point(6, 181)
+        Me.y_size_tb.Name = "y_size_tb"
+        Me.y_size_tb.Size = New System.Drawing.Size(76, 20)
+        Me.y_size_tb.TabIndex = 6
+        Me.y_size_tb.Text = "480"
         '
         'frmScreenCap
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.Color.FromArgb(CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer))
-        Me.ClientSize = New System.Drawing.Size(232, 222)
+        Me.ClientSize = New System.Drawing.Size(232, 260)
         Me.Controls.Add(Me.cancel_btn)
         Me.Controls.Add(Me.save_btn)
         Me.Controls.Add(Me.GroupBox2)
@@ -237,4 +261,6 @@ Partial Class frmScreenCap
     Friend WithEvents ColorDialog1 As System.Windows.Forms.ColorDialog
     Friend WithEvents SaveFileDialog1 As System.Windows.Forms.SaveFileDialog
     Friend WithEvents x1980x1200_rb As System.Windows.Forms.RadioButton
+    Friend WithEvents y_size_tb As System.Windows.Forms.TextBox
+    Friend WithEvents x_size_tb As System.Windows.Forms.TextBox
 End Class

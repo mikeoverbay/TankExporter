@@ -177,7 +177,7 @@ Partial Class frmTextureViewer
         Me.m_top_most.Image = CType(resources.GetObject("m_top_most.Image"), System.Drawing.Image)
         Me.m_top_most.ImageTransparentColor = System.Drawing.Color.Magenta
         Me.m_top_most.Name = "m_top_most"
-        Me.m_top_most.Size = New System.Drawing.Size(62, 22)
+        Me.m_top_most.Size = New System.Drawing.Size(61, 22)
         Me.m_top_most.Text = "Top Most"
         '
         'SaveFileDialog1
@@ -196,6 +196,7 @@ Partial Class frmTextureViewer
         Me.DoubleBuffered = True
         Me.Icon = CType(resources.GetObject("$this.Icon"), System.Drawing.Icon)
         Me.Name = "frmTextureViewer"
+        Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent
         Me.Text = "Texture Viewer"
         Me.TopMost = True
         Me.ToolStrip1.ResumeLayout(False)

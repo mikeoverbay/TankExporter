@@ -20,6 +20,8 @@ uniform sampler2D u_brdfLUT;
 uniform int is_GAmap;
 uniform int alphaRef;
 uniform vec2 detailTiling;
+uniform vec2 GMM_Toy;
+uniform int use_GMM_Toy;
 uniform vec4 tile_vec4;
 uniform float detailPower;
 uniform int use_camo;
@@ -290,6 +292,7 @@ vec4   cc = vec4(0.0);
     vec4 base        = texture2D(colorMap,  TC1.st);
     vec4 bumpMap     = texture2D(normalMap, TC1.st);
     vec3 GMM         = texture2D(gmmMap,    TC1.st).rgb;
+	if (use_GMM_Toy ==1) GMM.rg = GMM_Toy.xy;
     float shadow = 1.0;
     if (use_shadow == 1){
     ShadowCoordPostW = ShadowCoord / ShadowCoord.w;
@@ -310,7 +313,7 @@ vec4   cc = vec4(0.0);
             if (use_camo > 0 )
             {
                 cc    = applyCamo(cc, camoTexture);
-                color.rgb = mix(color.rgb, cc.rgb,  AO.a);
+                color.rgb = mix(color.rgb, cc.rgb,  AO.a*1.5); // big boost to camo mix
             }
             color.rgb *= AO.g;
             base.rgb  = color.rgb;
