@@ -12,10 +12,10 @@ Added the ability to export all camouflage textures when the tank is extracted t
 
 When clicking on a camouflage season button, Tank Exporter now searched the res_mods path for the base camouflage textures.
 
-Added buttons to allow panning the camouflage texxtures at the bottom of the screen. You can also use the left and right arrows.
+Added buttons to allow panning the camouflage textures at the bottom of the screen. You can also use the left and right arrows.
 
-Added names above the camo textures for reference.
-Selecting a camo will also show the path of the base camo texture.
+Added names above the camouflage textures for reference.
+Selecting a camo will also show the path of the base camouflage texture.
 
 Added a control to change GMM map in real time while previewing the tank in TE. Fun!
 
