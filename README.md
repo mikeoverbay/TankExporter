@@ -5,22 +5,22 @@
 
 #### This is an ongoing project by me.. Coffee_
 
-## Version 78:
+Lots a new stuff!
+
 Added ability to scale exported UV map.
 
 Added the ability to export all camouflage textures when the tank is extracted to res_mods.
 
-When clicking on a camouflage season button, Tank Exporter now searched the res_mods path for the base camouflage textures.
+When clicking on a camouflage season button, Tank Exporter now searches the res_mods path for the base camouflage textures.
 
 Added buttons to allow panning the camouflage textures at the bottom of the screen. You can also use the left and right arrows.
 
 Added names above the camouflage textures for reference.
-Selecting a camo will also show the path of the base camouflage texture.
+Selecting a camouflage will also show the path of the base camouflage texture.
 
 Added a control to change GMM map in real time while previewing the tank in TE. Fun!
 
 Added a custom exported screen size. You can save a screen shot in any size you what. Use even size values for this!
-
 ## Version 77:
 Fixed how TE deals with tanks that contain the _Skins folder.
 Added JLDragon's Texture Save Format information to the help HTML pages.
