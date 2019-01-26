@@ -141,11 +141,15 @@ Module modCamouflage
             If l.texture.Contains("IGR") Or l.texture.Contains("Clan") Or l.texture.ToLower.Contains("victim") Then
                 'GoTo skip
             End If
+            If l.camoName.Length = 0 Then
+                GoTo skip
+            End If
             Try
                 bb_texture_list(cnt) = l.texture
                 bb_tank_tiling(cnt) = New vect4
-                bb_tank_tiling(cnt) = get_vect4_no_conversion(l.tank_tiling)
                 bb_camoName(cnt) = l.camoName
+                'do not put anything after tiling read!
+                bb_tank_tiling(cnt) = get_vect4_no_conversion(l.tank_tiling)
             Catch ex As Exception
                 Dim v_t As vect4
                 v_t.x = 1.0
@@ -157,10 +161,20 @@ Module modCamouflage
             c2(cnt) = New vect4
             c3(cnt) = New vect4
 
-            c0(cnt) = get_vect4(l.c0)
-            c1(cnt) = get_vect4(l.c1)
-            c2(cnt) = get_vect4(l.c2)
-            c3(cnt) = get_vect4(l.c3)
+            Dim q1 = From row In t.AsEnumerable _
+                Where l.camoName = row.Field(Of String)("camoName") _
+                Select _
+                c0 = row.Field(Of String)("c0"), _
+                c1 = row.Field(Of String)("c1"), _
+                c2 = row.Field(Of String)("c2"), _
+                c3 = row.Field(Of String)("c3")
+            For Each cc In q1
+                c0(cnt) = get_vect4(cc.c0)
+                c1(cnt) = get_vect4(cc.c1)
+                c2(cnt) = get_vect4(cc.c2)
+                c3(cnt) = get_vect4(cc.c3)
+
+            Next
             'check if this texture exist in res_mods
             If File.Exists(My.Settings.res_mods_path + "\" + bb_texture_list(cnt)) Then
                 bb_texture_ids(cnt) = get_fbx_texture(My.Settings.res_mods_path + "\" + bb_texture_list(cnt))

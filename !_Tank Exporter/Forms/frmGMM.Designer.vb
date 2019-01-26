@@ -29,7 +29,6 @@ Partial Class frmGMM
         Me.Label2 = New System.Windows.Forms.Label()
         Me.blue_slider = New System.Windows.Forms.TrackBar()
         Me.blue_value_tb = New System.Windows.Forms.TextBox()
-        Me.Label3 = New System.Windows.Forms.Label()
         CType(Me.red_slider, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.blue_slider, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
@@ -63,11 +62,11 @@ Partial Class frmGMM
         Me.Label1.AutoSize = True
         Me.Label1.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.Label1.ForeColor = System.Drawing.Color.White
-        Me.Label1.Location = New System.Drawing.Point(4, 235)
+        Me.Label1.Location = New System.Drawing.Point(15, 235)
         Me.Label1.Name = "Label1"
-        Me.Label1.Size = New System.Drawing.Size(61, 13)
+        Me.Label1.Size = New System.Drawing.Size(33, 13)
         Me.Label1.TabIndex = 3
-        Me.Label1.Text = "Roughness"
+        Me.Label1.Text = "Gloss"
         Me.Label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
         '
         'Label2
@@ -106,25 +105,13 @@ Partial Class frmGMM
         Me.blue_value_tb.Text = "0"
         Me.blue_value_tb.TextAlign = System.Windows.Forms.HorizontalAlignment.Center
         '
-        'Label3
-        '
-        Me.Label3.AutoSize = True
-        Me.Label3.ForeColor = System.Drawing.Color.Black
-        Me.Label3.Location = New System.Drawing.Point(4, 252)
-        Me.Label3.Name = "Label3"
-        Me.Label3.Size = New System.Drawing.Size(127, 65)
-        Me.Label3.TabIndex = 7
-        Me.Label3.Text = "NOTE:" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Roughness is inverted in" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "the shader." & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Higher values means less" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "roughness" & _
-    "!"
-        '
         'frmGMM
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.Color.DimGray
-        Me.ClientSize = New System.Drawing.Size(142, 322)
+        Me.ClientSize = New System.Drawing.Size(142, 262)
         Me.ControlBox = False
-        Me.Controls.Add(Me.Label3)
         Me.Controls.Add(Me.Label2)
         Me.Controls.Add(Me.blue_slider)
         Me.Controls.Add(Me.blue_value_tb)
@@ -151,5 +138,4 @@ Partial Class frmGMM
     Friend WithEvents Label2 As System.Windows.Forms.Label
     Friend WithEvents blue_slider As System.Windows.Forms.TrackBar
     Friend WithEvents blue_value_tb As System.Windows.Forms.TextBox
-    Friend WithEvents Label3 As System.Windows.Forms.Label
 End Class

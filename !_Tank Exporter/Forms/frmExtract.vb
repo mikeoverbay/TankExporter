@@ -20,6 +20,7 @@
         TT.SetToolTip(Me.ext_gun, "Extract Gun Texures and Models")
         TT.SetToolTip(Me.m_customization, "Extract Customization.xml")
         TT.SetToolTip(Me.create_work_area_cb, "Create Work Area folder")
+        TT.SetToolTip(Me.m_export_camo_cb, "Extract all camo for loaded tank")
 
     End Sub
 

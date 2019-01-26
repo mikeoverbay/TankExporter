@@ -5926,6 +5926,8 @@ n_turret:
                 Dim ent = frmMain.packages(11)(l.texture)
                 ent.Extract(z_path, ExtractExistingFileAction.DoNotOverwrite)
                 cnt += 1
+            Else
+                Debug.WriteLine("missing camo: " + l.camoName)
             End If
         Next
         t.Dispose()

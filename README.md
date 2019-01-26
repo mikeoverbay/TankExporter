@@ -5,6 +5,11 @@
 
 #### This is an ongoing project by me.. Coffee_
 
+## Version 79:
+Fixed a bug with TEs changes to the camuflages.
+TE finds many more camouflages now.
+
+## version 78:
 Lots a new stuff!
 
 Added ability to scale exported UV map.
@@ -21,6 +26,7 @@ Selecting a camouflage will also show the path of the base camouflage texture.
 Added a control to change GMM map in real time while previewing the tank in TE. Fun!
 
 Added a custom exported screen size. You can save a screen shot in any size you what. Use even size values for this!
+
 ## Version 77:
 Fixed how TE deals with tanks that contain the _Skins folder.
 Added JLDragon's Texture Save Format information to the help HTML pages.
