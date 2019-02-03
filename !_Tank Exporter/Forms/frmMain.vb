@@ -8106,7 +8106,7 @@ make_this_tank:
 
     Private Sub m_GMM_toy_cb_CheckedChanged(sender As Object, e As EventArgs) Handles m_GMM_toy_cb.CheckedChanged
         frmGMM.Visible = m_GMM_toy_cb.Checked
-        If m_GMM_toy_cb.Checked Then
+        If frmGMM.Visible Then
             GMM_TOY_VISIBLE = 1
         Else
             GMM_TOY_VISIBLE = 0

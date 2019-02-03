@@ -5,6 +5,9 @@
 
 #### This is an ongoing project by me.. Coffee_
 
+## Version 80;
+I fixed yet another bug in the camouflage.
+
 ## Version 79:
 Fixed a bug with TEs changes to the camuflages.
 TE finds many more camouflages now.
