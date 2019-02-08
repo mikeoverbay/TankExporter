@@ -292,7 +292,9 @@ vec4   cc = vec4(0.0);
     vec4 base        = texture2D(colorMap,  TC1.st);
     vec4 bumpMap     = texture2D(normalMap, TC1.st);
     vec3 GMM         = texture2D(gmmMap,    TC1.st).rgb;
-	if (use_GMM_Toy ==1) GMM.rg = GMM_Toy.xy;
+    if (use_GMM_Toy ==1){ 
+		GMM.rg = GMM_Toy.xy;
+		}
     float shadow = 1.0;
     if (use_shadow == 1){
     ShadowCoordPostW = ShadowCoord / ShadowCoord.w;

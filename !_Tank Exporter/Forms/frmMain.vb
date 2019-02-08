@@ -7497,6 +7497,13 @@ make_this_tank:
 
     Private Sub m_write_primitive_Click(sender As Object, e As EventArgs) Handles m_write_primitive.Click
         If FBX_LOADED Then
+            frmWritePrimitive.Show()
+
+            If is_wheeled_vehicle Then
+                frmWritePrimitive.cew_cb.Checked = False
+                frmWritePrimitive.cew_cb.Enabled = False
+            End If
+            frmWritePrimitive.Hide()
             frmWritePrimitive.ShowDialog(Me)
         End If
     End Sub

@@ -787,6 +787,7 @@ next_m:
         buf = Nothing
 #End If
         Dim loop_count As Integer = 0
+        Dim section_count As Integer = 0
         ' add_flag .... so we dont set this to false if it was already set.
         ' This has to happen BEFORE the next_sub_section loop!
         Dim add_flag As Boolean = _add
@@ -818,7 +819,7 @@ next_m:
 
             If sub_groups > 0 Then pg_flag = True
             'open indices.sec
-            Dim ri = New MemoryStream(ordered_names(loop_count).indi_data)
+            Dim ri = New MemoryStream(ordered_names(section_count).indi_data)
             Dim ib_reader = New BinaryReader(ri)
             ib_reader.BaseStream.Seek(0, SeekOrigin.Begin)
             Dim cr As Byte
@@ -865,7 +866,7 @@ next_m:
 
             Next
             'get basic vertices info
-            Dim vr = New MemoryStream(ordered_names(loop_count).vert_data)
+            Dim vr = New MemoryStream(ordered_names(section_count).vert_data)
             Dim vb_reader = New BinaryReader(vr)
             vb_reader.BaseStream.Seek(0, SeekOrigin.Begin)
             Dim curpos As ULong = vb_reader.BaseStream.Position
@@ -887,6 +888,7 @@ next_m:
             ' get stride of each vertex element
             Dim BPVT_mode As Boolean = False
             Dim realNormals As Boolean = False
+            Dim c_stride As Integer = 5
             If vh.header_text = "xyznuv" Then
                 stride = 32
                 realNormals = True
@@ -950,9 +952,14 @@ next_m:
             Dim p As Integer = 6
             For k As UInt32 = object_start To big_l
                 If ordered_names(sg - sub_groups).has_color Then
+                    Dim c_size As Integer = pGroups(sg - sub_groups).nVertices_ * c_stride
+                    Dim c_start As Integer = pGroups(sg - sub_groups).startVertex_ * c_stride
                     _group(k).has_color = 1
-                    ReDim _group(k).color_data(ordered_names(sg - sub_groups).color_data.Length)
-                    ordered_names(sg - sub_groups).color_data.CopyTo(_group(k).color_data, 0)
+                    ReDim _group(k).color_data(c_size)
+                    For cc = 0 To c_size - 1
+                        '_group(k).color_data(cc) = ordered_names(sg - sub_groups).color_data(c_start + cc)
+                    Next
+                    'ordered_names(sg - sub_groups).color_data.CopyTo(_group(k).color_data, 0)
                 End If
                 _group(k).bsp2_id = -1
                 If ordered_names(sg - sub_groups).has_bsp2 Then
@@ -975,10 +982,10 @@ next_m:
 
                     If pg_flag Then
                         pos = pGroups(k - object_start).nVertices_ - 1
-                        _group(k).startVertex_ = pGroups(0).startVertex_
-                        _group(k).startIndex_ = pGroups(0).startIndex_
-                        _group(k).nVertices_ = pGroups(0).nVertices_
-                        _group(k).nPrimitives_ = pGroups(0).nPrimitives_
+                        _group(k).startVertex_ = pGroups(k - object_start).startVertex_
+                        _group(k).startIndex_ = pGroups(k - object_start).startIndex_
+                        _group(k).nVertices_ = pGroups(k - object_start).nVertices_
+                        _group(k).nPrimitives_ = pGroups(k - object_start).nPrimitives_
                     Else
                         pos = pGroups(k - object_start).nVertices_ - 1
                         _group(k).startVertex_ = pGroups(k - object_start).startVertex_
@@ -1120,6 +1127,12 @@ next_m:
                 _group(jj).name = file_name + ":" + current_tank_package.ToString + ":" + jj.ToString
                 _group(jj).header = vh.header_text ' save vertex type
                 If _object(jj).name.ToLower.Contains("chassis") Then
+                    'check if wheeled vehicle.. If so, set flag to disable writing chassis primitive.
+                    If TheXML_String.ToLower.Contains("pbs_wheel_skinned") Then
+                        is_wheeled_vehicle = True
+                    Else
+                        is_wheeled_vehicle = False
+                    End If
                     If _group(jj).color_name.ToLower.Contains("chass") Then
                         _object(jj).is_track = 0
                     Else
@@ -1380,7 +1393,7 @@ all_done:
             ' this section is for loading the the UV2 map if it has one
             _add = True ' need to set this if we are going to loop again
             If sub_groups > 0 Then
-
+                section_count += 1
                 'im making a horrible guess that the verts and indices are always frist on the visual list!!!
                 f_name_vertices = ordered_names(sg - sub_groups).vert_name
                 f_name_indices = ordered_names(sg - sub_groups).indi_name

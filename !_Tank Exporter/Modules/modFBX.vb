@@ -1738,6 +1738,7 @@ whichone:
         Else
             frmWritePrimitive.m_write_crashed.Checked = False
         End If
+
         frmWritePrimitive.cew_cb.Checked = CB
         'frmWritePrimitive.cew_cb.Enabled = False
         'm_groups(1).changed = False ' = CB
@@ -2198,12 +2199,14 @@ whichone:
         myMesh.InitControlPoints(_group(id).nVertices_) ' size of array
         'add in the vertices (or control points as its called in FBX)
         Dim cp_array(myMesh.ControlPointsCount - 1) As FbxVector4
+
         For I = 0 To myMesh.ControlPointsCount - 1
             cp_array(I) = New FbxVector4
             cp_array(I).X = _group(id).vertices(I).x
             cp_array(I).Y = _group(id).vertices(I).y
             cp_array(I).Z = _group(id).vertices(I).z
         Next
+
         myMesh.ControlPoints = cp_array ' push it in to the mesh object
         'create or get the layer 0
         Dim layer As FbxLayer = myMesh.GetLayer(0)
@@ -2260,21 +2263,21 @@ whichone:
             Dim color As New FbxColor
             For I = 1 To _group(id).nPrimitives_
                 Dim indi = _group(id).indicies(I)
-                color.Red = CDbl(_group(id).vertices(indi.v1).index_1 / 255)
-                color.Green = CDbl(_group(id).vertices(indi.v1).index_2 / 255)
-                color.Blue = CDbl(_group(id).vertices(indi.v1).index_3 / 255)
+                color.Red = CDbl(_group(id).vertices(indi.v1 - off).index_1 / 255)
+                color.Green = CDbl(_group(id).vertices(indi.v1 - off).index_2 / 255)
+                color.Blue = CDbl(_group(id).vertices(indi.v1 - off).index_3 / 255)
                 color.Alpha = 1.0 'CDbl(_group(id).vertices(I).index_4 / 255)
                 colorLayer1.DirectArray.Add(color)
 
-                color.Red = CDbl(_group(id).vertices(indi.v2).index_1 / 255)
-                color.Green = CDbl(_group(id).vertices(indi.v2).index_2 / 255)
-                color.Blue = CDbl(_group(id).vertices(indi.v2).index_3 / 255)
+                color.Red = CDbl(_group(id).vertices(indi.v2 - off).index_1 / 255)
+                color.Green = CDbl(_group(id).vertices(indi.v2 - off).index_2 / 255)
+                color.Blue = CDbl(_group(id).vertices(indi.v2 - off).index_3 / 255)
                 color.Alpha = 1.0 'CDbl(_group(id).vertices(I).index_4 / 255)
                 colorLayer1.DirectArray.Add(color)
 
-                color.Red = CDbl(_group(id).vertices(indi.v3).index_1 / 255)
-                color.Green = CDbl(_group(id).vertices(indi.v3).index_2 / 255)
-                color.Blue = CDbl(_group(id).vertices(indi.v3).index_3 / 255)
+                color.Red = CDbl(_group(id).vertices(indi.v3 - off).index_1 / 255)
+                color.Green = CDbl(_group(id).vertices(indi.v3 - off).index_2 / 255)
+                color.Blue = CDbl(_group(id).vertices(indi.v3 - off).index_3 / 255)
                 color.Alpha = 1.0 'CDbl(_group(id).vertices(I).index_4 / 255)
                 colorLayer1.DirectArray.Add(color)
             Next

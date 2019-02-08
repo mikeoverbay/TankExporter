@@ -76,6 +76,8 @@ Module modGlobals
     Public w_changing As Boolean = False
     Public stop_updating As Boolean = False
 
+    Public is_wheeled_vehicle As Boolean
+
     Public Structure path_data_
         Dim dist As Single
         Dim pos1 As SlimDX.Vector3

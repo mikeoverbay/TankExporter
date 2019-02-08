@@ -5,6 +5,12 @@
 
 #### This is an ongoing project by me.. Coffee_
 
+## Version 81:
+This version adds the ability to load/export/write the wheeled vheicles.
+You can NOT write the chassis of the wheeled tanks however.
+If you have a serious need for this feature contact me.
+This is a lot of work I am not willing to do with out getting paid for the work.
+
 ## Version 80:
 I Fixed yet another bug in the camouflage.
 
