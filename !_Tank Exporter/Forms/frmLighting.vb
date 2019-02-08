@@ -1,6 +1,7 @@
 ﻿Public Class frmLighting
 
     Private Sub frmLighting_FormClosing(sender As Object, e As FormClosingEventArgs) Handles Me.FormClosing
+        frmMain.m_lighting.ForeColor = Color.Black
         e.Cancel = True
         Me.Hide()
         Return

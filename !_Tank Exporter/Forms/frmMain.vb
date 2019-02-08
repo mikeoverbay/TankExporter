@@ -3468,7 +3468,9 @@ fuckit:
         '######################################################################
         'draw bottom hightlighted area
         Dim top As Integer = 20
+        Dim s_Location As Integer = 0
         If season_Buttons_VISIBLE Then
+            s_Location = 157
             top = 177
         End If
         Gl.glEnable(Gl.GL_BLEND)
@@ -3491,16 +3493,16 @@ fuckit:
         End If
         '######################################################################
         '######################################################################
-        Dim str = " FPS: ( " + screen_totaled_draw_time.ToString + " )" + "  " + cur_texture_name
+        Dim str = "FPS: " + screen_totaled_draw_time.ToString + "  " + cur_texture_name
         'swat.Stop()
         If MODEL_LOADED And frmTextureViewer.Visible And (frmTextureViewer.m_show_uvs.Checked Or frmTextureViewer.m_uvs_only.Checked) Then
-            glutPrintBox(10, -40, os1.ToString, 0.0, 1.0, 0.0, 1.0) ' fps string
+            glutPrintBox(5, -40, os1.ToString, 0.0, 1.0, 0.0, 1.0) ' fps string
 
         End If
         'glutPrintBox(10, -60, "W = " + pb1.Width.ToString + " H = " + pb1.Height.ToString, 1.0, 1.0, 1.0, 1.0) ' fps string
 
-        glutPrint(10, 8 - pb1.Height, str.ToString, 0.0, 1.0, 0.0, 1.0) ' fps string
-        glutPrint(10, -20, view_status_string, 0.0, 1.0, 0.0, 1.0) ' view status
+        glutPrint(5, 8 - pb1.Height + s_Location, str.ToString, 0.0, 1.0, 0.0, 1.0) ' fps string
+        glutPrint(5, -20, view_status_string, 0.0, 1.0, 0.0, 1.0) ' view status
 
         Gl.glDisable(Gl.GL_BLEND)
         Gl.glDisable(Gl.GL_DEPTH_TEST)
@@ -7323,8 +7325,10 @@ make_this_tank:
 
     Private Sub m_lighting_Click(sender As Object, e As EventArgs) Handles m_lighting.Click
         If Not frmLighting.Visible Then
+            m_lighting.ForeColor = Color.Red
             frmLighting.Show()
         Else
+            m_lighting.ForeColor = Color.Black
             frmLighting.Hide()
         End If
     End Sub
@@ -8114,11 +8118,16 @@ make_this_tank:
     Private Sub m_GMM_toy_cb_CheckedChanged(sender As Object, e As EventArgs) Handles m_GMM_toy_cb.CheckedChanged
         frmGMM.Visible = m_GMM_toy_cb.Checked
         If frmGMM.Visible Then
+            m_GMM_toy_cb.ForeColor = Color.Red
             GMM_TOY_VISIBLE = 1
         Else
             GMM_TOY_VISIBLE = 0
+            m_GMM_toy_cb.ForeColor = Color.Black
         End If
     End Sub
 
 
+    Private Sub m_GMM_toy_cb_Click(sender As Object, e As EventArgs) Handles m_GMM_toy_cb.Click
+
+    End Sub
 End Class

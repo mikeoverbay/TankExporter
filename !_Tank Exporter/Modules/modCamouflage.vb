@@ -309,12 +309,14 @@ skip_adding:
         If season_Buttons_VISIBLE Then
             CAMO_BUTTONS_VISIBLE = False
             season_Buttons_VISIBLE = False
+            frmMain.m_pick_camo.ForeColor = Color.Black
             Return
         Else
             season_Buttons_VISIBLE = True
             OLD_WINDOW_HEIGHT = frmMain.pb1.Height
             WINDOW_HEIGHT_DELTA = 0
             LAST_SEASON = -1
+            frmMain.m_pick_camo.ForeColor = Color.Red
         End If
         ReDim season_Buttons(0)
         For i = 0 To 2

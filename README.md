@@ -5,6 +5,12 @@
 
 #### This is an ongoing project by me.. Coffee_
 
+## Version 82:
+Fixed a bug with the Lynx 6X6 wheeled vehicle not loading.
+Fixed a few issues with the menu bar.
+Changed how the camouflage names are displayed. They were bleeding over the top of each other when the names where long.
+Updated the Help HTML files.
+
 ## Version 81:
 This version adds the ability to load/export/write the wheeled vehicles.
 You can NOT write the chassis of the wheeled tanks however.

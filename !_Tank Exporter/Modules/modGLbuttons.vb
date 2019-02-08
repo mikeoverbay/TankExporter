@@ -267,7 +267,7 @@ Module modGLbuttons
             Gl.glBindTexture(Gl.GL_TEXTURE_2D, Me.gl_textureID)
             p = New Point
             p.X = Me.location.X + pan_location
-            p.Y = Me.location.Y
+            p.Y = Me.location.Y + 3
             draw_quad(p + New Point(2, -2), Me.size + New Point(-4, -4))
 
             Select Case Me.state
@@ -282,9 +282,10 @@ Module modGLbuttons
             draw_quad(p, Me.size)
             Gl.glBindTexture(Gl.GL_TEXTURE_2D, 0)
             If Me.camoName IsNot Nothing Then
-                glutPrintSmall(p.X, p.Y + 5, Me.camoName.ToString, 0.0, 1.0, 0.0, 1.0)
+                Dim os = ((Me.buttonID - 100) Mod 2) * 113
+                glutPrintSmall(p.X, p.Y + 3 - os, Me.camoName.ToString, 1.0, 1.0, 0.0, 1.0)
                 If Me.selected Then
-                    glutPrint(10.0, p.Y + 70, Me.textureName.ToString, 0.0, 1.0, 0.0, 1.0)
+                    glutPrint(5.0, p.Y + 70, Me.textureName.ToString, 1.0, 1.0, 0.0, 1.0)
                 End If
             End If
 
@@ -295,7 +296,7 @@ Module modGLbuttons
             Gl.glColor4ub(CByte(0), CByte(Me.buttonID), CByte(0), CByte(0))
             p = New Point
             p.X = Me.location.X + pan_location
-            p.Y = Me.location.Y
+            p.Y = Me.location.Y + 3
             draw_quad(p, Me.size)
         End Sub
     End Structure

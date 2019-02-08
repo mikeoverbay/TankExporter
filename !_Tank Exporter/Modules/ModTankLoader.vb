@@ -2034,12 +2034,12 @@ get_visual:
         _group(id).detail_Id = -1
         tbl_prim_group.Clear()
         If tbl_property IsNot Nothing Then
-            tbl_property.Clear()
+            'tbl_property.Clear()
             tbl_property.Dispose()
         End If
         tbl_prim_group.Dispose()
         t.Dispose()
-
+        GC.Collect()
     End Sub
 
     Private Sub store_matrix(jj As Integer)
