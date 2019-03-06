@@ -952,9 +952,16 @@ next_m:
             Dim p As Integer = 6
             For k As UInt32 = object_start To big_l
                 If ordered_names(sg - sub_groups).has_color Then
-                    Dim c_size As Integer = pGroups(sg - sub_groups).nVertices_ * c_stride
-                    Dim c_start As Integer = pGroups(sg - sub_groups).startVertex_ * c_stride
                     _group(k).has_color = 1
+                    Dim c_size As Integer
+                    Try
+                        c_size = pGroups(sg - sub_groups).nVertices_ * c_stride
+                        ' Dim c_start As Integer = pGroups(sg - sub_groups).startVertex_ * c_stride
+
+                    Catch ex As Exception
+                        c_size = pGroups(1).nVertices_ * c_stride
+
+                    End Try
                     ReDim _group(k).color_data(c_size)
                     For cc = 0 To c_size - 1
                         '_group(k).color_data(cc) = ordered_names(sg - sub_groups).color_data(c_start + cc)
@@ -2032,12 +2039,12 @@ get_visual:
         _group(id).metalGMM_Id = -1
         _group(id).normal_Id = -1
         _group(id).detail_Id = -1
-        tbl_prim_group.Clear()
+        'tbl_prim_group.Clear()
         If tbl_property IsNot Nothing Then
             'tbl_property.Clear()
             tbl_property.Dispose()
         End If
-        tbl_prim_group.Dispose()
+        'tbl_prim_group.Dispose()
         t.Dispose()
         GC.Collect()
     End Sub
