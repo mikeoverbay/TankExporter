@@ -952,6 +952,7 @@ next_m:
             Dim p As Integer = 6
             For k As UInt32 = object_start To big_l
                 If ordered_names(sg - sub_groups).has_color Then
+                    'Color data does not seem to effect the models in game in any way.
                     _group(k).has_color = 1
                     Dim c_size As Integer
                     Try

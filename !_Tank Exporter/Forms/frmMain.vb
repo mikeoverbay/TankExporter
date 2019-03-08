@@ -4766,7 +4766,7 @@ fuckit:
         CAMO_BUTTONS_VISIBLE = False
         TANKPARTS_VISIBLE = False
         TANK_TEXTURES_VISIBLE = False
-
+        m_pick_camo.ForeColor = Color.Black
         show_textures_cb.Checked = False
         m_write_primitive.Enabled = False
         m_show_fbx.Checked = False

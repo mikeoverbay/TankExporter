@@ -5,6 +5,10 @@
 
 #### This is an ongoing project by me.. Coffee_
 
+# Version 84:
+Tank Exporter now can create mixed camouflaged textures.
+Just select a camo and export the FBX. TE will create PNG files with the camo mixed over them.
+
 ## Version 83:
 This fixes a issue with the G19_sherman_firefly not loading.
 This version also should fix a rare error caused by dangling data.

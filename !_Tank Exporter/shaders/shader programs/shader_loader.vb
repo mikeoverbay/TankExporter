@@ -25,6 +25,7 @@ Module shader_loader
         Public bloom_shader As Integer
         Public colorMult_shader As Integer
         Public channelMute_shader As Integer
+        Public camoExporter_shader As Integer
     End Class
 
 #Region "variables"
@@ -540,6 +541,17 @@ Module shader_loader
         chMute_texture = Gl.glGetUniformLocation(shader_list.channelMute_shader, "colorMap")
     End Sub
 
+    Public CE_camo_Map, CE_AO_Map, CE_AM_Map, CE_tile, CE_camo_tile As Integer
+    '==============================================================================================================
+    Public Sub set_camoExporter_variables()
+        CE_camo_Map = Gl.glGetUniformLocation(shader_list.camoExporter_shader, "camo_Map")
+        CE_AO_Map = Gl.glGetUniformLocation(shader_list.camoExporter_shader, "AO_Map")
+        CE_AM_Map = Gl.glGetUniformLocation(shader_list.camoExporter_shader, "AM_Map")
+        CE_tile = Gl.glGetUniformLocation(shader_list.camoExporter_shader, "tile")
+        CE_camo_tile = Gl.glGetUniformLocation(shader_list.camoExporter_shader, "camo_tile")
+    End Sub
+
+
     Public Sub set_shader_variables()
         set_tank_shader_variables()
         set_normal_shader_variables()
@@ -559,6 +571,7 @@ Module shader_loader
         set_bloom_variables()
         set_colorMult_variables()
         set_channelMute_variables()
+        set_camoExporter_variables()
         Return
     End Sub
     '==============================================================================================================

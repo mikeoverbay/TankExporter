@@ -9,7 +9,9 @@ Public Class frmFBX
         file_name = current_tank_name
 
         If export_textures.Checked Then ' export textures and current camo?
+            Dim ACTIVECAMO As Boolean = False
             If is_camo_active() Then ' find out if there is a camouflage in use.
+                ACTIVECAMO = True
                 save_camo_texture(SELECTED_CAMO_BUTTON, Temp_Storage)
                 Dim ar = TANK_NAME.Split(":")
                 Dim name As String = Path.GetFileName(ar(0))
@@ -22,7 +24,7 @@ Public Class frmFBX
                 End If
                 File.Copy(Temp_Storage + "\camouflage.png", FBX_Texture_path)
             End If
-            export_fbx_textures() 'export all textures
+            export_fbx_textures(ACTIVECAMO) 'export all textures
         End If
 
         modFBX.export_fbx()

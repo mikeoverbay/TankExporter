@@ -69,7 +69,7 @@ Module modTextures
         'frmMain.gl_stop = False
         Return id
     End Function
-    Public Sub export_fbx_textures()
+    Public Sub export_fbx_textures(ByVal AC As Boolean)
         Dim ar = TANK_NAME.Split(":")
         Dim name As String = Path.GetFileName(ar(0))
         FBX_Texture_path = Path.GetDirectoryName(My.Settings.fbx_path) + "\" + name
@@ -85,7 +85,18 @@ Module modTextures
             With textures(i)
                 'color
                 abs_name = FBX_Texture_path + "\" + Path.GetFileNameWithoutExtension(.c_name)
-                save_fbx_texture(.c_id, abs_name)
+                If AC And Not .c_name.Contains("chassis") And Not .c_name.Contains("track") Then
+                    Dim part As Integer = 0
+                    For k = 1 To object_count
+                        If Path.GetFileNameWithoutExtension(_group(k).color_name) = Path.GetFileNameWithoutExtension(.c_name) Then
+                            part = k
+                            Exit For
+                        End If
+                    Next
+                    save_fbx_textureCamouflaged(.c_id, .ao_id, SELECTED_CAMO_BUTTON, abs_name, part)
+                Else
+                    save_fbx_texture(.c_id, abs_name)
+                End If
                 'normal
                 abs_name = FBX_Texture_path + "\" + Path.GetFileNameWithoutExtension(.n_name)
                 save_fbx_texture(.n_id, abs_name)
@@ -106,6 +117,103 @@ Module modTextures
 
         frmMain.info_Label.Visible = False
         frmMain.update_thread.Resume()
+
+    End Sub
+    Public Sub save_fbx_textureCamouflaged(ByVal color_id As Integer, ByVal ao_id As Integer, ByVal camo_id As Integer, ByVal save_path As String, ByVal part As Integer)
+        If color_id = -1 Then Return
+        frmMain.info_Label.Text = "Exporting : " + save_path + ".png"
+        If File.Exists(save_path + ".png") Then ' stop saving exiting FBX textures.. It crashes 3DS Max
+            Return
+        End If
+        frmMain.pb2.Visible = False
+        frmMain.pb2.Location = New Point(0, 0)
+        frmMain.pb2.BringToFront()
+        Application.DoEvents()
+        If Not (Wgl.wglMakeCurrent(pb2_hDC, pb2_hRC)) Then
+            MessageBox.Show("Unable to make rendering context current")
+            End
+        End If
+        Gl.glUseProgram(0)
+        'frmMain.gl_stop = True
+        'While gl_busy
+        'End While
+        Dim w, h As Integer
+        Gl.glEnable(Gl.GL_TEXTURE_2D)
+        Gl.glActiveTexture(Gl.GL_TEXTURE0)
+        Gl.glBindTexture(Gl.GL_TEXTURE_2D, color_id)
+        Gl.glGetTexLevelParameteriv(Gl.GL_TEXTURE_2D, 0, Gl.GL_TEXTURE_WIDTH, w)
+        Gl.glGetTexLevelParameteriv(Gl.GL_TEXTURE_2D, 0, Gl.GL_TEXTURE_HEIGHT, h)
+        Dim p As New Point(0.0!, 0.0!)
+        frmMain.pb2.Width = w
+        frmMain.pb2.Height = h
+        Gl.glViewport(0, 0, w, h)
+        Gl.glMatrixMode(Gl.GL_PROJECTION) 'Select Projection
+        Gl.glLoadIdentity() 'Reset The Matrix
+        Gl.glOrtho(0, w, -h, 0, -200.0, 100.0) 'Select Ortho Mode
+        Gl.glMatrixMode(Gl.GL_MODELVIEW)    'Select Modelview Matrix
+        Gl.glLoadIdentity() 'Reset The Matrix
+        Gl.glReadBuffer(Gl.GL_BACK)
+        Gl.glPolygonMode(Gl.GL_FRONT_AND_BACK, Gl.GL_FILL)
+        Gl.glDisable(Gl.GL_CULL_FACE)
+        Gl.glDisable(Gl.GL_DEPTH_TEST)
+        Gl.glTexEnvi(Gl.GL_TEXTURE_ENV, Gl.GL_TEXTURE_ENV_MODE, Gl.GL_REPLACE)
+        Dim e = Gl.glGetError
+
+        Gl.glUseProgram(shader_list.camoExporter_shader)
+        Gl.glUniform1i(CE_camo_Map, 0)
+        Gl.glUniform1i(CE_AO_Map, 1)
+        Gl.glUniform1i(CE_AM_Map, 2)
+        Gl.glUniform4f(CE_tile, _object(part).camo_tiling.x, _object(part).camo_tiling.y, _object(part).camo_tiling.z, _object(part).camo_tiling.w)
+        Gl.glUniform4f(CE_camo_tile, bb_tank_tiling(SELECTED_CAMO_BUTTON).x, bb_tank_tiling(SELECTED_CAMO_BUTTON).y, bb_tank_tiling(SELECTED_CAMO_BUTTON).z, bb_tank_tiling(SELECTED_CAMO_BUTTON).w)
+        Gl.glActiveTexture(Gl.GL_TEXTURE0 + 2)
+        Gl.glBindTexture(Gl.GL_TEXTURE_2D, color_id)
+        Gl.glActiveTexture(Gl.GL_TEXTURE0 + 1)
+        Gl.glBindTexture(Gl.GL_TEXTURE_2D, ao_id)
+        Gl.glActiveTexture(Gl.GL_TEXTURE0 + 0)
+        Gl.glBindTexture(Gl.GL_TEXTURE_2D, bb_camo_texture_ids(camo_id))
+
+        Gl.glBegin(Gl.GL_QUADS)
+
+        '  CW...
+        '  1 ------ 2
+        '  |        |
+        '  |        |
+        '  4 ------ 3
+        '
+        Gl.glTexCoord2f(0.0!, 0.0!)
+        Gl.glVertex2f(p.X, p.Y)
+
+        Gl.glTexCoord2f(1.0!, 0.0!)
+        Gl.glVertex2f(p.X + w, p.Y)
+
+        Gl.glTexCoord2f(1.0!, 1.0!)
+        Gl.glVertex2f(p.X + w, p.Y - h)
+
+        Gl.glTexCoord2f(0.0!, 1.0!)
+        Gl.glVertex2f(p.X, p.Y - h)
+        Gl.glEnd()
+        Gl.glUseProgram(0)
+        Gl.glBindTexture(Gl.GL_TEXTURE_2D, 0)
+        Gl.glActiveTexture(Gl.GL_TEXTURE0 + 1)
+        Gl.glBindTexture(Gl.GL_TEXTURE_2D, 0)
+        Gl.glActiveTexture(Gl.GL_TEXTURE0 + 0)
+        Gl.glBindTexture(Gl.GL_TEXTURE_2D, 0)
+
+        Gl.glFinish()
+        Dim tId As Integer = Il.ilGenImage
+        Il.ilBindImage(tId)
+        Il.ilTexImage(w, h, 0, 4, Il.IL_RGBA, Il.IL_UNSIGNED_BYTE, Nothing)
+
+        Gl.glReadPixels(0, 0, w, h, Gl.GL_RGBA, Gl.GL_UNSIGNED_BYTE, Il.ilGetData())
+        Gl.glFinish()
+
+        Gl.glFinish()
+        Il.ilSave(Il.IL_PNG, save_path + ".png") ' save to temp
+        Gl.glDisable(Gl.GL_TEXTURE_2D)
+        Gdi.SwapBuffers(pb2_hDC)
+        Il.ilBindImage(0)
+        Il.ilDeleteImage(tId)
+        Application.DoEvents()
 
     End Sub
 
