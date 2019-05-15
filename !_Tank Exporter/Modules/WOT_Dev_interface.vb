@@ -66,7 +66,9 @@ Module WOT_Dev_interface
         TankDataTable.Columns.Add("type")
         For Each q In tank_list
             If q.type IsNot Nothing Then
-
+                If q.path.Contains("G115_Typ_205B") Then
+                    q.path = "G115_Typ_205_4_Jun"
+                End If
                 Dim r = TankDataTable.NewRow
                 r("tag") = q.path
                 r("shortname") = q.short_name

@@ -5,6 +5,11 @@
 
 #### This is an ongoing project by me.. Coffee_
 
+# Version 85:
+I fixed a bug with Tank Exporter not finding the German VK 100.01 (p).
+This is a bug in the Developer data I access from WG's Dev site.
+There are naming issues with the PGK file name and whats in the DEV data. I will be reporting this ASAP.
+
 # Version 84:
 Tank Exporter now can create mixed camouflaged textures.
 Just select a camo and export the FBX. TE will create PNG files with the camo mixed over them.
