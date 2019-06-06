@@ -5,6 +5,12 @@
 
 #### This is an ongoing project by me.. Coffee_
 
+# If you need to convert the FBX exported from Tank Exporter to a later version, you can use Autodesk's free FBX converter.
+You can download it here: https://www.autodesk.com/developer-network/platform-technologies/fbx-converter-archives
+
+Or if you an down load it from there... the 64 and 32 bit versions are located here: http://tnmshouse.com/converter/
+
+
 # Version 85:
 I fixed a bug with Tank Exporter not finding the German VK 100.01 (p).
 This is a bug in the Developer data I access from WG's Dev site.

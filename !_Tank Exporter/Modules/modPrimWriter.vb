@@ -262,16 +262,30 @@ found_it:
                         br.Write(_group(pnt_id).vertices(i).n)
                         br.Write(_group(pnt_id).vertices(i).u)
                         br.Write(_group(pnt_id).vertices(i).v)
+                        If False Then ' fills vertex color and weight to stop deforming of mesh.
+                            Dim b0 As Byte = 0
+                            Dim b255 As Byte = 0
+                            br.Write(b0)
+                            br.Write(b0)
+                            br.Write(b0)
+                            br.Write(b0)
 
-                        br.Write(_group(pnt_id).vertices(i).index_1)
-                        br.Write(_group(pnt_id).vertices(i).index_2)
-                        br.Write(_group(pnt_id).vertices(i).index_3)
-                        br.Write(_group(pnt_id).vertices(i).index_4)
+                            br.Write(b0)
+                            br.Write(b0)
+                            br.Write(b255)
+                            br.Write(b0)
+                        Else
 
-                        br.Write(_group(pnt_id).vertices(i).weight_1)
-                        br.Write(_group(pnt_id).vertices(i).weight_2)
-                        br.Write(_group(pnt_id).vertices(i).weight_3)
-                        br.Write(_group(pnt_id).vertices(i).weight_4)
+                            br.Write(_group(pnt_id).vertices(i).index_1)
+                            br.Write(_group(pnt_id).vertices(i).index_2)
+                            br.Write(_group(pnt_id).vertices(i).index_3)
+                            br.Write(_group(pnt_id).vertices(i).index_4)
+
+                            br.Write(_group(pnt_id).vertices(i).weight_1)
+                            br.Write(_group(pnt_id).vertices(i).weight_2)
+                            br.Write(_group(pnt_id).vertices(i).weight_3)
+                            br.Write(_group(pnt_id).vertices(i).weight_4)
+                        End If
 
                         br.Write(_group(pnt_id).vertices(i).t)
                         br.Write(_group(pnt_id).vertices(i).bn)
