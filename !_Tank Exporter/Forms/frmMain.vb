@@ -5976,6 +5976,14 @@ n_turret:
 
 
             Dim ar = file_name.Split(":")
+            '------------------------------------------
+            '------------------------------------------
+            'Hack to deal with tanks with weird path names...
+            If ar(2).Contains("Fosh_B") Then
+                ar(2) = Replace(ar(2), "Fosh_B", "Fosh_155")
+            End If
+            '------------------------------------------
+            '------------------------------------------
             If frmExtract.extract_item_def_cb.Checked Then
                 Try ' catch any exception thrown
 
