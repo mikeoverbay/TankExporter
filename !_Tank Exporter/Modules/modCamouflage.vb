@@ -405,6 +405,7 @@ skip_adding:
         Gl.glReadPixels(0, 0, w, h, Gl.GL_RGBA, Gl.GL_UNSIGNED_BYTE, Il.ilGetData())
 
         Gl.glFinish()
+        Ilu.iluMirror()
         Il.ilSave(Il.IL_PNG, save_path + "\camouflage.png") ' save to temp
         Gl.glDisable(Gl.GL_TEXTURE_2D)
 

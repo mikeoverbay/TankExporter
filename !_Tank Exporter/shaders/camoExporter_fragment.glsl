@@ -16,7 +16,7 @@ sTC = sTC + camo_tile.zw;
 sTC = sTC + tile.zw;
 
 float alpha = texture2D(AO_Map,TC1).a;
-
+sTC.y *= -1.0;
 vec4 camo_color = texture2D(camo_Map,sTC).rgba;
 
 vec4 base = texture2D(AM_Map,TC1).rgba;
