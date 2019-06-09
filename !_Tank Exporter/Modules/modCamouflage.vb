@@ -95,22 +95,26 @@ Module modCamouflage
         Dim d = custom_tables(CURRENT_DATA_SET).Copy
         '===================================
 
-        Dim t = d.Tables("camouflage")
+        Dim t = d.Tables("armorcolor")
+
+
         Dim qq = From row In t.AsEnumerable
         Select _
-        armorC = row.Field(Of String)("armorcolor")
+        armorC = row.Field(Of String)("aColor")
         ARMORCOLOR = get_vect4(qq(0))
         Dim ar = TANK_NAME.Split(":")
 
         Dim t_name = Path.GetFileNameWithoutExtension(ar(0))
         '===================================
         t = d.Tables("colors")
+
         Dim q = From row In t.AsEnumerable _
                 Where type = row.Field(Of String)("kind") _
                 Select _
                 texture = row.Field(Of String)("texture"), _
                 camoName = row.Field(Of String)("camoName"), _
                 tank_tiling = row.Field(Of String)(t_name), _
+                id_ = row.Field(Of String)("Id"), _
                 c0 = row.Field(Of String)("c0"), _
                 c1 = row.Field(Of String)("c1"), _
                 c2 = row.Field(Of String)("c2"), _
@@ -129,6 +133,7 @@ Module modCamouflage
             Return
         End Try
 
+
         ReDim bb_tank_tiling(q.Count)
         ReDim bb_texture_ids(q.Count)
         ReDim bb_camoName(q.Count)
@@ -138,8 +143,9 @@ Module modCamouflage
         ReDim c3(q.Count)
         Dim cnt As Integer = 0
         For Each l In q
+
             If l.texture.Contains("IGR") Or l.texture.Contains("Clan") Or l.texture.ToLower.Contains("victim") Then
-                'GoTo skip
+            'GoTo skip
             End If
             If l.camoName.Length = 0 Then
                 GoTo skip
@@ -161,20 +167,14 @@ Module modCamouflage
             c2(cnt) = New vect4
             c3(cnt) = New vect4
 
-            Dim q1 = From row In t.AsEnumerable _
-                Where l.camoName = row.Field(Of String)("camoName") _
-                Select _
-                c0 = row.Field(Of String)("c0"), _
-                c1 = row.Field(Of String)("c1"), _
-                c2 = row.Field(Of String)("c2"), _
-                c3 = row.Field(Of String)("c3")
-            For Each cc In q1
-                c0(cnt) = get_vect4(cc.c0)
-                c1(cnt) = get_vect4(cc.c1)
-                c2(cnt) = get_vect4(cc.c2)
-                c3(cnt) = get_vect4(cc.c3)
 
-            Next
+            c0(cnt) = get_vect4(l.c0)
+            c1(cnt) = get_vect4(l.c1)
+            c2(cnt) = get_vect4(l.c2)
+            c3(cnt) = get_vect4(l.c3)
+
+
+            'Next
             'check if this texture exist in res_mods
             If File.Exists(My.Settings.res_mods_path + "\" + bb_texture_list(cnt)) Then
                 bb_texture_ids(cnt) = get_fbx_texture(My.Settings.res_mods_path + "\" + bb_texture_list(cnt))

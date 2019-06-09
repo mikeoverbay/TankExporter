@@ -10,6 +10,10 @@ You can download it here: https://www.autodesk.com/developer-network/platform-te
 
 Or if you can not down load it from there... the 64 and 32 bit versions are located here: http://tnmshouse.com/converter/
 
+# Version 87:
+I reworked how camouflages are loaded.
+There are now files created and stored in the wot_temp folder containing the information to create the camouflages.
+These files will be updated anytime you clean the wot_temp folder.
 
 # Version 86:
 This fixes a bug with the Foch B not exporting to the Foch 155 folder. The 155 and B Foch tanks share the chassis, hull and turret models. Only the Guns 01 and 02 are different between these two tanks.

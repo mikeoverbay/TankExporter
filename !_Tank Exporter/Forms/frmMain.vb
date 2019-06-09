@@ -1313,47 +1313,34 @@ Public Class frmMain
     End Sub
 
     Private Sub load_customization_files()
-
+        Dim nations() As String = {"usa.xml", "uk.xml", _
+                                   "china.xml", "czech.xml", _
+                                   "france.xml", "germany.xml", _
+                                   "japan.xml", "poland.xml", _
+                                   "ussr.xml", "sweden.xml", _
+                                   "italy.xml"}
         For Each entry In scripts_pkg
-            If entry.FileName.Contains("customization.xml") Then
-                Dim index As Integer = -1
-                Dim filename As String = ""
-                If entry.FileName.Contains("common") Then
-                    Debug.WriteLine("----" + entry.FileName)
-                Else
-                    Dim ms As New MemoryStream
-                    entry.Extract(ms)
-                    openXml_stream_2(ms, Path.GetFileNameWithoutExtension(entry.FileName))
-                    filename = entry.FileName
-                    Debug.WriteLine(entry.FileName)
-                    Dim ta = entry.FileName.Split("/")
-                    Select Case ta(3).ToLower
-                        Case "usa"
-                            index = 0
-                        Case "uk"
-                            index = 1
-                        Case "china"
-                            index = 2
-                        Case "czech"
-                            index = 3
-                        Case "france"
-                            index = 4
-                        Case "germany"
-                            index = 5
-                        Case "japan"
-                            index = 6
-                        Case "poland"
-                            index = 7
-                        Case "ussr"
-                            index = 8
-                        Case "sweden"
-                            index = 9
-                        Case "italy"
-                            index = 10
-                    End Select
+
+            If entry.FileName.Contains("item_defs/") Then
+                If entry.FileName.Contains("item_defs/customization/") Then
+                    If entry.FileName.Contains("item_defs/customization/camouflages/") Then
+                        For zed = 0 To 10
+                            If entry.FileName.Contains(nations(zed)) Then
+                                Dim filename As String = ""
+                                Dim ms As New MemoryStream
+                                entry.Extract(ms)
+                                openXml_stream_2(ms, Path.GetFileNameWithoutExtension(entry.FileName))
+                                filename = entry.FileName
+                                Debug.WriteLine(entry.FileName)
+                                Dim ta = entry.FileName.Split("/")
+
+                                build_customization_tables(zed, filename)
+                            End If
+                        Next
+                    End If
                 End If
-                build_customization_tables(index, filename)
             End If
+            'Exit For
         Next
 
     End Sub
@@ -1361,85 +1348,150 @@ Public Class frmMain
     Private Sub build_customization_tables(ByVal id As Integer, ByVal filename As String)
         If filename.Length < 10 Then Return
         custom_tables(id) = New DataSet
+        Dim dataset As New DataSet("tank_DataSet_" + id.ToString("00"))
+        'check if we are resetting the data. If the file exist, load it, otherwise, build it.
+        Dim xml_path = Temp_Storage + "\tank_DataSet_" + id.ToString("00") + ".xml"
+        If File.Exists(xml_path) Then
+            dataset.ReadXml(xml_path)
+            GoTo loaded_jump
+        End If
+
+        info_Label.Text = "Creating Camoflage File: " + "tank_DataSet_" + id.ToString("00")
+        Application.DoEvents()
+
+        dataset.Tables.Add("armorcolor")
+        dataset.Tables.Add("colors")
+
 
         Dim data_set As New DataSet
         Dim docx = XDocument.Parse(TheXML_String)
-        Dim doc As New XmlDocument
+        'Dim doc As New XmlDocument
 
 
-        Dim root_node = doc.CreateElement("camouflage")
 
         'get the armorcolor
         Dim armorcolor = docx.Descendants("armorColor")
-        Dim n_armorcolor = doc.CreateElement("armorcolor")
-        n_armorcolor.InnerText = armorcolor.Value.ToString
-        root_node.AppendChild(n_armorcolor)
+        Dim acolor As String = ""
+        'these color strings are located in each nations customization.xml file
+        'Nation is IMPORTANT! See nations() array for order in load_customization_files() sub.
+        Select Case id
+            Case 2
+                acolor = "61 62 42 0" ' china
+            Case 3
+                acolor = "15 36 36 0" 'czech
+            Case 4
+                acolor = "15 36 36 0" 'france
+            Case 5
+                acolor = "90 103 94 0" 'germany
+            Case 10
+                acolor = "15 36 36 0" 'italy
+            Case 6
+                acolor = "15 36 36 0" 'japan
+            Case 7
+                acolor = "15 36 36 0" 'poland
+            Case 9
+                acolor = "15 36 36 0" 'sweden
+            Case 1
+                acolor = "82 72 51 0" 'uk
+            Case 0
+                acolor = "82 72 51 0" 'usa
+            Case 8
+                acolor = "61 62 42 0" 'ussr
+
+        End Select
+        dataset.Tables("armorcolor").Columns.Add("aColor")
+        Dim r = dataset.Tables("armorcolor").NewRow
+        r("aColor") = acolor
+        dataset.Tables("armorcolor").Rows.Add(r)
+
         Dim index As Integer = 0
 
 
 
         'get the textures
         For Each el In docx.Descendants("texture")
-            Dim tex = doc.CreateElement("texture")
-            Dim id_node = doc.CreateElement("id")
-            id_node.InnerText = index.ToString
-            tex.InnerText = el.Value.ToString
+            'dataset.Tables("color").Columns.Add("texture")
+            'dataset.Tables("color").Columns.Add("Id")
+            'dataset.Tables("color").Columns.Add("camoName")
+            'dataset.Tables("color").Columns.Add("kind")
+            Dim tbl As New DataTable("colors")
+            tbl.Columns.Add("Id")
+            tbl.Columns.Add("c0")
+            tbl.Columns.Add("c1")
+            tbl.Columns.Add("c2")
+            tbl.Columns.Add("c3")
+            tbl.Columns.Add("kind")
+            tbl.Columns.Add("colors")
+            tbl.Columns.Add("camoName")
+            tbl.Columns.Add("texture")
+
+            'r("Id") = index.ToString
+            'r("texture") = el.Value.ToString
             '---------
             Dim rr = el.Parent
-            Dim camoName = doc.CreateElement("camoName")
+            Dim tg = rr.Descendants("userString")
+            Dim rp = rr.Parent
+            Dim tus = tg.Value.ToString.Split("/")
 
-            camoName.InnerText = rr.Name.ToString
-
-            Dim g_node = doc.CreateElement("root")
-
-
-
-            Dim material = doc.CreateElement("material")
-            'material.AppendChild(tex)
             'get kind
-            Dim kind_ = rr.Descendants("kind")
-            Dim kind = doc.CreateElement("kind")
-            kind.InnerText = kind_.Value.ToLower
+            Dim kind_ = rp.Descendants("season")
             'get color
-            Dim color_ = rr.Descendants("colors")
-            Dim color = doc.CreateElement("colors")
-            color.AppendChild(id_node)
-            color.AppendChild(kind)
-            color.AppendChild(tex)
-            color.AppendChild(camoName)
+            Dim color_ = rr.Descendants("palette")
 
+            Dim z As Integer = 0
+            Dim cvs(40) As String
             For Each c In color_.Elements
-                Dim e = doc.CreateElement(c.Name.ToString)
-                e.InnerText = c.Value.ToString
-                color.AppendChild(e)
+                cvs(z) = c.Value.ToString
+                z += 1
             Next
-            'material.AppendChild(color)
+
+
             Dim tiling = rr.Descendants("tiling")
             Dim cnt As Integer = 0
+            Dim t_names(100) As String
+            Dim s_names(100) As String
             For Each tank In tiling.Elements
-                Dim name_str = tank.Name.ToString
-                'lol wot has added some tanks 2 times to the tiling section
-                If color.InnerXml.Contains(name_str) Then
-                    name_str += "ERROR" + cnt.ToString("000")
-                End If
-                Dim tn = doc.CreateElement(name_str)
-                tn.InnerText = tank.Value.ToString
-                color.AppendChild(tn)
-                cnt += 1
+                Try
+
+                    tbl.Columns.Add(tank.Name.ToString)
+
+                    Dim name_str = tank.Name.ToString
+
+                    'lol wot has added some tanks 2 times to the tiling section
+                    'If color.InnerXml.Contains(name_str) Then
+                    '    name_str += "ERROR" + cnt.ToString("000")
+                    'Else
+                    t_names(cnt) = tank.Value.ToString
+                    s_names(cnt) = name_str
+                    cnt += 1
+                    'End If
+                Catch ex As Exception
+                End Try
             Next
-            g_node.AppendChild(color)
-            root_node.AppendChild(g_node)
+            Dim rcc = tbl.NewRow
+            rcc("texture") = el.Value.ToString
+            rcc("Id") = index.ToString
+            rcc("camoName") = tus(tus.Length - 2)
+            rcc("kind") = kind_.Value.ToLower
+            rcc("c0") = cvs(0)
+            rcc("c1") = cvs(1)
+            rcc("c2") = cvs(2)
+            rcc("c3") = cvs(3)
+            For z = 0 To cnt - 1
+                Dim name_str = s_names(z)
+
+                rcc(name_str) = t_names(z)
+
+            Next
+
+            tbl.Rows.Add(rcc)
+            dataset.Merge(tbl, False, MissingSchemaAction.Add)
 
             index += 1
         Next
-        doc.AppendChild(root_node)
-
-        Dim fm As New MemoryStream
-        doc.Save(fm)
-        fm.Position = 0
-        data_set.ReadXml(fm)
-        custom_tables(id) = data_set.Copy
-        fm.Dispose()
+        dataset.WriteXml(xml_path)
+loaded_jump:
+        custom_tables(id) = dataset.Copy
 
     End Sub
 
@@ -1525,7 +1577,11 @@ Public Class frmMain
         GC.WaitForFullGCComplete()
         If f.Exists Then
             For Each fi In f.GetFiles
-                fi.Delete()
+                If fi.Name.Contains("Path.txt") Then
+                Else
+                    fi.Delete()
+
+                End If
             Next
         End If
         Try
@@ -1653,7 +1709,7 @@ tryagain:
 
     Private Sub get_tank_parts_from_xml(ByVal tank As String, ByRef data_set As DataSet)
         'once again the non-standard name calling causes issues
-        ' what not use USA for the nation in all paths???? czech, japan, sweeden, poland are ok as is
+        'Why not use USA for the nation in all paths???? czech, japan, sweeden, poland are ok as is
         Dim turret_names() As String = {"0", "1", "2", "3", "_0", "_1", "_2", "_3"}
         If tank.Contains("american") Then
             tank = tank.Replace("american", "usa")
@@ -5207,10 +5263,10 @@ n_turret:
         Dim d = custom_tables(CURRENT_DATA_SET).Copy
         '===================================
 
-        Dim tt = d.Tables("camouflage")
+        Dim tt = d.Tables("armorcolor")
         Dim qq = From row In tt.AsEnumerable
         Select _
-        armorC = row.Field(Of String)("armorcolor")
+        armorC = row.Field(Of String)("aColor")
         ARMORCOLOR = get_vect4(qq(0))
         tt.Dispose()
 
