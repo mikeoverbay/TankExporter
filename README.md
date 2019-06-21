@@ -10,16 +10,15 @@
 You can download it here: https://www.autodesk.com/developer-network/platform-technologies/fbx-converter-archives
 Or if you can not down load it from there... the 64 and 32 bit versions are located here: http://tnmshouse.com/converter/
 
-# Version 89:
-WOTMOD creating has been compeletely re-writen. Now it creates creator paths in the wotmod and updates all paths in the bw xml files to the new location of the resources.
+Version 89:
+1. WOTMOD creating has been completely re-written. Now it creates creator paths in the wotmod and updates all paths in the bw xml files to the new location of the resources.
 This is all based on what files are in the res_mods such as textures, visuals and such. Paths to resources that are not in res_mods will not be changed.
-I added Mouse Speed and Field of View settings.
-Fixed a bug in exporting screen shots.
-fixed a bug in loading and writing primitive crashed tanks.
-Tank Exporter now checks for GAME updates.]
-Added code to allow testing WOTMOD or RES_MODS tanks by blocking the loading of mods or res_mods and than running the game from within Tank Exporter.
-Added code to show the python.log and clear it out. Nice for debuging wotmod files.
-
+2. I added Mouse Speed and Field of View settings.
+3. Fixed a bug in exporting screen shots.
+4. fixed a bug in loading and writing primitive crashed tanks.
+5. Tank Exporter now checks for GAME updates.]
+6. Added code to allow testing WOTMOD or RES_MODS tanks by blocking the loading of mods or res_mods and than running the game from within Tank Exporter.
+7. Added code to show the python.log and clear it out. Nice for debugging wotmod files.
 
 # Version 88:
 This fixes a bug that flipped the mixed camouflage on Y when exporting an FBX. In order for a camo to be exported, one must be applied to the tank.
