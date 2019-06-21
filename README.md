@@ -16,7 +16,7 @@ This is all based on what files are in the res_mods such as textures, visuals an
 2. I added Mouse Speed and Field of View settings.
 3. Fixed a bug in exporting screen shots.
 4. fixed a bug in loading and writing primitive crashed tanks.
-5. Tank Exporter now checks for GAME updates.]
+5. Tank Exporter now checks for GAME updates.
 6. Added code to allow testing WOTMOD or RES_MODS tanks by blocking the loading of mods or res_mods and than running the game from within Tank Exporter.
 7. Added code to show the python.log and clear it out. Nice for debugging wotmod files.
 
