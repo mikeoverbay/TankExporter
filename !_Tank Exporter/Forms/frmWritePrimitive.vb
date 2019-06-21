@@ -35,7 +35,11 @@ Public Class frmWritePrimitive
 
 
             If cew_cb.Checked Then
-                write_chassis_primitives(1)
+                If Not CRASH_MODE Then
+                    write_chassis_primitives(1)
+                Else
+                    write_chassis_crashed(1)
+                End If
             End If
 
             If hew_cb.Checked Then
@@ -53,7 +57,7 @@ Public Class frmWritePrimitive
 
         End If
 
-        If hide_tracks_cb.Checked Then
+        If hide_tracks_cb.Checked And Not CRASH_MODE Then
             hide_tracks()
         End If
 

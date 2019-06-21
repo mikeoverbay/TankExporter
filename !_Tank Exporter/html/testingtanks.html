@@ -1,0 +1,45 @@
+<style type="text/css">
+<!--
+body {
+	background-image: url(Images/carbon.jpg);
+	background-repeat: repeat;
+}
+body,td,th {
+	color: #FFFFFF;
+}
+.style1 {
+	font-size: 24px;
+	color: #CC6600;
+	font-weight: bold;
+}
+.style2 {
+	color: #CC6600;
+	font-weight: bold;
+}
+.style5 {font-size: 16px}
+-->
+</style>
+<p align="center" class="style1">How to test TANKS and WOTMOD creations</p>
+<p>&nbsp;</p>
+<p class="style5">First.. a word about <span class="style2">paths.xml</span><br />
+  This is a game file used to tell the game where things are located on your disc.</p>
+<p class="style5">This file is very important. The game will CRASH if its missing or corrupt!!</p>
+<p class="style5"> When you run the game, from either &quot;Test WOTMOD Tank&quot; or &quot;Test RESMODS Tank&quot;, Tank Export will make a backup of this file in the World_of_Tanks folder named &quot;paths_backup.xml&quot;.<br />
+  If the paths.xml is corrupt, something broke. The game will CRASH! <br />
+  You can delete paths.xml and rename paths_backup.xml 
+  OR, check the games data in gaming center.<br />
+          <span class="style2">Tank Exporter will try to not mess this file up but it is possible if you start the game from Tank Exporter and then close Tank Exporter before the game has closed. Don't Do That!</span></p>
+<p class="style5">What's the difference?<br />
+  When you click &quot;Test WODMOD Tank&quot;, Tank Exporter blocks the game from loading any data from the RES_MODS folder. <br />
+  and...<br />
+  When you click &quot;Test RES_MODS Tank&quot;, Tank Exporter blocks the game from loading any data from the MOD's folder.</p>
+<p class="style5">Tank Exporter will minimize and launch World of Tanks.<br />
+  When you exit the game, Tank Exporter will return a normal window.</p>
+<p class="style5">How Tank Exporter does this is by modifying the Paths.XML file.<br />
+  This is why its important not to shut down Tank Exporter if the game was launched from it and still running!<br />
+  Tank Exporter will be locked while the game is running but there are ways to shut it down.. IE. Task Manager! <span class="style2">DONT DO IT! </span></p>
+<p class="style5">If the game crashes, you can load the python.log from the Test Tank menu as well.<br />
+  You can also clear it out of previous startups.<br />
+  <br />
+</p>
+<p>&nbsp;</p>

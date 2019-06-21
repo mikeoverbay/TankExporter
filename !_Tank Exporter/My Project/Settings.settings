@@ -56,5 +56,17 @@
     <Setting Name="double_uv_scale" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
+    <Setting Name="authers_name" Type="System.String" Scope="User">
+      <Value Profile="(Default)">your_game_name</Value>
+    </Setting>
+    <Setting Name="mod_version" Type="System.String" Scope="User">
+      <Value Profile="(Default)">1</Value>
+    </Setting>
+    <Setting Name="fov" Type="System.Single" Scope="User">
+      <Value Profile="(Default)">45</Value>
+    </Setting>
+    <Setting Name="mouse_speed" Type="System.Single" Scope="User">
+      <Value Profile="(Default)">0.5</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

@@ -32,13 +32,15 @@ Partial Class frmExtract
         Me.create_work_area_cb = New System.Windows.Forms.CheckBox()
         Me.m_customization = New System.Windows.Forms.CheckBox()
         Me.extract_item_def_cb = New System.Windows.Forms.CheckBox()
+        Me.m_export_camo_cb = New System.Windows.Forms.CheckBox()
+        Me.gui_cb = New System.Windows.Forms.CheckBox()
         Me.ext_chassis = New System.Windows.Forms.CheckBox()
         Me.ext_hull = New System.Windows.Forms.CheckBox()
         Me.ext_turret = New System.Windows.Forms.CheckBox()
         Me.ext_gun = New System.Windows.Forms.CheckBox()
         Me.extract_btn = New System.Windows.Forms.Button()
         Me.cancel_btn = New System.Windows.Forms.Button()
-        Me.m_export_camo_cb = New System.Windows.Forms.CheckBox()
+        Me.no_textures = New System.Windows.Forms.CheckBox()
         Me.GroupBox1.SuspendLayout()
         Me.SuspendLayout()
         '
@@ -92,7 +94,7 @@ Partial Class frmExtract
         Me.create_work_area_cb.AutoSize = True
         Me.create_work_area_cb.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.create_work_area_cb.ForeColor = System.Drawing.Color.FromArgb(CType(CType(0, Byte), Integer), CType(CType(192, Byte), Integer), CType(CType(0, Byte), Integer))
-        Me.create_work_area_cb.Location = New System.Drawing.Point(27, 209)
+        Me.create_work_area_cb.Location = New System.Drawing.Point(27, 268)
         Me.create_work_area_cb.Name = "create_work_area_cb"
         Me.create_work_area_cb.Size = New System.Drawing.Size(111, 17)
         Me.create_work_area_cb.TabIndex = 7
@@ -106,7 +108,7 @@ Partial Class frmExtract
         Me.m_customization.AutoSize = True
         Me.m_customization.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.m_customization.ForeColor = System.Drawing.Color.FromArgb(CType(CType(0, Byte), Integer), CType(CType(192, Byte), Integer), CType(CType(0, Byte), Integer))
-        Me.m_customization.Location = New System.Drawing.Point(27, 254)
+        Me.m_customization.Location = New System.Drawing.Point(27, 294)
         Me.m_customization.Name = "m_customization"
         Me.m_customization.Size = New System.Drawing.Size(109, 17)
         Me.m_customization.TabIndex = 8
@@ -117,9 +119,11 @@ Partial Class frmExtract
         'extract_item_def_cb
         '
         Me.extract_item_def_cb.AutoSize = True
+        Me.extract_item_def_cb.Checked = True
+        Me.extract_item_def_cb.CheckState = System.Windows.Forms.CheckState.Checked
         Me.extract_item_def_cb.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.extract_item_def_cb.ForeColor = System.Drawing.Color.FromArgb(CType(CType(0, Byte), Integer), CType(CType(192, Byte), Integer), CType(CType(0, Byte), Integer))
-        Me.extract_item_def_cb.Location = New System.Drawing.Point(27, 231)
+        Me.extract_item_def_cb.Location = New System.Drawing.Point(27, 240)
         Me.extract_item_def_cb.Name = "extract_item_def_cb"
         Me.extract_item_def_cb.Size = New System.Drawing.Size(86, 17)
         Me.extract_item_def_cb.TabIndex = 9
@@ -127,12 +131,40 @@ Partial Class frmExtract
         Me.TT.SetToolTip(Me.extract_item_def_cb, "Extracts customization.xml if checked.")
         Me.extract_item_def_cb.UseVisualStyleBackColor = True
         '
+        'm_export_camo_cb
+        '
+        Me.m_export_camo_cb.AutoSize = True
+        Me.m_export_camo_cb.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.m_export_camo_cb.ForeColor = System.Drawing.Color.FromArgb(CType(CType(0, Byte), Integer), CType(CType(192, Byte), Integer), CType(CType(0, Byte), Integer))
+        Me.m_export_camo_cb.Location = New System.Drawing.Point(27, 321)
+        Me.m_export_camo_cb.Name = "m_export_camo_cb"
+        Me.m_export_camo_cb.Size = New System.Drawing.Size(82, 17)
+        Me.m_export_camo_cb.TabIndex = 10
+        Me.m_export_camo_cb.Text = "Camouflage"
+        Me.TT.SetToolTip(Me.m_export_camo_cb, "Extracts customization.xml if checked.")
+        Me.m_export_camo_cb.UseVisualStyleBackColor = True
+        '
+        'gui_cb
+        '
+        Me.gui_cb.AutoSize = True
+        Me.gui_cb.Checked = True
+        Me.gui_cb.CheckState = System.Windows.Forms.CheckState.Checked
+        Me.gui_cb.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.gui_cb.ForeColor = System.Drawing.Color.FromArgb(CType(CType(0, Byte), Integer), CType(CType(192, Byte), Integer), CType(CType(0, Byte), Integer))
+        Me.gui_cb.Location = New System.Drawing.Point(27, 223)
+        Me.gui_cb.Name = "gui_cb"
+        Me.gui_cb.Size = New System.Drawing.Size(80, 17)
+        Me.gui_cb.TabIndex = 11
+        Me.gui_cb.Text = "Tanks Icon"
+        Me.TT.SetToolTip(Me.gui_cb, "Extracts the tanks carousel icon image")
+        Me.gui_cb.UseVisualStyleBackColor = True
+        '
         'ext_chassis
         '
         Me.ext_chassis.AutoSize = True
         Me.ext_chassis.Checked = True
         Me.ext_chassis.CheckState = System.Windows.Forms.CheckState.Checked
-        Me.ext_chassis.Location = New System.Drawing.Point(27, 117)
+        Me.ext_chassis.Location = New System.Drawing.Point(27, 144)
         Me.ext_chassis.Name = "ext_chassis"
         Me.ext_chassis.Size = New System.Drawing.Size(88, 17)
         Me.ext_chassis.TabIndex = 1
@@ -144,7 +176,7 @@ Partial Class frmExtract
         Me.ext_hull.AutoSize = True
         Me.ext_hull.Checked = True
         Me.ext_hull.CheckState = System.Windows.Forms.CheckState.Checked
-        Me.ext_hull.Location = New System.Drawing.Point(27, 140)
+        Me.ext_hull.Location = New System.Drawing.Point(27, 161)
         Me.ext_hull.Name = "ext_hull"
         Me.ext_hull.Size = New System.Drawing.Size(70, 17)
         Me.ext_hull.TabIndex = 2
@@ -156,7 +188,7 @@ Partial Class frmExtract
         Me.ext_turret.AutoSize = True
         Me.ext_turret.Checked = True
         Me.ext_turret.CheckState = System.Windows.Forms.CheckState.Checked
-        Me.ext_turret.Location = New System.Drawing.Point(27, 163)
+        Me.ext_turret.Location = New System.Drawing.Point(27, 179)
         Me.ext_turret.Name = "ext_turret"
         Me.ext_turret.Size = New System.Drawing.Size(78, 17)
         Me.ext_turret.TabIndex = 3
@@ -168,7 +200,7 @@ Partial Class frmExtract
         Me.ext_gun.AutoSize = True
         Me.ext_gun.Checked = True
         Me.ext_gun.CheckState = System.Windows.Forms.CheckState.Checked
-        Me.ext_gun.Location = New System.Drawing.Point(27, 186)
+        Me.ext_gun.Location = New System.Drawing.Point(27, 198)
         Me.ext_gun.Name = "ext_gun"
         Me.ext_gun.Size = New System.Drawing.Size(70, 17)
         Me.ext_gun.TabIndex = 4
@@ -178,7 +210,7 @@ Partial Class frmExtract
         'extract_btn
         '
         Me.extract_btn.ForeColor = System.Drawing.Color.Black
-        Me.extract_btn.Location = New System.Drawing.Point(12, 299)
+        Me.extract_btn.Location = New System.Drawing.Point(12, 352)
         Me.extract_btn.Name = "extract_btn"
         Me.extract_btn.Size = New System.Drawing.Size(53, 23)
         Me.extract_btn.TabIndex = 5
@@ -188,32 +220,31 @@ Partial Class frmExtract
         'cancel_btn
         '
         Me.cancel_btn.ForeColor = System.Drawing.Color.Black
-        Me.cancel_btn.Location = New System.Drawing.Point(91, 299)
+        Me.cancel_btn.Location = New System.Drawing.Point(92, 352)
         Me.cancel_btn.Name = "cancel_btn"
         Me.cancel_btn.Size = New System.Drawing.Size(52, 23)
         Me.cancel_btn.TabIndex = 6
         Me.cancel_btn.Text = "Cancel"
         Me.cancel_btn.UseVisualStyleBackColor = True
         '
-        'm_export_camo_cb
+        'no_textures
         '
-        Me.m_export_camo_cb.AutoSize = True
-        Me.m_export_camo_cb.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.m_export_camo_cb.ForeColor = System.Drawing.Color.FromArgb(CType(CType(0, Byte), Integer), CType(CType(192, Byte), Integer), CType(CType(0, Byte), Integer))
-        Me.m_export_camo_cb.Location = New System.Drawing.Point(27, 277)
-        Me.m_export_camo_cb.Name = "m_export_camo_cb"
-        Me.m_export_camo_cb.Size = New System.Drawing.Size(82, 17)
-        Me.m_export_camo_cb.TabIndex = 10
-        Me.m_export_camo_cb.Text = "Camouflage"
-        Me.TT.SetToolTip(Me.m_export_camo_cb, "Extracts customization.xml if checked.")
-        Me.m_export_camo_cb.UseVisualStyleBackColor = True
+        Me.no_textures.AutoSize = True
+        Me.no_textures.Location = New System.Drawing.Point(27, 111)
+        Me.no_textures.Name = "no_textures"
+        Me.no_textures.Size = New System.Drawing.Size(103, 17)
+        Me.no_textures.TabIndex = 12
+        Me.no_textures.Text = "NO TEXTURES"
+        Me.no_textures.UseVisualStyleBackColor = True
         '
         'frmExtract
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.Color.FromArgb(CType(CType(30, Byte), Integer), CType(CType(30, Byte), Integer), CType(CType(30, Byte), Integer))
-        Me.ClientSize = New System.Drawing.Size(156, 334)
+        Me.ClientSize = New System.Drawing.Size(156, 385)
+        Me.Controls.Add(Me.no_textures)
+        Me.Controls.Add(Me.gui_cb)
         Me.Controls.Add(Me.m_export_camo_cb)
         Me.Controls.Add(Me.extract_item_def_cb)
         Me.Controls.Add(Me.m_customization)
@@ -253,4 +284,6 @@ Partial Class frmExtract
     Friend WithEvents m_customization As System.Windows.Forms.CheckBox
     Friend WithEvents extract_item_def_cb As System.Windows.Forms.CheckBox
     Friend WithEvents m_export_camo_cb As System.Windows.Forms.CheckBox
+    Friend WithEvents gui_cb As System.Windows.Forms.CheckBox
+    Friend WithEvents no_textures As System.Windows.Forms.CheckBox
 End Class

@@ -75,7 +75,8 @@ Module modGlobals
     Public m_position As Point
     Public w_changing As Boolean = False
     Public stop_updating As Boolean = False
-
+    Public FOV As Single
+    Public mouse_speed_global As Single
     Public is_wheeled_vehicle As Boolean
 
     Public Structure path_data_

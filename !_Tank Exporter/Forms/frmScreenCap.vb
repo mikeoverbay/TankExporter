@@ -160,6 +160,10 @@ Public Class frmScreenCap
         Me.Hide()
     End Sub
 
+    Private Sub frmScreenCap_Load(sender As Object, e As EventArgs) Handles Me.Load
+            set_custom_size()
+    End Sub
+
     Private Sub frmScreenCap_ResizeEnd(sender As Object, e As EventArgs) Handles Me.ResizeEnd
         frmMain.draw_scene()
     End Sub
@@ -206,6 +210,7 @@ Public Class frmScreenCap
             x_size_tb.Text = Strings.Left(x_size_tb.Text, x_size_tb.Text.Length - 1)
             x_size_tb.SelectionStart = x_size_tb.Text.Length
         End If
+        set_custom_size()
     End Sub
 
     Private Sub y_size_tb_TextChanged(sender As Object, e As EventArgs) Handles y_size_tb.TextChanged
@@ -213,7 +218,7 @@ Public Class frmScreenCap
             y_size_tb.Text = Strings.Left(y_size_tb.Text, y_size_tb.Text.Length - 1)
             y_size_tb.SelectionStart = y_size_tb.Text.Length
         End If
-
+        set_custom_size()
     End Sub
     Private Sub set_custom_size()
         Try

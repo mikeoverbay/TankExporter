@@ -507,7 +507,7 @@ skip_v_:
                 s_vector.Z *= -1.0
                 s_vector.X *= -1.0
             End If
-            If id = object_count Then
+            If id = object_count And Not CRASH_MODE Then
                 s_vector.Z *= -1.0
                 s_vector.X *= -1.0
             End If

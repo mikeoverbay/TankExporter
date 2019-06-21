@@ -27,6 +27,14 @@ Partial Class frmMain
         Me.Startup_Timer = New System.Windows.Forms.Timer(Me.components)
         Me.MM = New System.Windows.Forms.MenuStrip()
         Me.m_file = New System.Windows.Forms.ToolStripMenuItem()
+        Me.m_test = New System.Windows.Forms.ToolStripMenuItem()
+        Me.m_test_wotmod = New System.Windows.Forms.ToolStripMenuItem()
+        Me.ToolStripSeparator20 = New System.Windows.Forms.ToolStripSeparator()
+        Me.m_test_res_mods = New System.Windows.Forms.ToolStripMenuItem()
+        Me.ToolStripSeparator21 = New System.Windows.Forms.ToolStripSeparator()
+        Me.m_pythonLog = New System.Windows.Forms.ToolStripMenuItem()
+        Me.ToolStripSeparator22 = New System.Windows.Forms.ToolStripSeparator()
+        Me.m_clear_PythonLog = New System.Windows.Forms.ToolStripMenuItem()
         Me.m_load_file = New System.Windows.Forms.ToolStripMenuItem()
         Me.m_save = New System.Windows.Forms.ToolStripMenuItem()
         Me.ToolStripSeparator7 = New System.Windows.Forms.ToolStripSeparator()
@@ -65,6 +73,8 @@ Partial Class frmMain
         Me.m_show_environment = New System.Windows.Forms.ToolStripMenuItem()
         Me.m_shadow_preview = New System.Windows.Forms.ToolStripMenuItem()
         Me.ToolStripSeparator10 = New System.Windows.Forms.ToolStripSeparator()
+        Me.m_settings = New System.Windows.Forms.ToolStripMenuItem()
+        Me.ToolStripSeparator19 = New System.Windows.Forms.ToolStripSeparator()
         Me.M_Exit = New System.Windows.Forms.ToolStripMenuItem()
         Me.m_ExportExtract = New System.Windows.Forms.ToolStripMenuItem()
         Me.m_extract = New System.Windows.Forms.ToolStripMenuItem()
@@ -193,10 +203,58 @@ Partial Class frmMain
         '
         'm_file
         '
-        Me.m_file.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.m_load_file, Me.m_save, Me.ToolStripSeparator7, Me.m_Import_FBX, Me.m_remove_fbx, Me.ToolStripSeparator1, Me.m_write_primitive, Me.ToolStripSeparator18, Me.m_build_wotmod, Me.ToolStripSeparator9, Me.m_edit_visual, Me.m_show_log, Me.ToolStripSeparator8, Me.m_open_temp_folder, Me.ToolStripSeparator4, Me.m_region, Me.ToolStripSeparator11, Me.M_Path, Me.m_res_mods_path, Me.ToolStripSeparator2, Me.m_clear_temp_folder_data, Me.m_reload_api_data, Me.ToolStripSeparator3, Me.m_FXAA, Me.m_bloom_off, Me.m_shadows, Me.m_shadowQuality, Me.m_select_light, Me.ToolStripSeparator14, Me.m_simple_lighting, Me.ToolStripSeparator5, Me.m_edit_shaders, Me.ToolStripSeparator12, Me.m_enableBloom, Me.m_Shader_Debug, Me.m_show_environment, Me.m_shadow_preview, Me.ToolStripSeparator10, Me.M_Exit})
+        Me.m_file.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.m_test, Me.m_load_file, Me.m_save, Me.ToolStripSeparator7, Me.m_Import_FBX, Me.m_remove_fbx, Me.ToolStripSeparator1, Me.m_write_primitive, Me.ToolStripSeparator18, Me.m_build_wotmod, Me.ToolStripSeparator9, Me.m_edit_visual, Me.m_show_log, Me.ToolStripSeparator8, Me.m_open_temp_folder, Me.ToolStripSeparator4, Me.m_region, Me.ToolStripSeparator11, Me.M_Path, Me.m_res_mods_path, Me.ToolStripSeparator2, Me.m_clear_temp_folder_data, Me.m_reload_api_data, Me.ToolStripSeparator3, Me.m_FXAA, Me.m_bloom_off, Me.m_shadows, Me.m_shadowQuality, Me.m_select_light, Me.ToolStripSeparator14, Me.m_simple_lighting, Me.ToolStripSeparator5, Me.m_edit_shaders, Me.ToolStripSeparator12, Me.m_enableBloom, Me.m_Shader_Debug, Me.m_show_environment, Me.m_shadow_preview, Me.ToolStripSeparator10, Me.m_settings, Me.ToolStripSeparator19, Me.M_Exit})
         Me.m_file.Name = "m_file"
         Me.m_file.Size = New System.Drawing.Size(90, 23)
         Me.m_file.Text = "&File / Settings"
+        '
+        'm_test
+        '
+        Me.m_test.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.m_test_wotmod, Me.ToolStripSeparator20, Me.m_test_res_mods, Me.ToolStripSeparator21, Me.m_pythonLog, Me.ToolStripSeparator22, Me.m_clear_PythonLog})
+        Me.m_test.Font = New System.Drawing.Font("Segoe UI", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.m_test.ForeColor = System.Drawing.Color.Black
+        Me.m_test.Name = "m_test"
+        Me.m_test.Size = New System.Drawing.Size(221, 22)
+        Me.m_test.Text = "Start Wot"
+        '
+        'm_test_wotmod
+        '
+        Me.m_test_wotmod.Name = "m_test_wotmod"
+        Me.m_test_wotmod.Size = New System.Drawing.Size(182, 22)
+        Me.m_test_wotmod.Text = "Test WOTMOD tank"
+        '
+        'ToolStripSeparator20
+        '
+        Me.ToolStripSeparator20.Name = "ToolStripSeparator20"
+        Me.ToolStripSeparator20.Size = New System.Drawing.Size(179, 6)
+        '
+        'm_test_res_mods
+        '
+        Me.m_test_res_mods.Name = "m_test_res_mods"
+        Me.m_test_res_mods.Size = New System.Drawing.Size(182, 22)
+        Me.m_test_res_mods.Text = "Test RES_MODS tank"
+        '
+        'ToolStripSeparator21
+        '
+        Me.ToolStripSeparator21.Name = "ToolStripSeparator21"
+        Me.ToolStripSeparator21.Size = New System.Drawing.Size(179, 6)
+        '
+        'm_pythonLog
+        '
+        Me.m_pythonLog.Name = "m_pythonLog"
+        Me.m_pythonLog.Size = New System.Drawing.Size(182, 22)
+        Me.m_pythonLog.Text = "Load Python.log"
+        '
+        'ToolStripSeparator22
+        '
+        Me.ToolStripSeparator22.Name = "ToolStripSeparator22"
+        Me.ToolStripSeparator22.Size = New System.Drawing.Size(179, 6)
+        '
+        'm_clear_PythonLog
+        '
+        Me.m_clear_PythonLog.Name = "m_clear_PythonLog"
+        Me.m_clear_PythonLog.Size = New System.Drawing.Size(182, 22)
+        Me.m_clear_PythonLog.Text = "Clear Python.log"
         '
         'm_load_file
         '
@@ -428,6 +486,17 @@ Partial Class frmMain
         '
         Me.ToolStripSeparator10.Name = "ToolStripSeparator10"
         Me.ToolStripSeparator10.Size = New System.Drawing.Size(218, 6)
+        '
+        'm_settings
+        '
+        Me.m_settings.Name = "m_settings"
+        Me.m_settings.Size = New System.Drawing.Size(221, 22)
+        Me.m_settings.Text = "FOV and Mouse Settings"
+        '
+        'ToolStripSeparator19
+        '
+        Me.ToolStripSeparator19.Name = "ToolStripSeparator19"
+        Me.ToolStripSeparator19.Size = New System.Drawing.Size(218, 6)
         '
         'M_Exit
         '
@@ -843,7 +912,7 @@ Partial Class frmMain
         Me.decal_panel.ForeColor = System.Drawing.Color.White
         Me.decal_panel.Location = New System.Drawing.Point(276, 54)
         Me.decal_panel.Name = "decal_panel"
-        Me.decal_panel.Size = New System.Drawing.Size(414, 382)
+        Me.decal_panel.Size = New System.Drawing.Size(441, 382)
         Me.decal_panel.TabIndex = 5
         '
         'copy_Decal_btn
@@ -1061,7 +1130,7 @@ Partial Class frmMain
         Me.d_move_down.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center
         Me.d_move_down.FlatStyle = System.Windows.Forms.FlatStyle.Popup
         Me.d_move_down.Image = Global.Tank_Exporter.My.Resources.Resources.control_270
-        Me.d_move_down.Location = New System.Drawing.Point(369, 165)
+        Me.d_move_down.Location = New System.Drawing.Point(396, 165)
         Me.d_move_down.Name = "d_move_down"
         Me.d_move_down.Size = New System.Drawing.Size(20, 20)
         Me.d_move_down.TabIndex = 5
@@ -1074,7 +1143,7 @@ Partial Class frmMain
         Me.d_move_up.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center
         Me.d_move_up.FlatStyle = System.Windows.Forms.FlatStyle.Popup
         Me.d_move_up.Image = Global.Tank_Exporter.My.Resources.Resources.control_090
-        Me.d_move_up.Location = New System.Drawing.Point(369, 145)
+        Me.d_move_up.Location = New System.Drawing.Point(396, 145)
         Me.d_move_up.Name = "d_move_up"
         Me.d_move_up.Size = New System.Drawing.Size(20, 20)
         Me.d_move_up.TabIndex = 4
@@ -1124,7 +1193,7 @@ Partial Class frmMain
         Me.d_list_tb.Multiline = True
         Me.d_list_tb.Name = "d_list_tb"
         Me.d_list_tb.ScrollBars = System.Windows.Forms.ScrollBars.Vertical
-        Me.d_list_tb.Size = New System.Drawing.Size(410, 237)
+        Me.d_list_tb.Size = New System.Drawing.Size(437, 237)
         Me.d_list_tb.TabIndex = 0
         '
         'current_decal_lable
@@ -1183,7 +1252,7 @@ Partial Class frmMain
         'pb2
         '
         Me.pb2.Anchor = System.Windows.Forms.AnchorStyles.None
-        Me.pb2.Location = New System.Drawing.Point(42, 125)
+        Me.pb2.Location = New System.Drawing.Point(51, 125)
         Me.pb2.Name = "pb2"
         Me.pb2.Size = New System.Drawing.Size(200, 100)
         Me.pb2.TabIndex = 3
@@ -1579,5 +1648,15 @@ Partial Class frmMain
     Friend WithEvents ToolStripSeparator18 As System.Windows.Forms.ToolStripSeparator
     Friend WithEvents m_build_wotmod As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents m_GMM_toy_cb As System.Windows.Forms.ToolStripMenuItem
+    Friend WithEvents m_settings As System.Windows.Forms.ToolStripMenuItem
+    Friend WithEvents ToolStripSeparator19 As System.Windows.Forms.ToolStripSeparator
+    Friend WithEvents m_test As System.Windows.Forms.ToolStripMenuItem
+    Friend WithEvents m_test_wotmod As System.Windows.Forms.ToolStripMenuItem
+    Friend WithEvents ToolStripSeparator20 As System.Windows.Forms.ToolStripSeparator
+    Friend WithEvents m_test_res_mods As System.Windows.Forms.ToolStripMenuItem
+    Friend WithEvents ToolStripSeparator21 As System.Windows.Forms.ToolStripSeparator
+    Friend WithEvents m_pythonLog As System.Windows.Forms.ToolStripMenuItem
+    Friend WithEvents ToolStripSeparator22 As System.Windows.Forms.ToolStripSeparator
+    Friend WithEvents m_clear_PythonLog As System.Windows.Forms.ToolStripMenuItem
 
 End Class

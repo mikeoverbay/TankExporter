@@ -24,6 +24,7 @@ Imports System.Collections.Generic
 Imports Ionic.Zip
 Imports System.Drawing.Imaging
 Imports System.Globalization
+Imports System.IO.Compression
 #End Region
 
 Public Class frmMain
@@ -61,10 +62,10 @@ Public Class frmMain
     Dim delay As Integer = 0
     Dim stepper As Integer = 0
 
-    Public Shared packages(12) As ZipFile
-    Public Shared packages_2(12) As ZipFile
-    Public Shared packages_HD(12) As ZipFile
-    Public Shared packages_HD_2(12) As ZipFile
+    Public Shared packages(12) As Ionic.Zip.ZipFile
+    Public Shared packages_2(12) As Ionic.Zip.ZipFile
+    Public Shared packages_HD(12) As Ionic.Zip.ZipFile
+    Public Shared packages_HD_2(12) As Ionic.Zip.ZipFile
     Public Shared shared_pkg As Ionic.Zip.ZipFile
     Public Shared shared_sandbox_pkg As Ionic.Zip.ZipFile
     Public shared_contents_build As New Ionic.Zip.ZipFile
@@ -571,17 +572,17 @@ Public Class frmMain
 
     '############################################################################ form load
     Private Sub frmMain_Load(sender As Object, e As EventArgs) Handles Me.Load
-        Dim nonInvariantCulture As CultureInfo = New CultureInfo("en-US")
+        Dim nonInvariantCulture As System.Globalization.CultureInfo = New CultureInfo("en-US")
         nonInvariantCulture.NumberFormat.NumberDecimalSeparator = "."
-        Thread.CurrentThread.CurrentCulture = nonInvariantCulture
+        System.Threading.Thread.CurrentThread.CurrentCulture = nonInvariantCulture
 
         Dim x, z As Single
-        x = Cos(l_rot) * (5 * 2)
-        z = Sin(l_rot) * (5 * 2)
+        x = 2.846
+        z = 9.586
 
-        position0(0) = x
-        position0(1) = 10.0
-        position0(2) = z
+        position0(0) = 0.0
+        position0(1) = 8.0
+        position0(2) = 0.0
 
 
         tank_label.Text = ""
@@ -677,6 +678,7 @@ Public Class frmMain
         _Started = True
         '====================================================================================================
         ' Setup loaction for tank data.. sucks to do it this way but UAC wont allow it any other way.
+        'I'M SAVING ALL CODE RELATED TO THE OLD TANK LIST IN CASE I WORK ON TERRA AGAIN!
         TankListTempFolder = Temp_Storage + "\tanklist\"
         decal_path = Temp_Storage + "\decals"
 
@@ -706,6 +708,25 @@ Public Class frmMain
             End If
         End If
         '====================================================================================================
+        'find out if our res_mods path is out of data!
+        Dim pathsxml = File.ReadAllText(My.Settings.game_path + "\paths.xml")
+        Dim ar = pathsxml.Split(vbLf)
+        pathsxml = ar(2).Replace(vbTab, "")
+        pathsxml = pathsxml.Replace(" ", "")
+        pathsxml = pathsxml.Replace("""", "")
+        pathsxml = pathsxml.Replace("<PathcacheSubdirs=true>./res_mods/", "")
+        pathsxml = pathsxml.Replace("</Path>", "")
+        Dim rp = Path.GetFileName(My.Settings.res_mods_path)
+        If rp <> pathsxml Then
+            If File.Exists(My.Settings.game_path + "\paths_backup.xml") Then
+                File.Delete(My.Settings.game_path + "\paths_backup.xml")
+            End If
+            If MsgBox("The game has updated to version: " + pathsxml + vbCrLf + "You need update the res_mods Path.", MsgBoxStyle.YesNo, "Game Update!") = MsgBoxResult.Yes Then
+                m_res_mods_path.PerformClick()
+            End If
+        End If
+        '====================================================================================================
+
         Dim testing_controls As Boolean = False
         If Not testing_controls Then
 
@@ -720,8 +741,8 @@ Public Class frmMain
 
                 scripts_pkg = New Ionic.Zip.ZipFile(My.Settings.game_path + "\res\packages\scripts.pkg")
                 start_up_log.AppendLine("Loaded: " + My.Settings.game_path + "\res\packages\scripts.pkg")
-                'packages(11) = ZipFile.Read(My.Settings.game_path + "\res\packages\shared_content.pkg")
-                'packages(12) = ZipFile.Read(My.Settings.game_path + "\res\packages\shared_content_sandbox.pkg")
+                'packages(11) = Ionic.Zip.ZipFile.Read(My.Settings.game_path + "\res\packages\shared_content.pkg")
+                'packages(12) = Ionic.Zip.ZipFile.Read(My.Settings.game_path + "\res\packages\shared_content_sandbox.pkg")
                 'packages(11) = shared_pkg
                 'packages(12) = shared_sandbox_pkg
 
@@ -736,7 +757,7 @@ Public Class frmMain
             'MsgBox("I LOADED required pkg files!", MsgBoxStyle.Exclamation, "Error!")
             'Try
             If File.Exists(Temp_Storage + "\shared_contents_build.pkg") Then
-                packages(11) = ZipFile.Read(Temp_Storage + "\shared_contents_build.pkg")
+                packages(11) = Ionic.Zip.ZipFile.Read(Temp_Storage + "\shared_contents_build.pkg")
                 start_up_log.AppendLine("Loaded: " + Temp_Storage + "\shared_contents_build.pkg")
             Else
                 '===================================================================================
@@ -746,7 +767,7 @@ Public Class frmMain
                 start_up_log.AppendLine("Done Finding all PBS decals in map packages.")
                 '===================================================================================
 
-                shared_contents_build = New ZipFile(Temp_Storage + "\shared_contents_build.pkg")
+                shared_contents_build = New Ionic.Zip.ZipFile(Temp_Storage + "\shared_contents_build.pkg")
                 start_up_log.AppendLine("shared_contents_build.pkg does not exist. Building shared_contents_build.pkg")
                 start_up_log.AppendLine("Only Entries that contain Vehicle will be read.")
                 'add handler for progression call back to display progressbar value
@@ -766,7 +787,7 @@ Public Class frmMain
                 PG1.Visible = True
                 PG1.Value = 0
                 Dim cnt = 0
-                Dim arc = ZipFile.Read(My.Settings.game_path + "\res\packages\shared_content-part1.pkg")
+                Dim arc = Ionic.Zip.ZipFile.Read(My.Settings.game_path + "\res\packages\shared_content-part1.pkg")
                 PG1.Maximum = arc.Count
                 start_up_log.AppendLine("reading: \res\packages\shared_content-part1.pkg")
 
@@ -794,7 +815,7 @@ Public Class frmMain
                 Try
                     info_Label.Text = "Reading shared_content_hd-part1.pkg"
                     Application.DoEvents()
-                    arc = ZipFile.Read(My.Settings.game_path + "\res\packages\shared_content_hd-part1.pkg")
+                    arc = Ionic.Zip.ZipFile.Read(My.Settings.game_path + "\res\packages\shared_content_hd-part1.pkg")
                     PG1.Value = 0
                     PG1.Maximum = arc.Count
                     cnt = 0
@@ -814,7 +835,7 @@ Public Class frmMain
                 'part 2
                 info_Label.Text = "Reading shared_content-part2.pkg"
                 Application.DoEvents()
-                arc = ZipFile.Read(My.Settings.game_path + "\res\packages\shared_content-part2.pkg")
+                arc = Ionic.Zip.ZipFile.Read(My.Settings.game_path + "\res\packages\shared_content-part2.pkg")
                 PG1.Value = 0
                 PG1.Maximum = arc.Count
                 cnt = 0
@@ -843,7 +864,7 @@ Public Class frmMain
                 Try
                     info_Label.Text = "Reading shared_content_hd-part2.pkg"
                     Application.DoEvents()
-                    arc = ZipFile.Read(My.Settings.game_path + "\res\packages\shared_content_hd-part2.pkg")
+                    arc = Ionic.Zip.ZipFile.Read(My.Settings.game_path + "\res\packages\shared_content_hd-part2.pkg")
                     PG1.Value = 0
                     PG1.Maximum = arc.Count
                     cnt = 0
@@ -863,7 +884,7 @@ Public Class frmMain
                 'part 1
                 info_Label.Text = "Reading shared_content_sandbox-part1.pkg"
                 Application.DoEvents()
-                arc = ZipFile.Read(My.Settings.game_path + "\res\packages\shared_content_sandbox-part1.pkg")
+                arc = Ionic.Zip.ZipFile.Read(My.Settings.game_path + "\res\packages\shared_content_sandbox-part1.pkg")
                 PG1.Value = 0
                 PG1.Maximum = arc.Count
                 cnt = 0
@@ -879,7 +900,7 @@ Public Class frmMain
                 Try
                     info_Label.Text = "Reading shared_content_sandbox_hd-part1.pkg"
                     Application.DoEvents()
-                    arc = ZipFile.Read(My.Settings.game_path + "\res\packages\shared_content_sandbox_hd-part1.pkg")
+                    arc = Ionic.Zip.ZipFile.Read(My.Settings.game_path + "\res\packages\shared_content_sandbox_hd-part1.pkg")
                     PG1.Value = 0
                     PG1.Maximum = arc.Count
                     cnt = 0
@@ -899,7 +920,7 @@ Public Class frmMain
                 'part 2
                 info_Label.Text = "Reading shared_content_sandbox-part2.pkg"
                 Application.DoEvents()
-                arc = ZipFile.Read(My.Settings.game_path + "\res\packages\shared_content_sandbox-part2.pkg")
+                arc = Ionic.Zip.ZipFile.Read(My.Settings.game_path + "\res\packages\shared_content_sandbox-part2.pkg")
                 PG1.Value = 0
                 PG1.Maximum = arc.Count
                 cnt = 0
@@ -915,7 +936,7 @@ Public Class frmMain
                 Try
                     info_Label.Text = "Reading shared_content_sandbox_hd-part2.pkg"
                     Application.DoEvents()
-                    arc = ZipFile.Read(My.Settings.game_path + "\res\packages\shared_content_sandbox_hd-part2.pkg")
+                    arc = Ionic.Zip.ZipFile.Read(My.Settings.game_path + "\res\packages\shared_content_sandbox_hd-part2.pkg")
                     PG1.Value = 0
                     PG1.Maximum = arc.Count
                     cnt = 0
@@ -943,7 +964,7 @@ Public Class frmMain
                 start_up_log.AppendLine("Saving: " + Temp_Storage + "\shared_contents_build.pkg")
                 Application.DoEvents()
                 shared_contents_build.Save()
-                packages(11) = New ZipFile
+                packages(11) = New Ionic.Zip.ZipFile
                 packages(11) = shared_contents_build ' save this in to 11th position
             End If
             'Catch ex As Exception
@@ -1067,7 +1088,8 @@ Public Class frmMain
         '###################################
         pick_timer.Start()
 
-
+        FOV = My.Settings.fov
+        mouse_speed_global = My.Settings.mouse_speed
         cam_x = 0
         cam_y = 0
         cam_z = 10
@@ -1076,7 +1098,7 @@ Public Class frmMain
         look_point_z = 0
         Cam_X_angle = (PI * 0.25) + PI
         Cam_Y_angle = -PI * 0.25
-        view_radius = -10.0
+        view_radius = -8.5
         l_rot = PI * 0.25 + PI * 2
         pb1.Visible = True
         G_Buffer.init()
@@ -1110,7 +1132,7 @@ Public Class frmMain
         'now lets search each map file for decals_pbs
         Dim oPath = Temp_Storage + "\decals\"
         For i = 0 To cnt - 1
-            Using z As New ZipFile(maps(i))
+            Using z As New Ionic.Zip.ZipFile(maps(i))
                 For Each item In z
                     If item.FileName.Contains("decals_pbs") _
                 And Not item.FileName.ToLower.Contains("snow") Then
@@ -2342,7 +2364,7 @@ tryagain:
         Return "0"
     End Function
 
-
+    Dim public_icon_path As String
     Private Sub tv_clicked(ByVal sender As Object, ByVal e As TreeNodeMouseClickEventArgs)
         Dim tn = DirectCast(sender, TreeView)
         If e.Button = Forms.MouseButtons.Right Then
@@ -4425,7 +4447,7 @@ fuckit:
         'End If
         Dim dead As Integer = 5
         Dim t As Single
-        Dim M_Speed As Single = 0.8
+        Dim M_Speed As Single = mouse_speed_global
         Dim ms As Single = 0.2F * view_radius ' distance away changes speed.. THIS WORKS WELL!
         If M_DOWN Then
             If e.X > (mouse.x + dead) Then
@@ -4496,7 +4518,7 @@ fuckit:
         If move_cam_z Then
             If e.Y > (mouse.y + dead) Then
                 If e.Y - mouse.y > 100 Then t = (10)
-            Else : t = CSng(Sin((e.Y - mouse.y) / 100)) * 12
+            Else : t = CSng(Sin((e.Y - mouse.y) / 100)) * 12 * mouse_speed_global
                 view_radius += (t * (view_radius * 0.2))    ' zoom is factored in to Cam radius
                 If view_radius < -80.0 Then
                     view_radius = -80.0
@@ -4505,7 +4527,7 @@ fuckit:
             End If
             If e.Y < (mouse.y - dead) Then
                 If mouse.y - e.Y > 100 Then t = (10)
-            Else : t = CSng(Sin((mouse.y - e.Y) / 100)) * 12
+            Else : t = CSng(Sin((mouse.y - e.Y) / 100)) * 12 * mouse_speed_global
                 view_radius -= (t * (view_radius * 0.2))    ' zoom is factored in to Cam radius
                 If view_radius > -0.01 Then view_radius = -0.01
                 mouse.y = e.Y
@@ -4801,9 +4823,9 @@ fuckit:
 #End Region
 
     Public Sub clean_house()
-        Cam_X_angle = (PI * 0.25) + PI
-        Cam_Y_angle = -PI * 0.25
-        view_radius = -10.0
+        Cam_X_angle = (PI * 0.17) + PI
+        Cam_Y_angle = -PI * 0.18
+        view_radius = -8.5
         frmModelInfo.Close() ' close so it resets on load
         frmTextureViewer.Hide() ' hide.. so we dont kill settings
         frmEditVisual.Close() ' close so it resets on load
@@ -5992,12 +6014,270 @@ n_turret:
         d.Dispose()
     End Sub
 
+    '==========================================
+    Private Sub prep_tanks_xml(ByRef xml As String)
+        xml = PrettyPrint(xml.Replace(">shared<", "><boobs></boobs><"))
+        xml = xml.Replace("  ", vbTab)
+        Dim ar = xml.Split(vbCrLf)
+        Dim ts As String = ""
+        For j = 0 To ar.Length - 2
+            If ar(j).Contains("<bottom>") And ar(j).Contains("</bottom>") Then
+                If Not ar(j).Contains("><") Then
+                    ar(j) = ar(j).Replace("<bottom>", "<bottom>" + vbTab)
+                    ar(j) = ar(j).Replace("</bottom>", vbTab + "</bottom>")
+                End If
+
+            End If
+            If ar(j).Contains("<camouflage>") And ar(j).Contains("</camouflage>") Then
+                If Not ar(j).Contains("><") Then
+                    ar(j) = ar(j).Replace("<camouflage>", "<camouflage>" + vbTab)
+                    ar(j) = ar(j).Replace("</camouflage>", vbTab + "</camouflage>")
+                End If
+            End If
+            Dim hs As String = ""
+            Dim a2 = ar(j).ToCharArray
+            For k = 0 To a2.Length
+                If a2(k) = Chr(9) Then
+                    hs += a2(k)
+                Else
+                    Exit For
+                End If
+            Next
+            If ar(j).Contains("<boobs></boobs>") Then
+                ar(j) = ar(j).Replace(vbTab, "")
+                ar(j + 1) = ar(j + 1).Replace(vbTab, "")
+            End If
+            If Not ar(j).Contains("<boobs></boobs>") Then
+                If Not ar(j).Contains("commander") Then
+                    If Not ar(j).Contains("driver") Then
+                        If Not ar(j).Contains("gunner") Then
+                            If Not ar(j).Contains("loader") Then
+                                If Not ar(j).Contains("radioman") Then
+                                    ar(j) = ar(j).Replace("><", ">" + vbCrLf + hs + "<")
+                                End If
+                            End If
+
+                        End If
+
+                    End If
+                End If
+            End If
+            ts += ar(j) + vbCrLf
+        Next
+        ts = ts.Replace(">" + vbCrLf + "<boobs></boobs>" + vbCrLf + "<", ">shared<")
+
+        xml = ts + ar(ar.Length - 1)
+        If False Then
+
+            xml = xml.Replace("<forward>", "<forward>" + vbTab)
+            xml = xml.Replace("</forward>", vbTab + "</forward>")
+
+            xml = xml.Replace("<backward>", "<backward>" + vbTab)
+            xml = xml.Replace("</backward>", vbTab + "</backward>")
+
+            'removing formating as I don't think any of this is needed.
+            For z = 0 To 20
+                xml = xml.Replace("<armor_" + z.ToString + ">", "<armor_" + z.ToString + ">" + vbTab)
+                xml = xml.Replace("</armor_" + z.ToString + ">", vbTab + "</armor_" + z.ToString + ">")
+                xml = xml.Replace(">" + vbTab + "</armor_" + z.ToString + ">", "></armor_" + z.ToString + ">")
+            Next
+            For z = 0 To 20
+                xml = xml.Replace(vbTab + vbTab + "</armor_" + z.ToString + ">", vbTab + "</armor_" + z.ToString + ">")
+            Next
+
+            xml = xml.Replace("<vehicleDamageFactor>0.0<", vbTab + "<vehicleDamageFactor>0.0<")
+
+            xml = xml.Replace("<turret>", "<turret>" + vbTab)
+            xml = xml.Replace("</turret>", vbTab + "</turret>")
+
+            xml = xml.Replace("<slotType>", "<slotType>" + vbTab)
+            xml = xml.Replace("</slotType>", vbTab + "</slotType>")
+
+            xml = xml.Replace("<slotId>", "<slotId>" + vbTab)
+            xml = xml.Replace("</slotId>", vbTab + "</slotId>")
+
+            xml = xml.Replace("<hideIfDamaged>", "<hideIfDamaged>" + vbTab)
+            xml = xml.Replace("</hideIfDamaged>", vbTab + "</hideIfDamaged>")
+
+            xml = xml.Replace("<isUVProportional>", "<isUVProportional>" + vbTab)
+            xml = xml.Replace("</isUVProportional>", vbTab + "</isUVProportional>")
+
+            xml = xml.Replace("<doubleSided>", "<doubleSided>" + vbTab)
+            xml = xml.Replace("</doubleSided>", vbTab + "</doubleSided>")
+
+            xml = xml.Replace("<showOn>", "<showOn>" + vbTab)
+            xml = xml.Replace("</showOn>", vbTab + "</showOn>")
+
+            xml = xml.Replace("<parentSlotId>", "<parentSlotId>" + vbTab)
+            xml = xml.Replace("</parentSlotId>", vbTab + "</parentSlotId>")
+
+            xml = xml.Replace("<paint>", "<paint>" + vbTab)
+            xml = xml.Replace("</paint>", vbTab + "</paint>")
+
+            xml = xml.Replace("<level>", "<level>" + vbTab)
+            xml = xml.Replace("</level>", vbTab + "</level>")
+
+            xml = xml.Replace("<price>", "<price>" + vbTab)
+            xml = xml.Replace("</price>", vbTab + "</price>")
+
+            xml = xml.Replace("<notInShop>", "<notInShop>" + vbTab)
+            xml = xml.Replace("</notInShop>", vbTab + "</notInShop>")
+
+            xml = xml.Replace("<leftTrack>", "<leftTrack>" + vbTab)
+            xml = xml.Replace("</leftTrack>", vbTab + "</leftTrack>")
+
+            xml = xml.Replace("<rightTrack>", "<rightTrack>" + vbTab)
+            xml = xml.Replace("</rightTrack>", vbTab + "</rightTrack>")
+
+            xml = xml.Replace("<weight>", "<weight>" + vbTab)
+            xml = xml.Replace("</weight>", vbTab + "</weight>")
+
+            xml = xml.Replace("<maxLoad>", "<maxLoad>" + vbTab)
+            xml = xml.Replace("</maxLoad>", vbTab + "</maxLoad>")
+
+            xml = xml.Replace("<brakeForce>", "<brakeForce>" + vbTab)
+            xml = xml.Replace("</brakeForce>", vbTab + "</brakeForce>")
+
+            xml = xml.Replace("<rotationSpeed>", "<rotationSpeed>" + vbTab)
+            xml = xml.Replace("</rotationSpeed>", vbTab + "</rotationSpeed>")
+
+            xml = xml.Replace("<maxHealth>", "<maxHealth>" + vbTab)
+            xml = xml.Replace("</maxHealth>", vbTab + "</maxHealth>")
+
+            xml = xml.Replace("<maxRegenHealth>", "<maxRegenHealth>" + vbTab)
+            xml = xml.Replace("</maxRegenHealth>", vbTab + "</maxRegenHealth>")
+
+            xml = xml.Replace("<isLeft>", "<isLeft>" + vbTab)
+            xml = xml.Replace("</isLeft>", vbTab + "</isLeft>")
+
+            xml = xml.Replace("<isLeading>", "<isLeading>" + vbTab)
+            xml = xml.Replace("</isLeading>", vbTab + "</isLeading>")
+
+            xml = xml.Replace("<radius>", "<radius>" + vbTab)
+            xml = xml.Replace("</radius>", vbTab + "</radius>")
+
+            xml = xml.Replace("<startIndex>", "<startIndex>" + vbTab)
+            xml = xml.Replace("</startIndex>", vbTab + "</startIndex>")
+
+            xml = xml.Replace("<count>", "<count>" + vbTab)
+            xml = xml.Replace("</count>", vbTab + "</count>")
+
+            xml = xml.Replace("<hullPosition>", "<hullPosition>" + vbTab)
+            xml = xml.Replace("</hullPosition>", vbTab + "</hullPosition>")
+
+            xml = xml.Replace("<maxClimbAngle>", "<maxClimbAngle>" + vbTab)
+            xml = xml.Replace("</maxClimbAngle>", vbTab + "</maxClimbAngle>")
+
+            xml = xml.Replace("<row0>", "<row0>" + vbTab)
+            xml = xml.Replace("</row0>", vbTab + "</row0>")
+
+            xml = xml.Replace("<row1>", "<row1>" + vbTab)
+            xml = xml.Replace("</row1>", vbTab + "</row1>")
+
+            xml = xml.Replace("<row2>", "<row2>" + vbTab)
+            xml = xml.Replace("</row2>", vbTab + "</row2>")
+
+            xml = xml.Replace("<row3>", "<row3>" + vbTab)
+            xml = xml.Replace("</row3>", vbTab + "</row3>")
+
+            xml = xml.Replace("<UTiles>", "<UTiles>" + vbTab)
+            xml = xml.Replace("</UTiles>", vbTab + "</UTiles>")
+
+            xml = xml.Replace("<VTiles>", "<VTiles>" + vbTab)
+            xml = xml.Replace("</VTiles>", vbTab + "</VTiles>")
+
+            xml = xml.Replace("<enable>", "<enable>" + vbTab)
+            xml = xml.Replace("</enable>", vbTab + "</enable>")
+
+            xml = xml.Replace("<linkBones>", "<linkBones>" + vbTab)
+            xml = xml.Replace("</linkBones>", vbTab + "</linkBones>")
+
+            xml = xml.Replace("<gravity>", "<gravity>" + vbTab)
+            xml = xml.Replace("</gravity>", vbTab + "</gravity>")
+
+            xml = xml.Replace("<elasticity>", "<elasticity>" + vbTab)
+            xml = xml.Replace("</elasticity>", vbTab + "</elasticity>")
+
+            xml = xml.Replace("<damping>", "<damping>" + vbTab)
+            xml = xml.Replace("</damping>", vbTab + "</damping>")
+
+            xml = xml.Replace("<segmentsCount>", "<segmentsCount>" + vbTab)
+            xml = xml.Replace("</segmentsCount>", vbTab + "</segmentsCount>")
+
+            xml = xml.Replace("<segmentsInnerThickness>", "<segmentsInnerThickness>" + vbTab)
+            xml = xml.Replace("</segmentsInnerThickness>", vbTab + "</segmentsInnerThickness>")
+
+            xml = xml.Replace("<back>", "<back>" + vbTab)
+            xml = xml.Replace("</back>", vbTab + "</back>")
+
+            xml = xml.Replace("<front>", "<front>" + vbTab)
+            xml = xml.Replace("</front>", vbTab + "</front>")
+
+            xml = xml.Replace("<length>", "<length>" + vbTab)
+            xml = xml.Replace("</length>", vbTab + "</length>")
+
+            xml = xml.Replace("<shiftVec>", "<shiftVec>" + vbTab)
+            xml = xml.Replace("</shiftVec>", vbTab + "</shiftVec>")
+
+            xml = xml.Replace("<jointIdx>", "<jointIdx>" + vbTab)
+            xml = xml.Replace("</jointIdx>", vbTab + "</jointIdx>")
+
+            xml = xml.Replace("<syncWithMainModel>", "<syncWithMainModel>" + vbTab)
+            xml = xml.Replace("</syncWithMainModel>", vbTab + "</syncWithMainModel>")
+
+            xml = xml.Replace("<teethCount>", "<teethCount>" + vbTab)
+            xml = xml.Replace("</teethCount>", vbTab + "</teethCount>")
+
+            xml = xml.Replace("<circularVisionRadius>", "<circularVisionRadius>" + vbTab)
+            xml = xml.Replace("</circularVisionRadius>", vbTab + "</circularVisionRadius>")
+
+            xml = xml.Replace("<gun>", "<gun>" + vbTab)
+            xml = xml.Replace("</gun>", vbTab + "</gun>")
+
+            xml = xml.Replace("<aimingTime>", "<aimingTime>" + vbTab)
+            xml = xml.Replace("</aimingTime>", vbTab + "</aimingTime>")
+
+            xml = xml.Replace("<animateEmblemSlots>", "<animateEmblemSlots>" + vbTab)
+            xml = xml.Replace("</animateEmblemSlots>", vbTab + "</animateEmblemSlots>")
+
+            xml = xml.Replace("<applyToFabric>", "<applyToFabric>" + vbTab)
+            xml = xml.Replace("</applyToFabric>", vbTab + "</applyToFabric>")
+
+            xml = xml.Replace("<showEmblemsOnGun>", "<showEmblemsOnGun>" + vbTab)
+            xml = xml.Replace("</showEmblemsOnGun>", vbTab + "</showEmblemsOnGun>")
+
+            xml = xml.Replace("<clipAngle>", "<clipAngle>" + vbTab)
+            xml = xml.Replace("</clipAngle>", vbTab + "</clipAngle>")
+
+            xml = xml.Replace("<anchorPosition>", "<anchorPosition>" + vbTab)
+            xml = xml.Replace("</anchorPosition>", vbTab + "</anchorPosition>")
+
+            xml = xml.Replace("<anchorDirection>", "<anchorDirection>" + vbTab)
+            xml = xml.Replace("</anchorDirection>", vbTab + "</anchorDirection>")
+
+            xml = xml.Replace("<smplEnginePower>", "<smplEnginePower>" + vbTab)
+            xml = xml.Replace("</smplEnginePower>", vbTab + "</smplEnginePower>")
+
+            xml = xml.Replace("<smplFwMaxSpeed>", "<smplFwMaxSpeed>" + vbTab)
+            xml = xml.Replace("</smplFwMaxSpeed>", vbTab + "</smplFwMaxSpeed>")
+
+            xml = xml.Replace("<maxAmmo>", "<maxAmmo>" + vbTab)
+            xml = xml.Replace("</maxAmmo>", vbTab + "</maxAmmo>")
+
+            xml = xml.Replace("<rotationIsAroundCenter>", "<rotationIsAroundCenter>" + vbTab)
+            xml = xml.Replace("</rotationIsAroundCenter>", vbTab + "</rotationIsAroundCenter>")
+
+        End If
+
+        xml = xml.Replace(vbTab + vbCrLf, vbCrLf)
+
+    End Sub
     Public Sub extract_selections()
         If Not My.Settings.res_mods_path.ToLower.Contains("res_mods") Then
             If MsgBox("You need to set the path to the res_mods folder!" + vbCrLf + _
                     "Set it Now and continue?" + vbCrLf + _
                     "It should be something like this:" + vbCrLf + _
-                    "C:\Games\World_of_Tanks\res_mods\0.9.20.0", MsgBoxStyle.YesNo, "Opps..") = MsgBoxResult.Yes Then
+                    "C:\Games\World_of_Tanks\res_mods\1.5.1.0", MsgBoxStyle.YesNo, "Opps..") = MsgBoxResult.Yes Then
                 m_res_mods_path.PerformClick()
                 If Not My.Settings.res_mods_path.ToLower.Contains("res_mods") Then
                     Return
@@ -6010,11 +6290,9 @@ n_turret:
             export_camo()
         End If
 
-
         Dim sb As New StringBuilder
+
         Try
-
-
             Dim all_lods As Boolean = False
             Dim models As Boolean = frmExtract.no_models.Checked
             If frmExtract.all_lods_rb.Checked Then
@@ -6040,22 +6318,44 @@ n_turret:
             End If
             '------------------------------------------
             '------------------------------------------
+            If frmExtract.gui_cb.Checked Then
+                Dim ic = gui_pkg(public_icon_path)
+                If ic IsNot Nothing Then
+                    ic.Extract(My.Settings.res_mods_path)
+                End If
+            End If
             If frmExtract.extract_item_def_cb.Checked Then
+                Dim ts = itemDefXmlString
                 Try ' catch any exception thrown
 
                     Dim ip = My.Settings.res_mods_path + "\" + itemDefPathString.Replace(" ", "")
-                    itemDefXmlString = itemDefXmlString.Replace("  ", "")
-                    itemDefXmlString = itemDefXmlString.Replace(vbCr, "")
+                    prep_tanks_xml(itemDefXmlString)
+                    itemDefXmlString = itemDefXmlString.Replace("  ", vbTab)
+                    'itemDefXmlString = itemDefXmlString.Replace("  ", "")
+                    itemDefXmlString = itemDefXmlString.Replace("><", ">" + vbCrLf + "<")
+                    'itemDefXmlString = itemDefXmlString.Replace(">" + vbCrLf + "</", "><")
+                    'itemDefXmlString = itemDefXmlString.Replace(vbCrLf, vbLf)
+                    'itemDefXmlString = itemDefXmlString.Replace(vbLf, vbCrLf)
+                    itemDefXmlString = itemDefXmlString.Replace("<xmlref>", "<!--<xmlref>")
+                    itemDefXmlString = itemDefXmlString.Replace("</xmlref>", "</xmlref>-->")
+                    itemDefXmlString = itemDefXmlString.Replace("formfactor_rect1x4direction_left_to_right", "formfactor_rect1x4 direction_left_to_right")
+                    For z = 0 To 9
+                        'itemDefXmlString = itemDefXmlString.Replace(">" + z.ToString, ">" + vbTab + z.ToString)
+                        'itemDefXmlString = itemDefXmlString.Replace(z.ToString + "</", z.ToString + vbTab + "</")
+                    Next
+                    'itemDefXmlString = itemDefXmlString.Replace(">-", "> -")
                     If Not Directory.Exists(Path.GetDirectoryName(ip)) Then
                         Directory.CreateDirectory(Path.GetDirectoryName(ip))
                     End If
                     itemDefXmlString = itemDefXmlString.Replace("map_nation", Path.GetFileNameWithoutExtension(file_name) + ".xml")
-                    File.WriteAllText(ip, itemDefXmlString)
+                    File.WriteAllText(ip, itemDefXmlString, Encoding.ASCII)
                 Catch ex As Exception
+                    itemDefXmlString = ts
                     MsgBox(file_name + vbCrLf + ex.Message, MsgBoxStyle.Critical, "Shit!!")
                     Return
                 End Try
 
+                itemDefXmlString = ts
 
             End If
             If frmExtract.m_customization.Checked Then ' export customization?
@@ -6179,7 +6479,7 @@ n_turret:
                                             End If
                                     End Select
                                 End If 'if model
-                                Select Case ent.FileName.Contains("dds")
+                                Select Case ent.FileName.Contains("dds") And Not frmExtract.no_textures.Checked
                                     Case True
                                         Select Case frmExtract.ext_chassis.Checked
                                             Case True
@@ -6288,7 +6588,7 @@ n_turret:
                                             End If
                                     End Select
                                 End If 'if model
-                                Select Case ent.FileName.Contains("dds")
+                                Select Case ent.FileName.Contains("dds") And Not frmExtract.no_textures.Checked
                                     Case True
                                         Select Case frmExtract.ext_chassis.Checked
                                             Case True
@@ -6398,7 +6698,7 @@ n_turret:
                                                 End If
                                         End Select
                                     End If 'if model
-                                    Select Case ent.FileName.Contains("dds")
+                                    Select Case ent.FileName.Contains("dds") And Not frmExtract.no_textures.Checked
                                         Case True
                                             Select Case frmExtract.ext_chassis.Checked
                                                 Case True
@@ -6513,7 +6813,7 @@ n_turret:
                                                 End If
                                         End Select
                                     End If 'if model
-                                    Select Case ent.FileName.Contains("dds")
+                                    Select Case ent.FileName.Contains("dds") And Not frmExtract.no_textures.Checked
                                         Case True
                                             Select Case frmExtract.ext_chassis.Checked
                                                 Case True
@@ -6627,7 +6927,7 @@ n_turret:
                                             End If
                                     End Select
                                 End If 'if model
-                                Select Case ent.FileName.Contains("dds")
+                                Select Case ent.FileName.Contains("dds") And Not frmExtract.no_textures.Checked
                                     Case True
                                         Select Case frmExtract.ext_chassis.Checked
                                             Case True
@@ -6663,7 +6963,7 @@ n_turret:
                     End If ' filename match
                 Next ' next entry
             End If 'isnot nothing
-            If frmExtract.create_work_area_cb.Checked Then
+            If frmExtract.create_work_area_cb.Checked And Not frmExtract.no_textures.Checked Then
                 p = My.Settings.res_mods_path + "\" + Path.GetDirectoryName(p)
                 Dim wap = p + "\Work Area"
                 Il.ilDisable(Il.IL_FILE_OVERWRITE) ' dont allow devil to overwrite existing PNGS.. Preserver the users work!
@@ -6693,6 +6993,7 @@ n_turret:
         End Try
         TC1.Enabled = True
     End Sub
+    '==========================================
 
 #Region "menu_button_functions"
     Private Sub m_load_Click(sender As Object, e As EventArgs) Handles m_load.Click
@@ -6730,131 +7031,6 @@ n_turret:
         info_Label.Visible = False
     End Sub
 
-    Private Sub m_export_tank_list_Click(sender As Object, e As EventArgs) Handles m_export_tank_list.Click
-        If MsgBox("This can take a while and" + vbCrLf + _
-                    "will delete all previous tank files!" + vbCrLf + _
-                    "Are you sure?", MsgBoxStyle.YesNo, "Warning!") = MsgBoxResult.No Then
-            Return
-        End If
-        If tanklist.Text = "" Then
-            Return
-        End If
-        TC1.Enabled = False
-        Dim f As DirectoryInfo = New DirectoryInfo(Application.StartupPath + "\tanks\")
-        If f.Exists Then
-            For Each fi In f.GetFiles
-                If Not fi.Name.Contains(".txt") Then
-                    fi.Delete()
-                End If
-            Next
-        End If
-        IGNORE_TEXTURES = True
-        show_textures_cb.Checked = False
-        Application.DoEvents()
-        MM.Enabled = False
-        Dim show_text_State = m_load_textures.Checked
-        m_load_textures.Checked = False
-        Application.DoEvents()
-        Dim tank As String = ""
-        Dim ta = tanklist.Text.Split(vbCr)
-        For i = 0 To ta.Length - 2
-            tank = ta(i)
-            tank = tank.Replace(vbLf, "")
-            file_name = ""
-            '1
-            For Each n As TreeNode In TreeView1.Nodes
-                If n.Text = tank Then
-                    file_name = n.Tag
-                    GoTo make_this_tank
-                End If
-            Next
-
-            '2
-            For Each n As TreeNode In TreeView2.Nodes
-                If n.Text = tank Then
-                    file_name = n.Tag
-                    GoTo make_this_tank
-                End If
-            Next
-
-            '3
-            For Each n As TreeNode In TreeView3.Nodes
-                If n.Text = tank Then
-                    file_name = n.Tag
-                    GoTo make_this_tank
-                End If
-            Next
-
-            '4
-            For Each n As TreeNode In TreeView4.Nodes
-                If n.Text = tank Then
-                    file_name = n.Tag
-                    GoTo make_this_tank
-                End If
-            Next
-
-            '5
-            For Each n As TreeNode In TreeView5.Nodes
-                If n.Text = tank Then
-                    file_name = n.Tag
-                    GoTo make_this_tank
-                End If
-            Next
-
-            '6
-            For Each n As TreeNode In TreeView6.Nodes
-                If n.Text = tank Then
-                    file_name = n.Tag
-                    GoTo make_this_tank
-                End If
-            Next
-
-            '7
-            For Each n As TreeNode In TreeView7.Nodes
-                If n.Text = tank Then
-                    file_name = n.Tag
-                    GoTo make_this_tank
-                End If
-            Next
-
-            '8
-            For Each n As TreeNode In TreeView8.Nodes
-                If n.Text = tank Then
-                    file_name = n.Tag
-                    GoTo make_this_tank
-                End If
-            Next
-
-            '9
-            For Each n As TreeNode In TreeView9.Nodes
-                If n.Text = tank Then
-                    file_name = n.Tag
-                    GoTo make_this_tank
-                End If
-            Next
-
-            '10
-            For Each n As TreeNode In TreeView10.Nodes
-                If n.Text = tank Then
-                    file_name = n.Tag
-                    GoTo make_this_tank
-                End If
-            Next
-
-make_this_tank:
-            If file_name = "" Then
-                log_text.AppendLine("Tank not found:" + tank)
-            Else
-                process_tank(True) ' true means save the binary tank file
-                MODEL_LOADED = False
-            End If
-        Next
-        MODEL_LOADED = True
-        TC1.Enabled = True
-        IGNORE_TEXTURES = False
-        MM.Enabled = True
-        m_load_textures.Checked = show_text_State
-    End Sub
 
     Private Sub m_create_and_extract_Click(sender As Object, e As EventArgs)
         frmExtract.ShowDialog(Me)
@@ -6928,6 +7104,7 @@ make_this_tank:
                 old_tank_name = ar(0)
                 iconbox.Visible = True
                 old_backgound_icon = icons(1).img(n.Index).img
+                public_icon_path = icons(1).img(n.Index).img.Tag
                 iconbox.BackgroundImage = old_backgound_icon
                 n.ForeColor = Color.White
             Else
@@ -6960,6 +7137,7 @@ make_this_tank:
                 old_tank_name = ar(0)
                 iconbox.Visible = True
                 old_backgound_icon = icons(3).img(n.Index).img
+                public_icon_path = icons(3).img(n.Index).img.Tag
                 iconbox.BackgroundImage = old_backgound_icon
                 n.ForeColor = Color.White
             Else
@@ -6976,6 +7154,7 @@ make_this_tank:
                 old_tank_name = ar(0)
                 iconbox.Visible = True
                 old_backgound_icon = icons(4).img(n.Index).img
+                public_icon_path = icons(4).img(n.Index).img.Tag
                 iconbox.BackgroundImage = old_backgound_icon
                 n.ForeColor = Color.White
             Else
@@ -6992,6 +7171,7 @@ make_this_tank:
                 old_tank_name = ar(0)
                 iconbox.Visible = True
                 old_backgound_icon = icons(5).img(n.Index).img
+                public_icon_path = icons(5).img(n.Index).img.Tag
                 iconbox.BackgroundImage = old_backgound_icon
                 n.ForeColor = Color.White
             Else
@@ -7008,6 +7188,7 @@ make_this_tank:
                 old_tank_name = ar(0)
                 iconbox.Visible = True
                 old_backgound_icon = icons(6).img(n.Index).img
+                public_icon_path = icons(6).img(n.Index).img.Tag
                 iconbox.BackgroundImage = old_backgound_icon
                 n.ForeColor = Color.White
             Else
@@ -7024,6 +7205,7 @@ make_this_tank:
                 old_tank_name = ar(0)
                 iconbox.Visible = True
                 old_backgound_icon = icons(7).img(n.Index).img
+                public_icon_path = icons(7).img(n.Index).img.Tag
                 iconbox.BackgroundImage = old_backgound_icon
                 n.ForeColor = Color.White
             Else
@@ -7040,6 +7222,7 @@ make_this_tank:
                 old_tank_name = ar(0)
                 iconbox.Visible = True
                 old_backgound_icon = icons(8).img(n.Index).img
+                public_icon_path = icons(8).img(n.Index).img.Tag
                 iconbox.BackgroundImage = old_backgound_icon
                 n.ForeColor = Color.White
             Else
@@ -7056,6 +7239,7 @@ make_this_tank:
                 old_tank_name = ar(0)
                 iconbox.Visible = True
                 old_backgound_icon = icons(9).img(n.Index).img
+                public_icon_path = icons(9).img(n.Index).img.Tag
                 iconbox.BackgroundImage = old_backgound_icon
                 n.ForeColor = Color.White
             Else
@@ -7072,6 +7256,7 @@ make_this_tank:
                 old_tank_name = ar(0)
                 iconbox.Visible = True
                 old_backgound_icon = icons(10).img(n.Index).img
+                public_icon_path = icons(10).img(n.Index).img.Tag
                 iconbox.BackgroundImage = old_backgound_icon
                 n.ForeColor = Color.White
             Else
@@ -7653,6 +7838,11 @@ make_this_tank:
     Private Sub m_new_Click(sender As Object, e As EventArgs) Handles m_new.Click
         add_decal()
     End Sub
+
+    Private Sub m_settings_Click(sender As Object, e As EventArgs) Handles m_settings.Click
+        frmSettings.Visible = True
+    End Sub
+
 #End Region
 
     Public d_sel_Len As Integer
@@ -8063,10 +8253,570 @@ make_this_tank:
     
     Private Sub m_screen_cap_Click(sender As Object, e As EventArgs) Handles m_screen_cap.Click
         stop_updating = True
+        Dim lx = look_point_x
+        Dim lz = look_point_z
+        look_point_x -= 0.39
+        'look_point_z += 0.5
         frmScreenCap.ShowDialog(Me)
+        look_point_x = lx
+        look_point_z = lz
         stop_updating = False
     End Sub
 
+    Private Sub frmMain_MouseDown(sender As Object, e As MouseEventArgs) Handles Me.MouseDown
+        If Not _Started Then
+
+        End If
+    End Sub
+
+    Private Sub pb1_PreviewKeyDown(sender As Object, e As PreviewKeyDownEventArgs) Handles pb1.PreviewKeyDown
+        'Debug.WriteLine(e.KeyCode.ToString)
+        Select Case e.KeyCode
+            Case Keys.Left, Keys.Right
+                e.IsInputKey = True
+        End Select
+    End Sub
+
+    Private Sub m_ExportExtract_EnabledChanged(sender As Object, e As EventArgs) Handles m_ExportExtract.EnabledChanged
+        m_GMM_toy_cb.Visible = m_ExportExtract.Enabled
+    End Sub
+
+    Private Sub m_GMM_toy_cb_CheckedChanged(sender As Object, e As EventArgs) Handles m_GMM_toy_cb.CheckedChanged
+        frmGMM.Visible = m_GMM_toy_cb.Checked
+        If frmGMM.Visible Then
+            m_GMM_toy_cb.ForeColor = Color.Red
+            GMM_TOY_VISIBLE = 1
+        Else
+            GMM_TOY_VISIBLE = 0
+            m_GMM_toy_cb.ForeColor = Color.Black
+        End If
+    End Sub
+
+    Private Sub m_GMM_toy_cb_Click(sender As Object, e As EventArgs) Handles m_GMM_toy_cb.Click
+
+    End Sub
+
+#Region "wotmod"
+    Dim searched_files As Integer = 0
+    Dim segment_visual_exist As Boolean
+    Dim segment_1_visual_exist As Boolean
+    Dim segment_2_visual_exist As Boolean
+    Dim tank_script_xml_exist As Boolean
+
+    Dim chassis_visual_exist As Boolean
+    Dim hull_visual_exist As Boolean
+    Dim turret_visual_exist As Boolean
+    Dim gun_visual_exist As Boolean
+
+    Dim chassis_crash_visual_exist As Boolean
+    Dim hull_crash_visual_exist As Boolean
+    Dim turret_crash_visual_exist As Boolean
+    Dim gun_crash_visual_exist As Boolean
+
+    Dim track_visual_exist As Boolean
+
+    Dim chassis_names(1) As String
+    Dim hull_names(1) As String
+    Dim turret_names(1) As String
+    Dim gun_names(1) As String
+
+    Private Function find_tank_component(ByVal p As String, ByVal c1 As String, ByVal c2 As String) As Boolean
+        'p = path
+        'c1,c2 = names we are looking for
+
+        'deal with empty strings
+        If c1 Is Nothing Then
+            c1 = "!"
+        End If
+        If c2 Is Nothing Then
+            c2 = "!"
+        End If
+        'If c1.ToLower.Contains("_track_") Then
+        '    p += "track"
+        'End If
+        If Directory.Exists(p) Then ' make sure the directory exist before searching for a file
+            Dim d As New DirectoryInfo(p)
+            Dim files = d.GetFiles("*.*")
+            For Each item In files
+                If item.Name.ToLower.Contains(c1.ToLower) And item.Name.ToLower.Contains(c2.ToLower) Then
+                    Return True 'found
+                End If
+            Next
+        End If
+        Return False 'not found
+    End Function
+    Private Function fix_stupid_wargaming_path(ByRef s As String) As String
+        Dim v_name() = {"american", "british", "chinese", "german", "russian"}
+        Dim p_name() = {"usa", "uk", "china", "germany", "ussr"}
+        For i = 0 To 4
+            If s.ToLower.Contains(v_name(i)) Then
+                s = s.Replace(v_name(i), p_name(i))
+                Exit For
+            End If
+        Next
+        Return s
+    End Function
+    Private Function validate_tank_data(ByVal p As String, ByVal author As String, ByVal tank As String) As Boolean
+
+        Dim lod0_path = p + "normal\lod0\"
+        Dim track_path = p + "track\"
+        Dim crash_path = p + "crash\lod0\"
+        Dim n_array = p.Split("\")
+        Dim script_path = My.Settings.res_mods_path + "\res\scripts\item_defs\"
+        script_path = fix_stupid_wargaming_path(script_path + Path.GetDirectoryName(tank))
+        Dim script_name = fix_stupid_wargaming_path(script_path + "\" + Path.GetFileName(tank) + ".xml")
+
+        segment_visual_exist = find_tank_component(track_path, "segment.", ".visual_processed")
+        segment_1_visual_exist = find_tank_component(track_path, "segment_1", ".visual_processed")
+        segment_2_visual_exist = find_tank_component(track_path, "segment_2", ".visual_processed")
+        tank_script_xml_exist = File.Exists(script_name)
+
+        chassis_crash_visual_exist = find_tank_component(crash_path, "chassis", ".visual_processed")
+        hull_crash_visual_exist = find_tank_component(crash_path, "hull", ".visual_processed")
+        turret_crash_visual_exist = find_tank_component(crash_path, "turret", ".visual_processed")
+        gun_crash_visual_exist = find_tank_component(crash_path, "gun", ".visual_processed")
+
+        chassis_visual_exist = find_tank_component(lod0_path, "chassis", ".visual_processed")
+        hull_visual_exist = find_tank_component(lod0_path, "hull", ".visual_processed")
+        turret_visual_exist = find_tank_component(lod0_path, "turret", ".visual_processed")
+        gun_visual_exist = find_tank_component(lod0_path, "gun", ".visual_processed")
+
+        If Not tank_script_xml_exist Then
+            If MsgBox("You MUST extract the " + Path.GetFileNameWithoutExtension(tank) + ".xml" + vbCrLf + _
+                   "from the scripts\item_defs\vehicle XMLs!" + vbCrLf + _
+                   "Do it now?", MsgBoxStyle.YesNo) = MsgBoxResult.Yes Then
+                m_extract.PerformClick()
+                Return False
+            Else
+                Return False
+            End If
+        End If
+
+        '------------------------------------------------------------------------------
+        Dim tank_xml = get_bw_xml(script_name) 'At this point we know the tanks XML is there.
+        tank_xml = TheXML_String.Replace(vbCr, "") 'Copy the xml and remove any Carriage returns
+        Dim xml_array = tank_xml.Split(vbLf)
+        'Change the xml file depending on what parts are in the temp res folder.
+        Dim tank_xml_update As Boolean = False
+        For idx = 0 To xml_array.Length - 1
+            If xml_array(idx).ToLower.Contains("track/segment") Then
+                If segment_visual_exist Then
+                    If xml_array(idx).ToLower.Contains("segment.model") Then
+                        xml_array(idx) = xml_array(idx).Replace(Path.GetFileName(tank), author + "/remodels/" + Path.GetFileName(tank))
+                        tank_xml_update = True
+                    End If
+                Else
+                    If segment_1_visual_exist Then
+                        If xml_array(idx).ToLower.Contains("segment_1.model") Then
+                            xml_array(idx) = xml_array(idx).Replace(Path.GetFileName(tank), author + "/remodels/" + Path.GetFileName(tank))
+                            tank_xml_update = True
+                        End If
+
+                    End If
+                    If segment_2_visual_exist Then
+                        If xml_array(idx).ToLower.Contains("segment_2.model") Then
+                            xml_array(idx) = xml_array(idx).Replace(Path.GetFileName(tank), author + "/remodels/" + Path.GetFileName(tank))
+                            tank_xml_update = True
+                        End If
+
+                    End If
+                End If
+
+            End If
+            'normal tank parts
+            If xml_array(idx).ToLower.Contains("<undamaged>") Then
+
+                If chassis_visual_exist Then
+                    If xml_array(idx).ToLower.Contains("chassis") Then
+                        xml_array(idx) = xml_array(idx).Replace(Path.GetFileName(tank), author + "/remodels/" + Path.GetFileName(tank))
+                        tank_xml_update = True
+                    End If
+                End If
+                If hull_visual_exist Then
+                    If xml_array(idx).ToLower.Contains("hull") Then
+                        xml_array(idx) = xml_array(idx).Replace(Path.GetFileName(tank), author + "/remodels/" + Path.GetFileName(tank))
+                        tank_xml_update = True
+                    End If
+                End If
+                If turret_visual_exist Then
+                    If xml_array(idx).ToLower.Contains("turret") Then
+                        xml_array(idx) = xml_array(idx).Replace(Path.GetFileName(tank), author + "/remodels/" + Path.GetFileName(tank))
+                        tank_xml_update = True
+                    End If
+                End If
+                If gun_visual_exist Then
+                    If xml_array(idx).ToLower.Contains("gun") Then
+                        xml_array(idx) = xml_array(idx).Replace(Path.GetFileName(tank), author + "/remodels/" + Path.GetFileName(tank))
+                        tank_xml_update = True
+                    End If
+                End If
+
+            End If
+            'crash tank parts
+            If xml_array(idx).ToLower.Contains("<destroyed>") Then
+
+                If chassis_crash_visual_exist Then
+                    If xml_array(idx).ToLower.Contains("chassis") Then
+                        xml_array(idx) = xml_array(idx).Replace(Path.GetFileName(tank), author + "/remodels/" + Path.GetFileName(tank))
+                        tank_xml_update = True
+                    End If
+                End If
+                If hull_crash_visual_exist Then
+                    If xml_array(idx).ToLower.Contains("hull") Then
+                        xml_array(idx) = xml_array(idx).Replace(Path.GetFileName(tank), author + "/remodels/" + Path.GetFileName(tank))
+                        tank_xml_update = True
+                    End If
+                End If
+                If turret_crash_visual_exist Then
+                    If xml_array(idx).ToLower.Contains("turret") Then
+                        xml_array(idx) = xml_array(idx).Replace(Path.GetFileName(tank), author + "/remodels/" + Path.GetFileName(tank))
+                        tank_xml_update = True
+                    End If
+                End If
+                If gun_crash_visual_exist Then
+                    If xml_array(idx).ToLower.Contains("gun") Then
+                        xml_array(idx) = xml_array(idx).Replace(Path.GetFileName(tank), author + "/remodels/" + Path.GetFileName(tank))
+                        tank_xml_update = True
+                    End If
+                End If
+
+            End If
+        Next
+        If tank_xml_update Then 'only rewrite the xml if something was changed
+            tank_xml = ""
+            For idx = 0 To xml_array.Length - 2
+                tank_xml += xml_array(idx) + vbCrLf
+            Next
+            tank_xml += xml_array(xml_array.Length - 1)
+            File.WriteAllText(script_name, tank_xml)
+        End If
+
+        '------------------------------------------------------------------------------
+        'deal with track folder
+        If segment_visual_exist Then
+            fix_paths_track_model("segment.", track_path, author, Path.GetFileName(tank))
+
+        Else
+            If segment_1_visual_exist Then
+                fix_paths_track_model("segment_1.", track_path, author, Path.GetFileName(tank))
+
+            End If
+            If segment_2_visual_exist Then
+                fix_paths_track_model("segment_2.", track_path, author, Path.GetFileName(tank))
+
+            End If
+
+        End If
+        '------------------------------------------------------------------------------
+        'Find out what textures are in res_mods
+        For i = 1 To object_count
+            'Return False
+            _group(i).AM_in_res_mods = find_tank_component(p, Path.GetFileName(_group(i).color_name), ".dds")
+            _group(i).AO_in_res_mods = find_tank_component(p, Path.GetFileName(_group(i).ao_name), ".dds")
+            _group(i).GMM_in_res_mods = find_tank_component(p, Path.GetFileName(_group(i).metalGMM_name), ".dds")
+            _group(i).ANM_in_res_mods = find_tank_component(p, Path.GetFileName(_group(i).normal_name), ".dds")
+            _group(i).Spec_in_res_mods = find_tank_component(p, Path.GetFileName(_group(i).specular_name), ".dds")
+        Next
+
+        '*** This will NEVER change a path for a track texture.. The do NOT exist normally with the tanks data!
+        'normal tank
+        If chassis_visual_exist Then
+            fix_paths_visual("chassis", lod0_path, author, Path.GetFileName(tank))
+            fix_paths_model("chassis", lod0_path, author, Path.GetFileName(tank))
+        End If
+
+        If hull_visual_exist Then
+            fix_paths_visual("hull", lod0_path, author, Path.GetFileName(tank))
+            fix_paths_model("hull", lod0_path, author, Path.GetFileName(tank))
+        End If
+
+        If turret_visual_exist Then
+            fix_paths_visual("turret", lod0_path, author, Path.GetFileName(tank))
+            fix_paths_model("turret", lod0_path, author, Path.GetFileName(tank))
+        End If
+
+        If gun_visual_exist Then
+            fix_paths_visual("gun", lod0_path, author, Path.GetFileName(tank))
+            fix_paths_model("gun", lod0_path, author, Path.GetFileName(tank))
+        End If
+
+        'crash tank
+        If chassis_crash_visual_exist Then
+            fix_crash_paths_visual("chassis", crash_path, author, Path.GetFileName(tank), chassis_names)
+            fix_paths_model("chassis", crash_path, author, Path.GetFileName(tank))
+        End If
+
+        If hull_crash_visual_exist Then
+            fix_crash_paths_visual("hull", crash_path, author, Path.GetFileName(tank), hull_names)
+            fix_paths_model("hull", crash_path, author, Path.GetFileName(tank))
+        End If
+
+        If turret_crash_visual_exist Then
+            fix_crash_paths_visual("turret", crash_path, author, Path.GetFileName(tank), turret_names)
+            fix_paths_model("turret", crash_path, author, Path.GetFileName(tank))
+        End If
+
+        If gun_crash_visual_exist Then
+            fix_crash_paths_visual("gun", crash_path, author, Path.GetFileName(tank), gun_names)
+            fix_paths_model("gun", crash_path, author, Path.GetFileName(tank))
+        End If
+
+        Return True
+    End Function
+    Private Sub fix_paths_model(ByVal item As String, ByVal p As String, ByVal author As String, ByVal tn As String)
+        Dim di As New DirectoryInfo(p)
+        Dim files = di.GetFiles("*.model")
+        For Each f In files
+            If f.FullName.ToLower.Contains(item) Then
+                Dim fn = f.FullName
+                Dim ts = get_bw_xml(fn)
+                Dim idx As Integer
+                'find the part of the tank we are looking for in _groups and get and index to it.
+                'this will loop more than once on left and right chassis and track parts :(
+                Dim save_it As Boolean = False
+                ts = ts.Replace(vbCr, "")
+                Dim ta = ts.Split(vbLf)
+                For idx = 1 To object_count
+                    If _group(idx).tank_part.ToLower.Contains(item) Then
+                        For i = 0 To ta.Length - 1
+                            If ta(i).Contains("<nodefullVisual>vehicles") Or ta(i).Contains("<nodelessVisual>vehicles") Then
+                                If Not ta(i).ToLower.Contains(author.ToLower) Then
+                                    ta(i) = ta(i).Replace(tn, author + "/remodels/" + tn)
+                                    save_it = True
+                                End If
+                            End If
+                            If ta(i).Contains("<parent>vehicles") Then
+                                ta(i) = ""
+                            End If
+                            If ta(i).Contains("<extent>") Then
+                                ta(i) = ""
+                            End If
+                        Next
+                    End If
+                Next
+                If save_it Then
+                    ts = ""
+                    For i = 0 To ta.Length - 2
+                        If ta(i).Length > 3 Then
+                            ts += ta(i) + vbCrLf
+                        End If
+                    Next
+                    ts += ta(ta.Length - 1)
+                    If ts.Contains("map_>") Then
+                        ts = ts.Replace("map_", Path.GetFileName(tn) + ".model")
+                    Else
+                        ts = ts.Replace("map_", "")
+                    End If
+                    File.WriteAllText(fn, ts)
+                End If
+                '------------------------------------------------------------------------------
+                Return
+
+            End If
+        Next
+
+    End Sub
+    Private Sub fix_paths_track_model(ByVal item As String, ByVal p As String, ByVal author As String, ByVal tn As String)
+        Dim di As New DirectoryInfo(p)
+        Dim files = di.GetFiles("*.model")
+        For Each f In files
+            If f.FullName.ToLower.Contains(item) Then
+                Dim fn = f.FullName
+                Dim ts = get_bw_xml(fn)
+                Dim idx As Integer
+                item = item.Replace(".", "")
+                'find the part of the tank we are looking for in _groups and get and index to it.
+                'this will loop more than once on left and right chassis and track parts :(
+                Dim save_it As Boolean = False
+                ts = ts.Replace(vbCr, "")
+                Dim ta = ts.Split(vbLf)
+                For idx = 1 To object_count
+                    For i = 0 To ta.Length - 1
+                        If ta(i).Contains("<nodelessVisual>vehicles") Then
+                            If Not ta(i).ToLower.Contains(author.ToLower) Then
+                                ta(i) = ta(i).Replace(tn, author + "/remodels/" + tn)
+                                save_it = True
+                            End If
+                        End If
+                        If ta(i).Contains("<parent>vehicles") Then
+                            ta(i) = ""
+                        End If
+                    Next
+                Next
+                If save_it Then
+                    ts = ""
+                    For i = 0 To ta.Length - 2
+                        If ta(i).Length > 3 Then
+                            ts += ta(i) + vbCrLf
+                        End If
+                    Next
+                    ts += ta(ta.Length - 1)
+                    If ts.Contains("map_>") Then
+                        ts = ts.Replace("map_", Path.GetFileName(tn) + ".model")
+                    Else
+                        ts = ts.Replace("map_", "")
+                    End If
+                    File.WriteAllText(fn, ts)
+                End If
+                '------------------------------------------------------------------------------
+                Return
+
+            End If
+        Next
+
+    End Sub
+    Private Function find_all_textures_in_visual(ByVal crash_path As String, ByRef names() As String) As String
+        Dim cnt As Integer = 0
+        ReDim names(100)
+        Dim f = get_bw_xml(crash_path)
+        f = f.Replace(vbCr, "")
+        Dim ar = f.Split(vbLf)
+        For i = 0 To ar.Length - 1
+            If ar(i).ToLower.Contains("<texture>") Then
+                Dim tex1_pos = InStr(1, ar(i), "<Texture>") + "<texture>".Length
+                Dim tex1_Epos = InStr(tex1_pos, ar(i), "</Texture>")
+                names(cnt) = Mid(ar(i), tex1_pos, tex1_Epos - tex1_pos).Replace("/", "\")
+                cnt += 1
+            End If
+        Next
+        ReDim Preserve names(cnt - 1)
+        Return f
+    End Function
+    Private Sub fix_paths_visual(ByVal item As String, ByVal p As String, ByVal author As String, ByVal tn As String)
+        Dim di As New DirectoryInfo(p)
+        Dim files = di.GetFiles("*.visual_processed")
+        For Each f In files
+            If f.FullName.ToLower.Contains(item) Then
+                Dim fn = f.FullName
+                Dim ts = get_bw_xml(fn)
+                ts = ts.Replace(vbCr, "")
+                Dim ta = ts.Split(vbLf)
+                Dim idx As Integer
+                'find the part of the tank we are looking for in _groups and get and index to it.
+                'this will loop more than once on left and right chassis and track parts :(
+                Dim save_it As Boolean = False
+                For idx = 1 To object_count
+                    If _group(idx).tank_part.ToLower.Contains(item) Then
+                        For i = 0 To ta.Length - 1
+                            If Not ta(i).ToLower.Contains(author.ToLower) Then
+                                ta(i) = replace_string(ta(i), idx, author, tn)
+                                save_it = True
+                            End If
+                        Next
+                    End If
+                Next
+                If save_it Then
+                    ts = ""
+                    For i = 0 To ta.Length - 2
+                        If ta(i).Length > 3 Then
+                            ts += ta(i) + vbCrLf
+                        End If
+                    Next
+                    ts += ta(ta.Length - 1)
+                    If ts.Contains("map_>") Then
+                        ts = ts.Replace("map_", Path.GetFileName(tn) + ".visual_processed")
+                    Else
+                        ts = ts.Replace("map_", "")
+                    End If
+                    File.WriteAllText(fn, ts)
+                End If
+                '------------------------------------------------------------------------------
+                Return
+
+            End If
+        Next
+
+    End Sub
+    Private Sub fix_crash_paths_visual(ByVal item As String, ByVal p As String, _
+                                       ByVal author As String, ByVal tn As String, _
+                                       ByRef names() As String)
+        Dim save_it As Boolean = False
+        Dim di As New DirectoryInfo(p)
+        Dim files = di.GetFiles("*.visual_processed")
+        For Each f In files
+            If f.FullName.ToLower.Contains(item) Then
+                Dim fn = f.FullName
+                Dim file_ = find_all_textures_in_visual(fn, names)
+                For Each n In names
+                    n = n.Replace("\", "/")
+                    If File.Exists(My.Settings.res_mods_path + "\res\" + n) Then 'check if this texture is in the tanks root path
+                        Dim nr = n.Replace(tn, author + "/remodels/" + Path.GetFileName(tn))
+                        If Not file_.Contains(nr) Then
+                            file_ = file_.Replace(n, nr)
+                            save_it = True
+                        End If
+                    End If
+                Next
+                If save_it Then
+                    If file_.Contains("map_>") Then
+                        file_ = file_.Replace("map_", Path.GetFileName(tn) + ".visual_processed")
+                    Else
+                        file_ = file_.Replace("map_", "")
+                    End If
+                    File.WriteAllText(fn, file_)
+                End If
+                '------------------------------------------------------------------------------
+                Return
+
+            End If
+        Next
+
+    End Sub
+    Private Function replace_string(ByVal ts As String, ByVal idx As Integer, ByVal author As String, ByVal tn As String) As String
+        Dim n, np As String
+        'color
+        If _group(idx).AM_in_res_mods Then
+            n = _group(idx).color_name
+            If n Is Nothing Then
+                n = "!"
+            End If
+            n = n.Replace("\", "/")
+            np = n.Replace(tn, author + "/remodels/" + tn)
+            ts = ts.Replace(n, np)
+        End If
+        'AO
+        If _group(idx).AO_in_res_mods Then
+            n = _group(idx).ao_name
+            If n Is Nothing Then
+                n = "!"
+            End If
+            n = n.Replace("\", "/")
+            np = n.Replace(tn, author + "/remodels/" + tn)
+            ts = ts.Replace(n, np)
+        End If
+        'Normal Map
+        If _group(idx).ANM_in_res_mods Then
+            n = _group(idx).normal_name
+            If n Is Nothing Then
+                n = "!"
+            End If
+            n = n.Replace("\", "/")
+            np = n.Replace(tn, author + "/remodels/" + tn)
+            ts = ts.Replace(n, np)
+        End If
+        'GMM Map
+        If _group(idx).GMM_in_res_mods Then
+            n = _group(idx).metalGMM_name
+            If n Is Nothing Then
+                n = "!"
+            End If
+            n = n.Replace("\", "/")
+            np = n.Replace(tn, author + "/remodels/" + tn)
+            ts = ts.Replace(n, np)
+        End If
+        'Specular (Only in tanks modded to have this)
+        If _group(idx).Spec_in_res_mods Then
+            n = _group(idx).specular_name
+            If n Is Nothing Then
+                n = "!"
+            End If
+            n = n.Replace("\", "/")
+            np = n.Replace(tn, author + "/remodels/" + tn)
+            ts = ts.Replace(n, np)
+        End If
+        Return ts
+
+    End Function
     Private Sub m_build_wotmod_Click(sender As Object, e As EventArgs) Handles m_build_wotmod.Click
         If Not MODEL_LOADED Then
             MsgBox("You need to let me know what tank to package." + vbCrLf _
@@ -8074,9 +8824,23 @@ make_this_tank:
                     , MsgBoxStyle.Exclamation, "Load a tank first")
             Return
         End If
+        If CRASH_MODE Then
+            MsgBox("You need to load a non-crash tank!" + vbCrLf _
+        + "I can not build the WOTMOD with loaded crash data." _
+        , MsgBoxStyle.Exclamation, "Load a non-crash tank first")
+            Return
+        End If
         Dim p = My.Settings.res_mods_path
         If Not p.Contains("res_mods") Then
             MsgBox("You need to set the path to res_mods.", MsgBoxStyle.Exclamation, "No res_mods Path")
+            Return
+        End If
+        'make sure we have loaded the modded files!
+        If Not loaded_from_resmods Then
+            MsgBox("In order to create a wotmod file you" + vbCrLf + _
+                       "must load tank data from res_mods." + vbCrLf + _
+                       "You can create a wotmod from unmodified data" + vbCrLf + _
+                       "but that would be silly.", MsgBoxStyle.Exclamation, "No Data in Res_Mods to bundle!")
             Return
         End If
         Dim tank = TANK_NAME
@@ -8084,17 +8848,41 @@ make_this_tank:
             Dim a = tank.Split(":")
             tank = a(0)
         End If
+        'second chance testing for data in res_mods. Not really needed now.
         Dim tp = p + "\" + tank
-        If Not Directory.Exists(tp) Then
+        If Not Directory.Exists(Path.GetDirectoryName(tp)) Then
             MsgBox("There is no data in res_mods for this tank", MsgBoxStyle.Exclamation, "No res_mods data")
             Return
         End If
         Dim ar = tank.Split("\")
-        Dim tn = ar(ar.Length - 1)
+        Dim tname = ar(ar.Length - 1)
+        'setup what we can on the authors form...
+
+        frmAuthor.Visible = True
+        frmAuthor.tank_mod_name = tname
+        frmAuthor.creator_tb.Text = My.Settings.authers_name
+        frmAuthor.mod_name_tb.Text = frmAuthor.creator_tb.Text + ".remodel." + frmAuthor.tank_mod_name
+        frmAuthor.version_tb.Text = Path.GetFileName(p)
+        frmAuthor.description_tb.Text = "Author: " + frmAuthor.creator_tb.Text + " Remodel of: " + tname
+        frmAuthor.human_readable_tb.Text = tname + " Remodel"
+        frmAuthor.Visible = False
+        frmAuthor.ShowDialog(Me)
+        If frmAuthor.FromDialogResult = Forms.DialogResult.Cancel Then
+            Return
+        End If
+        'load template and replace strings with out strings...
+        Dim meta = File.ReadAllText(Application.StartupPath + "\meta_template.txt")
+        meta = meta.Replace("TI", frmAuthor.mod_name_tb.Text)
+        meta = meta.Replace("PV", frmAuthor.version_tb.Text)
+        meta = meta.Replace("HRN", frmAuthor.human_readable_tb.Text)
+        meta = meta.Replace("HRD", frmAuthor.description_tb.Text)
+        File.WriteAllText(Temp_Storage + "\meta.xml", meta)
+
         info_Label.Visible = True
         info_Label.Parent = pb1
         info_Label.Text = "Select location and name for the wotmod file..."
-        SaveFileDialog1.FileName = tn
+        Application.DoEvents()
+        SaveFileDialog1.FileName = frmAuthor.mod_name_tb.Text.Replace(".", "_")
         SaveFileDialog1.Filter = "wotmod file (*.wotmod)|*.wotmod"
         SaveFileDialog1.Title = "Save wotmod..."
         SaveFileDialog1.InitialDirectory = My.Settings.wotmod_path
@@ -8105,30 +8893,132 @@ make_this_tank:
             info_Label.Parent = Me
             Return
         End If
-        If File.Exists(SaveFileDialog1.FileName) Then
-            File.Delete(SaveFileDialog1.FileName)
+        My.Settings.wotmod_path = Path.GetDirectoryName(SaveFileDialog1.FileName)
+        'lets find whats in the tanks data and fix paths in XMLs as needed
+
+
+        Dim f_script = SaveFileDialog1.FileName.Replace(".wotmod", "_scripts.wotmod")
+        Dim f_model = SaveFileDialog1.FileName.Replace(".wotmod", "_models.wotmod")
+
+        If File.Exists(f_model) Then
+            File.Delete(f_model)
         End If
-        Dim wotmod As New ZipFile(SaveFileDialog1.FileName)
-        wotmod.CompressionLevel = Ionic.Zlib.CompressionLevel.None
+        If File.Exists(f_script) Then
+            File.Delete(f_script)
+        End If
+        Dim wotmod_model As New Ionic.Zip.ZipFile(f_model)
+        wotmod_model.CompressionLevel = Ionic.Zlib.CompressionLevel.None
+        wotmod_model.Encryption = EncryptionAlgorithm.None
+
+        Dim wotmod_scripts As New Ionic.Zip.ZipFile(f_script)
+        Dim scripts_exist As Boolean = False
+        'wotmod_model.AddFile(Temp_Storage + "\meta.xml", "")
+        'wotmod_scripts.AddFile(Temp_Storage + "\meta.xml", "")
         searched_files = 0
         Dim di = getAllFolders(p)
         searched_files = 0
+        '------------------------------------------------------------------
+        Dim new_path As String = My.Settings.res_mods_path + "\res\"
+        If Not Directory.Exists(new_path) Then
+            Directory.CreateDirectory(new_path)
+        Else
+            Directory.Delete(new_path, True) 'clean out old data
+            Directory.CreateDirectory(new_path)
+        End If
+        '------------------------------------------------------------------
         For Each f In di
-            If f.Contains(tn) Then
+            If f.Contains(tname) Then
                 If File.Exists(f) Then
-                    'wotmod.AddFile(f, "res" + f.Replace(p, ""))
-                    wotmod.AddFile(f, "res" + Path.GetDirectoryName(f.Replace(p, "")))
+                    Dim ff = f.Replace(My.Settings.res_mods_path, "")
+                    'ff = ff.Replace("vehicles\", "vehicles\remodel\")
+                    'ff = ff.Replace("\" + tn + "\", "\" + frmAuthor.creator_tb.Text + "_" + tn + "\")
+                    'ff = ff.Replace("vehicles", "res\vehicles")
+                    ff = ff.Replace("\", "/")
+                    wotmod_model.AddFile(f, Path.GetDirectoryName(ff))
+
                     searched_files += 1
                 End If
             End If
         Next
+        wotmod_model.Save(f_model)
+        For Each f In wotmod_model
+            f.Extract(new_path, ExtractExistingFileAction.OverwriteSilently)
+        Next
+        wotmod_model.Dispose()
+
+        'File.Delete(f_model)
+        wotmod_model.Dispose()
+        File.Delete(f_model)
+        '------------------------------------------------------------------
+
+        'we have all files in the temp res folder.. now lets fix paths in xmls
+        If Not validate_tank_data(new_path + tank + "\", frmAuthor.creator_tb.Text, tank) Then
+            Directory.Delete(new_path, True) 'somthing went wrong.. delete temp res folder and return
+            GC.Collect() 'cleans out garbage in the garbage collecor
+            Return
+        End If
+        Dim p_path = Path.GetDirectoryName(tank)
+        Dim new_path_save As String = My.Settings.res_mods_path + "\temp\res\" + p_path
+        Dim source_scripts_path As String = My.Settings.res_mods_path + "\res\scripts"
+        Dim dest_scripts_path As String = My.Settings.res_mods_path + "\temp\res\scripts"
+        Dim source_gui_path As String = My.Settings.res_mods_path + "\" + public_icon_path
+        Dim dest_gui_path As String = My.Settings.res_mods_path + "\temp\res\" + public_icon_path
+        Dim source_path As String = My.Settings.res_mods_path + "\res\" + p_path
+        Dim final_path = new_path_save + "\" + frmAuthor.creator_tb.Text + "\remodels"
+        Directory.CreateDirectory(final_path)
+        CopyDirectory(source_path, final_path)
+        CopyDirectory(source_scripts_path, dest_scripts_path)
+        If File.Exists(source_gui_path) Then
+            If Not Directory.Exists(Path.GetDirectoryName(dest_gui_path)) Then
+                Directory.CreateDirectory(Path.GetDirectoryName(dest_gui_path))
+            End If
+            File.Copy(source_gui_path, dest_gui_path)
+        End If
+        Directory.Delete(new_path, True) 'clean out old data
+        'Return
+        'save the meta.xml
+        File.WriteAllText(My.Settings.res_mods_path + "\temp\res\meta.xml", meta)
+
+        Dim ps As New ProcessStartInfo
+        ps.FileName = Application.StartupPath + "\" + "7za.exe"
+        ps.Arguments = " a -tzip " + f_model + " " + My.Settings.res_mods_path + "\temp\res\" + " -r -mx0"
+
+        Dim r = Process.Start(ps)
+        r.WaitForExit()
+        r.Dispose()
+        GC.Collect() 'cleans out garbage in the garbage collecor
+        'System.IO.Compression.ZipFile.CreateFromDirectory(new_path, f_model, CompressionLevel.NoCompression, False)
         info_Label.Text = "Found " + searched_files.ToString("0000") + " relevant files."
-        wotmod.Save(SaveFileDialog1.FileName)
+        If scripts_exist Then ' save the scripts file if the thank has them
+            'wotmod_scripts.Save(f_script)
+        End If
+        Directory.Delete(My.Settings.res_mods_path + "\temp", True)
         MsgBox("< wotmod built >", MsgBoxStyle.OkOnly, "DONE!")
         info_Label.Visible = False
         info_Label.Parent = Me
     End Sub
-    Dim searched_files As Integer = 0
+    Public Sub CopyDirectory(ByVal sourcePath As String, ByVal destinationPath As String)
+        Dim sourceDirectoryInfo As New System.IO.DirectoryInfo(sourcePath)
+
+        ' If the destination folder don't exist then create it
+        If Not System.IO.Directory.Exists(destinationPath) Then
+            System.IO.Directory.CreateDirectory(destinationPath)
+        End If
+
+        Dim fileSystemInfo As System.IO.FileSystemInfo
+        For Each fileSystemInfo In sourceDirectoryInfo.GetFileSystemInfos
+            Dim destinationFileName As String =
+                System.IO.Path.Combine(destinationPath, fileSystemInfo.Name)
+
+            ' Now check whether its a file or a folder and take action accordingly
+            If TypeOf fileSystemInfo Is System.IO.FileInfo Then
+                System.IO.File.Copy(fileSystemInfo.FullName, destinationFileName, True)
+            Else
+                ' Recursively call the mothod to copy all the neste folders
+                CopyDirectory(fileSystemInfo.FullName, destinationFileName)
+            End If
+        Next
+    End Sub
     Private Function getAllFolders(ByVal directory As String) As String()
         'Create object
         Dim fi As New IO.DirectoryInfo(directory)
@@ -8161,37 +9051,83 @@ make_this_tank:
         Return path
     End Function
 
-    Private Sub frmMain_MouseDown(sender As Object, e As MouseEventArgs) Handles Me.MouseDown
-        If Not _Started Then
+#End Region
+#Region "Tank Testing"
 
+    Private Sub m_test_wotmod_Click(sender As Object, e As EventArgs) Handles m_test_wotmod.Click
+        launch_test("/res_mods/")
+    End Sub
+
+    Private Sub m_test_res_mods_Click(sender As Object, e As EventArgs) Handles m_test_res_mods.Click
+        launch_test("/mods/")
+    End Sub
+    Private Sub launch_test(ByVal find As String)
+        Dim original As String
+        Dim ver = Path.GetFileName(My.Settings.res_mods_path)
+        If Not Directory.Exists(My.Settings.res_mods_path + "\!_test\") Then
+            Directory.CreateDirectory(My.Settings.res_mods_path + "\!_test\")
         End If
-    End Sub
+        If Not Directory.Exists(My.Settings.game_path + "\mods\" + ver + "\!_test\") Then
+            Directory.CreateDirectory(My.Settings.game_path + "\mods\" + ver + "\!_test\")
+        End If
+        If File.Exists(My.Settings.game_path + "\paths.xml") Then
 
-    Private Sub pb1_PreviewKeyDown(sender As Object, e As PreviewKeyDownEventArgs) Handles pb1.PreviewKeyDown
-        'Debug.WriteLine(e.KeyCode.ToString)
-        Select Case e.KeyCode
-            Case Keys.Left, Keys.Right
-                e.IsInputKey = True
-        End Select
-    End Sub
-
-    Private Sub m_ExportExtract_EnabledChanged(sender As Object, e As EventArgs) Handles m_ExportExtract.EnabledChanged
-        m_GMM_toy_cb.Visible = m_ExportExtract.Enabled
-    End Sub
-
-    Private Sub m_GMM_toy_cb_CheckedChanged(sender As Object, e As EventArgs) Handles m_GMM_toy_cb.CheckedChanged
-        frmGMM.Visible = m_GMM_toy_cb.Checked
-        If frmGMM.Visible Then
-            m_GMM_toy_cb.ForeColor = Color.Red
-            GMM_TOY_VISIBLE = 1
+            Dim paths = File.ReadAllText(My.Settings.game_path + "\paths.xml")
+            If Not File.Exists(My.Settings.game_path + "\paths_backup.xml") Then
+                File.WriteAllText(My.Settings.game_path + "\paths_backup.xml", paths)
+                original = paths
+            Else
+                original = File.ReadAllText(My.Settings.game_path + "\paths_backup.xml")
+            End If
+            Dim ar = paths.Split(vbLf)
+            For i = 0 To ar.Length - 1
+                If ar(i).Contains(find) Then
+                    ar(i) = ar(i).Replace("</Path>", "/!_test/</Path>")
+                    Exit For
+                End If
+            Next
+            paths = ""
+            For i = 0 To ar.Length - 2
+                paths += ar(i) + vbLf
+            Next
+            paths += ar(ar.Length - 1)
+            File.WriteAllText(My.Settings.game_path + "\paths.xml", paths)
+            'Return
+            '====================================
+            Me.WindowState = FormWindowState.Minimized
+            Application.DoEvents()
+            '====================================
+            Dim p = Process.Start(My.Settings.game_path + "\WorldOfTanks.exe")
+            p.WaitForExit()
+            '====================================
+            'restore paths.xml
+            File.WriteAllText(My.Settings.game_path + "\paths.xml", original)
+            Me.WindowState = FormWindowState.Normal
         Else
-            GMM_TOY_VISIBLE = 0
-            m_GMM_toy_cb.ForeColor = Color.Black
+            MsgBox("I can not find the paths.xml. Have you set the game path?", MsgBoxStyle.Exclamation, "Check Game Path!")
+            Return
+        End If
+
+    End Sub
+    Private Sub m_pythonLog_Click(sender As Object, e As EventArgs) Handles m_pythonLog.Click
+        If File.Exists(My.Settings.game_path + "\Python.log") Then
+            Dim t As String = My.Settings.game_path + "\python.log"
+            System.Diagnostics.Process.Start("notepad.exe", t)
+        Else
+            MsgBox("I can not find the Python.log. Have you set the game path?", MsgBoxStyle.Exclamation, "Check Game Path!")
+            Return
+        End If
+    End Sub
+    Private Sub m_clear_PythonLog_Click(sender As Object, e As EventArgs) Handles m_clear_PythonLog.Click
+        If File.Exists(My.Settings.game_path + "\Python.log") Then
+            Dim t As String = ""
+            File.WriteAllText(My.Settings.game_path + "\python.log", t)
+        Else
+            MsgBox("I can not find the Python.log. Have you set the game path?", MsgBoxStyle.Exclamation, "Check Game Path!")
+            Return
         End If
     End Sub
 
+#End Region
 
-    Private Sub m_GMM_toy_cb_Click(sender As Object, e As EventArgs) Handles m_GMM_toy_cb.Click
-
-    End Sub
 End Class

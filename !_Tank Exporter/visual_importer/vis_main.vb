@@ -203,9 +203,10 @@ remove_more:
         XML = XML.Replace("><", ">" + vbCrLf + "<")
         XML = XML.Replace("  ", "")
         XML = XML.Replace("> ", ">")
-        XML = XML.Replace(">" + vbTab, ">")
-        XML = XML.Replace(" <", "<")
-        XML = XML.Replace(vbTab + "<", "<")
+        'XML = XML.Replace(">" + vbTab, ">")
+        'XML = XML.Replace(vbTab, "")
+        'XML = XML.Replace(" <", "<")
+        'XML = XML.Replace(vbTab + "<", "<")
         XML = XML.Replace(vbCrLf + "</property>", "</property>")
         XML = fix_bad_tags(XML)
         Dim MS As New MemoryStream()
@@ -437,6 +438,20 @@ remove_more:
         Return True
     End Function
 
+    Public Function get_bw_xml(p) As String
+        Dim buf = File.ReadAllBytes(p)
+        Dim mstream = New MemoryStream(buf)
+        If openXml_stream(mstream, Path.GetFileName(p)) Then
+            mstream.Dispose()
+            buf = Nothing
+            GC.Collect()
+            Return TheXML_String
+        End If
+        mstream.Dispose()
+        GC.Collect()
+        TheXML_String = File.ReadAllText(p)
+        Return TheXML_String
+    End Function
 
 
 

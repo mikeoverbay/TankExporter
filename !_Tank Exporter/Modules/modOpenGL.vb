@@ -28,7 +28,7 @@ Module modOpenGL
     Public pb2_hRC As System.IntPtr
     Public pb3_hDC As System.IntPtr
     Public pb3_hRC As System.IntPtr
-    Public position0() As Single = {3.535534F, 2.5F, -3.535534F, 1.0F}
+    Public position0() As Single = {2.843F, 10.0F, 9.596F, 1.0F}
     Public position1() As Single = {5.0F, 8.0F, -5.0F, 1.0F}
     Public position2() As Single = {0.0F, 10.0F, 0.0F, 1.0F}
     Public Sub EnableOpenGL()
@@ -237,7 +237,7 @@ ByVal text As String, ByVal r As Single, ByVal g As Single, ByVal b As Single, B
         Gl.glMatrixMode(Gl.GL_PROJECTION) 'Select Projection
         Gl.glLoadIdentity()
 
-        Glu.gluPerspective(60.0F, CSng(w / h), 0.1F, far_Clip)
+        Glu.gluPerspective(FOV, CSng(w / h), 0.1F, far_Clip)
         Gl.glEnable(Gl.GL_DEPTH_TEST)
         Gl.glDepthMask(Gl.GL_TRUE)
         Gl.glDepthRange(0.0, 1.0)

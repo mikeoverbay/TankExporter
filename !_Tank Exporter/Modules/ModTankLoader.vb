@@ -308,17 +308,22 @@ Module ModTankLoader
         Public color_Id As Integer
         Public detail_Id As Integer
         Public color_name As String
+        Public AM_in_res_mods As Boolean
         Public metalGMM_Id As Integer
         Public metalGMM_name As String
+        Public GMM_in_res_mods As Boolean
         Public colorIDmap As String
         Public detail_power As Single
         Public doubleSided As Boolean
         Public ao_name As String
+        Public AO_in_res_mods As Boolean
         Public ao_id As Integer
         Public normal_Id As Integer
         Public specular_id As Integer
         Public normal_name As String
+        Public ANM_in_res_mods As Boolean
         Public specular_name As String
+        Public Spec_in_res_mods
         Public detail_name As String
         Public multi_textured As Boolean
         Public metal_textured As Boolean
@@ -347,6 +352,7 @@ Module ModTankLoader
         Public scale As Skill.FbxSDK.FbxVector4
         Public is_carraige As Boolean
         Public visible As Boolean
+        Public tank_part As String
     End Structure
     Public Structure uvect3
         Public v1 As UInt32
@@ -358,6 +364,7 @@ Module ModTankLoader
 
     Public Function build_primitive_data(ByVal _add As Boolean) As Boolean
         '------------
+
         Dim f_name_vertices, f_name_indices, f_name_uv2, f_name_color, bsp_materials_name, bsp_name As String
         Dim tbuf() As vertice_
 
@@ -441,6 +448,7 @@ Module ModTankLoader
         Else
             has_bsp = True
         End If
+        file_name = file_name.Replace("\", "/")
         If CRASH_MODE Then
             file_name = file_name.Replace("/normal/", "/crash/")
         End If
@@ -1124,7 +1132,7 @@ next_m:
                 'End If
                 'get the textures if we are exporting
 
-                If Not IGNORE_TEXTURES Then build_textures(jj) ' make a new texture and find out if this texture as been used... if so, existing texture will be pointed at
+                build_textures(jj) ' make a new texture and find out if this texture as been used... if so, existing texture will be pointed at
 
                 log_text.Append("loaded Model:" + "ID:" + object_count.ToString + ":" + file_name + vbCrLf)
 
@@ -1142,8 +1150,10 @@ next_m:
                         is_wheeled_vehicle = False
                     End If
                     If _group(jj).color_name.ToLower.Contains("chass") Then
+                        _group(jj).tank_part = "chassis"
                         _object(jj).is_track = 0
                     Else
+                        _group(jj).tank_part = "track"
                         _object(jj).is_track = 1
                     End If
                     If XML_Strings(1).Length = 0 Then
@@ -1155,6 +1165,7 @@ next_m:
                 End If
                 If hull_count = 0 Then
                     If _object(jj).name.ToLower.Contains("hull") Then
+                        _group(jj).tank_part = "hull"
                         If XML_Strings(2).Length = 0 Then
                             XML_Strings(2) = TheXML_String
                         End If
@@ -1165,6 +1176,7 @@ next_m:
                     End If
                 Else
                     If _object(jj).name.ToLower.Contains("hull") Then
+                        _group(jj).tank_part = "hull"
                         _object(jj).camo_tiling = hull_tiling
                         _object(jj - 1).exclude_camo = 1
                         _object(jj).use_camo = 0
@@ -1173,6 +1185,7 @@ next_m:
                 End If
                 If turret_count = 0 Then
                     If _object(jj).name.ToLower.Contains("turret") Then
+                        _group(jj).tank_part = "turret"
                         If XML_Strings(3).Length = 0 Then
                             XML_Strings(3) = TheXML_String
                         End If
@@ -1183,12 +1196,14 @@ next_m:
                     End If
                 Else
                     If _object(jj).name.ToLower.Contains("turret") Then
+                        _group(jj).tank_part = "turret"
                         _object(jj).exclude_camo = 1
                         _object(jj).use_camo = 0
                     End If
 
                 End If
                 If _object(jj).name.ToLower.Contains("gun") Then
+                    _group(jj).tank_part = "gun"
                     If XML_Strings(4).Length = 0 Then
                         XML_Strings(4) = TheXML_String
                     End If
@@ -1197,6 +1212,7 @@ next_m:
                     _object(jj).exclude_camo = 0
                 End If
                 If _object(jj).name.ToLower.Contains("segment") Then
+                    _group(jj).tank_part = "segment"
                     _object(jj).exclude_camo = 1
                     _object(jj).use_camo = 0
                 End If
@@ -1447,7 +1463,7 @@ all_done:
         End Function
     End Structure
     Private Sub make_bsp2_list(ByVal k As Integer)
-
+        Return
         Dim ms As New MemoryStream(_group(k).bsp2_data)
         Dim br As New BinaryReader(ms)
         ms.Position = 0
@@ -1977,9 +1993,12 @@ get_visual:
             '_object(id).row2.z *= -1.0
             '_object(id).row0.x *= -1.0
             '_object(id).row2.z *= -1.0
-            _object(id).row2.x *= -1.0
-            _object(id).row2.y *= -1.0
-            _object(id).row2.z *= -1.0
+            If Not CRASH_MODE Then
+                _object(id).row2.x *= -1.0
+                _object(id).row2.y *= -1.0
+                _object(id).row2.z *= -1.0
+
+            End If
 
             '_object(id).row0.x *= -1.0
             '_object(id).row0.z *= -1.0
@@ -2463,6 +2482,19 @@ get_visual:
 
 
 
+    Public Function rotate_scale_translate_transform(ByVal v As vect3, ByVal m() As Double) As vect3
+        Dim vo As vect3
+        vo.x = (m(0) * v.x) + (m(4) * v.y) + (m(8) * v.z)
+        vo.y = (m(1) * v.x) + (m(5) * v.y) + (m(9) * v.z)
+        vo.z = (m(2) * v.x) + (m(6) * v.y) + (m(10) * v.z)
+
+        vo.x *= -1.0
+        vo.x += m(12)
+        vo.y += m(13)
+        vo.z += m(14)
+        Return vo
+
+    End Function
     Public Function rotate_transform(ByVal v As vect3, ByVal m() As Double) As vect3
         Dim vo As vect3
         vo.x = (m(0) * v.x) + (m(4) * v.y) + (m(8) * v.z)

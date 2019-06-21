@@ -24,7 +24,7 @@
     <UpdatePeriodically>false</UpdatePeriodically>
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
-    <ApplicationRevision>88</ApplicationRevision>
+    <ApplicationRevision>89</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
@@ -140,6 +140,7 @@
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.IO.Compression.FileSystem" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Core" />
@@ -170,6 +171,7 @@
     <Import Include="System.Data" />
     <Import Include="System.Drawing" />
     <Import Include="System.Diagnostics" />
+    <Import Include="System.IO.Compression" />
     <Import Include="System.Windows.Forms" />
     <Import Include="System.Linq" />
     <Import Include="System.Xml.Linq" />
@@ -181,6 +183,12 @@
     <Import Include="Tao.Platform.Windows" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Forms\frmAuthor.Designer.vb">
+      <DependentUpon>frmAuthor.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\frmAuthor.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Forms\FrmCamo.Designer.vb">
       <DependentUpon>FrmCamo.vb</DependentUpon>
     </Compile>
@@ -247,6 +255,12 @@
     <Compile Include="Forms\frmScreenCap.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Forms\frmSettings.Designer.vb">
+      <DependentUpon>frmSettings.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\frmSettings.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Forms\frmShaderDebugSettings.Designer.vb">
       <DependentUpon>frmShaderDebugSettings.vb</DependentUpon>
     </Compile>
@@ -266,6 +280,7 @@
     <Compile Include="Modules\modTrackUtilites.vb" />
     <Compile Include="Modules\modUpton.vb" />
     <Compile Include="Modules\modVisualParser.vb" />
+    <Compile Include="Settings.vb" />
     <Compile Include="shaders\shader programs\frmShaderEditor.Designer.vb">
       <DependentUpon>frmShaderEditor.vb</DependentUpon>
     </Compile>
@@ -342,6 +357,9 @@
     <Compile Include="visual_importer\vis_main.vb" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Forms\frmAuthor.resx">
+      <DependentUpon>frmAuthor.vb</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\FrmCamo.resx">
       <DependentUpon>FrmCamo.vb</DependentUpon>
       <SubType>Designer</SubType>
@@ -382,6 +400,9 @@
     <EmbeddedResource Include="Forms\frmScreenCap.resx">
       <DependentUpon>frmScreenCap.vb</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Forms\frmSettings.resx">
+      <DependentUpon>frmSettings.vb</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\frmShaderDebugSettings.resx">
       <DependentUpon>frmShaderDebugSettings.vb</DependentUpon>
     </EmbeddedResource>
@@ -408,6 +429,9 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <None Include="7-zip.chm">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="app.config" />
     <None Include="html\DiceFBX.zip">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -542,6 +566,12 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="7za.exe">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="copying.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="cttools.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -774,6 +804,15 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <None Include="resources\bone_off.png" />
+    <Content Include="license.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="meta_template.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="readme.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="resources\arrow_texture_down.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

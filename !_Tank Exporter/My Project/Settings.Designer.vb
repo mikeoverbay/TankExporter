@@ -269,6 +269,54 @@ Namespace My
                 Me("double_uv_scale") = value
             End Set
         End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("your_game_name")>  _
+        Public Property authers_name() As String
+            Get
+                Return CType(Me("authers_name"),String)
+            End Get
+            Set
+                Me("authers_name") = value
+            End Set
+        End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("1")>  _
+        Public Property mod_version() As String
+            Get
+                Return CType(Me("mod_version"),String)
+            End Get
+            Set
+                Me("mod_version") = value
+            End Set
+        End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("45")>  _
+        Public Property fov() As Single
+            Get
+                Return CType(Me("fov"),Single)
+            End Get
+            Set
+                Me("fov") = value
+            End Set
+        End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("0.5")>  _
+        Public Property mouse_speed() As Single
+            Get
+                Return CType(Me("mouse_speed"),Single)
+            End Get
+            Set
+                Me("mouse_speed") = value
+            End Set
+        End Property
     End Class
 End Namespace
 
