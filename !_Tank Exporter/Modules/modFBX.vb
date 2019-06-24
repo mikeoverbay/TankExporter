@@ -139,22 +139,21 @@ Module modFBX
         End If
         importOptions.SetOption(Skill.FbxSDK.IO.FbxStreamOptionsFbx.MATERIAL, True)
         importOptions.SetOption(Skill.FbxSDK.IO.FbxStreamOptionsFbx.TEXTURE, True)
-        importOptions.SetOption(Skill.FbxSDK.IO.FbxStreamOptionsFbx.LINK, True)
-        importOptions.SetOption(Skill.FbxSDK.IO.FbxStreamOptionsFbx.SHAPE, True)
-        importOptions.SetOption(Skill.FbxSDK.IO.FbxStreamOptionsFbx.GOBO, True)
-        importOptions.SetOption(Skill.FbxSDK.IO.FbxStreamOptionsFbx.ANIMATION, True)
-        importOptions.SetOption(Skill.FbxSDK.IO.FbxStreamOptionsFbx.GLOBAL_SETTINGS, True)
+        importOptions.SetOption(Skill.FbxSDK.IO.FbxStreamOptionsFbx.LINK, False)
+        importOptions.SetOption(Skill.FbxSDK.IO.FbxStreamOptionsFbx.SHAPE, False)
+        importOptions.SetOption(Skill.FbxSDK.IO.FbxStreamOptionsFbx.GOBO, False)
+        importOptions.SetOption(Skill.FbxSDK.IO.FbxStreamOptionsFbx.ANIMATION, False)
+        importOptions.SetOption(Skill.FbxSDK.IO.FbxStreamOptionsFbx.GLOBAL_SETTINGS, False)
 
         imp_status = importer.Import(scene, importOptions)
 
         Dim rootnode As FbxNode = scene.RootNode
 
-        'Dim systemunit = scene.FindProperty("FbxSystemUint")
         Dim p As FbxProperty = rootnode.GetFirstProperty
 
         Dim sc = rootnode.Scaling.GetValueAsDouble3
         While 1
-            Console.WriteLine(p.Name)
+            'Debug.WriteLine(p.Name)
             p = rootnode.GetNextProperty(p)
             If Not p.IsValid Then Exit While
         End While
@@ -169,6 +168,7 @@ Module modFBX
         'Dim geo As FbxGeometry = Nothing
         ReDim fbx_boneGroups(0)
         LOADING_FBX = True ' so we dont read from the res_Mods folder
+        Dim r_c As Integer = 0
         For i = 1 To rootnode.GetChildCount
             childnode = rootnode.GetChild(i - 1)
             Dim nCnt = childnode.GetChildCount
@@ -177,16 +177,24 @@ Module modFBX
             End If
             mesh = childnode.Mesh
             If mesh IsNot Nothing Then
-                If Not childnode.Name.ToLower.Contains("clone") Then
-                    tankComponentCount += 1
-                    readMeshdata(tankComponentCount, childnode, start_vertex, start_index, scene, rootnode, mesh)
+                Dim at = childnode.Light
+                Dim cam = childnode.Camera
+                If cam Is Nothing Then
 
+                    If at Is Nothing Then
+
+                        If Not childnode.Name.ToLower.Contains("clone") Then
+                            tankComponentCount += 1
+                            readMeshdata(tankComponentCount, childnode, start_vertex, start_index, scene, rootnode, mesh)
+
+                        End If
+                    End If
                 End If
             End If
-            If mesh Is Nothing Then
+            Dim child_Count = childnode.GetChildCount
+            If child_Count > 0 Then
                 ReDim Preserve fbx_boneGroups(TboneCount)
                 Dim node_name As String = childnode.Name
-                Dim child_Count = childnode.GetChildCount
 
                 If fbx_boneGroups(TboneCount).node_list Is Nothing Then
                     ReDim fbx_boneGroups(TboneCount).node_list(40)
@@ -203,40 +211,43 @@ Module modFBX
                     fbx_boneGroups(TboneCount).models(idx) = New Vmodel_
                     get_type_and_color(fbx_boneGroups(TboneCount), idx)
                     get_fbx_vNodeMatrix(cn, scene, rootnode, TboneCount, idx)
+                    If ar(3).ToLower.Contains("trac") Then fbx_boneGroups(TboneCount).isTrack = True
+                    'fbx_in_get_type_and_color(fbx_boneGroups(TboneCount), k, ar(1))
                     If cn.MaterialCount > 0 Then
                         Dim mat = cn.GetMaterial(0)
                         Dim ab As New FbxVector4
-                        Dim prop As FbxProperty = mat.FindProperty("AmbientColor")
-                        If prop IsNot Nothing Then
+                        Dim propAmbient As FbxProperty = mat.FindProperty("DiffuseColor")
+                        If propAmbient IsNot Nothing Then
                             Dim c As New FbxDouble3
-                            c = prop.GetValueAsDouble3
+                            c = propAmbient.GetValueAsDouble3
                             c.X = Round(c.X, 4)
                             c.Y = Round(c.Y, 4)
                             c.Z = Round(c.Z, 4)
+
                             fbx_boneGroups(TboneCount).models(idx).color.r = CSng(c.X)
                             fbx_boneGroups(TboneCount).models(idx).color.g = CSng(c.Y)
                             fbx_boneGroups(TboneCount).models(idx).color.b = CSng(c.Z)
-                            If c.X = 0.502 And c.Y = 0.502 And c.Z = 0.0 Then
+                            If c.X > 0.0! And c.Y > 0.0! And c.Z = 0.0 Then
                                 fbx_boneGroups(TboneCount).models(idx).type = 0
                                 fbx_boneGroups(TboneCount).models(idx).displayId = boneMarker3
                             End If
-                            If c.X = 0.502 And c.Y = 0.0 And c.Z = 0.0 Then
+                            If c.X > 0.0! And c.Y = 0.0 And c.Z = 0.0 Then
                                 fbx_boneGroups(TboneCount).models(idx).type = 1
                                 fbx_boneGroups(TboneCount).models(idx).displayId = boneMarker
                             End If
-                            If c.X = 0.0 And c.Y = 0.502 And c.Z = 0.0 Then
+                            If c.X = 0.0 And c.Y > 0.0! And c.Z = 0.0 Then
                                 fbx_boneGroups(TboneCount).models(idx).type = 2
                                 fbx_boneGroups(TboneCount).models(idx).displayId = boneMarker
                             End If
-                            If c.X = 0.0 And c.Y = 0.0 And c.Z = 0.502 Then
+                            If c.X = 0.0 And c.Y = 0.0 And c.Z > 0.0! Then
                                 fbx_boneGroups(TboneCount).models(idx).type = 3
                                 fbx_boneGroups(TboneCount).models(idx).displayId = boneMarker
                             End If
-                            If c.X = 0.502 And c.Y = 0.502 And c.Z = 0.502 Then
+                            If c.X > 0.0! And c.Y > 0.0! And c.Z > 0.0! Then
                                 fbx_boneGroups(TboneCount).models(idx).type = 4
                                 fbx_boneGroups(TboneCount).models(idx).displayId = boneMarker2
                             End If
-                            If c.X = 0.502 And c.Y = 0.0 And c.Z = 0.502 Then
+                            If c.X > 0.0! And c.Y = 0.0 And c.Z > 0.0! Then
                                 fbx_boneGroups(TboneCount).models(idx).type = 5
                                 fbx_boneGroups(TboneCount).models(idx).displayId = boneMarker4
                             End If
@@ -244,7 +255,7 @@ Module modFBX
                     End If
                     n_cnt += 1
                 Next
-                'n_cnt -= 1
+                n_cnt -= 1
                 ReDim Preserve fbx_boneGroups(TboneCount).node_list(n_cnt)
                 ReDim Preserve fbx_boneGroups(TboneCount).models(n_cnt)
                 ReDim Preserve fbx_boneGroups(TboneCount).node_matrices(n_cnt)
@@ -348,7 +359,6 @@ outofhere:
         'scene.SetCurrentTake("Show all faces")
 
         frmFBX.Label1.Visible = False
-        frmFBX.Label2.Visible = True
         Dim node_list() = {FbxNode.Create(pManager, model_name)}
         Dim node_Vlist() = {FbxNode.Create(pManager, "pin")}
         '--------------------------------------------------------------------------
@@ -377,9 +387,12 @@ outofhere:
         Dim Vmesh4 = fbx_create_Vmesh("pin_4", pManager, v_marker4)
         For id = 0 To v_boneGroups.Length - 1
             Dim m_node = FbxNode.Create(pManager, v_boneGroups(id).groupName.ToLower.Replace(".vertices", ""))
-            Dim NullNode As FbxNull
-            NullNode = FbxNull.Create(scene, m_node.Name)
-            m_node.NodeAttribute = NullNode
+            Dim NullNode As FbxNode
+            NullNode = FbxNode.Create(scene, m_node.Name)
+            'm_node.NodeAttribute = NullNode
+            m_node.NodeAttribute = Vmesh3
+            m_node.SetCurrentTakeNode("Show all faces")
+
             m_node.Show = 1
             m_node.Visibility = 1.0
             'm_node.Show = False
@@ -426,10 +439,7 @@ outofhere:
                 '    node_Vlist(cnt).ConnectSrcObject(vMaterials(0), FbxConnectionType.ConnectionDefault)
                 'Else
                 'End If
-                node_Vlist(cnt).AddMaterial(vMaterials(v_boneGroups(id).models(i).type))
-                node_Vlist(cnt).ConnectSrcObject(vMaterials(v_boneGroups(id).models(i).type), FbxConnectionType.ConnectionDefault)
-
-                node_Vlist(cnt).Shading_Mode = FbxNode.ShadingMode.LightShading ' not even sure this is needed but what ever.
+                node_Vlist(cnt).Shading_Mode = FbxNode.ShadingMode.HardShading ' not even sure this is needed but what ever.
                 Dim e = CBool(pManager.LastErrorID)
                 Dim estr = pManager.LastErrorString
                 Dim vstr = Vmesh.LastErrorString
@@ -438,33 +448,57 @@ outofhere:
                 Debug.WriteLine(estr)
                 Debug.WriteLine(vstr)
                 Debug.WriteLine(vmm)
+                Dim blender_mode As Boolean = True
 
-                If v_boneGroups(id).node_list(i).Substring(0, 3).ToLower.Contains("tan") Then
-                    node_Vlist(cnt).NodeAttribute = Vmesh4
-                Else
-                    If v_boneGroups(id).node_list(i).Substring(0, 3).ToLower.Contains("v_b") Then
-                        node_Vlist(cnt).NodeAttribute = Vmesh3
+                If frmFBX.blender_cb.Checked Then
+                    'create new model and texture for each pin
+                    Dim ns = "_" + id.ToString + "_" + i.ToString("00")
+                    If v_boneGroups(id).node_list(i).Substring(0, 3).ToLower.Contains("tan") Then
+                        node_Vlist(cnt).NodeAttribute = fbx_create_Vmesh("pin_4" + ns, pManager, v_marker4)
                     Else
-                        If Not v_boneGroups(id).isTrack And Not v_boneGroups(id).node_list(i).Substring(0, 2).ToLower.Contains("w") Then
-                            node_Vlist(cnt).NodeAttribute = Vmesh2
+                        If v_boneGroups(id).node_list(i).Substring(0, 3).ToLower.Contains("v_b") Then
+                            node_Vlist(cnt).NodeAttribute = fbx_create_Vmesh("pin_3" + ns, pManager, v_marker3)
                         Else
-                            node_Vlist(cnt).NodeAttribute = Vmesh
+                            If Not v_boneGroups(id).isTrack And Not v_boneGroups(id).node_list(i).Substring(0, 2).ToLower.Contains("w") Then
+                                node_Vlist(cnt).NodeAttribute = fbx_create_Vmesh("pin_2" + ns, pManager, v_marker2)
+                            Else
+                                node_Vlist(cnt).NodeAttribute = fbx_create_Vmesh("pin_1" + ns, pManager, v_marker)
+                            End If
                         End If
                     End If
+                    node_Vlist(cnt).AddMaterial(fbx_create_Vmaterial_blender(pManager, v_boneGroups(id).models(i).type, id.ToString + "_" + i.ToString("00")))
+                Else
+                    ' Instanced models and textures
+                    If v_boneGroups(id).node_list(i).Substring(0, 3).ToLower.Contains("tan") Then
+                        node_Vlist(cnt).NodeAttribute = Vmesh4
+                    Else
+                        If v_boneGroups(id).node_list(i).Substring(0, 3).ToLower.Contains("v_b") Then
+                            node_Vlist(cnt).NodeAttribute = Vmesh3
+                        Else
+                            If Not v_boneGroups(id).isTrack And Not v_boneGroups(id).node_list(i).Substring(0, 2).ToLower.Contains("w") Then
+                                node_Vlist(cnt).NodeAttribute = Vmesh2
+                            Else
+                                node_Vlist(cnt).NodeAttribute = Vmesh
+                            End If
+                        End If
+                    End If
+                    'node_Vlist(cnt).Mesh.Name = n
+                    node_Vlist(cnt).AddMaterial(vMaterials(v_boneGroups(id).models(i).type))
+                    node_Vlist(cnt).ConnectSrcObject(vMaterials(v_boneGroups(id).models(i).type), FbxConnectionType.ConnectionDefault)
+
                 End If
 
                 m_node.AddChild(node_Vlist(cnt))
-                m_node.ConnectSrcObject(node_Vlist(cnt), FbxConnectionType.ConnectionDefault)
-                rootNode.AddChild(m_node)
-                rootNode.ConnectSrcObject(m_node, FbxConnectionType.ConnectionDefault)
+                'm_node.ConnectSrcObject(node_Vlist(cnt), FbxConnectionType.ConnectionDefault)
                 'node_Vlist(cnt).Destroy()
                 cnt += 1
 skip_v_:
             Next
+            rootNode.AddChild(m_node)
+            rootNode.ConnectSrcObject(m_node, FbxConnectionType.ConnectionDefault)
         Next
         For id = 1 To object_count
             ReDim Preserve node_list(id + 1)
-            frmFBX.Label2.Text = "ID: " + id.ToString + vbCrLf
             'If frmFBX.export_textures.Checked Then
             '    If Not _object(id).visible Then
             '        GoTo we_dont_want_this_one_saved
@@ -476,9 +510,9 @@ skip_v_:
 
             model_name = _group(id).name.Replace("/", "\")
             model_name = model_name.Replace(":", "~")
+            model_name = model_name.Replace("vehicles\", "")
+            model_name = model_name.Replace("primitives_processed", "primitives")
             node_list(id) = FbxNode.Create(pManager, model_name)
-
-            frmFBX.Label2.Text = model_name
 
 
             'create mesh node
@@ -539,6 +573,7 @@ skip_v_:
             'add the texture from the texture array using the Texture ID for this mesh section
             layerElementTexture.DirectArray.Add(lTextures(_group(id).texture_id))
             layerElementNTexture.DirectArray.Add(lTextures_N(_group(id).texture_id))
+
             node_list(id).NodeAttribute = mymesh
             Dim dr, ds, dt As New FbxVector4
             dr.Set(0, 0, 0, 0)
@@ -618,7 +653,6 @@ we_dont_want_this_one_saved:
         'textureDiffuseLayer.Destroy()
 outahere:
         frmFBX.Label1.Visible = True
-        frmFBX.Label2.Visible = False
 
     End Sub
 
@@ -697,6 +731,10 @@ outahere:
 
 
         fbxgrp(i).name = childnode.NameOnly
+        If Not fbxgrp(i).name.Contains("vehicles\") Then
+            fbxgrp(i).name = "vehicles\" + childnode.NameOnly
+            fbxgrp(i).name = fbxgrp(i).name.Replace("primitives", "primitives_processed")
+        End If
         'get transform information -------------------------------------
         Dim fbx_matrix As New FbxXMatrix
         fbxgrp(i).rotation = New FbxVector4
@@ -803,6 +841,35 @@ outahere:
                 fbxgrp(i).normal_Id = get_fbx_texture(fbxgrp(i).normal_name)
                 fbxgrp(i).bumped = True
                 fbxgrp(i).texture_count = 2
+            Else
+                property_ = material.FindProperty(FbxSurfaceMaterial.SNormalMap)
+                texture = property_.GetSrcObject(FbxTexture.ClassId, 0)
+                If texture IsNot Nothing Then
+                    fbxgrp(i).normal_name = fix_texture_path(texture.FileName)
+                    frmMain.info_Label.Text = "Loading Texture: " + fix_texture_path(texture.FileName)
+                    Application.DoEvents()
+                    fbxgrp(i).normal_Id = -1
+                    fbxgrp(i).normal_Id = get_fbx_texture(fbxgrp(i).normal_name)
+                    fbxgrp(i).bumped = True
+                    fbxgrp(i).texture_count = 2
+
+                Else
+                    Dim texture_n = fbxgrp(i).color_name.Replace("AM", "ANM")
+                    If File.Exists(texture_n) Then
+                        fbxgrp(i).normal_name = texture_n
+                        frmMain.info_Label.Text = "Loading Texture: " + texture_n
+                        Application.DoEvents()
+                        fbxgrp(i).normal_Id = -1
+                        fbxgrp(i).normal_Id = get_fbx_texture(texture_n)
+                        fbxgrp(i).bumped = True
+                        fbxgrp(i).texture_count = 2
+                    Else
+                        fbxgrp(i).bumped = False
+                        fbxgrp(i).texture_count = 1
+                    End If
+
+                End If
+
 
             End If
         Catch ex As Exception
@@ -1117,6 +1184,7 @@ outahere:
         Dim nVertices = mesh.Normals.Count
         '###############################################
         Dim index_mode = uvlayer1.Reference_Mode
+
         Dim eNormals As FbxLayerElementNormal = mesh.GetLayer(0).Normals
         Dim uv2_Layer As FbxLayerElementUV = Nothing
         If mesh.UVLayerCount = 2 Then
@@ -1227,26 +1295,26 @@ outahere:
                 Dim uv2 As New FbxVector2
                 If mesh.UVLayerCount = 2 Then
 
-                    If uv2_layer IsNot Nothing Then
+                    If uv2_Layer IsNot Nothing Then
                         fbxgrp(fbx_idx).has_uv2 = 1
-                        Select Case uv2_layer.Mapping_Mode
+                        Select Case uv2_Layer.Mapping_Mode
                             Case FbxLayerElement.MappingMode.ByControlPoint
-                                Select Case uv2_layer.Reference_Mode
+                                Select Case uv2_Layer.Reference_Mode
                                     Case FbxLayerElement.ReferenceMode.Direct
                                         uv2 = uv2_Layer.DirectArray.GetAt(cp_index)
                                         Exit Select
                                     Case FbxLayerElement.ReferenceMode.IndexToDirect
-                                        Dim n_id = uv2_layer.IndexArray.GetAt(cp_index)
-                                        uv2 = uv2_layer.DirectArray.GetAt(n_id)
+                                        Dim n_id = uv2_Layer.IndexArray.GetAt(cp_index)
+                                        uv2 = uv2_Layer.DirectArray.GetAt(n_id)
 
                                 End Select
                                 Exit Select
                             Case FbxLayerElement.MappingMode.ByPolygonVertex
                                 Dim uv2_index = mesh.GetTextureUVIndex(i, j)
-                                Select Case uv2_layer.Reference_Mode
+                                Select Case uv2_Layer.Reference_Mode
                                     Case FbxLayerElement.ReferenceMode.Direct
                                     Case FbxLayerElement.ReferenceMode.IndexToDirect
-                                        uv2 = uv2_layer.DirectArray.GetAt(uv2_index)
+                                        uv2 = uv2_Layer.DirectArray.GetAt(uv2_index)
                                 End Select
 
                         End Select
@@ -1364,6 +1432,7 @@ outahere:
         fbx_in.texture_count = fbx_out.texture_count
         fbx_in.has_uv2 = fbx_out.has_uv2
         fbx_in.has_Vcolor = fbx_out.has_Vcolor
+        fbx_in.bumped = fbx_out.bumped
 
 
         ReDim fbx_in.matrix(15)
@@ -2076,6 +2145,7 @@ whichone:
         Dim s_name As String = "Phong"
         'need colors defined
         Dim EmissiveColor = New FbxDouble3(0.0, 0.0, 0.0)
+        Dim TransparencyColor = New FbxDouble3(0.0, 0.0, 0.0)
         Dim AmbientColor = New FbxDouble3(0.9, 0.9, 0.9)
         Dim SpecularColor = New FbxDouble3(0.7, 0.7, 0.7)
         Dim DiffuseColor As New FbxDouble3(0.8, 0.8, 0.8)
@@ -2084,9 +2154,37 @@ whichone:
         lMaterial.EmissiveColor = EmissiveColor
         lMaterial.AmbientColor = AmbientColor
         lMaterial.DiffuseColor = DiffuseColor
+        lMaterial.DiffuseFactor = 100.0
+        lMaterial.AmbientFactor = 100.0
         lMaterial.SpecularColor = SpecularColor
         lMaterial.SpecularFactor = 0.3
         lMaterial.TransparencyFactor = 0.0
+        lMaterial.TransparentColor = TransparencyColor
+        lMaterial.Shininess = 60.0
+        lMaterial.ShadingModel = s_name
+        Return lMaterial
+    End Function
+    Public Function fbx_create_material_blender(pManager As FbxSdkManager, id As Integer, ByVal n As String) As FbxSurfacePhong
+        Dim lMaterial As FbxSurfacePhong
+        Dim m_name As String = "Material"
+        Dim s_name As String = "Phong"
+        'need colors defined
+        Dim EmissiveColor = New FbxDouble3(0.0, 0.0, 0.0)
+        Dim TransparencyColor = New FbxDouble3(0.0, 0.0, 0.0)
+        Dim AmbientColor = New FbxDouble3(0.9, 0.9, 0.9)
+        Dim SpecularColor = New FbxDouble3(0.7, 0.7, 0.7)
+        Dim DiffuseColor As New FbxDouble3(0.8, 0.8, 0.8)
+        'Need a name for this material
+        lMaterial = FbxSurfacePhong.Create(pManager, m_name + "" + id.ToString("000"))
+        lMaterial.EmissiveColor = EmissiveColor
+        lMaterial.AmbientColor = AmbientColor
+        lMaterial.DiffuseColor = DiffuseColor
+        lMaterial.DiffuseFactor = 100.0
+        lMaterial.AmbientFactor = 100.0
+        lMaterial.SpecularColor = SpecularColor
+        lMaterial.SpecularFactor = 0.3
+        lMaterial.TransparencyFactor = 0.0
+        lMaterial.TransparentColor = TransparencyColor
         lMaterial.Shininess = 60.0
         lMaterial.ShadingModel = s_name
         Return lMaterial
@@ -2119,7 +2217,43 @@ whichone:
         lMaterial = FbxSurfacePhong.Create(pManager, m_name + "" + id.ToString("000"))
         lMaterial.EmissiveColor = EmissiveColor
         lMaterial.AmbientColor = AmbientColor
-        lMaterial.DiffuseColor = DiffuseColor
+        lMaterial.DiffuseColor = AmbientColor
+        lMaterial.SpecularColor = SpecularColor
+        lMaterial.SpecularFactor = 0.3
+        lMaterial.TransparencyFactor = 0.0
+        lMaterial.Shininess = 60.0
+        lMaterial.ShadingModel = s_name
+        Return lMaterial
+    End Function
+    Public Function fbx_create_Vmaterial_blender(pManager As FbxSdkManager, id As Integer, ByRef name As String) As FbxSurfacePhong
+        Dim lMaterial As FbxSurfacePhong
+        Dim m_name As String = "Marker_Material"
+        Dim s_name As String = "Phong"
+        'need colors defined
+        Dim v As New vColor_
+        Select Case id
+            Case 0
+                v = vc4
+            Case 1
+                v = vc1
+            Case 2
+                v = vc2
+            Case 3
+                v = vc3
+            Case 4
+                v = vc0
+            Case 5
+                v = vc5
+        End Select
+        Dim EmissiveColor = New FbxDouble3(0.0, 0.0, 0.0)
+        Dim AmbientColor = New FbxDouble3(v.r, v.g, v.b)
+        Dim SpecularColor = New FbxDouble3(0.7, 0.7, 0.7)
+        Dim DiffuseColor As New FbxDouble3(v.r * 0.8, v.g * 0.8, v.b * 0.8)
+        'Need a name for this material
+        lMaterial = FbxSurfacePhong.Create(pManager, m_name + "" + id.ToString("000") + "_" + name)
+        lMaterial.EmissiveColor = EmissiveColor
+        lMaterial.AmbientColor = AmbientColor
+        lMaterial.DiffuseColor = AmbientColor
         lMaterial.SpecularColor = SpecularColor
         lMaterial.SpecularFactor = 0.3
         lMaterial.TransparencyFactor = 0.0

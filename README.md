@@ -10,7 +10,12 @@
 You can download it here: https://www.autodesk.com/developer-network/platform-technologies/fbx-converter-archives
 Or if you can not down load it from there... the 64 and 32 bit versions are located here: http://tnmshouse.com/converter/
 
-Version 89:
+# Version 90:
+This adds support for Blender.
+The FBX can not be loaded in to Blender directly. It will need to be converted to version 2013 using Autodesk's FBX Converter. Get it at the link above.
+Please read the "Exporting a Tank" section in the help file for more information.
+
+# Version 89:
 1. WOTMOD creating has been completely re-written. Now it creates creator paths in the wotmod and updates all paths in the bw xml files to the new location of the resources.
 This is all based on what files are in the res_mods such as textures, visuals and such. Paths to resources that are not in res_mods will not be changed.
 2. I added Mouse Speed and Field of View settings.

@@ -29,7 +29,7 @@ Partial Class frmFBX
         Me.Cancel_bnt = New System.Windows.Forms.Button()
         Me.export_as_binary_cb = New System.Windows.Forms.CheckBox()
         Me.Label1 = New System.Windows.Forms.Label()
-        Me.Label2 = New System.Windows.Forms.Label()
+        Me.blender_cb = New System.Windows.Forms.CheckBox()
         Me.SuspendLayout()
         '
         'flip_u
@@ -100,33 +100,35 @@ Partial Class frmFBX
         '
         Me.Label1.AutoSize = True
         Me.Label1.ForeColor = System.Drawing.Color.FromArgb(CType(CType(255, Byte), Integer), CType(CType(255, Byte), Integer), CType(CType(128, Byte), Integer))
-        Me.Label1.Location = New System.Drawing.Point(9, 32)
+        Me.Label1.Location = New System.Drawing.Point(9, 9)
         Me.Label1.Name = "Label1"
         Me.Label1.Size = New System.Drawing.Size(171, 39)
         Me.Label1.TabIndex = 5
         Me.Label1.Text = "This exporter uses Fbx Sdk 2009.1" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "To convert to other versions, Find" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "AutoDesk's" & _
     " FBX Converter"
         '
-        'Label2
+        'blender_cb
         '
-        Me.Label2.AutoSize = True
-        Me.Label2.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label2.ForeColor = System.Drawing.Color.Yellow
-        Me.Label2.Location = New System.Drawing.Point(9, 9)
-        Me.Label2.Name = "Label2"
-        Me.Label2.Size = New System.Drawing.Size(80, 13)
-        Me.Label2.TabIndex = 6
-        Me.Label2.Text = "This is a test"
-        Me.Label2.Visible = False
+        Me.blender_cb.AutoSize = True
+        Me.blender_cb.Checked = Global.Tank_Exporter.My.MySettings.Default.blender_compatible
+        Me.blender_cb.DataBindings.Add(New System.Windows.Forms.Binding("Checked", Global.Tank_Exporter.My.MySettings.Default, "blender_compatible", True, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged))
+        Me.blender_cb.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.blender_cb.ForeColor = System.Drawing.Color.OrangeRed
+        Me.blender_cb.Location = New System.Drawing.Point(12, 64)
+        Me.blender_cb.Name = "blender_cb"
+        Me.blender_cb.Size = New System.Drawing.Size(140, 17)
+        Me.blender_cb.TabIndex = 6
+        Me.blender_cb.Text = "Blender Compatible FBX"
+        Me.blender_cb.UseVisualStyleBackColor = True
         '
         'frmFBX
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.BackColor = System.Drawing.Color.FromArgb(CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer))
-        Me.ClientSize = New System.Drawing.Size(185, 232)
+        Me.BackColor = System.Drawing.Color.FromArgb(CType(CType(33, Byte), Integer), CType(CType(33, Byte), Integer), CType(CType(33, Byte), Integer))
+        Me.ClientSize = New System.Drawing.Size(185, 251)
+        Me.Controls.Add(Me.blender_cb)
         Me.Controls.Add(Me.flip_u)
-        Me.Controls.Add(Me.Label2)
         Me.Controls.Add(Me.export_textures)
         Me.Controls.Add(Me.Label1)
         Me.Controls.Add(Me.flip_v)
@@ -151,5 +153,5 @@ Partial Class frmFBX
     Friend WithEvents Cancel_bnt As System.Windows.Forms.Button
     Friend WithEvents export_as_binary_cb As System.Windows.Forms.CheckBox
     Friend WithEvents Label1 As System.Windows.Forms.Label
-    Friend WithEvents Label2 As System.Windows.Forms.Label
+    Friend WithEvents blender_cb As System.Windows.Forms.CheckBox
 End Class

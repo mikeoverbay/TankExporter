@@ -317,6 +317,18 @@ Namespace My
                 Me("mouse_speed") = value
             End Set
         End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("False")>  _
+        Public Property blender_compatible() As Boolean
+            Get
+                Return CType(Me("blender_compatible"),Boolean)
+            End Get
+            Set
+                Me("blender_compatible") = value
+            End Set
+        End Property
     End Class
 End Namespace
 

@@ -2957,6 +2957,11 @@ tryagain:
                     If fbxgrp(jj).visible Then
                         Gl.glUniform1i(fbx_texture_count, fbxgrp(jj).texture_count)
                         Gl.glUniform1i(fbx_is_GAmap, fbxgrp(jj).is_GAmap)
+                        If fbxgrp(jj).bumped Then
+                            Gl.glUniform1i(fbx_bumped, 1)
+                        Else
+                            Gl.glUniform1i(fbx_bumped, 0)
+                        End If
                         Gl.glUniform1i(fbx_alphatest, fbxgrp(jj).alphaTest)
                         If m_load_textures.Checked Then
                             Gl.glColor3f(0.5, 0.5, 0.5)

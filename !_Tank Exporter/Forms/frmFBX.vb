@@ -37,7 +37,6 @@ Public Class frmFBX
     End Sub
 
     Private Sub frmFBX_Load(sender As Object, e As EventArgs) Handles Me.Load
-        Label2.Text = ""
     End Sub
 
     Private Sub Cancel_bnt_Click(sender As Object, e As EventArgs) Handles Cancel_bnt.Click

@@ -11,7 +11,7 @@ uniform int t_cnt;
 uniform int is_GAmap;
 uniform int alphaTest;
 uniform int enableVcolor;
-
+uniform int bumped;
 in vec2 TC1;
 in vec3 n;
 in vec3 vVertex;
@@ -71,14 +71,36 @@ if (is_GAmap == 0 )
     vec3 E = normalize(-vVertex);    // we are in Eye Coordinates, so EyePos is (0,0,0)  
     vec3 PN = normalize(TBN * bump); // Get the perturbed normal
     if ((bumpMap.x + bumpMap.y + bumpMap.z )==3.0)
-		{
-		PN = normalize(n);
-		color.rgb *= vec3(0.7);
-		}
+        {
+        PN = normalize(n);
+        color.rgb *= vec3(0.7);
+        }
     vec4 Iamb     = color * A_level ; //calculate Ambient Term:  
     // loop thru lights and calc lighting.
+    vec3 norm = normalize(n);
+    if ( ! (bumped == 1)) {
+
     for (int i = 0 ; i < 3 ; i++)
+        {
+        vec3 L = normalize(gl_LightSource[i].position.xyz - vVertex);   
+        vec3 R = normalize(reflect(-L,norm));  
+        //calculate Diffuse Term:  
+        Idiff1 = color * max(dot(norm,L), 0.0);//color light level
+        Idiff1 = clamp(Idiff1, 0.0, 1.0);     
+
+        // calculate Specular Term:
+        Ispec1 = vec4(0.3) * pow(max(dot(R,E),0.0),specPower);
+        Ispec1 = clamp(Ispec1, 0.0, 1.0); 
+
+        vec4 IspecMix = clamp(mix(Ispec1,vec4(0.33),specMap.r),0.0,1.0) * 2.0 * S_level;
+        sum += clamp(Idiff1 +  IspecMix, 0.0, 1.0);
+
+       } //next light
+    }
+    else
     {
+        for (int i = 0 ; i < 3 ; i++)
+        {
         vec3 L = normalize(gl_LightSource[i].position.xyz - vVertex);   
         vec3 R = normalize(reflect(-L,PN));  
         //calculate Diffuse Term:  
@@ -92,12 +114,13 @@ if (is_GAmap == 0 )
         vec4 IspecMix = clamp(mix(Ispec1,vec4(0.33),specMap.r),0.0,1.0) * 2.0 * S_level;
         sum += clamp(Idiff1 +  IspecMix, 0.0, 1.0);
 
-    } //next light
+        } //next light
 
+    }
 gl_FragColor = (Iamb + sum) * T_level;   // write mixed Color:  
 if (enableVcolor == 1)
 {
-	gl_FragColor.rgb = (gl_FragColor.rgb * 0.0) + clamp(Vcolor.rgb * 2.0,0.0,1.0);
+    gl_FragColor.rgb = (gl_FragColor.rgb * 0.0) + clamp(Vcolor.rgb * 2.0,0.0,1.0);
 }
 }
 

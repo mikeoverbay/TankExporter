@@ -228,6 +228,41 @@ Module modVisualParser
 
     End Sub
 
+    Public Sub fbx_in_get_type_and_color(ByRef v_r As v_boneGroups_, ByVal i As Integer, ByVal s As String)
+        'Figures out what type of entry this is
+        s = s.Substring(0, 2)
+        v_r.models(i).displayId = boneMarker
+        Select Case s.ToLower
+            Case "v_"
+                v_r.models(i).type = 0
+                v_r.models(i).color = vc4
+                v_r.models(i).displayId = boneMarker3
+                Return
+            Case "wd"
+                v_r.models(i).type = 1
+                v_r.models(i).color = vc1
+                Return
+            Case "w_"
+                v_r.models(i).type = 2
+                v_r.models(i).color = vc2
+                Return
+            Case "tr"
+                v_r.models(i).type = 3
+                v_r.models(i).color = vc3
+            Case "ta"
+                v_r.models(i).type = 5
+                v_r.models(i).color = vc5
+                v_r.models(i).displayId = boneMarker4
+                Return
+        End Select
+        If Not v_r.isTrack Then
+            v_r.models(i).displayId = boneMarker2
+            v_r.models(i).type = 4
+            v_r.models(i).color = vc0
+        End If
+
+    End Sub
+
     Private Function trim_string(ByRef s As String)
         Dim a = s.Split(">")
         Dim b = a(1).Split("<")
