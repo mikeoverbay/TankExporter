@@ -12,9 +12,12 @@ Or if you can not down load it from there... the 64 and 32 bit versions are loca
 
 # Version 91:
 This updates the screen capturing. Now you have more choices and presets.
+
 <a><img src="http://www.tnmshouse.com/help/Images/screencapture.jpg" title="Sceen capture Panel" /></a>
 
+
 This version also adds code to extract the 420x307 better quality tank image from gui.pkg. It will also be included with the wotmod if it exist in res_mods when you build a wotmod file.
+
 I also added code to change the paths in the .visual_processed files in side the tracks folder ONLY if the .DDS files exist in res_mods.
 
 # Version 90:
