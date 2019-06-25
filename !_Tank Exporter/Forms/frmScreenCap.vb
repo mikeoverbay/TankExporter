@@ -152,7 +152,7 @@ Public Class frmScreenCap
         If SaveFileDialog1.ShowDialog = Forms.DialogResult.OK Then
             If image_rb.Checked Then
                 OpenFileDialog1.Title = "Load Custom Background Image..."
-                OpenFileDialog1.Filter = "PNG (*.png)|*.png|JPG (*.jpj)|*.jpg|DDS (*.dds)|*.dds"
+                OpenFileDialog1.Filter = "PNG (*.png)|*.png|JPG (*.jpg)|*.jpg|DDS (*.dds)|*.dds"
                 OpenFileDialog1.InitialDirectory = My.Settings.custom_image
                 If Not OpenFileDialog1.ShowDialog = Forms.DialogResult.OK Then
                     Return
