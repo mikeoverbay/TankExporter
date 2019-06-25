@@ -329,6 +329,18 @@ Namespace My
                 Me("blender_compatible") = value
             End Set
         End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("C:\")>  _
+        Public Property custom_image() As String
+            Get
+                Return CType(Me("custom_image"),String)
+            End Get
+            Set
+                Me("custom_image") = value
+            End Set
+        End Property
     End Class
 End Namespace
 

@@ -69,32 +69,47 @@ Public Class frmScreenCap
             r_size.Width = 1366
             r_size.Height = 768
         End If
+        If wot_carousel_rb.Checked Then
+            r_size.Width = 160
+            r_size.Height = 100
+        End If
+        If wot_panel_rb.Checked Then
+            r_size.Width = 420
+            r_size.Height = 307
+        End If
+        If wot_wotmod_rb.Checked Then
+            r_size.Width = 302
+            r_size.Height = 170
+        End If
         If x64_rb.Checked Then
             set_custom_size()
         End If
 
     End Sub
     Private Sub x1980x1200_rb_CheckedChanged(sender As Object, e As EventArgs) Handles x1980x1200_rb.CheckedChanged
-        set_size()
     End Sub
     Private Sub x1920_rb_CheckedChanged(sender As Object, e As EventArgs) Handles x1920_rb.CheckedChanged
-        set_size()
     End Sub
 
     Private Sub x1440_rb_CheckedChanged(sender As Object, e As EventArgs) Handles x1440_rb.CheckedChanged
-        set_size()
     End Sub
 
     Private Sub x1280_rb_CheckedChanged(sender As Object, e As EventArgs) Handles x1280_rb.CheckedChanged
-        set_size()
     End Sub
 
     Private Sub x1366_rb_CheckedChanged(sender As Object, e As EventArgs) Handles x1366_rb.CheckedChanged
-        set_size()
     End Sub
 
     Private Sub x64_rb_CheckedChanged(sender As Object, e As EventArgs) Handles x64_rb.CheckedChanged
-        set_size()
+    End Sub
+
+    Private Sub wot_carousel_rb_CheckedChanged(sender As Object, e As EventArgs) Handles wot_carousel_rb.CheckedChanged
+    End Sub
+
+    Private Sub wot_panel_rb_CheckedChanged(sender As Object, e As EventArgs) Handles wot_panel_rb.CheckedChanged
+    End Sub
+
+    Private Sub wot_wotmod_rb_CheckedChanged(sender As Object, e As EventArgs) Handles wot_wotmod_rb.CheckedChanged
     End Sub
 
     Private Sub trans_rb_CheckedChanged(sender As Object, e As EventArgs) Handles trans_rb.CheckedChanged
@@ -130,11 +145,37 @@ Public Class frmScreenCap
             MsgBox("You need to put in a valid size!", MsgBoxStyle.Exclamation, "Opps...")
             Return
         End If
-
+        CUSTOM_IMAGE_MODE = False
+        set_size()
         SaveFileDialog1.Title = "Save Screen Capture PNG file..."
         SaveFileDialog1.Filter = "Save PNG Image (*.png*)|*.png"
-        If SaveFileDialog1.ShowDialog = Forms.DialogResult.OK _
-         Then
+        If SaveFileDialog1.ShowDialog = Forms.DialogResult.OK Then
+            If image_rb.Checked Then
+                OpenFileDialog1.Title = "Load Custom Background Image..."
+                OpenFileDialog1.Filter = "PNG (*.png)|*.png|JPG (*.jpj)|*.jpg|DDS (*.dds)|*.dds"
+                OpenFileDialog1.InitialDirectory = My.Settings.custom_image
+                If Not OpenFileDialog1.ShowDialog = Forms.DialogResult.OK Then
+                    Return
+                End If
+                My.Settings.custom_image = OpenFileDialog1.FileName
+                r_terrain = False
+                r_color_flag = False
+                r_trans = False
+                If Gl.glIsTexture(custom_image_text_Id) Then 'remove the texture if it was already loaded
+                    Gl.glDeleteTextures(1, custom_image_text_Id)
+                End If
+                Dim i_path = OpenFileDialog1.FileName
+                If i_path.ToLower.Contains(".dds") Then
+                    custom_image_text_Id = load_dds_file(i_path)
+                End If
+                If i_path.ToLower.Contains(".jpg") Then
+                    custom_image_text_Id = load_jpg_file(i_path)
+                End If
+                If i_path.ToLower.Contains(".png") Then
+                    custom_image_text_Id = load_png_file(i_path)
+                End If
+                CUSTOM_IMAGE_MODE = True
+            End If
             r_filename = SaveFileDialog1.FileName
             RENDER_OUT = True
             frmMain.pb1.Dock = DockStyle.None
@@ -145,13 +186,12 @@ Public Class frmScreenCap
             G_Buffer.attachColorTexture()
             frmMain.draw_scene()
             RENDER_OUT = False
+            CUSTOM_IMAGE_MODE = False
             save_image()
             frmMain.pb1.Dock = DockStyle.Fill
             Application.DoEvents()
             G_Buffer.init()
             Me.Hide()
-            'frmMain.draw_scene()
-            'G_Buffer.init()
         End If
     End Sub
 
@@ -161,7 +201,7 @@ Public Class frmScreenCap
     End Sub
 
     Private Sub frmScreenCap_Load(sender As Object, e As EventArgs) Handles Me.Load
-            set_custom_size()
+        set_custom_size()
     End Sub
 
     Private Sub frmScreenCap_ResizeEnd(sender As Object, e As EventArgs) Handles Me.ResizeEnd
@@ -230,4 +270,5 @@ Public Class frmScreenCap
         End Try
 
     End Sub
+
 End Class

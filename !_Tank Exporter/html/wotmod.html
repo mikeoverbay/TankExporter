@@ -37,10 +37,22 @@ In order to create a packaged wotmod zip file you must first load the tank you w
   <p> There must be data for this tank in the res_mods folder.<br />
     <br />
   The builder will package these files.<br />
-    gui tank PNG (use in the tank carousel) <br />
-    scripts Tank.xml<br />
-  vehicle data (textures, .model, .visual_processed, .primitive_processed, track segment(s) and .models)<br />
-  Any crash tank files are packaged as well. </p>
+  PNG images of the tank used in the carosusel and panels 60x100  and 420x307 sizes.<br />
+   Scripts Tank.xml<br />
+  .model<br />
+  .visual_processed<br />
+  .primitive_processed    
+  <br />
+  .vt <span class="style2">never included in wotmod files.
+  </span><br />
+  left.track<br />
+  right.track<br />
+  .segment<br />
+  .segment_1<br />
+  .segment_2<br />
+  Track,Chassis, Hull, Turret, Gun .dds textures. <br />
+  <br />
+  <span class="style2">Any crash tank files are packaged as well. </span></p>
   <p class="style3">Tank Exporter changes paths to resources in visual_processed,<br />
   .model and the tanks xml automatically based on what is in res_mods. </p>
   <p> All data that will be packed in to the wotmod file will come from what is in the res_mods. No where else.<br />
@@ -48,12 +60,14 @@ In order to create a packaged wotmod zip file you must first load the tank you w
     Tank Exporter has a new panel to create the &quot;meta.xml&quot; that will be packaged in the WOTMOD file.<br />
     You only need to enter a name in the &quot;Creator's Name&quot; field!
     TE will fill in the rest for you.<br /> 
-    <br />
-    Once you select where you want to save the wotmod file and its name, TE will search every file in the res_mods that is relevant to the loaded tank.<br />
+    <img src="Images/wotmod_panel.jpg" alt="wotmod panel" width="527" height="218" /><br />
+    Click OK and find where the world_of_tanks/mods/currentVersion/ folder.. DONT CHANGE THE SAVED NAME!<br />
+    Click Save.... <br />
+    After, 
+    TE will search every file in the res_mods that is relevant to the loaded tank.<br />
   Any file that contains the tanks name will be included in the wotmod file.<br />
   <br />
   wotmod zips have NO compression. They are store only zip files as it is with all WOT files stored in zips.</p>
-  <p><span class="style2">Tip..</span> If you want custom textures for the tracks. Place these new textures in the tanks root folder and change the paths in the chassis.visual_proccesed file.<br />
-    This applies to DETAILS textures as well as any textures not normally in the tanks root folder.</p>
+  <p>&nbsp;</p>
   <p>&nbsp;</p>
 </div>

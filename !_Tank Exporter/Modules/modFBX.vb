@@ -1676,65 +1676,61 @@ outahere:
         Else
             For i = 1 To object_count
                 flg = False
-                If (_group(i).indicies.Length - 1) * 3 <> fbxgrp(i).indicies.Length Then 'something removed or added?
+                If _group(i).nVertices_ <> fbxgrp(i).nVertices_ Then 'polygons removed or added?
                     flg = True : GoTo whichOne
                 End If
-                For j As UInt32 = 0 To _group(i).indicies.Length - 2
-                    Dim p1 = _group(i).indicies(j + 1).v1 - _group(i).startVertex_
-                    Dim p2 = _group(i).indicies(j + 1).v2 - _group(i).startVertex_
-                    Dim p3 = _group(i).indicies(j + 1).v3 - _group(i).startVertex_
-                    Dim vg_1 = _group(i).vertices(p1)
-                    Dim vg_2 = _group(i).vertices(p2)
-                    Dim vg_3 = _group(i).vertices(p3)
-                    Dim f1 = fbxgrp(i).indicies((j * 3) + 0).v1
-                    Dim f2 = fbxgrp(i).indicies((j * 3) + 1).v1
-                    Dim f3 = fbxgrp(i).indicies((j * 3) + 2).v1
-                    Dim vf_1 = fbxgrp(i).vertices(f1)
-                    Dim vf_2 = fbxgrp(i).vertices(f2)
-                    Dim vf_3 = fbxgrp(i).vertices(f3)
+                Try
+                    For j As UInt32 = 0 To _group(i).indicies.Length - 2
+                        Dim p1 = _group(i).indicies(j + 1).v1 - _group(i).startVertex_
+                        Dim p2 = _group(i).indicies(j + 1).v2 - _group(i).startVertex_
+                        Dim p3 = _group(i).indicies(j + 1).v3 - _group(i).startVertex_
+                        Dim vg_1 = _group(i).vertices(p1)
+                        Dim vg_2 = _group(i).vertices(p2)
+                        Dim vg_3 = _group(i).vertices(p3)
+                        Dim f1 = fbxgrp(i).indicies((j * 3) + 0).v1
+                        Dim f2 = fbxgrp(i).indicies((j * 3) + 1).v1
+                        Dim f3 = fbxgrp(i).indicies((j * 3) + 2).v1
+                        Dim vf_1 = fbxgrp(i).vertices(f1)
+                        Dim vf_2 = fbxgrp(i).vertices(f2)
+                        Dim vf_3 = fbxgrp(i).vertices(f3)
+                        '
 
-                    'check every verts x,y and z for non match
-                    'p1 -----------------------------------------
-                    If vg_1.x <> vf_1.x Then
-                        flg = True
-                        GoTo whichOne
-                    End If
-                    If vg_1.y <> vf_1.y Then
-                        flg = True
-                        GoTo whichOne
-                    End If
-                    If vg_1.z <> vf_1.z Then
-                        flg = True
-                        GoTo whichOne
-                    End If
-                    'p2 -----------------------------------------
-                    If vg_2.x <> vf_2.x Then
-                        flg = True
-                        GoTo whichOne
-                    End If
-                    If vg_2.y <> vf_2.y Then
-                        flg = True
-                        GoTo whichOne
-                    End If
-                    If vg_2.z <> vf_2.z Then
-                        flg = True
-                        GoTo whichOne
-                    End If
-                    'p3 -----------------------------------------
-                    If vg_3.x <> vf_3.x Then
-                        flg = True
-                        GoTo whichOne
-                    End If
-                    If vg_3.y <> vf_3.y Then
-                        flg = True
-                        GoTo whichOne
-                    End If
-                    If vg_3.z <> vf_3.z Then
-                        flg = True
-                        GoTo whichOne
-                    End If
+                        'check every verts x,y and z for non match
+                        'p1 -----------------------------------------
+                        If vg_1.x <> vf_1.x Then
+                            flg = True
+                        End If
+                        If vg_1.y <> vf_1.y Then
+                            flg = True
+                        End If
+                        If vg_1.z <> vf_1.z Then
+                            flg = True
+                        End If
+                        'p2 -----------------------------------------
+                        If vg_2.x <> vf_2.x Then
+                            flg = True
+                        End If
+                        If vg_2.y <> vf_2.y Then
+                            flg = True
+                        End If
+                        If vg_2.z <> vf_2.z Then
+                            flg = True
+                        End If
+                        'p3 -----------------------------------------
+                        If vg_3.x <> vf_3.x Then
+                            flg = True
+                        End If
+                        If vg_3.y <> vf_3.y Then
+                            flg = True
+                        End If
+                        If vg_3.z <> vf_3.z Then
+                            flg = True
+                        End If
+                    Next
+                Catch ex As Exception
 
-                Next
+                End Try
+
 whichone:
                 If flg Then ' if true than either the count is different or the vertices are changed
                     If _group(i).name.ToLower.Contains("chassis") Then
@@ -1893,6 +1889,7 @@ whichone:
         frmMain.find_icon_image(TANK_NAME)
         Application.DoEvents()
         MODEL_LOADED = True
+
     End Sub
 
     Public Sub make_fbx_display_lists(ByVal cnt As Integer, ByVal jj As Integer)
@@ -2384,10 +2381,7 @@ whichone:
         '--------------------------------------------------------------------------
         'weights .. no idea how to export them from the vertex data :(
         '--------------------------------------------------------------------------
-        '3DS Max crashes exporting FBX files that have a CV channel.
-        'This is a horrible and long running bug.
-        'There is no way to solve this with my app so VC will be grabbed from the original at import time.
-        '--------------------------------------------------------------------------
+        'export vertex colors
         If _group(id).header.Contains("iii") Then ' has indices
             Dim colorLayer1 As FbxLayerElementVertexColor = Nothing
             colorLayer1 = FbxLayerElementVertexColor.Create(myMesh, "VertexColor")

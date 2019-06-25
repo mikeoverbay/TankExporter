@@ -24,6 +24,8 @@ Partial Class frmScreenCap
     Private Sub InitializeComponent()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(frmScreenCap))
         Me.GroupBox1 = New System.Windows.Forms.GroupBox()
+        Me.y_size_tb = New System.Windows.Forms.TextBox()
+        Me.x_size_tb = New System.Windows.Forms.TextBox()
         Me.x1980x1200_rb = New System.Windows.Forms.RadioButton()
         Me.x1440_rb = New System.Windows.Forms.RadioButton()
         Me.x1280_rb = New System.Windows.Forms.RadioButton()
@@ -39,14 +41,20 @@ Partial Class frmScreenCap
         Me.cancel_btn = New System.Windows.Forms.Button()
         Me.ColorDialog1 = New System.Windows.Forms.ColorDialog()
         Me.SaveFileDialog1 = New System.Windows.Forms.SaveFileDialog()
-        Me.x_size_tb = New System.Windows.Forms.TextBox()
-        Me.y_size_tb = New System.Windows.Forms.TextBox()
+        Me.image_rb = New System.Windows.Forms.RadioButton()
+        Me.wot_carousel_rb = New System.Windows.Forms.RadioButton()
+        Me.wot_panel_rb = New System.Windows.Forms.RadioButton()
+        Me.wot_wotmod_rb = New System.Windows.Forms.RadioButton()
+        Me.OpenFileDialog1 = New System.Windows.Forms.OpenFileDialog()
         Me.GroupBox1.SuspendLayout()
         Me.GroupBox2.SuspendLayout()
         Me.SuspendLayout()
         '
         'GroupBox1
         '
+        Me.GroupBox1.Controls.Add(Me.wot_wotmod_rb)
+        Me.GroupBox1.Controls.Add(Me.wot_panel_rb)
+        Me.GroupBox1.Controls.Add(Me.wot_carousel_rb)
         Me.GroupBox1.Controls.Add(Me.y_size_tb)
         Me.GroupBox1.Controls.Add(Me.x_size_tb)
         Me.GroupBox1.Controls.Add(Me.x1980x1200_rb)
@@ -58,10 +66,30 @@ Partial Class frmScreenCap
         Me.GroupBox1.ForeColor = System.Drawing.Color.WhiteSmoke
         Me.GroupBox1.Location = New System.Drawing.Point(12, 12)
         Me.GroupBox1.Name = "GroupBox1"
-        Me.GroupBox1.Size = New System.Drawing.Size(98, 207)
+        Me.GroupBox1.Size = New System.Drawing.Size(195, 280)
         Me.GroupBox1.TabIndex = 0
         Me.GroupBox1.TabStop = False
         Me.GroupBox1.Text = "Output Size"
+        '
+        'y_size_tb
+        '
+        Me.y_size_tb.BackColor = System.Drawing.Color.FromArgb(CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer))
+        Me.y_size_tb.ForeColor = System.Drawing.Color.White
+        Me.y_size_tb.Location = New System.Drawing.Point(6, 252)
+        Me.y_size_tb.Name = "y_size_tb"
+        Me.y_size_tb.Size = New System.Drawing.Size(76, 20)
+        Me.y_size_tb.TabIndex = 6
+        Me.y_size_tb.Text = "480"
+        '
+        'x_size_tb
+        '
+        Me.x_size_tb.BackColor = System.Drawing.Color.FromArgb(CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer))
+        Me.x_size_tb.ForeColor = System.Drawing.Color.White
+        Me.x_size_tb.Location = New System.Drawing.Point(6, 230)
+        Me.x_size_tb.Name = "x_size_tb"
+        Me.x_size_tb.Size = New System.Drawing.Size(76, 20)
+        Me.x_size_tb.TabIndex = 4
+        Me.x_size_tb.Text = "800"
         '
         'x1980x1200_rb
         '
@@ -117,7 +145,7 @@ Partial Class frmScreenCap
         '
         Me.x64_rb.AutoSize = True
         Me.x64_rb.Checked = True
-        Me.x64_rb.Location = New System.Drawing.Point(6, 139)
+        Me.x64_rb.Location = New System.Drawing.Point(6, 210)
         Me.x64_rb.Name = "x64_rb"
         Me.x64_rb.Size = New System.Drawing.Size(60, 17)
         Me.x64_rb.TabIndex = 0
@@ -127,14 +155,15 @@ Partial Class frmScreenCap
         '
         'GroupBox2
         '
+        Me.GroupBox2.Controls.Add(Me.image_rb)
         Me.GroupBox2.Controls.Add(Me.pick_color_btn)
         Me.GroupBox2.Controls.Add(Me.color_rb)
         Me.GroupBox2.Controls.Add(Me.terrain_rb)
         Me.GroupBox2.Controls.Add(Me.trans_rb)
         Me.GroupBox2.ForeColor = System.Drawing.Color.White
-        Me.GroupBox2.Location = New System.Drawing.Point(116, 12)
+        Me.GroupBox2.Location = New System.Drawing.Point(213, 12)
         Me.GroupBox2.Name = "GroupBox2"
-        Me.GroupBox2.Size = New System.Drawing.Size(101, 171)
+        Me.GroupBox2.Size = New System.Drawing.Size(101, 169)
         Me.GroupBox2.TabIndex = 1
         Me.GroupBox2.TabStop = False
         Me.GroupBox2.Text = "Background"
@@ -143,7 +172,7 @@ Partial Class frmScreenCap
         '
         Me.pick_color_btn.Enabled = False
         Me.pick_color_btn.ForeColor = System.Drawing.Color.Black
-        Me.pick_color_btn.Location = New System.Drawing.Point(7, 93)
+        Me.pick_color_btn.Location = New System.Drawing.Point(10, 93)
         Me.pick_color_btn.Name = "pick_color_btn"
         Me.pick_color_btn.Size = New System.Drawing.Size(75, 23)
         Me.pick_color_btn.TabIndex = 3
@@ -185,9 +214,9 @@ Partial Class frmScreenCap
         'save_btn
         '
         Me.save_btn.ForeColor = System.Drawing.Color.Black
-        Me.save_btn.Location = New System.Drawing.Point(123, 225)
+        Me.save_btn.Location = New System.Drawing.Point(237, 298)
         Me.save_btn.Name = "save_btn"
-        Me.save_btn.Size = New System.Drawing.Size(81, 23)
+        Me.save_btn.Size = New System.Drawing.Size(77, 23)
         Me.save_btn.TabIndex = 2
         Me.save_btn.Text = "Save"
         Me.save_btn.UseVisualStyleBackColor = True
@@ -195,39 +224,66 @@ Partial Class frmScreenCap
         'cancel_btn
         '
         Me.cancel_btn.ForeColor = System.Drawing.Color.Black
-        Me.cancel_btn.Location = New System.Drawing.Point(18, 225)
+        Me.cancel_btn.Location = New System.Drawing.Point(12, 298)
         Me.cancel_btn.Name = "cancel_btn"
-        Me.cancel_btn.Size = New System.Drawing.Size(75, 23)
+        Me.cancel_btn.Size = New System.Drawing.Size(98, 23)
         Me.cancel_btn.TabIndex = 3
         Me.cancel_btn.Text = "Cancel"
         Me.cancel_btn.UseVisualStyleBackColor = True
         '
-        'x_size_tb
+        'image_rb
         '
-        Me.x_size_tb.BackColor = System.Drawing.Color.FromArgb(CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer))
-        Me.x_size_tb.ForeColor = System.Drawing.Color.White
-        Me.x_size_tb.Location = New System.Drawing.Point(6, 159)
-        Me.x_size_tb.Name = "x_size_tb"
-        Me.x_size_tb.Size = New System.Drawing.Size(76, 20)
-        Me.x_size_tb.TabIndex = 4
-        Me.x_size_tb.Text = "800"
+        Me.image_rb.AutoSize = True
+        Me.image_rb.Location = New System.Drawing.Point(7, 140)
+        Me.image_rb.Name = "image_rb"
+        Me.image_rb.Size = New System.Drawing.Size(54, 17)
+        Me.image_rb.TabIndex = 4
+        Me.image_rb.Text = "Image"
+        Me.image_rb.UseVisualStyleBackColor = True
         '
-        'y_size_tb
+        'wot_carousel_rb
         '
-        Me.y_size_tb.BackColor = System.Drawing.Color.FromArgb(CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer))
-        Me.y_size_tb.ForeColor = System.Drawing.Color.White
-        Me.y_size_tb.Location = New System.Drawing.Point(6, 181)
-        Me.y_size_tb.Name = "y_size_tb"
-        Me.y_size_tb.Size = New System.Drawing.Size(76, 20)
-        Me.y_size_tb.TabIndex = 6
-        Me.y_size_tb.Text = "480"
+        Me.wot_carousel_rb.AutoSize = True
+        Me.wot_carousel_rb.Font = New System.Drawing.Font("Lucida Console", 9.0!, System.Drawing.FontStyle.Underline, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.wot_carousel_rb.Location = New System.Drawing.Point(6, 140)
+        Me.wot_carousel_rb.Name = "wot_carousel_rb"
+        Me.wot_carousel_rb.Size = New System.Drawing.Size(163, 16)
+        Me.wot_carousel_rb.TabIndex = 7
+        Me.wot_carousel_rb.Text = "WoT Carousel 160x100"
+        Me.wot_carousel_rb.UseVisualStyleBackColor = True
+        '
+        'wot_panel_rb
+        '
+        Me.wot_panel_rb.AutoSize = True
+        Me.wot_panel_rb.Font = New System.Drawing.Font("Lucida Console", 9.0!, System.Drawing.FontStyle.Underline, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.wot_panel_rb.Location = New System.Drawing.Point(6, 163)
+        Me.wot_panel_rb.Name = "wot_panel_rb"
+        Me.wot_panel_rb.Size = New System.Drawing.Size(163, 16)
+        Me.wot_panel_rb.TabIndex = 8
+        Me.wot_panel_rb.Text = "WoT Panel    420x307"
+        Me.wot_panel_rb.UseVisualStyleBackColor = True
+        '
+        'wot_wotmod_rb
+        '
+        Me.wot_wotmod_rb.AutoSize = True
+        Me.wot_wotmod_rb.Font = New System.Drawing.Font("Lucida Console", 9.0!, System.Drawing.FontStyle.Underline, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.wot_wotmod_rb.Location = New System.Drawing.Point(6, 188)
+        Me.wot_wotmod_rb.Name = "wot_wotmod_rb"
+        Me.wot_wotmod_rb.Size = New System.Drawing.Size(163, 16)
+        Me.wot_wotmod_rb.TabIndex = 9
+        Me.wot_wotmod_rb.Text = "WoT Mods     302x170"
+        Me.wot_wotmod_rb.UseVisualStyleBackColor = True
+        '
+        'OpenFileDialog1
+        '
+        Me.OpenFileDialog1.FileName = "OpenFileDialog1"
         '
         'frmScreenCap
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.Color.FromArgb(CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer))
-        Me.ClientSize = New System.Drawing.Size(232, 260)
+        Me.ClientSize = New System.Drawing.Size(326, 333)
         Me.Controls.Add(Me.cancel_btn)
         Me.Controls.Add(Me.save_btn)
         Me.Controls.Add(Me.GroupBox2)
@@ -263,4 +319,9 @@ Partial Class frmScreenCap
     Friend WithEvents x1980x1200_rb As System.Windows.Forms.RadioButton
     Friend WithEvents y_size_tb As System.Windows.Forms.TextBox
     Friend WithEvents x_size_tb As System.Windows.Forms.TextBox
+    Friend WithEvents image_rb As System.Windows.Forms.RadioButton
+    Friend WithEvents wot_wotmod_rb As System.Windows.Forms.RadioButton
+    Friend WithEvents wot_panel_rb As System.Windows.Forms.RadioButton
+    Friend WithEvents wot_carousel_rb As System.Windows.Forms.RadioButton
+    Friend WithEvents OpenFileDialog1 As System.Windows.Forms.OpenFileDialog
 End Class

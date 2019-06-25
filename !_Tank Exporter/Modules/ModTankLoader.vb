@@ -359,7 +359,12 @@ Module ModTankLoader
         Public v2 As UInt32
         Public v3 As UInt32
     End Structure
-
+    Public Structure compare_
+        Public v1 As vect3
+        Public v2 As vect3
+        Public v3 As vect3
+        Public color As vec3
+    End Structure
 #End Region
 
     Public Function build_primitive_data(ByVal _add As Boolean) As Boolean

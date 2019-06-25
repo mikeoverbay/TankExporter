@@ -39,6 +39,9 @@ Module modGlobals
     '##################################
     Public move_cam_z, M_DOWN, move_mod, z_move As Boolean
     '##################################
+    Public diff_list As Integer
+    Public custom_image_text_Id As Integer
+    Public CUSTOM_IMAGE_MODE As Boolean
     Public rot_limit_l, rot_limit_r As Single
     Public gun_limit_u, gun_limit_d As Single
 

@@ -572,6 +572,9 @@ Public Class frmMain
 
     '############################################################################ form load
     Private Sub frmMain_Load(sender As Object, e As EventArgs) Handles Me.Load
+
+        My.Settings.Upgrade() ' upgrades to keep old settings
+
         Dim nonInvariantCulture As System.Globalization.CultureInfo = New CultureInfo("en-US")
         nonInvariantCulture.NumberFormat.NumberDecimalSeparator = "."
         System.Threading.Thread.CurrentThread.CurrentCulture = nonInvariantCulture
@@ -2717,6 +2720,9 @@ tryagain:
             render_depth_to_depth_texture(0)
             'draw_to_full_screen_mono_shadow_texture()
         End If
+        Dim h, w As Integer
+        G_Buffer.getsize(w, h)
+
         If is_camo_active() Then
             m_edit_camo.Visible = True
         Else
@@ -2766,10 +2772,23 @@ tryagain:
         End If
 
         Gl.glClear(Gl.GL_COLOR_BUFFER_BIT Or Gl.GL_DEPTH_BUFFER_BIT)
-
         G_Buffer.attachColorTexture()
-
         Gl.glDisable(Gl.GL_BLEND)
+        ResizeGL(w, h)
+
+        If frmScreenCap.RENDER_OUT And CUSTOM_IMAGE_MODE Then
+            Gl.glColor4f(1.0, 1.0, 1.0, 0.0) 'red
+
+            no_background = True
+            ViewOrtho()
+            Gl.glEnable(Gl.GL_TEXTURE_2D)
+            Gl.glActiveTexture(Gl.GL_TEXTURE0)
+            Gl.glBindTexture(Gl.GL_TEXTURE_2D, custom_image_text_Id)
+            draw_main_rec_flip_y(New Point(0, 0), w, h)
+            Gl.glBindTexture(Gl.GL_TEXTURE_2D, 0)
+            Gl.glDisable(Gl.GL_TEXTURE_2D)
+        End If
+
 
         Gl.glEnable(Gl.GL_LIGHTING)
         Gl.glEnable(Gl.GL_CULL_FACE)
@@ -2777,9 +2796,6 @@ tryagain:
         Gl.glEnable(Gl.GL_SMOOTH)
         Gl.glEnable(Gl.GL_NORMALIZE)
 
-        Dim h, w As Integer
-        G_Buffer.getsize(w, h)
-        ResizeGL(w, h)
         Dim v As Point = pb1.Size
         Gl.glDisable(Gl.GL_DEPTH_TEST)
         Gl.glClear(Gl.GL_DEPTH_BUFFER_BIT)
@@ -2803,7 +2819,6 @@ tryagain:
             Gl.glVertex3f(v.X, -v.Y, 0)
             Gl.glEnd()
         End If
-
         Gl.glFrontFace(Gl.GL_CCW)
 
         Gl.glDepthFunc(Gl.GL_LEQUAL)
@@ -2845,8 +2860,6 @@ tryagain:
             Gl.glFrontFace(Gl.GL_CW)
         End If
         '=============================================================
-        Gl.glEnable(Gl.GL_LIGHTING)
-
         '-----------------------------------------------------------------------------
         'light positions
         If Show_lights Then
@@ -3392,7 +3405,6 @@ tryagain:
         End If
         '=================================================================================
 
-
         If move_mod Or z_move Then    'draw reference lines to eye center
             Gl.glColor3f(1.0, 1.0, 1.0)
             'Gl.glLineStipple(1, &HF00F)
@@ -3718,6 +3730,31 @@ fuckit:
 
 
     End Sub
+    Private Sub draw_main_rec_flip_y(ByVal p As Point, ByVal w As Integer, ByVal h As Integer)
+        Gl.glBegin(Gl.GL_QUADS)
+        'G_Buffer.getsize(w, h)
+        '  CW...
+        '  1 ------ 2
+        '  |        |
+        '  |        |
+        '  4 ------ 3
+        '
+        Gl.glTexCoord2f(0.0!, 1.0!)
+        Gl.glVertex2f(p.X + w, p.Y - h)
+
+        Gl.glTexCoord2f(1.0!, 1.0!)
+        Gl.glVertex2f(p.X, p.Y - h)
+
+        Gl.glTexCoord2f(1.0!, 0.0!)
+        Gl.glVertex2f(p.X, p.Y)
+
+        Gl.glTexCoord2f(0.0!, 0.0!)
+        Gl.glVertex2f(p.X + w, p.Y)
+        Gl.glEnd()
+
+
+    End Sub
+    '###########################################################################################################################################
     '###########################################################################################################################################
     Dim pan_slide As Single = 0
     Private Sub update_pan()
@@ -6323,10 +6360,19 @@ n_turret:
             End If
             '------------------------------------------
             '------------------------------------------
+            Dim tank_sr_name = Path.GetFileName(public_icon_path)
             If frmExtract.gui_cb.Checked Then
-                Dim ic = gui_pkg(public_icon_path)
-                If ic IsNot Nothing Then
-                    ic.Extract(My.Settings.res_mods_path)
+                Dim ic_160x100 = gui_pkg(public_icon_path)
+                If ic_160x100 IsNot Nothing Then
+                    ic_160x100.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
+                End If
+                Dim an = tank_sr_name.Split("-")
+                tank_sr_name = an(1)
+                Dim sss = public_icon_path.Replace(an(0) + "-", "")
+                Dim srs = Path.GetDirectoryName(sss) + public_icon_path.Replace(public_icon_path.Replace(an(1) + "-", ""), "/420x307/" + tank_sr_name)
+                Dim ic_420x307 = gui_pkg(srs)
+                If ic_420x307 IsNot Nothing Then
+                    ic_420x307.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
                 End If
             End If
             If frmExtract.extract_item_def_cb.Checked Then
@@ -6336,19 +6382,10 @@ n_turret:
                     Dim ip = My.Settings.res_mods_path + "\" + itemDefPathString.Replace(" ", "")
                     prep_tanks_xml(itemDefXmlString)
                     itemDefXmlString = itemDefXmlString.Replace("  ", vbTab)
-                    'itemDefXmlString = itemDefXmlString.Replace("  ", "")
                     itemDefXmlString = itemDefXmlString.Replace("><", ">" + vbCrLf + "<")
-                    'itemDefXmlString = itemDefXmlString.Replace(">" + vbCrLf + "</", "><")
-                    'itemDefXmlString = itemDefXmlString.Replace(vbCrLf, vbLf)
-                    'itemDefXmlString = itemDefXmlString.Replace(vbLf, vbCrLf)
                     itemDefXmlString = itemDefXmlString.Replace("<xmlref>", "<!--<xmlref>")
                     itemDefXmlString = itemDefXmlString.Replace("</xmlref>", "</xmlref>-->")
                     itemDefXmlString = itemDefXmlString.Replace("formfactor_rect1x4direction_left_to_right", "formfactor_rect1x4 direction_left_to_right")
-                    For z = 0 To 9
-                        'itemDefXmlString = itemDefXmlString.Replace(">" + z.ToString, ">" + vbTab + z.ToString)
-                        'itemDefXmlString = itemDefXmlString.Replace(z.ToString + "</", z.ToString + vbTab + "</")
-                    Next
-                    'itemDefXmlString = itemDefXmlString.Replace(">-", "> -")
                     If Not Directory.Exists(Path.GetDirectoryName(ip)) Then
                         Directory.CreateDirectory(Path.GetDirectoryName(ip))
                     End If
@@ -6994,7 +7031,7 @@ n_turret:
             End If
 
         Catch ex As Exception
-            File.WriteAllText("C:\TE.txt", sb.ToString)
+            'File.WriteAllText("C:\TE.txt", sb.ToString)
         End Try
         TC1.Enabled = True
     End Sub
@@ -8320,6 +8357,7 @@ n_turret:
 
     Dim track_visual_exist As Boolean
 
+    Dim track_names(1) As String
     Dim chassis_names(1) As String
     Dim hull_names(1) As String
     Dim turret_names(1) As String
@@ -8500,14 +8538,17 @@ n_turret:
         'deal with track folder
         If segment_visual_exist Then
             fix_paths_track_model("segment.", track_path, author, Path.GetFileName(tank))
+            fix_crash_paths_visual("segment.", track_path, author, Path.GetFileName(tank), track_names)
 
         Else
             If segment_1_visual_exist Then
                 fix_paths_track_model("segment_1.", track_path, author, Path.GetFileName(tank))
+                fix_crash_paths_visual("segment_1.", track_path, author, Path.GetFileName(tank), track_names)
 
             End If
             If segment_2_visual_exist Then
                 fix_paths_track_model("segment_2.", track_path, author, Path.GetFileName(tank))
+                fix_crash_paths_visual("segment_2.", track_path, author, Path.GetFileName(tank), track_names)
 
             End If
 
@@ -8962,6 +9003,15 @@ n_turret:
             GC.Collect() 'cleans out garbage in the garbage collecor
             Return
         End If
+
+        Dim tank_sr_name = Path.GetFileName(public_icon_path)
+        Dim an = tank_sr_name.Split("-")
+        tank_sr_name = an(1)
+        Dim sss = public_icon_path.Replace(an(0) + "-", "")
+        Dim srs = Path.GetDirectoryName(sss) + public_icon_path.Replace(public_icon_path.Replace(an(1) + "-", ""), "\420x307\" + tank_sr_name)
+
+        Dim source_420x307_path = My.Settings.res_mods_path + "\" + srs
+        Dim dest_420x307_path = My.Settings.res_mods_path + "\temp\res\" + srs
         Dim p_path = Path.GetDirectoryName(tank)
         Dim new_path_save As String = My.Settings.res_mods_path + "\temp\res\" + p_path
         Dim source_scripts_path As String = My.Settings.res_mods_path + "\res\scripts"
@@ -8978,6 +9028,12 @@ n_turret:
                 Directory.CreateDirectory(Path.GetDirectoryName(dest_gui_path))
             End If
             File.Copy(source_gui_path, dest_gui_path)
+        End If
+        If File.Exists(source_420x307_path) Then
+            If Not Directory.Exists(Path.GetDirectoryName(dest_420x307_path)) Then
+                Directory.CreateDirectory(Path.GetDirectoryName(dest_420x307_path))
+            End If
+            File.Copy(source_420x307_path, dest_420x307_path)
         End If
         Directory.Delete(new_path, True) 'clean out old data
         'Return
@@ -9001,6 +9057,31 @@ n_turret:
         MsgBox("< wotmod built >", MsgBoxStyle.OkOnly, "DONE!")
         info_Label.Visible = False
         info_Label.Parent = Me
+    End Sub
+    Private Sub extract_tanks_xml_file()
+        Dim ts = itemDefXmlString
+        Try ' catch any exception thrown
+
+            Dim ip = My.Settings.res_mods_path + "\" + itemDefPathString.Replace(" ", "")
+            prep_tanks_xml(itemDefXmlString)
+            itemDefXmlString = itemDefXmlString.Replace("  ", vbTab)
+            itemDefXmlString = itemDefXmlString.Replace("><", ">" + vbCrLf + "<")
+            itemDefXmlString = itemDefXmlString.Replace("<xmlref>", "<!--<xmlref>")
+            itemDefXmlString = itemDefXmlString.Replace("</xmlref>", "</xmlref>-->")
+            itemDefXmlString = itemDefXmlString.Replace("formfactor_rect1x4direction_left_to_right", "formfactor_rect1x4 direction_left_to_right")
+            If Not Directory.Exists(Path.GetDirectoryName(ip)) Then
+                Directory.CreateDirectory(Path.GetDirectoryName(ip))
+            End If
+            itemDefXmlString = itemDefXmlString.Replace("map_nation", Path.GetFileNameWithoutExtension(file_name) + ".xml")
+            File.WriteAllText(ip, itemDefXmlString, Encoding.ASCII)
+        Catch ex As Exception
+            itemDefXmlString = ts
+            MsgBox(file_name + vbCrLf + ex.Message, MsgBoxStyle.Critical, "Shit!!")
+            Return
+        End Try
+
+        itemDefXmlString = ts
+
     End Sub
     Public Sub CopyDirectory(ByVal sourcePath As String, ByVal destinationPath As String)
         Dim sourceDirectoryInfo As New System.IO.DirectoryInfo(sourcePath)
