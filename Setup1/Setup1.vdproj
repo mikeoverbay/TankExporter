@@ -207,6 +207,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_2AE400F2500042A28BB9EBE90C43C9FE"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_2B5A1D84AB024A40A0044BE38839ED61"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -801,6 +807,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_8ADF25B2AE7A4E03937FED702F77D572"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_8AF3AC015225419F9E5C0ADA4E244213"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -1251,6 +1263,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_EA90E1619FC44DFAB79C301CF6D79225"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_EB3B4C0B40114F99A2E51CE33631C788"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -1498,7 +1516,7 @@
         "DisplayName" = "8:Release"
         "IsDebugOnly" = "11:FALSE"
         "IsReleaseOnly" = "11:TRUE"
-        "OutputFilename" = "8:..\\TankExporter_091.msi"
+        "OutputFilename" = "8:..\\TankExporter_092.msi"
         "PackageFilesAs" = "3:2"
         "PackageFileSize" = "3:-2147483648"
         "CabType" = "3:1"
@@ -2205,6 +2223,26 @@
             "TargetName" = "8:visualmarkers.html"
             "Tag" = "8:"
             "Folder" = "8:_87C614F83BA1480492E90F368FEAFD06"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_2AE400F2500042A28BB9EBE90C43C9FE"
+            {
+            "SourcePath" = "8:..\\!_Tank Exporter\\7zxa.dll"
+            "TargetName" = "8:7zxa.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_9BBCA850C4D847C495C4D74DD189C10E"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -4245,6 +4283,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8ADF25B2AE7A4E03937FED702F77D572"
+            {
+            "SourcePath" = "8:..\\!_Tank Exporter\\history.txt"
+            "TargetName" = "8:history.txt"
+            "Tag" = "8:"
+            "Folder" = "8:_9BBCA850C4D847C495C4D74DD189C10E"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8AF3AC015225419F9E5C0ADA4E244213"
             {
             "SourcePath" = "8:..\\!_Tank Exporter\\html\\Images\\JLD_9.jpg"
@@ -5769,6 +5827,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_EA90E1619FC44DFAB79C301CF6D79225"
+            {
+            "SourcePath" = "8:..\\!_Tank Exporter\\7za.dll"
+            "TargetName" = "8:7za.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_9BBCA850C4D847C495C4D74DD189C10E"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_EB3B4C0B40114F99A2E51CE33631C788"
             {
             "SourcePath" = "8:..\\!_Tank Exporter\\Templates\\templateColorOnlyGUN.txt"
@@ -6399,15 +6477,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Tank Exporter"
-        "ProductCode" = "8:{804E9282-8EBA-4D9F-B8F5-139667D90556}"
-        "PackageCode" = "8:{EF2CB540-74CE-4BA5-9960-E9DCC40F9ADD}"
+        "ProductCode" = "8:{A9C54D11-24DC-42DF-8442-07BB12A58AC1}"
+        "PackageCode" = "8:{C2444E14-78D1-4116-A0CC-88396BF95092}"
         "UpgradeCode" = "8:{6ABAF23A-CB3D-4411-B78A-4855B5B5A0CD}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:1.0.91"
+        "ProductVersion" = "8:1.0.92"
         "Manufacturer" = "8:Coffee_"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"

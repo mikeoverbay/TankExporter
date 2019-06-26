@@ -341,6 +341,18 @@ Namespace My
                 Me("custom_image") = value
             End Set
         End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("")>  _
+        Public Property background_image() As String
+            Get
+                Return CType(Me("background_image"),String)
+            End Get
+            Set
+                Me("background_image") = value
+            End Set
+        End Property
     End Class
 End Namespace
 

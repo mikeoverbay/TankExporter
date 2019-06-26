@@ -8863,6 +8863,8 @@ n_turret:
         Return ts
 
     End Function
+
+    '********
     Private Sub m_build_wotmod_Click(sender As Object, e As EventArgs) Handles m_build_wotmod.Click
         If Not MODEL_LOADED Then
             MsgBox("You need to let me know what tank to package." + vbCrLf _
@@ -9046,7 +9048,16 @@ n_turret:
 
         Dim r = Process.Start(ps)
         r.WaitForExit()
+        Dim ps2 As New ProcessStartInfo
+        ps2.FileName = Application.StartupPath + "\" + "7za.exe"
+        ps2.Arguments = " rn " + f_model + " res\meta.xml meta.xml" + "  "
+
+        Dim r2 = Process.Start(ps2)
+        r2.WaitForExit()
+
         r.Dispose()
+        r2.Dispose()
+
         GC.Collect() 'cleans out garbage in the garbage collecor
         'System.IO.Compression.ZipFile.CreateFromDirectory(new_path, f_model, CompressionLevel.NoCompression, False)
         info_Label.Text = "Found " + searched_files.ToString("0000") + " relevant files."
