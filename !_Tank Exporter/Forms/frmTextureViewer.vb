@@ -30,8 +30,20 @@ Imports System.Drawing.Imaging
 
 Public Class frmTextureViewer
     Dim center As vec2
+    Dim UVcolor As c_
+    Public Structure c_
+        Public r As Single
+        Public g As Single
+        Public b As Single
+    End Structure
     Dim mask As Integer = 15
     Public Sub set_current_image()
+
+        'set color to yellow at start
+        UVcolor.r = 0.8!
+        UVcolor.g = 0.8!
+        UVcolor.b = 0.8!
+
         m_r.Checked = True
         m_g.Checked = True
         m_b.Checked = True
@@ -69,9 +81,10 @@ Public Class frmTextureViewer
             If Me.m_uvs_only.Checked Or Me.m_show_uvs.Checked Then
                 If current_vertex > 0 Then
                     If frmMain.m_show_fbx.Checked Then
-                        Dim p1 = fbxgrp(current_tank_part).indicies(current_vertex - 1).v1
-                        Dim p2 = fbxgrp(current_tank_part).indicies(current_vertex - 1).v2
-                        Dim p3 = fbxgrp(current_tank_part).indicies(current_vertex - 1).v3
+                        Dim cv As Integer = CInt((current_vertex - 1) * 3)
+                        Dim p1 = fbxgrp(current_tank_part).indicies(cv + 0).v1
+                        Dim p2 = fbxgrp(current_tank_part).indicies(cv + 1).v1
+                        Dim p3 = fbxgrp(current_tank_part).indicies(cv + 1).v1
                         Dim v1 = fbxgrp(current_tank_part).vertices(p1)
                         Dim v2 = fbxgrp(current_tank_part).vertices(p2)
                         Dim v3 = fbxgrp(current_tank_part).vertices(p3)
@@ -552,7 +565,7 @@ Public Class frmTextureViewer
         Dim cnt = _object(current_tank_part).count
         Gl.glPolygonMode(Gl.GL_FRONT_AND_BACK, Gl.GL_LINE)
         Gl.glDisable(Gl.GL_BLEND)
-        Gl.glColor3f(0.8, 0.8, 0.0)
+        Gl.glColor3f(UVcolor.r, UVcolor.g, UVcolor.b)
 
         Gl.glPushMatrix()
         Gl.glTranslatef(rect_location.X + center.x, -rect_location.Y - center.y, 0.0F)
@@ -878,6 +891,41 @@ Public Class frmTextureViewer
         If Not m_a.Checked Then
             mask = mask Xor 8
         End If
+        draw()
+    End Sub
+
+    Private Sub m_yellow_Click(sender As Object, e As EventArgs) Handles m_yellow.Click
+        UVcolor.r = 0.8!
+        UVcolor.g = 0.8!
+        UVcolor.b = 0.0!
+        draw()
+    End Sub
+
+    Private Sub m_red_Click(sender As Object, e As EventArgs) Handles m_red.Click
+        UVcolor.r = 0.8!
+        UVcolor.g = 0.0!
+        UVcolor.b = 0.0!
+        draw()
+    End Sub
+
+    Private Sub m_green_Click(sender As Object, e As EventArgs) Handles m_green.Click
+        UVcolor.r = 0.0!
+        UVcolor.g = 0.8!
+        UVcolor.b = 0.0!
+        draw()
+    End Sub
+
+    Private Sub m_blue_Click(sender As Object, e As EventArgs) Handles m_blue.Click
+        UVcolor.r = 0.0!
+        UVcolor.g = 0.0!
+        UVcolor.b = 1.0!
+        draw()
+    End Sub
+
+    Private Sub m_black_Click(sender As Object, e As EventArgs) Handles m_black.Click
+        UVcolor.r = 0.0!
+        UVcolor.g = 0.0!
+        UVcolor.b = 0.0!
         draw()
     End Sub
 End Class

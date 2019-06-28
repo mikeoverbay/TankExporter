@@ -48,7 +48,7 @@ a:active {
   Clicking on one of the texture buttons opens that texture in the Texture View Window.</p>
 <table width="100%" border="0">
   <tr>
-    <td width="586"><img src="Images/textureviewwindow.jpg" alt="Texture View Window" width="586" height="501" /></td>
+    <td width="586"><img src="Images/textureviewwindow.jpg" alt="Texture View Window" width="644" height="504" /></td>
     <td width="100%" valign="top"><p>&nbsp;</p>
     <p>The top menu has a number of buttons that control how the texture looks in the window.<br />
       You can turn the Alpha channel display mode on. This uses the textures alpha if it exists to show the transparency.<br />
@@ -56,18 +56,19 @@ a:active {
       You can also save the image as  a PNG to use as a mask during texture painting operations.<br />
       You can turn on and off different color channels.<br />
       If R,G and B are off, Alpha is shown as gray scale, lighter being less transparent.<br />
+      UV Line Color changes the color of the UV outlines.<br />
     Top Most keeps the window on top of all other windows. </p>
     <p>Mousing over the tank or in the window while Show UVS or UVs Only is on will show the triangle in the texture window OR on the tank model its self.<br />
       If while mousing over the tank and no triangle is tracked in the TV window, you are mousing over a part of the tank that is not using the currently selected texture.</p>
-    <p>Here is a basic list of what colors do what in each texture.</p>
-    <p><span class="style2">_AM:</span><br />
-      RGB color of the tank. Alpha is only used in Track textures. It contains the AO levels. <br />
-      <span class="style2">_AO:</span><br />
+    <p>Here is a basic list of what colors do what in each texture.<br />
+      <span class="style2">_AM:</span> <strong>Albedo</strong>&nbsp;Map<br />
+      RGB color of the tank. Alpha is only used in Track textures. It contains the AO level. <br />
+      <span class="style2">_AO:</span> <strong>Ambient Occlusion </strong>&nbsp;Map<br />
         R is specular level. It is unused in PBR shading. 
         G is the ambient occlusion. B some times has values but I'm unsure what they are.. Alpha is the Camouflage mask.<br />
-        <span class="style2">_GMM:</span><br />
-        R is roughness.. G is metalness, B is the Paint Mask. Alpha is unused. Information about GMM maps is located <a href="http://forum.worldoftanks.eu/index.php?/topic/524031-tutorialnew-gmm-value-range-since-099-and-its-effect-on-metallic-detail-map/" target="_blank">HERE.</a> <br />
-        <span class="style2">_ANM:</span><br />
+        <span class="style2">_GMM: </span><strong>Gloss Metal </strong>&nbsp;Map<br />
+        R is Glossiness, G is metalness, B is the Paint Mask. Alpha is unused. Information about GMM maps is located <a href="http://forum.worldoftanks.eu/index.php?/topic/524031-tutorialnew-gmm-value-range-since-099-and-its-effect-on-metallic-detail-map/" target="_blank">HERE.</a> <br />
+        <span class="style2">_ANM:</span> <strong>Albedo</strong>&nbsp;<strong>Normal</strong> Map <br />
         R is used for Alpha. 
       G and A contain X and Y normal values. B is unused. </p>
     <p> <br />

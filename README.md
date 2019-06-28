@@ -10,6 +10,12 @@
 You can download it here: https://www.autodesk.com/developer-network/platform-technologies/fbx-converter-archives
 Or if you can not down load it from there... the 64 and 32 bit versions are located here: http://tnmshouse.com/converter/
 
+# Version 93:
+This fixes a bug in selecting UV triangles while in FBX View mode. It was NOT centering on the selected triangle when the C key was pressed.
+
+This version also adds the ability to select the color of the UV outline shown in the Texture Viewing window if "Show UVs" is selected.
+When a texture is selected for viewing, the color defaults to WHITE lines. You can now changes these to Yellow, Red, Green, Blue or Black. These outline colors will be used when writing a UV mask for use in texture painting.
+
 # Version 92:
 The meta.xml was being packaged in the res folder in wotmod files. This is fixed with this version. Now its packaged in the root of the files directory where it should be.
 
