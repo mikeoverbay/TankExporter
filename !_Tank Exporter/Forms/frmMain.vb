@@ -2825,6 +2825,7 @@ tryagain:
         Dim drawme As Boolean = True
 
         Dim l_color() = {0.3!, 0.3!, 0.3!}
+        Gl.glEnable(Gl.GL_LIGHTING)
 
         If MODEL_LOADED Then
             If m_show_fbx.Checked Then
@@ -3029,6 +3030,7 @@ tryagain:
         'Dont draw textures?
         If MODEL_LOADED And Not m_load_textures.Checked And Not m_show_fbx.Checked Then
             view_status_string += "Light Only : "
+            'Gl.glEnable(Gl.GL_LIGHTING)
             If wire_cb.Checked Then
                 Gl.glEnable(Gl.GL_POLYGON_OFFSET_FILL)
             End If
