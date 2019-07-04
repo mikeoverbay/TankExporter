@@ -12,10 +12,15 @@ Or if you can not down load it from there... the 64 and 32 bit versions are loca
 
 # Version 94:
 Fixed a few bugs in paths to crash textures when writing a WOTMOD file.
+
 Moved UI and Settings to there sub menu under file/settings.
+
 Added a PBR template for when visuals are updated for new added models.
+
 Added a panel to Show/Hide each individual part of the tank and any other added models.
-Added a panel to set the vertex winding order for each part of the model. Sometimes, even when it shows correctly in the 3D app and Tank Exporter, It still shows reveresed in the game.
+
+Added a panel to set the vertex winding order for each part of the model. Sometimes, even when it shows correctly in the 3D app and Tank Exporter, It still shows reversed in the game.
+
 Updated the help pages.
 
 
