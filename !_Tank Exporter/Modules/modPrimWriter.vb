@@ -116,6 +116,7 @@ found_it:
             Return False
 
         End Try
+        Return False
 
     End Function
 
@@ -1346,6 +1347,7 @@ noBSP_anymore:
             Dim templateColorOnly As String
             Dim templateNormal As String
             Dim templateNormalSpec As String
+            Dim templatePBR As String = File.ReadAllText(Application.StartupPath + "\Templates\templatePBR.txt")
             If ID = 4 Then
                 templateColorOnly = File.ReadAllText(Application.StartupPath + "\Templates\templateColorOnlyGUN.txt")
                 templateNormal = File.ReadAllText(Application.StartupPath + "\Templates\templateNormalGUN.txt")
@@ -1376,29 +1378,32 @@ noBSP_anymore:
                     primObj = templateNormalSpec  ' bump shader
                 End If
 
+                If frmWritePrimitive.use_pbr_template_cb.Checked Then
+                    primObj = templatePBR
+                End If
+
                 'check for legit texture assignments
                 If fbxgrp(fbx_id).normal_name Is Nothing And fbxgrp(fbx_id).specular_name IsNot Nothing Then
                     MsgBox("You have a specularMap but no normalMap for " + new_name + "..." + vbCrLf + _
                             "Defaulting to colorOnly shader...", MsgBoxStyle.Exclamation, "Texture Mapping Issue...")
                 End If
-
                 primObj = primObj.Replace("<PG_ID>0</PG_ID>", "<PG_ID>" + pgrp.ToString + "</PG_ID>") ' update primitive grp id
                 pgrp += 1 ' add one for each new item
                 primObj = primObj.Replace("Kustom_mat", new_name) ' update indentity name
 
                 Try ' this will change shortly
                     Dim new_s As String = fbxgrp(fbx_id).normal_name
-                    primObj = primObj.Replace("NORMAL_NAME", move_convert_new_textures(new_s))
+                    primObj = primObj.Replace("NORMAL_NAME", move_convert_new_textures(new_s, fbxgrp(fbx_id).name))
                 Catch ex As Exception
                 End Try
                 Try
                     Dim new_s As String = fbxgrp(fbx_id).color_name
-                    primObj = primObj.Replace("COLOR_NAME", move_convert_new_textures(new_s)) ' update diffuse texture name
+                    primObj = primObj.Replace("COLOR_NAME", move_convert_new_textures(new_s, fbxgrp(fbx_id).name)) ' update diffuse texture name
                 Catch ex As Exception
                 End Try
                 Try
                     Dim new_s As String = fbxgrp(fbx_id).specular_name
-                    primObj = primObj.Replace("SPECULAR_NAME", move_convert_new_textures(new_s)) ' update diffuse texture name
+                    primObj = primObj.Replace("SPECULAR_NAME", move_convert_new_textures(new_s, fbxgrp(fbx_id).name)) ' update diffuse texture name
                 Catch ex As Exception
                 End Try
                 Try
@@ -1427,23 +1432,42 @@ noBSP_anymore:
 
     End Sub
 
-    Private Function move_convert_new_textures(ByVal path As String) As String
+    Private Function move_convert_new_textures(ByVal path As String, ByVal t_s As String) As String
         Dim new_path As String = ""
         If path Is Nothing Then Return Nothing
+
+        Dim t_type As String = ""
+        If t_s.ToLower.Contains("chassis") Then
+            t_type = "chassis"
+        End If
+        If t_s.ToLower.Contains("hull") Then
+            t_type = "hull"
+        End If
+        If t_s.ToLower.Contains("turret") Then
+            t_type = "turret"
+        End If
+        If t_s.ToLower.Contains("gun") Then
+            t_type = "gun"
+        End If
+        Dim delim As String = "\normal"
+        If CRASH_MODE Then delim = "\crash"
         Dim r_path = My.Settings.res_mods_path
         Dim res_path As String = My.Settings.res_mods_path + "\"
-        Dim a = m_groups(1).f_name(0).Split("\normal")
+        Dim a = m_groups(1).f_name(0).Split(delim)
         Dim p = a(0)
         Dim status As Boolean
         Try
 
             new_path = IO.Path.GetFileNameWithoutExtension(path)
-            new_path = p + "\" + new_path + ".DDS"
-            If File.Exists(res_path + new_path) Then Return new_path
+            If File.Exists(res_path + p + "\" + new_path + ".DDS") Then Return new_path
             Dim id = Il.ilGenImage
             Il.ilBindImage(id)
             Il.ilLoadImage(path)
             Ilu.iluBuildMipmaps()
+            If Not new_path.ToLower.Contains(t_type) Then
+                new_path = p + "\" + t_type + "_" + new_path + ".DDS"
+            End If
+            If File.Exists(res_path + new_path) Then Return new_path.Replace("\", "/")
             status = Il.ilSave(Il.IL_DDS, res_path + new_path)
             Il.ilBindImage(0)
             Il.ilDeleteImage(id)
@@ -1691,7 +1715,7 @@ noBSP_anymore:
                         If comp.indices(j + 1) + off > cnt Then cnt = comp.indices(j + 1) + off
                         If comp.indices(j + 2) + off > cnt Then cnt = comp.indices(j + 2) + off
                     Else
-                        If frmWritePrimitive.flipWindingOrder_cb.Checked And Not id = 4 Then
+                        If frmWritePrimitive.flipWindingOrder_cb.Checked Or fbxgrp(pnter).reverse_winding And Not id = 4 Then
                             br.Write(Convert.ToUInt32(comp.indices(j + 0) + off))
                             br.Write(Convert.ToUInt32(comp.indices(j + 1) + off))
                             br.Write(Convert.ToUInt32(comp.indices(j + 2) + off))

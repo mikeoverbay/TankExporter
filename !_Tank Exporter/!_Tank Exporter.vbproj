@@ -24,7 +24,7 @@
     <UpdatePeriodically>false</UpdatePeriodically>
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
-    <ApplicationRevision>93</ApplicationRevision>
+    <ApplicationRevision>94</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
@@ -140,7 +140,6 @@
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
-    <Reference Include="System.IO.Compression.FileSystem" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Core" />
@@ -201,6 +200,12 @@
     <Compile Include="Forms\frmComponents.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Forms\frmComponentView.Designer.vb">
+      <DependentUpon>frmComponentView.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\frmComponentView.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Forms\frmEditCamo.Designer.vb">
       <DependentUpon>frmEditCamo.vb</DependentUpon>
     </Compile>
@@ -241,6 +246,12 @@
       <DependentUpon>frmModelInfo.vb</DependentUpon>
     </Compile>
     <Compile Include="Forms\frmModelInfo.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\frmReverseVertexWinding.Designer.vb">
+      <DependentUpon>frmReverseVertexWinding.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\frmReverseVertexWinding.vb">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Forms\frmScaleUVexport.Designer.vb">
@@ -367,6 +378,9 @@
     <EmbeddedResource Include="Forms\frmComponents.resx">
       <DependentUpon>frmComponents.vb</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Forms\frmComponentView.resx">
+      <DependentUpon>frmComponentView.vb</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\frmEditCamo.resx">
       <DependentUpon>frmEditCamo.vb</DependentUpon>
     </EmbeddedResource>
@@ -393,6 +407,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\frmModelInfo.resx">
       <DependentUpon>frmModelInfo.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\frmReverseVertexWinding.resx">
+      <DependentUpon>frmReverseVertexWinding.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\frmScaleUVexport.resx">
       <DependentUpon>frmScaleUVexport.vb</DependentUpon>
@@ -819,7 +836,9 @@
     <Content Include="license.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="meta_template.txt">
+    <None Include="resources\MDL_bg.png" />
+    <None Include="resources\FBX_bg.png" />
+    <Content Include="Templates\meta_template.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="readme.txt">
@@ -1057,6 +1076,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Templates\templateColorOnlyGUN.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Templates\templatePBR.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Templates\templateNormal.txt">

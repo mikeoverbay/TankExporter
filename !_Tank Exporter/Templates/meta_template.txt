@@ -1,0 +1,10 @@
+﻿<root>
+<!-- Techical MOD ID -->
+<id>TI</id>
+<!-- Package version -->
+<version>PV</version>
+<!-- Human readable name -->
+<name>HRN</name>
+<!-- Human readable description -->
+<description>HRD</description>
+</root>

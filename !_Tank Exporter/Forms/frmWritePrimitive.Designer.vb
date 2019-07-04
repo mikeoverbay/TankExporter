@@ -34,6 +34,7 @@ Partial Class frmWritePrimitive
         Me.hide_tracks_cb = New System.Windows.Forms.CheckBox()
         Me.copy_lods_cb = New System.Windows.Forms.CheckBox()
         Me.m_write_crashed = New System.Windows.Forms.CheckBox()
+        Me.use_pbr_template_cb = New System.Windows.Forms.CheckBox()
         Me.SuspendLayout()
         '
         'Label1
@@ -54,7 +55,7 @@ Partial Class frmWritePrimitive
         Me.cew_cb.BackColor = System.Drawing.Color.Transparent
         Me.cew_cb.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.cew_cb.ForeColor = System.Drawing.Color.Black
-        Me.cew_cb.Location = New System.Drawing.Point(15, 34)
+        Me.cew_cb.Location = New System.Drawing.Point(15, 30)
         Me.cew_cb.Name = "cew_cb"
         Me.cew_cb.Size = New System.Drawing.Size(69, 17)
         Me.cew_cb.TabIndex = 1
@@ -67,7 +68,7 @@ Partial Class frmWritePrimitive
         Me.hew_cb.BackColor = System.Drawing.Color.Transparent
         Me.hew_cb.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.hew_cb.ForeColor = System.Drawing.Color.Black
-        Me.hew_cb.Location = New System.Drawing.Point(15, 57)
+        Me.hew_cb.Location = New System.Drawing.Point(15, 53)
         Me.hew_cb.Name = "hew_cb"
         Me.hew_cb.Size = New System.Drawing.Size(48, 17)
         Me.hew_cb.TabIndex = 2
@@ -80,7 +81,7 @@ Partial Class frmWritePrimitive
         Me.tew_cb.BackColor = System.Drawing.Color.Transparent
         Me.tew_cb.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.tew_cb.ForeColor = System.Drawing.Color.Black
-        Me.tew_cb.Location = New System.Drawing.Point(15, 80)
+        Me.tew_cb.Location = New System.Drawing.Point(15, 76)
         Me.tew_cb.Name = "tew_cb"
         Me.tew_cb.Size = New System.Drawing.Size(60, 17)
         Me.tew_cb.TabIndex = 3
@@ -93,7 +94,7 @@ Partial Class frmWritePrimitive
         Me.gew_cb.BackColor = System.Drawing.Color.Transparent
         Me.gew_cb.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.gew_cb.ForeColor = System.Drawing.Color.Black
-        Me.gew_cb.Location = New System.Drawing.Point(15, 103)
+        Me.gew_cb.Location = New System.Drawing.Point(15, 99)
         Me.gew_cb.Name = "gew_cb"
         Me.gew_cb.Size = New System.Drawing.Size(49, 17)
         Me.gew_cb.TabIndex = 4
@@ -104,7 +105,7 @@ Partial Class frmWritePrimitive
         '
         Me.Button1.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
         Me.Button1.ForeColor = System.Drawing.Color.Black
-        Me.Button1.Location = New System.Drawing.Point(169, 221)
+        Me.Button1.Location = New System.Drawing.Point(196, 241)
         Me.Button1.Name = "Button1"
         Me.Button1.Size = New System.Drawing.Size(75, 23)
         Me.Button1.TabIndex = 5
@@ -117,7 +118,7 @@ Partial Class frmWritePrimitive
         Me.flipWindingOrder_cb.BackColor = System.Drawing.Color.Transparent
         Me.flipWindingOrder_cb.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.flipWindingOrder_cb.ForeColor = System.Drawing.Color.White
-        Me.flipWindingOrder_cb.Location = New System.Drawing.Point(15, 158)
+        Me.flipWindingOrder_cb.Location = New System.Drawing.Point(15, 128)
         Me.flipWindingOrder_cb.Name = "flipWindingOrder_cb"
         Me.flipWindingOrder_cb.Size = New System.Drawing.Size(131, 17)
         Me.flipWindingOrder_cb.TabIndex = 6
@@ -131,7 +132,7 @@ Partial Class frmWritePrimitive
         Me.hide_tracks_cb.BackColor = System.Drawing.Color.Transparent
         Me.hide_tracks_cb.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.hide_tracks_cb.ForeColor = System.Drawing.Color.White
-        Me.hide_tracks_cb.Location = New System.Drawing.Point(15, 204)
+        Me.hide_tracks_cb.Location = New System.Drawing.Point(15, 178)
         Me.hide_tracks_cb.Name = "hide_tracks_cb"
         Me.hide_tracks_cb.Size = New System.Drawing.Size(160, 17)
         Me.hide_tracks_cb.TabIndex = 7
@@ -143,11 +144,9 @@ Partial Class frmWritePrimitive
         Me.copy_lods_cb.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
         Me.copy_lods_cb.AutoSize = True
         Me.copy_lods_cb.BackColor = System.Drawing.Color.Transparent
-        Me.copy_lods_cb.Checked = True
-        Me.copy_lods_cb.CheckState = System.Windows.Forms.CheckState.Checked
         Me.copy_lods_cb.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.copy_lods_cb.ForeColor = System.Drawing.Color.White
-        Me.copy_lods_cb.Location = New System.Drawing.Point(15, 225)
+        Me.copy_lods_cb.Location = New System.Drawing.Point(15, 201)
         Me.copy_lods_cb.Name = "copy_lods_cb"
         Me.copy_lods_cb.Size = New System.Drawing.Size(126, 17)
         Me.copy_lods_cb.TabIndex = 8
@@ -161,12 +160,25 @@ Partial Class frmWritePrimitive
         Me.m_write_crashed.BackColor = System.Drawing.Color.Transparent
         Me.m_write_crashed.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.m_write_crashed.ForeColor = System.Drawing.Color.White
-        Me.m_write_crashed.Location = New System.Drawing.Point(15, 181)
+        Me.m_write_crashed.Location = New System.Drawing.Point(15, 155)
         Me.m_write_crashed.Name = "m_write_crashed"
         Me.m_write_crashed.Size = New System.Drawing.Size(122, 17)
         Me.m_write_crashed.TabIndex = 9
         Me.m_write_crashed.Text = "Save as Crashed"
         Me.m_write_crashed.UseVisualStyleBackColor = False
+        '
+        'use_pbr_template_cb
+        '
+        Me.use_pbr_template_cb.AutoSize = True
+        Me.use_pbr_template_cb.BackColor = System.Drawing.Color.Transparent
+        Me.use_pbr_template_cb.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.use_pbr_template_cb.ForeColor = System.Drawing.Color.White
+        Me.use_pbr_template_cb.Location = New System.Drawing.Point(15, 224)
+        Me.use_pbr_template_cb.Name = "use_pbr_template_cb"
+        Me.use_pbr_template_cb.Size = New System.Drawing.Size(216, 17)
+        Me.use_pbr_template_cb.TabIndex = 10
+        Me.use_pbr_template_cb.Text = "Use PBR Template for new items."
+        Me.use_pbr_template_cb.UseVisualStyleBackColor = False
         '
         'frmWritePrimitive
         '
@@ -175,7 +187,8 @@ Partial Class frmWritePrimitive
         Me.BackColor = System.Drawing.Color.FromArgb(CType(CType(30, Byte), Integer), CType(CType(30, Byte), Integer), CType(CType(30, Byte), Integer))
         Me.BackgroundImage = Global.Tank_Exporter.My.Resources.Resources.upton
         Me.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
-        Me.ClientSize = New System.Drawing.Size(256, 252)
+        Me.ClientSize = New System.Drawing.Size(279, 272)
+        Me.Controls.Add(Me.use_pbr_template_cb)
         Me.Controls.Add(Me.m_write_crashed)
         Me.Controls.Add(Me.copy_lods_cb)
         Me.Controls.Add(Me.hide_tracks_cb)
@@ -207,4 +220,5 @@ Partial Class frmWritePrimitive
     Friend WithEvents hide_tracks_cb As System.Windows.Forms.CheckBox
     Friend WithEvents copy_lods_cb As System.Windows.Forms.CheckBox
     Friend WithEvents m_write_crashed As System.Windows.Forms.CheckBox
+    Friend WithEvents use_pbr_template_cb As System.Windows.Forms.CheckBox
 End Class

@@ -96,6 +96,9 @@ Module modFBX
             Return
         End If
 
+        frmComponentView.clear_fbx_list()
+        frmReverseVertexWinding.clear_group_list()
+
         My.Settings.fbx_path = Path.GetDirectoryName(frmMain.OpenFileDialog1.FileName)
         frmMain.clean_house()
         remove_loaded_fbx()
@@ -731,7 +734,7 @@ outahere:
 
 
         fbxgrp(i).name = childnode.NameOnly
-        If Not fbxgrp(i).name.Contains("vehicles\") Then
+        If Not fbxgrp(i).name.Contains("vehicles\") And fbxgrp(i).name.Contains("lod0\") Then
             fbxgrp(i).name = "vehicles\" + childnode.NameOnly
             fbxgrp(i).name = fbxgrp(i).name.Replace("primitives", "primitives_processed")
         End If
@@ -894,281 +897,8 @@ outahere:
         Catch ex As Exception
 
         End Try
-
         Return get_mesh_geo(i, childnode, start_vertex, start_index, scene, rootnode, mesh)
 
-
-        'geo = childnode.NodeAttribute
-        '##############################################
-        'get sizes
-        Dim polycnt As UInt32 = mesh.PolygonCount
-        Dim uvlayer1 As FbxLayerElementUV = mesh.GetLayer(0).GetUVs
-        Dim uvCount As UInt32 = uvlayer1.IndexArray.Count / 3
-        'If uvCount <> polycnt Then polycnt = uvCount
-        Dim nVertices = mesh.Normals.Count
-        ReDim Preserve fbxgrp(i).vertices(nVertices)
-        ReDim Preserve fbxgrp(i).indicies(polycnt)
-        fbxgrp(i).nPrimitives_ = polycnt
-        fbxgrp(i).nVertices_ = nVertices
-        fbxgrp(i).startIndex_ = start_index : start_index += polycnt * 3
-        fbxgrp(i).startVertex_ = start_vertex : start_vertex += nVertices * 40
-        '###############################################
-        Dim colorLayer1 As FbxLayerElementVertexColor = mesh.GetLayer(0).VertexColors
-        Dim index_mode = uvlayer1.Reference_Mode
-        Dim eNormals As FbxLayerElementNormal = mesh.GetLayer(0).Normals
-        Dim uv2Layer As FbxLayerElementUV = Nothing
-        If mesh.UVLayerCount = 3 Then
-            property_ = material.FindProperty(FbxSurfaceMaterial.SSpecularFactor)
-            texture = property_.GetSrcObject(FbxTexture.ClassId, 0)
-            If texture Is Nothing Then
-                uv2Layer = mesh.GetLayer(1).GetUVs
-                fbxgrp(i).has_uv2 = 1
-                'Stop
-            End If
-        End If
-
-        '------ we use this to resize the vertices array and get the right count of vertices.
-        '-----------------------------------------------------------------------------------
-        Dim uv1_, uv2_, uv3_ As New FbxVector2
-        Dim uv1_2, uv2_2, uv3_2 As New FbxVector2
-        Dim vtc1, vtc2, vtc3 As New vertice_
-        Dim n1, n2, n3 As New FbxVector4
-        Dim k As Integer = 0
-        cnt = 0
-        ' get indices
-        For j = 0 To polycnt - 1
-            fbxgrp(i).indicies(j).v1 = Abs(mesh.GetPolygonVertex(j, 0))
-            fbxgrp(i).indicies(j).v2 = Abs(mesh.GetPolygonVertex(j, 1))
-            fbxgrp(i).indicies(j).v3 = Abs(mesh.GetPolygonVertex(j, 2))
-            If fbxgrp(i).indicies(j).v1 > cnt Then cnt = fbxgrp(i).indicies(j).v1
-            If fbxgrp(i).indicies(j).v2 > cnt Then cnt = fbxgrp(i).indicies(j).v2
-            If fbxgrp(i).indicies(j).v3 > cnt Then cnt = fbxgrp(i).indicies(j).v3
-        Next
-        ReDim fbxgrp(i).vertices(cnt)
-        fbxgrp(i).nVertices_ = cnt + 1
-        For j = 0 To cnt
-            fbxgrp(i).vertices(j) = New vertice_
-            fbxgrp(i).vertices(j).index_1 = 255
-        Next
-        'get mesh verts, normals and uvs
-        Dim color1, color2, color3 As FbxColor
-        If colorLayer1 IsNot Nothing Then
-            If colorLayer1.IndexArray.Count > 0 Then
-                fbxgrp(i).has_Vcolor = True
-            Else
-                fbxgrp(i).has_Vcolor = False
-            End If
-            Dim cv_refmode = colorLayer1.Reference_Mode
-            If cv_refmode = FbxLayerElement.ReferenceMode.IndexToDirect Then
-                Try
-                    Dim pnt = 0
-                    For j = 0 To polycnt - 1
-                        'Dim idx = colorLayer1.IndexArray.GetAt(pnt)
-
-
-                        Dim v1 = mesh.GetPolygonVertex(j, 0)
-                        Dim v2 = mesh.GetPolygonVertex(j, 1)
-                        Dim v3 = mesh.GetPolygonVertex(j, 2)
-
-                        color2 = colorLayer1.DirectArray(colorLayer1.IndexArray.GetAt(pnt + 1))
-                        color3 = colorLayer1.DirectArray(colorLayer1.IndexArray.GetAt(pnt + 2))
-                        '1
-                        fbxgrp(i).vertices(v1).index_1 = CByte(color1.Red * 255)
-                        fbxgrp(i).vertices(v1).index_2 = CByte(color1.Green * 255)
-                        fbxgrp(i).vertices(v1).index_3 = CByte(color1.Blue * 255)
-                        fbxgrp(i).vertices(v1).index_4 = CByte(color1.Alpha * 255)
-                        '2
-                        fbxgrp(i).vertices(v2).index_1 = CByte(color2.Red * 255)
-                        fbxgrp(i).vertices(v2).index_2 = CByte(color2.Green * 255)
-                        fbxgrp(i).vertices(v2).index_3 = CByte(color2.Blue * 255)
-                        fbxgrp(i).vertices(v2).index_4 = CByte(color2.Alpha * 255)
-                        '3
-                        fbxgrp(i).vertices(v3).index_1 = CByte(color3.Red * 255)
-                        fbxgrp(i).vertices(v3).index_2 = CByte(color3.Green * 255)
-                        fbxgrp(i).vertices(v3).index_3 = CByte(color3.Blue * 255)
-                        fbxgrp(i).vertices(v3).index_4 = CByte(color3.Alpha * 255)
-                        pnt += 3
-                    Next
-                Catch ex As Exception
-
-                End Try
-
-            End If
-            If cv_refmode = FbxLayerElement.ReferenceMode.Direct Then
-                Dim pnt = 0
-                Try
-
-                    For j = 0 To polycnt - 1
-
-                        Dim cp = mesh.GetControlPointAt(j)
-                        Dim mapMode = colorLayer1.Mapping_Mode
-                        Dim v1 = Abs(mesh.GetPolygonVertex(j, 0))
-                        Dim v2 = Abs(mesh.GetPolygonVertex(j, 1))
-                        Dim v3 = Abs(mesh.GetPolygonVertex(j, 2))
-
-                        color1 = colorLayer1.DirectArray(pnt)
-                        color2 = colorLayer1.DirectArray(pnt + 1)
-                        color3 = colorLayer1.DirectArray(pnt + 2)
-                        '1
-                        fbxgrp(i).vertices(v1).index_1 = CByte(color1.Red * 255)
-                        fbxgrp(i).vertices(v1).index_2 = CByte(color1.Green * 255)
-                        fbxgrp(i).vertices(v1).index_3 = CByte(color1.Blue * 255)
-                        fbxgrp(i).vertices(v1).index_4 = CByte(color1.Alpha * 255)
-                        '2
-                        fbxgrp(i).vertices(v2).index_1 = CByte(color2.Red * 255)
-                        fbxgrp(i).vertices(v2).index_2 = CByte(color2.Green * 255)
-                        fbxgrp(i).vertices(v2).index_3 = CByte(color2.Blue * 255)
-                        fbxgrp(i).vertices(v2).index_4 = CByte(color2.Alpha * 255)
-                        '3
-                        fbxgrp(i).vertices(v3).index_1 = CByte(color3.Red * 255)
-                        fbxgrp(i).vertices(v3).index_2 = CByte(color3.Green * 255)
-                        fbxgrp(i).vertices(v3).index_3 = CByte(color3.Blue * 255)
-                        fbxgrp(i).vertices(v3).index_4 = CByte(color3.Alpha * 255)
-
-                        pnt += 3
-
-                    Next
-                Catch ex As Exception
-
-                End Try
-            End If
-
-        End If
-        Dim vt1, vt2, vt3 As FbxVector4
-        Dim vdx1, vdx2, vdx3 As Integer
-        Dim Reference_Mode = uvlayer1.Reference_Mode
-        Dim mapping_mode = uvlayer1.Mapping_Mode
-        Dim index_max As Integer = 0
-        For j = 0 To polycnt - 1
-            'bl.AppendLine("=============")
-
-            Application.DoEvents()
-
-
-            Dim v1 = Abs(mesh.GetPolygonVertex(j, 0))
-            Dim v2 = Abs(mesh.GetPolygonVertex(j, 1))
-            Dim v3 = Abs(mesh.GetPolygonVertex(j, 2))
-            vt1 = mesh.GetControlPointAt(v1) 'verts
-            vt2 = mesh.GetControlPointAt(v2)
-            vt3 = mesh.GetControlPointAt(v3)
-            mesh.GetPolygonVertexNormal(j, 0, n1) 'normals
-            mesh.GetPolygonVertexNormal(j, 1, n2)
-            mesh.GetPolygonVertexNormal(j, 2, n3)
-            If Reference_Mode = FbxLayerElement.ReferenceMode.Direct Then ' uvs
-                uv1_ = uvlayer1.DirectArray(v1) * uv_scaling + uv_offset
-                uv2_ = uvlayer1.DirectArray(v2) * uv_scaling + uv_offset
-                uv3_ = uvlayer1.DirectArray(v3) * uv_scaling + uv_offset
-                If uv2Layer IsNot Nothing Then
-                    uv1_2 = uv2Layer.DirectArray(v1) * uv_scaling + uv_offset
-                    uv2_2 = uv2Layer.DirectArray(v2) * uv_scaling + uv_offset
-                    uv3_2 = uv2Layer.DirectArray(v3) * uv_scaling + uv_offset
-
-                End If
-            Else
-                If Reference_Mode = FbxLayerElement.ReferenceMode.IndexToDirect Then ' uvs
-                    vdx1 = mesh.GetTextureUVIndex(j, 0)
-                    uv1_ = uvlayer1.DirectArray.GetAt(vdx1) * uv_scaling + uv_offset
-                    If index_max < vdx1 Then index_max = vdx1
-                    If vdx1 <> v1 Then
-                        'Stop
-                    End If
-                    vdx2 = mesh.GetTextureUVIndex(j, 1)
-                    uv2_ = uvlayer1.DirectArray.GetAt(vdx2) * uv_scaling + uv_offset
-                    If index_max < vdx2 Then index_max = vdx2
-
-                    vdx3 = mesh.GetTextureUVIndex(j, 2)
-                    uv3_ = uvlayer1.DirectArray.GetAt(vdx3) * uv_scaling + uv_offset
-                    If index_max < vdx3 Then index_max = vdx3
-                    If uv2Layer IsNot Nothing Then
-                        vdx1 = mesh.GetTextureUVIndex(j, 0)
-                        uv1_2 = uv2Layer.DirectArray.GetAt(vdx1) * uv_scaling + uv_offset
-                        vdx2 = mesh.GetTextureUVIndex(j, 1)
-                        uv2_2 = uv2Layer.DirectArray.GetAt(vdx2) * uv_scaling + uv_offset
-                        vdx3 = mesh.GetTextureUVIndex(j, 2)
-                        uv3_2 = uv2Layer.DirectArray.GetAt(vdx3) * uv_scaling + uv_offset
-                    End If
-                    k += 3
-                End If
-            End If
-            n1.Normalize()
-            n2.Normalize()
-            n3.Normalize()
-            fbxgrp(i).vertices(v1).x = vt1.X
-            fbxgrp(i).vertices(v1).y = vt1.Y
-            fbxgrp(i).vertices(v1).z = vt1.Z
-            fbxgrp(i).vertices(v1).u = uv1_.X
-            fbxgrp(i).vertices(v1).v = -uv1_.Y
-            fbxgrp(i).vertices(v1).u2 = uv1_2.X
-            fbxgrp(i).vertices(v1).v2 = -uv1_2.Y
-            fbxgrp(i).vertices(v1).nx = n1.X
-            fbxgrp(i).vertices(v1).ny = n1.Y
-            fbxgrp(i).vertices(v1).nz = n1.Z
-            fbxgrp(i).vertices(v1).n = packnormalFBX888(n1)
-
-            ' these commented out lines are for debuging the packnormalFBX888 method
-            'Dim nup = unpackNormal_8_8_8(fbxgrp(i).vertices(v1).n)
-            'fbxgrp(i).vertices(v1).nx = nup.nx
-            'fbxgrp(i).vertices(v1).ny = nup.ny
-            'fbxgrp(i).vertices(v1).nz = nup.nz
-
-            cnt += 1
-            fbxgrp(i).vertices(v2).x = vt2.X
-            fbxgrp(i).vertices(v2).y = vt2.Y
-            fbxgrp(i).vertices(v2).z = vt2.Z
-            fbxgrp(i).vertices(v2).u = uv2_.X
-            fbxgrp(i).vertices(v2).v = -uv2_.Y
-            fbxgrp(i).vertices(v2).u2 = uv2_2.X
-            fbxgrp(i).vertices(v2).v2 = -uv2_2.Y
-            fbxgrp(i).vertices(v2).nx = n2.X
-            fbxgrp(i).vertices(v2).ny = n2.Y
-            fbxgrp(i).vertices(v2).nz = n2.Z
-            fbxgrp(i).vertices(v2).n = packnormalFBX888(n2)
-
-            'nup = unpackNormal_8_8_8(fbxgrp(i).vertices(v2).n)
-            'fbxgrp(i).vertices(v2).nx = nup.nx
-            'fbxgrp(i).vertices(v2).ny = nup.ny
-            'fbxgrp(i).vertices(v2).nz = nup.nz
-
-            cnt += 1
-            fbxgrp(i).vertices(v3).x = vt3.X
-            fbxgrp(i).vertices(v3).y = vt3.Y
-            fbxgrp(i).vertices(v3).z = vt3.Z
-            fbxgrp(i).vertices(v3).u = uv3_.X
-            fbxgrp(i).vertices(v3).v = -uv3_.Y
-            fbxgrp(i).vertices(v3).u2 = uv3_2.X
-            fbxgrp(i).vertices(v3).v2 = -uv3_2.Y
-            fbxgrp(i).vertices(v3).nx = n3.X
-            fbxgrp(i).vertices(v3).ny = n3.Y
-            fbxgrp(i).vertices(v3).nz = n3.Z
-            fbxgrp(i).vertices(v3).n = packnormalFBX888(n3)
-
-            'nup = unpackNormal_8_8_8(fbxgrp(i).vertices(v3).n)
-            'fbxgrp(i).vertices(v3).nx = nup.nx
-            'fbxgrp(i).vertices(v3).ny = nup.ny
-            'fbxgrp(i).vertices(v3).nz = nup.nz
-
-            cnt += 1
-
-        Next
-        create_TBNS(i)
-        Debug.WriteLine("Max " + index_max.ToString)
-        '------ Look for vertexColor information
-        '-----------------------------------------------------------------------------------
-        '3DS Max crashes exporting FBX files that contain a VC channel.
-        'There is no good work around for this I can do in this app.
-        'Therefore, I will read the existing color for the old model and resize it to fit
-        'any change to the models size in vertices and write that data to the .prmititive file.
-        '-----------------------------------------------------------------------------------
-        'Dim cpnt As Integer = 0
-        'Dim r, g, b, a As Byte
-        'If colorLayer1 IsNot Nothing Then
-        '    Dim color = New FbxColor
-        '    For j = 0 To polycnt - 1
-        '        Dim id As Integer = colorLayer1.IndexArray(j)
-        '        color = colorLayer1.DirectArray(id)
-
-        '    Next
-        'End If
 
         Return True
     End Function
@@ -1383,7 +1113,7 @@ outahere:
         'we need to reorder the FBX read by its ID tag
         Dim total = fbxgrp.Length
         ReDim t_fbx(total)
-        Dim last As Integer = 0
+        Dim last As Integer = 1
         Dim pnt(30) As Integer
         'move to right locations....
         For i = 1 To fbxgrp.Length - 1
@@ -1393,7 +1123,7 @@ outahere:
                 Dim a = n.Split("~")
                 Dim idx = Convert.ToInt32(a(2))
                 move_fbx_entry(t_fbx(idx), fbxgrp(i), i, idx)
-                last = i + 1
+                last += 1
 
             End If
         Next
@@ -1407,6 +1137,9 @@ outahere:
         ' write back the sorted fbx entries.
         For i = 1 To fbxgrp.Length - 1
             move_fbx_entry(fbxgrp(i), t_fbx(i), last, i)
+            Dim tn = fbxgrp(i).name.Split("~")
+            frmComponentView.add_to_fbx_list(i, Path.GetFileNameWithoutExtension(tn(0)))
+            frmReverseVertexWinding.add_to_fbx_list(i, Path.GetFileNameWithoutExtension(tn(0)))
         Next
 
         ReDim t_fbx(0) ' clean up some memort
@@ -1524,7 +1257,10 @@ outahere:
         CRASH_MODE = False
         Dim ar() As String
         For i = 1 To fbxgrp.Length - 1
+            'set some booleans 
             fbxgrp(i).is_carraige = False
+            fbxgrp(i).component_visible = True
+            'figure out if this is a chasss component and get component counts
             If fbxgrp(i).name.ToLower.Contains("chassis") Then
                 If fbxgrp(i).name.ToLower.Contains("\crash\") Then
                     CRASH_MODE = True
@@ -1601,6 +1337,12 @@ outahere:
         Next
 
         '---------------------------------------------------------------------------------------------------
+        'we need to laod the tank.xml so if the user wants to write it out, its there.
+        file_name = file_name.Replace("\", "/")
+        ar = file_name.Split("/")
+        Dim xml_file = ar(0) + "\" + ar(1) + "\" + ar(2) + ".xml"
+        frmMain.Text = "File: " + ar(0) + "\" + ar(1) + "\" + ar(2)
+        frmMain.get_tank_parts_from_xml(xml_file, New DataSet)
         'now we will load the model from the package files
         For i = 1 To 4
             Dim kk As Integer = 0
@@ -1884,12 +1626,13 @@ whichone:
         frmMain.hull_cb.Checked = True
         frmMain.turret_cb.Checked = True
         frmMain.gun_cb.Checked = True
-
+        frmMain.m_view_res_mods_folder.Enabled = True
         frmWritePrimitive.Visible = False
         frmMain.find_icon_image(TANK_NAME)
         Application.DoEvents()
         MODEL_LOADED = True
-
+        frmMain.m_hide_show_components.Enabled = True
+        frmMain.m_set_vertex_winding_order.Enabled = True
     End Sub
 
     Public Sub make_fbx_display_lists(ByVal cnt As Integer, ByVal jj As Integer)

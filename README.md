@@ -10,6 +10,15 @@
 You can download it here: https://www.autodesk.com/developer-network/platform-technologies/fbx-converter-archives
 Or if you can not down load it from there... the 64 and 32 bit versions are located here: http://tnmshouse.com/converter/
 
+# Version 94:
+Fixed a few bugs in paths to crash textures when writing a WOTMOD file.
+Moved UI and Settings to there sub menu under file/settings.
+Added a PBR template for when visuals are updated for new added models.
+Added a panel to Show/Hide each individual part of the tank and any other added models.
+Added a panel to set the vertex winding order for each part of the model. Sometimes, even when it shows correctly in the 3D app and Tank Exporter, It still shows reveresed in the game.
+Updated the help pages.
+
+
 # Version 93:
 This fixes a bug in selecting UV triangles while in FBX View mode. It was NOT centering on the selected triangle when the C key was pressed.
 

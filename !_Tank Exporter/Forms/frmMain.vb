@@ -651,6 +651,9 @@ Public Class frmMain
         m_load_file.Visible = False
         m_save.Visible = False
         m_clear_selected_tanks.Visible = False
+        m_build_wotmod.Enabled = False
+        m_hide_show_components.Enabled = False
+        m_set_vertex_winding_order.Enabled = False
         '---------------------------------------------------------------------------------------------------------------------
         'just to convert to .te binary models;
         'load_and_save()
@@ -1078,13 +1081,15 @@ Public Class frmMain
         '###################################
         start_up_log.AppendLine("----- Startup Complete -----")
         File.WriteAllText(Temp_Storage + "Startup_log.txt", start_up_log.ToString)
-        'show and hide to assign setting
-        FrmShadowSettings.Show() ' set the buttns and shadow quality
+        'show and hide to assign setting and initilize the windows
+        FrmShadowSettings.Show() ' set the buttons and shadow quality
         FrmShadowSettings.Hide()
         frmLighting.Show()
         frmLighting.Hide()
         frmLightSelection.Show()
         frmLightSelection.Hide()
+        frmComponents.Show()
+        frmComponents.Hide()
         '###################################
         MM.Enabled = True
         TC1.Enabled = True
@@ -1732,7 +1737,7 @@ tryagain:
         Application.DoEvents()
     End Sub
 
-    Private Sub get_tank_parts_from_xml(ByVal tank As String, ByRef data_set As DataSet)
+    Public Sub get_tank_parts_from_xml(ByVal tank As String, ByRef data_set As DataSet)
         'once again the non-standard name calling causes issues
         'Why not use USA for the nation in all paths???? czech, japan, sweeden, poland are ok as is
         Dim turret_names() As String = {"0", "1", "2", "3", "_0", "_1", "_2", "_3"}
@@ -2833,10 +2838,6 @@ tryagain:
             Else
                 view_status_string = ": Model View "
             End If
-            'If m_show_bsp2.Checked Then
-            '    view_status_string = ": BSP2 View "
-
-            'End If
         Else
             view_status_string = ": Nothing Loaded "
         End If
@@ -2988,7 +2989,7 @@ tryagain:
                         End If
                         Gl.glPushMatrix()
                         Gl.glMultMatrixd(fbxgrp(jj).matrix)
-                        Gl.glCallList(fbxgrp(jj).call_list)
+                        If fbxgrp(jj).component_visible Then Gl.glCallList(fbxgrp(jj).call_list)
                         Gl.glPopMatrix()
                     End If
                 Next
@@ -2998,7 +2999,7 @@ tryagain:
                     If fbxgrp(jj).visible Then
                         Gl.glPushMatrix()
                         Gl.glMultMatrixd(fbxgrp(jj).matrix)
-                        Gl.glCallList(fbxgrp(jj).call_list)
+                        If fbxgrp(jj).component_visible Then Gl.glCallList(fbxgrp(jj).call_list)
                         Gl.glPopMatrix()
                     End If
                 Next
@@ -3021,7 +3022,7 @@ tryagain:
                     If fbxgrp(jj).visible Then
                         Gl.glPushMatrix()
                         Gl.glMultMatrixd(fbxgrp(jj).matrix)
-                        Gl.glCallList(fbxgrp(jj).call_list)
+                        If fbxgrp(jj).component_visible Then Gl.glCallList(fbxgrp(jj).call_list)
                         Gl.glPopMatrix()
                     End If
                 Next
@@ -3051,7 +3052,7 @@ tryagain:
                 End If
                 'Gl.glDisable(Gl.GL_CULL_FACE)
                 If _object(jj).visible Then
-                    Gl.glCallList(_object(jj).main_display_list)
+                    If _group(jj).component_visible Then Gl.glCallList(_object(jj).main_display_list)
                 End If
             Next
 
@@ -3066,7 +3067,7 @@ tryagain:
                         Gl.glFrontFace(Gl.GL_CCW)
                     End If
                     If _object(jj).visible Then
-                        Gl.glCallList(_object(jj).main_display_list)
+                        If _group(jj).component_visible Then Gl.glCallList(_object(jj).main_display_list)
                     End If
                 Next
 
@@ -3195,7 +3196,7 @@ tryagain:
 
                     'Gl.glPushMatrix()
                     'Gl.glMultMatrixd(_object(jj).matrix)
-                    Gl.glCallList(_object(jj).main_display_list)
+                    If _group(jj).component_visible Then Gl.glCallList(_object(jj).main_display_list)
                     'Gl.glPopMatrix()
                 End If
             Next
@@ -3239,7 +3240,7 @@ tryagain:
                         Gl.glFrontFace(Gl.GL_CCW)
                     End If
                     If _object(jj).visible Then
-                        Gl.glCallList(_object(jj).main_display_list)
+                        If _group(jj).component_visible Then Gl.glCallList(_object(jj).main_display_list)
                     End If
                 Next
             End If
@@ -3281,7 +3282,7 @@ tryagain:
                 If _object(jj).visible Then
                     Gl.glActiveTexture(Gl.GL_TEXTURE0)
                     Gl.glBindTexture(Gl.GL_TEXTURE_2D, _group(jj).color_Id)
-                    Gl.glCallList(_object(jj).main_display_list)
+                    If _group(jj).component_visible Then Gl.glCallList(_object(jj).main_display_list)
 
                 End If
             Next
@@ -3293,7 +3294,7 @@ tryagain:
                 Gl.glColor3f(0.0, 0.0, 0.0)
                 For jj = 1 To object_count
                     If _object(jj).visible Then
-                        Gl.glCallList(_object(jj).main_display_list)
+                        If _group(jj).component_visible Then Gl.glCallList(_object(jj).main_display_list)
                     End If
                 Next
             End If
@@ -3315,13 +3316,13 @@ tryagain:
                     For jj = 1 To fbxgrp.Length - 1
                         Gl.glPushMatrix()
                         Gl.glMultMatrixd(fbxgrp(jj).matrix)
-                        Gl.glCallList(fbxgrp(jj).call_list)
+                        If fbxgrp(jj).component_visible Then Gl.glCallList(fbxgrp(jj).call_list)
                         Gl.glPopMatrix()
                     Next
                 Else
                     For jj = 1 To object_count
                         If _object(jj).visible Then
-                            Gl.glCallList(_object(jj).main_display_list) 'Model
+                            If fbxgrp(jj).component_visible Then Gl.glCallList(_object(jj).main_display_list) 'Model
                         End If
                     Next
                 End If
@@ -4195,7 +4196,7 @@ fuckit:
                 If fbxgrp(i).visible Then 'lets not waste time drawing what we wont pick.
                     Gl.glPushMatrix()
                     Gl.glMultMatrixd(fbxgrp(i).matrix)
-                    Gl.glCallList(fbxgrp(i).vertex_pick_list)
+                    If fbxgrp(i).component_visible Then Gl.glCallList(fbxgrp(i).vertex_pick_list)
                     Gl.glPopMatrix()
                 End If
             Next
@@ -4203,7 +4204,7 @@ fuckit:
         Else
             For i = 1 To object_count
                 If _object(i).visible Then 'lets not waste time drawing what we wont pick.
-                    Gl.glCallList(_object(i).vertex_pick_list)
+                    If _group(i).component_visible Then Gl.glCallList(_object(i).vertex_pick_list)
                 End If
             Next
 
@@ -4892,6 +4893,12 @@ fuckit:
         show_textures_cb.Checked = False
         m_write_primitive.Enabled = False
         m_show_fbx.Checked = False
+        m_build_wotmod.Enabled = False
+        m_hide_show_components.Enabled = False
+        m_set_vertex_winding_order.Enabled = False
+
+        frmComponentView.Visible = False
+        frmReverseVertexWinding.Visible = False
 
         GLOBAL_exclusionMask = 0
         exclusionMask_sd = -1
@@ -5476,8 +5483,17 @@ n_turret:
         End If
         '================================= end testing
         '======================================================================================
-        '======================================================================================
+
+
         'Start of tank loading
+        '======================================================================================
+        If Not LOADING_FBX Then
+            frmComponentView.clear_fbx_list()
+        End If
+        frmComponentView.clear_group_list()
+        '======================================================================================
+
+
         loaded_from_resmods = False
         file_name = chassis_name
         Dim LOAD_ERROR As Boolean = True
@@ -5712,6 +5728,9 @@ n_turret:
             m_show_fbx.Checked = False
         End If
         m_pick_camo.Enabled = True
+        m_hide_show_components.Enabled = True
+        m_set_vertex_winding_order.Enabled = True
+
     End Sub
 
     Private Sub write_vertex_data(ByVal o As obj, ByVal fw As BinaryWriter)
@@ -7051,6 +7070,7 @@ n_turret:
         m_ExportExtract.Enabled = True
         TC1.Enabled = True
         find_icon_image(TANK_NAME)
+        m_build_wotmod.Enabled = True
     End Sub
     Private Sub m_load_crashed_Click(sender As Object, e As EventArgs) Handles m_load_crashed.Click
         CRASH_MODE = True
@@ -8278,8 +8298,8 @@ n_turret:
     End Sub
 
     Private Sub m_view_res_mods_folder_Click(sender As Object, e As EventArgs) Handles m_view_res_mods_folder.Click
-        Dim p = TANK_NAME.Split(":")
-        Dim f = My.Settings.res_mods_path + "\" + p(0)
+        Dim p = Path.GetDirectoryName(file_name)
+        Dim f = My.Settings.res_mods_path + "\" + p
         If Directory.Exists(f) Then
             Process.Start(f)
         Else
@@ -8921,7 +8941,7 @@ n_turret:
             Return
         End If
         'load template and replace strings with out strings...
-        Dim meta = File.ReadAllText(Application.StartupPath + "\meta_template.txt")
+        Dim meta = File.ReadAllText(Application.StartupPath + "\Templates\meta_template.txt")
         meta = meta.Replace("TI", frmAuthor.mod_name_tb.Text)
         meta = meta.Replace("PV", frmAuthor.version_tb.Text)
         meta = meta.Replace("HRN", frmAuthor.human_readable_tb.Text)
@@ -9229,4 +9249,11 @@ n_turret:
 
 #End Region
 
+    Private Sub m_hide_show_components_Click(sender As Object, e As EventArgs) Handles m_hide_show_components.Click
+        frmComponentView.Show()
+    End Sub
+
+    Private Sub m_set_vertex_winding_order_Click(sender As Object, e As EventArgs) Handles m_set_vertex_winding_order.Click
+        frmReverseVertexWinding.Show()
+    End Sub
 End Class

@@ -352,6 +352,8 @@ Module ModTankLoader
         Public scale As Skill.FbxSDK.FbxVector4
         Public is_carraige As Boolean
         Public visible As Boolean
+        Public component_visible As Boolean
+        Public reverse_winding As Boolean
         Public tank_part As String
     End Structure
     Public Structure uvect3
@@ -1141,9 +1143,9 @@ next_m:
 
                 log_text.Append("loaded Model:" + "ID:" + object_count.ToString + ":" + file_name + vbCrLf)
 
+
                 Dim n_ = Path.GetFileNameWithoutExtension(file_name)
                 Dim aa = n_.Split("_")
-
                 _object(jj).name = file_name + ":" + current_tank_package.ToString + ":" + jj.ToString
                 _group(jj).name = file_name + ":" + current_tank_package.ToString + ":" + jj.ToString
                 _group(jj).header = vh.header_text ' save vertex type
@@ -1221,6 +1223,11 @@ next_m:
                     _object(jj).exclude_camo = 1
                     _object(jj).use_camo = 0
                 End If
+
+                _group(jj).component_visible = True
+
+                Dim tn = _group(jj).name.Split(":")
+                frmComponentView.add_to_group_list(jj, Path.GetFileNameWithoutExtension(tn(0)))
 
                 _object(jj).ID = jj
                 cnt = pGroups(jj - object_start).nPrimitives_
