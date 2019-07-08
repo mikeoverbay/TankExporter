@@ -17,9 +17,9 @@ This is very beta and still under development.
 
 I added code to force TE to remember where you saved and loaded files form.
 I fixed bugs in a few places.. Not opening the tanks folder in file explore is one.
-I cleaned up the UI some and replaced the terrain mesh with a version that fixes overlaping triangles.
+I cleaned up the UI some and replaced the terrain mesh with a version that fixes overlapping triangles.
 I fixed a bug in reading decals from the packages. (Paths Changed I was not aware of) Its finding many more decals now.
-Windows 10 likes to removed them every month for some unknow reason.
+Windows 10 likes to removed them every month for some unknown reason.
 
 
 
