@@ -256,9 +256,9 @@ Module modXmodelLoader
         'At this point, we have all the data to make the mesh
         'Gen Display List ID.
         Dim a, b, c As Integer
-        If False Then
+        If False Then 'set true to write binary file 
 
-            Dim f = File.Open("c:\" + foutname + ".te", FileMode.OpenOrCreate, FileAccess.Write)
+            Dim f = File.Open(Temp_Storage + "\" + foutname + ".te", FileMode.OpenOrCreate, FileAccess.Write)
             Dim br As New BinaryWriter(f)
             br.Write(indice_count)
             For i = 0 To indice_count

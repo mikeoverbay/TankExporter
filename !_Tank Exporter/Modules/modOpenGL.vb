@@ -205,7 +205,7 @@ ByVal text As String, ByVal r As Single, ByVal g As Single, ByVal b As Single, B
         Gl.glPolygonMode(Gl.GL_FRONT_AND_BACK, Gl.GL_FILL)
         If Gl.glIsEnabled(Gl.GL_BLEND) Then blending = True
         Gl.glEnable(Gl.GL_BLEND)
-        Gl.glColor4f(0, 0, 0, 0.5)
+        Gl.glColor4f(0, 0, 0, 0.25)
         Gl.glBegin(Gl.GL_QUADS)
         Dim L1 = text.Length * 8
         Dim l2 = 7

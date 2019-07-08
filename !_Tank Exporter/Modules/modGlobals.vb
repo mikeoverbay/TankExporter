@@ -1,6 +1,7 @@
 ﻿Imports System.Text
 Imports System.IO
 Module modGlobals
+    Public UV2s() As vec2
     Public LOADING_FBX As Boolean = False
     '##################################
     Public CRASH_MODE As Boolean = False
@@ -22,6 +23,7 @@ Module modGlobals
     Public S_level, A_level, T_level As Single
     Public selected_light As Integer = 0
     '##################################
+    Public FBX_NAME As String = ""
     Public decal_path As String
     Public terrain_modelId As Integer
     Public terrain_textureId As Integer
@@ -42,6 +44,7 @@ Module modGlobals
     Public diff_list As Integer
     Public custom_image_text_Id As Integer
     Public CUSTOM_IMAGE_MODE As Boolean
+    Public PRIMITIVES_MODE As Boolean
     Public rot_limit_l, rot_limit_r As Single
     Public gun_limit_u, gun_limit_d As Single
 

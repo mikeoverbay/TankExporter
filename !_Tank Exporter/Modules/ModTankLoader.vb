@@ -52,6 +52,8 @@ Module ModTankLoader
     Public short_tank_name As String = ""
     Public bsp_data() As Byte
     Public color_data() As Byte
+    Dim color_rgb() As vColor_
+    Public color_size As Integer
     Public bsp_materials_data() As Byte
     Public save_has_uv2, MODEL_LOADED, IGNORE_TEXTURES As Boolean
     Public loaded_from_resmods As Boolean
@@ -72,7 +74,6 @@ Module ModTankLoader
     Public Structure vertex_type
         Dim x, y, z, nx, ny, nz, u, v As Single
     End Structure
-
     Private Structure item_list_
         Public section_name_id As Integer
         Public vert_name As String
@@ -83,6 +84,7 @@ Module ModTankLoader
         Public uv2_data() As Byte
         Public color_name As String
         Public color_data() As Byte
+        Public color_count As Integer
         Public bsp2_data() As Byte
         Public bsp2_material_data() As Byte
         Public index As Integer
@@ -369,9 +371,8 @@ Module ModTankLoader
     End Structure
 #End Region
 
-    Public Function build_primitive_data(ByVal _add As Boolean) As Boolean
+    Public Function build_primitive_data(_add As Boolean) As Boolean
         '------------
-
         Dim f_name_vertices, f_name_indices, f_name_uv2, f_name_color, bsp_materials_name, bsp_name As String
         Dim tbuf() As vertice_
 
@@ -461,10 +462,12 @@ Module ModTankLoader
         End If
         '============================'============================
         'open visual
+        Dim old_file_name = file_name
         If Not openVisual(file_name) Then
             log_text.Append("File Not Found :" + file_name + vbCrLf)
             Return False
         End If
+        file_name = old_file_name.Replace("model", "primitives_processed")
         '============================'============================
         'this gets all the entries in the xml file..
         'IE.. bone and wheel locations
@@ -746,9 +749,18 @@ Module ModTankLoader
                         ordered_names(id).has_color = True
                         ReDim ordered_names(id).color_data(section_sizes(i))
                         stream.Position = section_locations(i)
-                        For sec_l As UInt32 = 0 To section_sizes(i) - 1
-                            ordered_names(id).color_data(sec_l) = b_reader.ReadByte
+
+                        b_reader.BaseStream.Position += 132
+
+                        ordered_names(id).color_count = b_reader.ReadUInt32
+                        color_size = ordered_names(id).color_count
+
+                        ReDim color_data(color_size * 4)
+
+                        For sec_l As UInt32 = 0 To (color_size * 4) - 1
+                            color_data(sec_l) = b_reader.ReadByte
                         Next
+                        has_color = True
                         GoTo next_m
                     End If
                     If bsp_name = "bsp2" Then
@@ -775,7 +787,9 @@ Module ModTankLoader
                         ordered_names(id).has_uv2 = True
                         stream.Position = section_locations(i)
                         ReDim ordered_names(id).uv2_data(section_sizes(i))
-                        For sec_l As UInt32 = 0 To section_sizes(i) - 1
+                        b_reader.BaseStream.Position += 132
+                        ordered_names(id).uv2_cnt = b_reader.ReadUInt32
+                        For sec_l As UInt32 = 0 To section_sizes(i) - 137
                             ordered_names(id).uv2_data(sec_l) = b_reader.ReadByte
                         Next
                         GoTo next_m
@@ -807,7 +821,15 @@ next_m:
         ' This has to happen BEFORE the next_sub_section loop!
         Dim add_flag As Boolean = _add
         'Try
-
+        If has_color Then ' we need to convert them in to RGBA so they can he wrote to a FBX as vertex colors
+            ReDim color_rgb(color_size )
+            For i = 0 To (color_size - 1)
+                color_rgb(i).r = CSng(color_data((i * 4) + 0) / 255)
+                color_rgb(i).g = CSng(color_data((i * 4) + 1) / 255)
+                color_rgb(i).b = CSng(color_data((i * 4) + 2) / 255)
+                color_rgb(i).a = CSng(color_data((i * 4) + 3) / 255)
+            Next
+        End If
 
         Dim sg = sub_groups - 1
         While sub_groups > 0
@@ -934,7 +956,7 @@ next_m:
             'now that we have a count.. lets see if we need to get the uv2 coords
             If has_uv2 Then
                 If ordered_names(sg - sub_groups).uv2_name.Length > 2 Then
-                    ordered_names(sg - sub_groups).uv2_cnt = get_uv2(ordered_names(sg - sub_groups).uv2_data, ordered_names(sg - sub_groups).uv2_data.Length)
+                    ordered_names(sg - sub_groups).uv2_cnt = get_uv2(ordered_names(sg - sub_groups).uv2_data, ordered_names(sg - sub_groups).uv2_cnt)
                 Else
                     log_text.Append("UV2 referenced in Visual but does not exist. :" + f_name_uv2 + vbCrLf)
                     has_uv2 = False
@@ -966,24 +988,25 @@ next_m:
             i = 0
             Dim p As Integer = 6
             For k As UInt32 = object_start To big_l
-                If ordered_names(sg - sub_groups).has_color Then
-                    'Color data does not seem to effect the models in game in any way.
-                    _group(k).has_color = 1
-                    Dim c_size As Integer
-                    Try
-                        c_size = pGroups(sg - sub_groups).nVertices_ * c_stride
-                        ' Dim c_start As Integer = pGroups(sg - sub_groups).startVertex_ * c_stride
+                'If ordered_names(sg - sub_groups).has_color Then
+                '    'Color data does not seem to effect the models in game in any way.
+                '    _group(k).has_color = 1
+                '    Dim c_size As Integer
+                '    Dim c_start As Integer
+                '    Try
+                '        c_size = pGroups(sg - sub_groups).nVertices_ * c_stride
+                '        c_start = pGroups(sg - sub_groups).startVertex_ * c_stride
 
-                    Catch ex As Exception
-                        c_size = pGroups(1).nVertices_ * c_stride
+                '    Catch ex As Exception
+                '        c_size = pGroups(1).nVertices_ * c_stride
 
-                    End Try
-                    ReDim _group(k).color_data(c_size)
-                    For cc = 0 To c_size - 1
-                        '_group(k).color_data(cc) = ordered_names(sg - sub_groups).color_data(c_start + cc)
-                    Next
-                    'ordered_names(sg - sub_groups).color_data.CopyTo(_group(k).color_data, 0)
-                End If
+                '    End Try
+                '    ReDim _group(k).color_data(c_size)
+                '    For cc = 0 To c_size - 1
+                '        _group(k).color_data(cc) = ordered_names(sg - sub_groups).color_data(c_start + cc)
+                '    Next
+                '    'ordered_names(sg - sub_groups).color_data.CopyTo(_group(k).color_data, 0)
+                'End If
                 _group(k).bsp2_id = -1
                 If ordered_names(sg - sub_groups).has_bsp2 Then
                     ReDim _group(k).bsp2_data(ordered_names(sg - sub_groups).bsp2_data.Length)
@@ -999,6 +1022,11 @@ next_m:
                     _group(k).has_uv2 = 1
                 Else
                     _group(k).has_uv2 = 0
+                End If
+                If has_color Then
+                    _group(k).has_color = 1
+                Else
+                    _group(k).has_color = 0
                 End If
                 Dim pos As UInt32
                 Try
@@ -1095,11 +1123,10 @@ next_m:
                         _group(k).vertices(cnt).v2 = uv2_data(i).v
                     End If
                     If has_color Then
-                        '_group(k).vertices(cnt).r = _group(k).color_data((i * 4) + 0)
-                        '_group(k).vertices(cnt).g = _group(k).color_data((i * 4) + 1)
-                        '_group(k).vertices(cnt).b = _group(k).color_data((i * 4) + 2)
-                        '_group(k).vertices(cnt).a = _group(k).color_data((i * 4) + 3)
-
+                        _group(k).vertices(cnt).r = color_rgb(i).r
+                        _group(k).vertices(cnt).g = color_rgb(i).g
+                        _group(k).vertices(cnt).b = color_rgb(i).b
+                        _group(k).vertices(cnt).a = color_rgb(i).a
                     End If
                     i += 1
                 Next cnt
@@ -1651,12 +1678,9 @@ no_more:
     End Sub
 
     Dim mstream As New MemoryStream
-    Private Function get_uv2(ByRef data() As Byte, ByVal size As Integer) As Integer
-        Dim h = 68 + 64
+    Private Function get_uv2(ByRef data() As Byte, ByVal cnt As Integer) As Integer
         Dim m As New MemoryStream(data)
-        m.Position = h
         Dim br As New BinaryReader(m)
-        Dim cnt As Integer = br.ReadUInt32
         ReDim uv2_data(cnt - 1)
         For i = 0 To cnt - 1
             uv2_data(i) = New uv_
@@ -1668,6 +1692,7 @@ no_more:
 
     Public Function openVisual(ByVal filename As String) As Boolean
         Try
+            filename = filename.Replace(" - Copy", "")
 
             Dim mstream = New MemoryStream
             If File.Exists(My.Settings.res_mods_path + "/" + filename) And Not LOADING_FBX Then

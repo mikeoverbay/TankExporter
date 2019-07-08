@@ -297,6 +297,7 @@ skip_adding:
     End Sub
 
     Public Function is_camo_active() As Boolean
+        If PRIMITIVES_MODE Then Return False
         For i = 1 To object_count
             If _object(i).use_camo = 1 Then
                 Return True

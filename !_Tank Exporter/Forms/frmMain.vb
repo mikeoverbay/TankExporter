@@ -163,40 +163,146 @@ Public Class frmMain
         Catch ex As Exception
 
         End Try
-        If e.KeyCode = Keys.C Then
-            If CENTER_SELECTION Then
-                CENTER_SELECTION = False
-            Else
-                CENTER_SELECTION = True
-            End If
-            pb1.Focus()
-        End If
-        If e.KeyCode = 16 Then
+        '============================================================================================
+        'UI short cut keys
+        Select Case e.KeyValue
+
+            Case Keys.F1
+                m_help.PerformClick()
+
+            Case Keys.F2
+                If Show_lights Then
+                    Show_lights = False
+                Else
+                    Show_lights = True
+                End If
+
+            Case Keys.F3
+                If spin_light Then
+                    spin_light = False
+                Else
+                    spin_light = True
+                End If
+
+            Case Keys.F5
+                If chassis_cb.Checked Then
+                    chassis_cb.Checked = False
+                Else
+                    chassis_cb.Checked = True
+                End If
+
+            Case Keys.F6
+                If hull_cb.Checked Then
+                    hull_cb.Checked = False
+                Else
+                    hull_cb.Checked = True
+                End If
+
+            Case Keys.F7
+                If turret_cb.Checked Then
+                    turret_cb.Checked = False
+                Else
+                    turret_cb.Checked = True
+                End If
+
+            Case Keys.F8
+                If gun_cb.Checked Then
+                    gun_cb.Checked = False
+                Else
+                    gun_cb.Checked = True
+                End If
+
+            Case Keys.F12
+                If MODEL_LOADED Then
+                    m_screen_cap.PerformClick()
+                End If
+                '=================
+            Case Keys.B
+                If grid_cb.CheckState = CheckState.Checked Then
+                    grid_cb.CheckState = CheckState.Indeterminate
+                ElseIf grid_cb.CheckState = CheckState.Indeterminate Then
+                    grid_cb.CheckState = CheckState.Unchecked
+                ElseIf grid_cb.CheckState = CheckState.Unchecked Then
+                    grid_cb.CheckState = CheckState.Checked
+                End If
+
+            Case Keys.C
+                If CENTER_SELECTION Then
+                    CENTER_SELECTION = False
+                Else
+                    CENTER_SELECTION = True
+                End If
+                pb1.Focus()
+
+            Case Keys.F
+                If MODEL_LOADED Then
+                    m_view_res_mods_folder.PerformClick()
+                End If
+
+            Case Keys.H
+                m_help.PerformClick()
+
+            Case Keys.Home
+                reset_view()
+
+            Case Keys.I
+                If Not My.Computer.Keyboard.ShiftKeyDown Then
+                    m_Import_FBX.PerformClick()
+                ElseIf My.Computer.Keyboard.ShiftKeyDown Then
+                    m_import_primitives_fbx.PerformClick()
+                    move_mod = False
+                    GoTo done
+                End If
+
+            Case Keys.L
+                m_lighting.PerformClick()
+
+            Case Keys.M
+                If showMarkers_cb.Checked Then
+                    showMarkers_cb.Checked = False
+                Else
+                    showMarkers_cb.Checked = True
+                End If
+            Case Keys.N
+                normal_shader_mode += 1
+                If normal_shader_mode > 2 Then
+                    normal_shader_mode = 0
+                End If
+
+            Case Keys.T
+                m_load_textures.PerformClick()
+
+            Case Keys.U
+                If frmTextureViewer.Visible Then
+                    frmTextureViewer.m_show_uvs.PerformClick()
+                End If
+
+            Case Keys.V
+                frmComponentView.Visible = True
+
+            Case Keys.W
+                If wire_cb.Checked Then
+                    wire_cb.Checked = False
+                Else
+                    wire_cb.Checked = True
+                End If
+
+            Case Keys.X
+                If MODEL_LOADED Then
+                    m_export_to_fbx.PerformClick()
+                End If
+
+        End Select
+        '============================================================================================
+
+        If My.Computer.Keyboard.ShiftKeyDown Then
             move_mod = True
         End If
-        If e.KeyCode = 17 Then
+
+        If My.Computer.Keyboard.CtrlKeyDown Then
             z_move = True
         End If
-        If e.KeyCode = Keys.F3 Then
-            If spin_light Then
-                spin_light = False
-            Else
-                spin_light = True
-            End If
-        End If
-        If e.KeyCode = Keys.N Then
-            normal_shader_mode += 1
-            If normal_shader_mode > 2 Then
-                normal_shader_mode = 0
-            End If
-        End If
-        If e.KeyCode = Keys.L Then
-            If Show_lights Then
-                Show_lights = False
-            Else
-                Show_lights = True
-            End If
-        End If
+
         If CAMO_BUTTONS_VISIBLE Then
             If e.KeyCode = Keys.Right Then
                 'Debug.WriteLine("Right")
@@ -218,10 +324,7 @@ Public Class frmMain
             End If
         End If
 
-        'If e.KeyCode = Keys.S Then
-        '    frmEditFrag.Show()
-        '    frmEditFrag.TopMost = True
-        'End If
+done:
         e.Handled = True
         If stop_updating Then draw_scene()
 
@@ -252,8 +355,6 @@ Public Class frmMain
 
 
     Private Sub frmMain_ResizeEnd(sender As Object, e As EventArgs) Handles Me.ResizeEnd
-        'gl_stop = False
-        'If season_Buttons_VISIBLE Then
         If Not allow_mouse Then Return
         WINDOW_HEIGHT_DELTA = pb1.Height - OLD_WINDOW_HEIGHT
         relocate_season_Bottons()
@@ -263,11 +364,7 @@ Public Class frmMain
 
         Dim wm = pb1.Width Mod 2
         Dim hm = pb1.Height Mod 2
-        'If hm = 0 Then
-        '    hm = 1
-        'Else
-        '    hm = 0
-        'End If
+
         Me.Width += wm
         Me.Height += hm
         If Not _Started Then Return
@@ -310,265 +407,6 @@ Public Class frmMain
         draw_scene()
     End Sub
 
-    Private Sub make_888_lookup_table()
-        lookup(0) = 254
-        lookup(1) = 253
-        lookup(2) = 252
-        lookup(3) = 251
-        lookup(4) = 250
-        lookup(5) = 249
-        lookup(6) = 248
-        lookup(7) = 247
-        lookup(8) = 246
-        lookup(9) = 245
-        lookup(10) = 244
-        lookup(11) = 243
-        lookup(12) = 242
-        lookup(13) = 241
-        lookup(14) = 240
-        lookup(15) = 239
-        lookup(16) = 238
-        lookup(17) = 237
-        lookup(18) = 236
-        lookup(19) = 235
-        lookup(20) = 234
-        lookup(21) = 233
-        lookup(22) = 232
-        lookup(23) = 231
-        lookup(24) = 230
-        lookup(25) = 229
-        lookup(26) = 228
-        lookup(27) = 227
-        lookup(28) = 226
-        lookup(29) = 225
-        lookup(30) = 224
-        lookup(31) = 223
-        lookup(32) = 222
-        lookup(33) = 221
-        lookup(34) = 220
-        lookup(35) = 219
-        lookup(36) = 218
-        lookup(37) = 217
-        lookup(38) = 216
-        lookup(39) = 215
-        lookup(40) = 214
-        lookup(41) = 213
-        lookup(42) = 212
-        lookup(43) = 211
-        lookup(44) = 210
-        lookup(45) = 209
-        lookup(46) = 208
-        lookup(47) = 207
-        lookup(48) = 206
-        lookup(49) = 205
-        lookup(50) = 204
-        lookup(51) = 203
-        lookup(52) = 202
-        lookup(53) = 201
-        lookup(54) = 200
-        lookup(55) = 199
-        lookup(56) = 198
-        lookup(57) = 197
-        lookup(58) = 196
-        lookup(59) = 195
-        lookup(60) = 194
-        lookup(61) = 193
-        lookup(62) = 192
-        lookup(63) = 191
-        lookup(64) = 190
-        lookup(65) = 189
-        lookup(66) = 188
-        lookup(67) = 187
-        lookup(68) = 186
-        lookup(69) = 185
-        lookup(70) = 184
-        lookup(71) = 183
-        lookup(72) = 182
-        lookup(73) = 181
-        lookup(74) = 180
-        lookup(75) = 179
-        lookup(76) = 178
-        lookup(77) = 177
-        lookup(78) = 176
-        lookup(79) = 175
-        lookup(80) = 174
-        lookup(81) = 173
-        lookup(82) = 172
-        lookup(83) = 171
-        lookup(84) = 170
-        lookup(85) = 169
-        lookup(86) = 168
-        lookup(87) = 167
-        lookup(88) = 166
-        lookup(89) = 165
-        lookup(90) = 164
-        lookup(91) = 163
-        lookup(92) = 162
-        lookup(93) = 161
-        lookup(94) = 160
-        lookup(95) = 159
-        lookup(96) = 158
-        lookup(97) = 157
-        lookup(98) = 156
-        lookup(99) = 155
-        lookup(100) = 154
-        lookup(101) = 153
-        lookup(102) = 152
-        lookup(103) = 151
-        lookup(104) = 150
-        lookup(105) = 149
-        lookup(106) = 148
-        lookup(107) = 147
-        lookup(108) = 146
-        lookup(109) = 145
-        lookup(110) = 144
-        lookup(111) = 143
-        lookup(112) = 142
-        lookup(113) = 141
-        lookup(114) = 140
-        lookup(115) = 139
-        lookup(116) = 138
-        lookup(117) = 137
-        lookup(118) = 136
-        lookup(119) = 135
-        lookup(120) = 134
-        lookup(121) = 133
-        lookup(122) = 132
-        lookup(123) = 131
-        lookup(124) = 130
-        lookup(125) = 129
-        lookup(126) = 128
-        lookup(127) = 127
-        lookup(128) = 126
-        lookup(129) = 125
-        lookup(130) = 124
-        lookup(131) = 123
-        lookup(132) = 122
-        lookup(133) = 121
-        lookup(134) = 120
-        lookup(135) = 119
-        lookup(136) = 118
-        lookup(137) = 117
-        lookup(138) = 116
-        lookup(139) = 115
-        lookup(140) = 114
-        lookup(141) = 113
-        lookup(142) = 112
-        lookup(143) = 111
-        lookup(144) = 110
-        lookup(145) = 109
-        lookup(146) = 108
-        lookup(147) = 107
-        lookup(148) = 106
-        lookup(149) = 105
-        lookup(150) = 104
-        lookup(151) = 103
-        lookup(152) = 102
-        lookup(153) = 101
-        lookup(154) = 100
-        lookup(155) = 99
-        lookup(156) = 98
-        lookup(157) = 97
-        lookup(158) = 96
-        lookup(159) = 95
-        lookup(160) = 94
-        lookup(161) = 93
-        lookup(162) = 92
-        lookup(163) = 91
-        lookup(164) = 90
-        lookup(165) = 89
-        lookup(166) = 88
-        lookup(167) = 87
-        lookup(168) = 86
-        lookup(169) = 85
-        lookup(170) = 84
-        lookup(171) = 83
-        lookup(172) = 82
-        lookup(173) = 81
-        lookup(174) = 80
-        lookup(175) = 79
-        lookup(176) = 78
-        lookup(177) = 77
-        lookup(178) = 76
-        lookup(179) = 75
-        lookup(180) = 74
-        lookup(181) = 73
-        lookup(182) = 72
-        lookup(183) = 71
-        lookup(184) = 70
-        lookup(185) = 69
-        lookup(186) = 68
-        lookup(187) = 67
-        lookup(188) = 66
-        lookup(189) = 65
-        lookup(190) = 64
-        lookup(191) = 63
-        lookup(192) = 62
-        lookup(193) = 61
-        lookup(194) = 60
-        lookup(195) = 59
-        lookup(196) = 58
-        lookup(197) = 57
-        lookup(198) = 56
-        lookup(199) = 55
-        lookup(200) = 54
-        lookup(201) = 53
-        lookup(202) = 52
-        lookup(203) = 51
-        lookup(204) = 50
-        lookup(205) = 49
-        lookup(206) = 48
-        lookup(207) = 47
-        lookup(208) = 46
-        lookup(209) = 45
-        lookup(210) = 44
-        lookup(211) = 43
-        lookup(212) = 42
-        lookup(213) = 41
-        lookup(214) = 40
-        lookup(215) = 39
-        lookup(216) = 38
-        lookup(217) = 37
-        lookup(218) = 36
-        lookup(219) = 35
-        lookup(220) = 34
-        lookup(221) = 33
-        lookup(222) = 32
-        lookup(223) = 31
-        lookup(224) = 30
-        lookup(225) = 29
-        lookup(226) = 28
-        lookup(227) = 27
-        lookup(228) = 26
-        lookup(229) = 25
-        lookup(230) = 24
-        lookup(231) = 23
-        lookup(232) = 22
-        lookup(233) = 21
-        lookup(234) = 20
-        lookup(235) = 19
-        lookup(236) = 18
-        lookup(237) = 17
-        lookup(238) = 16
-        lookup(239) = 15
-        lookup(240) = 14
-        lookup(241) = 13
-        lookup(242) = 12
-        lookup(243) = 11
-        lookup(244) = 10
-        lookup(245) = 9
-        lookup(246) = 8
-        lookup(247) = 7
-        lookup(248) = 6
-        lookup(249) = 5
-        lookup(250) = 4
-        lookup(251) = 3
-        lookup(252) = 2
-        lookup(253) = 1
-        lookup(254) = 0
-        lookup(255) = 0
-
-    End Sub
 
     '############################################################################ form load
     Private Sub frmMain_Load(sender As Object, e As EventArgs) Handles Me.Load
@@ -769,8 +607,9 @@ Public Class frmMain
                 '===================================================================================
                 start_up_log.AppendLine("Finding all PBS decals in map pak files...")
                 info_Label.Text = "finding Decals. This only happens once after install."
-                find_pbs_decals()
+
                 start_up_log.AppendLine("Done Finding all PBS decals in map packages.")
+                find_pbs_decals()
                 '===================================================================================
 
                 shared_contents_build = New Ionic.Zip.ZipFile(Temp_Storage + "\shared_contents_build.pkg")
@@ -1119,7 +958,278 @@ Public Class frmMain
         allow_mouse = True
     End Sub
     '############################################################################ form load
+    Private Sub reset_view()
+        cam_x = 0
+        cam_y = 0
+        cam_z = 10
+        look_point_x = 0
+        look_point_y = 0
+        look_point_z = 0
+        Cam_X_angle = (PI * 0.25) + PI
+        Cam_Y_angle = -PI * 0.25
+        view_radius = -8.5
+        l_rot = PI * 0.25 + PI * 2
 
+    End Sub
+    Private Sub make_888_lookup_table()
+        lookup(0) = 254
+        lookup(1) = 253
+        lookup(2) = 252
+        lookup(3) = 251
+        lookup(4) = 250
+        lookup(5) = 249
+        lookup(6) = 248
+        lookup(7) = 247
+        lookup(8) = 246
+        lookup(9) = 245
+        lookup(10) = 244
+        lookup(11) = 243
+        lookup(12) = 242
+        lookup(13) = 241
+        lookup(14) = 240
+        lookup(15) = 239
+        lookup(16) = 238
+        lookup(17) = 237
+        lookup(18) = 236
+        lookup(19) = 235
+        lookup(20) = 234
+        lookup(21) = 233
+        lookup(22) = 232
+        lookup(23) = 231
+        lookup(24) = 230
+        lookup(25) = 229
+        lookup(26) = 228
+        lookup(27) = 227
+        lookup(28) = 226
+        lookup(29) = 225
+        lookup(30) = 224
+        lookup(31) = 223
+        lookup(32) = 222
+        lookup(33) = 221
+        lookup(34) = 220
+        lookup(35) = 219
+        lookup(36) = 218
+        lookup(37) = 217
+        lookup(38) = 216
+        lookup(39) = 215
+        lookup(40) = 214
+        lookup(41) = 213
+        lookup(42) = 212
+        lookup(43) = 211
+        lookup(44) = 210
+        lookup(45) = 209
+        lookup(46) = 208
+        lookup(47) = 207
+        lookup(48) = 206
+        lookup(49) = 205
+        lookup(50) = 204
+        lookup(51) = 203
+        lookup(52) = 202
+        lookup(53) = 201
+        lookup(54) = 200
+        lookup(55) = 199
+        lookup(56) = 198
+        lookup(57) = 197
+        lookup(58) = 196
+        lookup(59) = 195
+        lookup(60) = 194
+        lookup(61) = 193
+        lookup(62) = 192
+        lookup(63) = 191
+        lookup(64) = 190
+        lookup(65) = 189
+        lookup(66) = 188
+        lookup(67) = 187
+        lookup(68) = 186
+        lookup(69) = 185
+        lookup(70) = 184
+        lookup(71) = 183
+        lookup(72) = 182
+        lookup(73) = 181
+        lookup(74) = 180
+        lookup(75) = 179
+        lookup(76) = 178
+        lookup(77) = 177
+        lookup(78) = 176
+        lookup(79) = 175
+        lookup(80) = 174
+        lookup(81) = 173
+        lookup(82) = 172
+        lookup(83) = 171
+        lookup(84) = 170
+        lookup(85) = 169
+        lookup(86) = 168
+        lookup(87) = 167
+        lookup(88) = 166
+        lookup(89) = 165
+        lookup(90) = 164
+        lookup(91) = 163
+        lookup(92) = 162
+        lookup(93) = 161
+        lookup(94) = 160
+        lookup(95) = 159
+        lookup(96) = 158
+        lookup(97) = 157
+        lookup(98) = 156
+        lookup(99) = 155
+        lookup(100) = 154
+        lookup(101) = 153
+        lookup(102) = 152
+        lookup(103) = 151
+        lookup(104) = 150
+        lookup(105) = 149
+        lookup(106) = 148
+        lookup(107) = 147
+        lookup(108) = 146
+        lookup(109) = 145
+        lookup(110) = 144
+        lookup(111) = 143
+        lookup(112) = 142
+        lookup(113) = 141
+        lookup(114) = 140
+        lookup(115) = 139
+        lookup(116) = 138
+        lookup(117) = 137
+        lookup(118) = 136
+        lookup(119) = 135
+        lookup(120) = 134
+        lookup(121) = 133
+        lookup(122) = 132
+        lookup(123) = 131
+        lookup(124) = 130
+        lookup(125) = 129
+        lookup(126) = 128
+        lookup(127) = 127
+        lookup(128) = 126
+        lookup(129) = 125
+        lookup(130) = 124
+        lookup(131) = 123
+        lookup(132) = 122
+        lookup(133) = 121
+        lookup(134) = 120
+        lookup(135) = 119
+        lookup(136) = 118
+        lookup(137) = 117
+        lookup(138) = 116
+        lookup(139) = 115
+        lookup(140) = 114
+        lookup(141) = 113
+        lookup(142) = 112
+        lookup(143) = 111
+        lookup(144) = 110
+        lookup(145) = 109
+        lookup(146) = 108
+        lookup(147) = 107
+        lookup(148) = 106
+        lookup(149) = 105
+        lookup(150) = 104
+        lookup(151) = 103
+        lookup(152) = 102
+        lookup(153) = 101
+        lookup(154) = 100
+        lookup(155) = 99
+        lookup(156) = 98
+        lookup(157) = 97
+        lookup(158) = 96
+        lookup(159) = 95
+        lookup(160) = 94
+        lookup(161) = 93
+        lookup(162) = 92
+        lookup(163) = 91
+        lookup(164) = 90
+        lookup(165) = 89
+        lookup(166) = 88
+        lookup(167) = 87
+        lookup(168) = 86
+        lookup(169) = 85
+        lookup(170) = 84
+        lookup(171) = 83
+        lookup(172) = 82
+        lookup(173) = 81
+        lookup(174) = 80
+        lookup(175) = 79
+        lookup(176) = 78
+        lookup(177) = 77
+        lookup(178) = 76
+        lookup(179) = 75
+        lookup(180) = 74
+        lookup(181) = 73
+        lookup(182) = 72
+        lookup(183) = 71
+        lookup(184) = 70
+        lookup(185) = 69
+        lookup(186) = 68
+        lookup(187) = 67
+        lookup(188) = 66
+        lookup(189) = 65
+        lookup(190) = 64
+        lookup(191) = 63
+        lookup(192) = 62
+        lookup(193) = 61
+        lookup(194) = 60
+        lookup(195) = 59
+        lookup(196) = 58
+        lookup(197) = 57
+        lookup(198) = 56
+        lookup(199) = 55
+        lookup(200) = 54
+        lookup(201) = 53
+        lookup(202) = 52
+        lookup(203) = 51
+        lookup(204) = 50
+        lookup(205) = 49
+        lookup(206) = 48
+        lookup(207) = 47
+        lookup(208) = 46
+        lookup(209) = 45
+        lookup(210) = 44
+        lookup(211) = 43
+        lookup(212) = 42
+        lookup(213) = 41
+        lookup(214) = 40
+        lookup(215) = 39
+        lookup(216) = 38
+        lookup(217) = 37
+        lookup(218) = 36
+        lookup(219) = 35
+        lookup(220) = 34
+        lookup(221) = 33
+        lookup(222) = 32
+        lookup(223) = 31
+        lookup(224) = 30
+        lookup(225) = 29
+        lookup(226) = 28
+        lookup(227) = 27
+        lookup(228) = 26
+        lookup(229) = 25
+        lookup(230) = 24
+        lookup(231) = 23
+        lookup(232) = 22
+        lookup(233) = 21
+        lookup(234) = 20
+        lookup(235) = 19
+        lookup(236) = 18
+        lookup(237) = 17
+        lookup(238) = 16
+        lookup(239) = 15
+        lookup(240) = 14
+        lookup(241) = 13
+        lookup(242) = 12
+        lookup(243) = 11
+        lookup(244) = 10
+        lookup(245) = 9
+        lookup(246) = 8
+        lookup(247) = 7
+        lookup(248) = 6
+        lookup(249) = 5
+        lookup(250) = 4
+        lookup(251) = 3
+        lookup(252) = 2
+        lookup(253) = 1
+        lookup(254) = 0
+        lookup(255) = 0
+
+    End Sub
     Private Sub find_pbs_decals()
         Dim iPath = My.Settings.game_path + "\res\packages\"
         Dim f_info = Directory.GetFiles(iPath)
@@ -1288,6 +1398,7 @@ Public Class frmMain
     End Sub
     Private Sub load_models()
         load_binary_models()
+        'load_x_models()
         boneMarker = get_X_model_marker(Application.StartupPath + "\resources\models\marker.x", v_marker)
         boneMarker2 = get_X_model_marker(Application.StartupPath + "\resources\models\marker_2.x", v_marker2)
         boneMarker3 = get_X_model_marker(Application.StartupPath + "\resources\models\marker_3.x", v_marker3)
@@ -2496,6 +2607,7 @@ tryagain:
         tv = CSng(t) / 5000.0!
         'Dome
         '############################################
+        'Gl.glPolygonMode(Gl.GL_FRONT_AND_BACK, Gl.GL_LINE)
         'dome
         Dim s As Single = 1.0
         Gl.glFrontFace(Gl.GL_CCW)
@@ -3322,7 +3434,7 @@ tryagain:
                 Else
                     For jj = 1 To object_count
                         If _object(jj).visible Then
-                            If fbxgrp(jj).component_visible Then Gl.glCallList(_object(jj).main_display_list) 'Model
+                            If _group(jj).component_visible Then Gl.glCallList(_object(jj).main_display_list) 'Model
                         End If
                     Next
                 End If
@@ -3600,7 +3712,7 @@ fuckit:
         'glutPrintBox(10, -60, "W = " + pb1.Width.ToString + " H = " + pb1.Height.ToString, 1.0, 1.0, 1.0, 1.0) ' fps string
 
         glutPrint(5, 8 - pb1.Height + s_Location, str.ToString, 0.0, 1.0, 0.0, 1.0) ' fps string
-        glutPrint(5, -20, view_status_string, 0.0, 1.0, 0.0, 1.0) ' view status
+        glutPrintBox(5, -20, view_status_string, 0.0, 1.0, 0.0, 1.0) ' view status
 
         Gl.glDisable(Gl.GL_BLEND)
         Gl.glDisable(Gl.GL_DEPTH_TEST)
@@ -4338,18 +4450,18 @@ fuckit:
             look_point_z = decal_matrix_list(current_decal).translate.z
         End If
     End Sub
-    Private Sub rotate_decal_xy()
+    Private Sub rotate_decal_xyz()
         If current_decal = -1 Then Return
-        Dim x, z As Single
+        Dim z As Single
         If upton.state = 8 Then
-            x = -(mouse.y - m_mouse.y) * 0.01
-            g_decal_rotate.y += x
-            decal_matrix_list(current_decal).set_y_rotation_matrix(x)
-        End If
-        If upton.state = 9 Then
             z = -(mouse.y - m_mouse.y) * 0.01
             g_decal_rotate.x += z
             decal_matrix_list(current_decal).set_x_rotation_matrix(z)
+        End If
+        If upton.state = 9 Then
+            z = -(mouse.y - m_mouse.y) * 0.01
+            g_decal_rotate.y += z
+            decal_matrix_list(current_decal).set_y_rotation_matrix(z)
         End If
         If upton.state = 10 Then
             z = -(mouse.y - m_mouse.y) * 0.01
@@ -4400,6 +4512,7 @@ fuckit:
     End Sub
 
 #End Region
+
 #Region "PB1 Mouse"
 
     Private Sub pb1_MouseDoubleClick(sender As Object, e As MouseEventArgs) Handles pb1.MouseDoubleClick
@@ -4467,7 +4580,7 @@ fuckit:
             Return
         End If
         If M_DOWN And upton.state > 7 And upton.state < 11 Then
-            rotate_decal_xy()
+            rotate_decal_xyz()
             Return
         End If
         If upton.state = 102 And M_DOWN Then
@@ -4896,7 +5009,8 @@ fuckit:
         m_build_wotmod.Enabled = False
         m_hide_show_components.Enabled = False
         m_set_vertex_winding_order.Enabled = False
-
+        m_show_fbx.Enabled = True
+        m_write_non_tank_primitive.Enabled = False
         frmComponentView.Visible = False
         frmReverseVertexWinding.Visible = False
 
@@ -6410,7 +6524,7 @@ n_turret:
                     If Not Directory.Exists(Path.GetDirectoryName(ip)) Then
                         Directory.CreateDirectory(Path.GetDirectoryName(ip))
                     End If
-                    itemDefXmlString = itemDefXmlString.Replace("map_nation", Path.GetFileNameWithoutExtension(file_name) + ".xml")
+                    itemDefXmlString = itemDefXmlString.Replace("map_nation", Path.GetFileNameWithoutExtension(ip) + ".xml")
                     File.WriteAllText(ip, itemDefXmlString, Encoding.ASCII)
                 Catch ex As Exception
                     itemDefXmlString = ts
@@ -7061,6 +7175,7 @@ n_turret:
 #Region "menu_button_functions"
     Private Sub m_load_Click(sender As Object, e As EventArgs) Handles m_load.Click
         CRASH_MODE = False
+        PRIMITIVES_MODE = False
         TC1.Enabled = False
         m_show_fbx.Visible = False
         m_show_fbx.Checked = False
@@ -7071,9 +7186,12 @@ n_turret:
         TC1.Enabled = True
         find_icon_image(TANK_NAME)
         m_build_wotmod.Enabled = True
+        m_load_textures.Enabled = True
+        m_load_textures.Checked = True
     End Sub
     Private Sub m_load_crashed_Click(sender As Object, e As EventArgs) Handles m_load_crashed.Click
         CRASH_MODE = True
+        PRIMITIVES_MODE = False
         TC1.Enabled = False
         m_show_fbx.Visible = False
         m_show_fbx.Checked = False
@@ -7083,6 +7201,9 @@ n_turret:
         m_ExportExtract.Enabled = True
         TC1.Enabled = True
         find_icon_image(TANK_NAME)
+        m_load_textures.Enabled = True
+        m_load_textures.Checked = True
+
     End Sub
 
     Private Sub m_clear_temp_folder_data_Click(sender As Object, e As EventArgs) Handles m_clear_temp_folder_data.Click
@@ -7541,12 +7662,8 @@ n_turret:
         File.WriteAllText(TankListTempFolder + "tanknames.txt", out_string.ToString)
     End Sub
 
-    Private Sub m_open_temp_folder_Click(sender As Object, e As EventArgs) Handles m_open_temp_folder.Click
-        Dim f As DirectoryInfo = New DirectoryInfo(Temp_Storage)
-        If f.Exists Then
-            Process.Start("explorer.exe", TankListTempFolder)
-        End If
-
+    Private Sub m_open_Game_folder_Click(sender As Object, e As EventArgs) Handles m_Open_game_folder.Click
+        Process.Start("explorer.exe", My.Settings.game_path)
     End Sub
 
     Private Sub m_export_fbx_Click(sender As Object, e As EventArgs)
@@ -7652,6 +7769,10 @@ n_turret:
 
 
     Private Sub m_Import_FBX_Click(sender As Object, e As EventArgs) Handles m_Import_FBX.Click
+        frmReverseVertexWinding.Hide()
+        frmComponentView.Hide()
+        m_load_textures.Enabled = True
+        PRIMITIVES_MODE = False
         MM.Enabled = False
         TC1.Enabled = False
         info_Label.Parent = pb1
@@ -7907,6 +8028,315 @@ n_turret:
         frmSettings.Visible = True
     End Sub
 
+    Private Sub m_sel_texture_Click(sender As Object, e As EventArgs) Handles m_sel_texture.Click
+        If current_decal < 0 Then Return
+        If t_list Is Nothing Then ' create text box and fill it with all the texture names if it hasn't been created already.
+            t_list = New TextBox
+            t_list.Multiline = True
+            t_list.Parent = decal_panel
+            t_list.Width = d_list_tb.Width
+            t_list.Height = d_list_tb.Height
+            t_list.Location = d_list_tb.Location
+            t_list.Anchor = AnchorStyles.Bottom Or AnchorStyles.Top Or AnchorStyles.Left Or AnchorStyles.Right
+            t_list.ForeColor = d_list_tb.ForeColor
+            t_list.BackColor = d_list_tb.BackColor
+            t_list.Font = d_list_tb.Font
+            t_list.ScrollBars = ScrollBars.Vertical
+            For j = 0 To decal_textures.Length - 1
+                t_list.Text += decal_textures(j).colorMap_name + " :" + j.ToString + vbCrLf
+            Next
+            AddHandler t_list.Click, AddressOf handle_t_click
+        End If
+        t_list.BringToFront()
+        d_list_tb.SendToBack()
+        current_decal_lable.Text = current_decal.ToString
+    End Sub
+
+    Private Sub m_delete_Click(sender As Object, e As EventArgs) Handles m_delete.Click
+        If decal_matrix_list.Length < 2 Then Return
+        Dim t_l(decal_matrix_list.Length - 2) As decal_matrix_list_
+        Dim ta = d_list_tb.Text.Split(vbLf)
+        Dim ts As String = ""
+        For Each s In ta
+            Dim ti = s.Split(":")
+            If ti.Length > 1 Then ' dont mess with empty lines
+                Dim tii = ti(1).Split(vbCr)
+                Dim rv = CInt(tii(0))
+                If rv <> current_decal Then
+                    If rv > current_decal Then ' If this ones larger it needs decremented.
+                        rv -= 1
+                    End If
+                    ts += ti(0) + ":" + rv.ToString + vbCrLf 're-assemble the line.
+                End If
+            End If
+        Next
+        d_list_tb.Text = ts
+        Application.DoEvents()
+        Dim cnt As Integer = 0
+        For i = 0 To decal_matrix_list.Length - 2
+            If i <> current_decal Then
+                t_l(cnt) = decal_matrix_list(i)
+                cnt += 1
+            End If
+        Next
+        ReDim Preserve decal_matrix_list(decal_matrix_list.Length - 2)
+        For i = 0 To decal_matrix_list.Length - 2
+            decal_matrix_list(i) = t_l(i)
+            'd_list_tb.Text += "Decal ID :" + i.ToString + vbCrLf
+        Next
+        'current_decal -= 1
+        'If current_decal = -1 And decal_matrix_list.Length > 1 Then
+        '    current_decal = 0
+        'End If
+        If current_decal > -1 Then
+            update_decal_order()
+            Dim new_line As Integer = 0
+            For i = 0 To decal_order.Length - 1
+                If decal_order(i) = current_decal Then
+                    new_line = i
+                    Exit For
+                End If
+            Next
+            Dim sp = d_list_tb.GetFirstCharIndexFromLine(new_line) ' get line
+            d_list_tb.SelectionStart = sp
+            Try
+                d_list_tb.Select(d_list_tb.GetFirstCharIndexOfCurrentLine(), _
+                                     d_list_tb.Lines(new_line).Length) ' select prev line
+                decal_matrix_list(new_line).get_decals_transform_info()
+
+            Catch ex As Exception
+                Return
+            End Try
+            d_current_line = new_line
+            d_sel_Len = d_list_tb.Lines(new_line).Length
+        End If
+    End Sub
+
+    Private Sub m_reload_textures_Click(sender As Object, e As EventArgs) Handles m_reload_textures.Click
+        If Not MODEL_LOADED Then
+            Return
+        End If
+        MODEL_LOADED = False ' stop drawing the tank
+        ' delete texture so we dont waste video memory!
+        For i = 0 To textures.Length - 1
+            Gl.glDeleteTextures(1, textures(i).c_id)
+            Gl.glDeleteTextures(1, textures(i).n_id)
+            If textures(i).ao_id > -1 Then
+                Gl.glDeleteTextures(1, textures(i).ao_id)
+            End If
+            Gl.glDeleteTextures(1, textures(i).gmm_id)
+            If textures(i).detail_id > -1 Then
+                Gl.glDeleteTextures(1, textures(i).detail_id)
+            End If
+        Next
+        ReDim textures(0) ' resize so it can be rebuild
+        For i = 1 To _group.Length - 1
+            build_textures(i) 'get the textures for this model. If its in the cache, use them.
+        Next
+        MODEL_LOADED = True ' enable drawing the tank
+        log_text.AppendLine("---- Reloading Textures -----")
+    End Sub
+
+    Private Sub m_extract_Click(sender As Object, e As EventArgs) Handles m_extract.Click
+        file_name = current_tank_name
+        frmExtract.ShowDialog(Me)
+
+    End Sub
+
+    Private Sub m_export_to_fbx_Click(sender As Object, e As EventArgs) Handles m_export_to_fbx.Click
+        If loaded_from_resmods Then
+            If MsgBox("You are about to write a FBX loaded from the res_mods folder!" + vbCrLf + _
+                       "Doing so will corrupt the chassis if the markers have been modified." _
+                       , MsgBoxStyle.YesNo, "DANGER Will Robinson!") = MsgBoxResult.Yes Then
+            Else
+                Return
+            End If
+        End If
+        SaveFileDialog1.Filter = "AutoDesk (*.FBX)|*.fbx"
+        SaveFileDialog1.Title = "Export FBX..."
+        Dim tfp As String = "C:\"
+        If File.Exists(Temp_Storage + "\Fbx_out_folder.txt") Then
+            tfp = File.ReadAllText(Temp_Storage + "\Fbx_out_folder.txt")
+        End If
+
+        SaveFileDialog1.InitialDirectory = tfp
+        If CRASH_MODE Then
+            SaveFileDialog1.FileName = short_tank_name.Replace("\/", "_") + "_CRASHED.fbx"
+        Else
+            SaveFileDialog1.FileName = short_tank_name.Replace("\/", "_") + ".fbx"
+        End If
+        If PRIMITIVES_MODE Then
+            SaveFileDialog1.FileName = Path.GetFileNameWithoutExtension(file_name)
+            FBX_NAME = SaveFileDialog1.FileName
+        End If
+        info_Label.Parent = pb1
+
+        If SaveFileDialog1.ShowDialog = Forms.DialogResult.OK Then
+            My.Settings.fbx_path = SaveFileDialog1.FileName
+        Else
+            info_Label.Visible = False
+            info_Label.Parent = Me
+            Return
+        End If
+        File.WriteAllText(Temp_Storage + "\Fbx_out_folder.txt", Path.GetDirectoryName(SaveFileDialog1.FileName))
+
+        frmFBX.ShowDialog(Me)
+        info_Label.Visible = False
+        info_Label.Parent = Me
+
+    End Sub
+
+    Private Sub m_edit_camo_Click(sender As Object, e As EventArgs) Handles m_edit_camo.Click
+        frmEditCamo.Visible = True
+    End Sub
+
+    Private Sub m_clean_res_mods_Click(sender As Object, e As EventArgs) Handles m_clean_res_mods.Click
+        Dim path = TANK_NAME
+        If path.Contains(":") Then
+            Dim z = path.Split(":")
+            path = z(0) + "/normal/"
+        End If
+        Dim a = path.Split("normal")
+        path = a(0)
+        path = My.Settings.res_mods_path + "/" + path
+        If MsgBox("If you have IMPORTANT FILES you need to save" + vbCrLf + _
+                   "you need to do it before continuing!!" + vbCrLf + _
+                   "Delete Files now?", MsgBoxStyle.YesNo, "WARNING!!") = MsgBoxResult.Yes Then
+            If Directory.Exists(path) Then
+                DeleteFilesFromFolder(path)
+            End If
+        End If
+    End Sub
+    Private Sub DeleteFilesFromFolder(path As String)
+        Try
+            System.IO.Directory.Delete(path, True)
+
+        Catch ex As Exception
+            MsgBox("I cant delete " + path + vbCrLf + _
+                    "Someting is accessing the folders or files!", MsgBoxStyle.Exclamation, "Access Denied!")
+        End Try
+    End Sub
+
+    Private Sub m_donate_Click(sender As Object, e As EventArgs) Handles m_donate.Click
+        Process.Start(Application.StartupPath + "\html\donate.html")
+
+    End Sub
+
+    Private Sub m_view_res_mods_folder_Click(sender As Object, e As EventArgs) Handles m_view_res_mods_folder.Click
+        Dim a = TANK_NAME.Split(":")
+        Dim p = a(0)
+        Dim f = My.Settings.res_mods_path + "\" + p
+        If Directory.Exists(f) Then
+            Process.Start(f)
+        Else
+            MsgBox("You have not extracted anything to res_mods for this tank", MsgBoxStyle.Exclamation, "Path not found!")
+        End If
+    End Sub
+
+    Private Sub m_bloom_off_CheckedChanged(sender As Object, e As EventArgs) Handles m_bloom_off.CheckedChanged
+    End Sub
+
+    Private Sub m_FXAA_CheckedChanged(sender As Object, e As EventArgs) Handles m_FXAA.CheckedChanged
+
+    End Sub
+
+    Private Sub m_screen_cap_Click(sender As Object, e As EventArgs) Handles m_screen_cap.Click
+        stop_updating = True
+        frmScreenCap.ShowDialog(Me)
+        stop_updating = False
+    End Sub
+
+    Private Sub m_ExportExtract_EnabledChanged(sender As Object, e As EventArgs) Handles m_ExportExtract.EnabledChanged
+        m_GMM_toy_cb.Visible = m_ExportExtract.Enabled
+    End Sub
+
+    Private Sub m_GMM_toy_cb_CheckedChanged(sender As Object, e As EventArgs) Handles m_GMM_toy_cb.CheckedChanged
+        frmGMM.Visible = m_GMM_toy_cb.Checked
+        If frmGMM.Visible Then
+            m_GMM_toy_cb.ForeColor = Color.Red
+            GMM_TOY_VISIBLE = 1
+        Else
+            GMM_TOY_VISIBLE = 0
+            m_GMM_toy_cb.ForeColor = Color.Black
+        End If
+    End Sub
+
+    Private Sub m_GMM_toy_cb_Click(sender As Object, e As EventArgs) Handles m_GMM_toy_cb.Click
+
+    End Sub
+
+    Private Sub m_hide_show_components_Click(sender As Object, e As EventArgs) Handles m_hide_show_components.Click
+        frmComponentView.Show()
+    End Sub
+
+    Private Sub m_set_vertex_winding_order_Click(sender As Object, e As EventArgs) Handles m_set_vertex_winding_order.Click
+        frmReverseVertexWinding.Show()
+    End Sub
+
+    Private Sub m_load_primitive_Click(sender As Object, e As EventArgs) Handles m_load_primitive.Click
+        Dim tp As String = My.Settings.res_mods_path
+        If File.Exists(Temp_Storage + "\primitive_file_load_path.txt") Then
+            tp = File.ReadAllText(Temp_Storage + "\primitive_file_load_path.txt")
+        End If
+
+        OpenFileDialog1.Title = "Load primitives+processed File..."
+        OpenFileDialog1.Filter = "Primitives File|*.primitives_processed|All..|*.*"
+        OpenFileDialog1.InitialDirectory = tp
+        'OpenFileDialog1.FileName = My.Settings.primitive_file_path
+        If Not OpenFileDialog1.ShowDialog = Forms.DialogResult.OK Then
+            Return
+        End If
+        File.WriteAllText(Temp_Storage + "\primitive_file_load_path.txt", Path.GetDirectoryName(OpenFileDialog1.FileName))
+
+        file_name = OpenFileDialog1.FileName.Replace("primitives_processed", "model")
+        file_name = file_name.Replace("/", "\")
+        file_name = file_name.Replace(My.Settings.res_mods_path + "\", "")
+        remove_loaded_fbx()
+        clean_house()
+        PRIMITIVES_MODE = True
+        frmReverseVertexWinding.Panel1.Controls.Clear()
+        frmComponentView.splitter.Panel1.Controls.Clear()
+        frmComponentView.splitter.Panel2.Controls.Clear()
+
+        m_load_textures.Checked = False
+        If Not build_primitive_data(False) Then
+            MsgBox("Primitive failed to open!", MsgBoxStyle.Exclamation, "Load Error!")
+            PRIMITIVES_MODE = False
+            m_load_textures.Checked = True
+            Return
+        End If
+        m_hide_show_components.Enabled = True
+        m_set_vertex_winding_order.Enabled = True
+        m_ExportExtract.Enabled = True
+        loaded_from_resmods = False
+    End Sub
+
+    Private Sub m_import_primitives_fbx_Click(sender As Object, e As EventArgs) Handles m_import_primitives_fbx.Click
+        PRIMITIVES_MODE = False
+        MM.Enabled = False
+        TC1.Enabled = False
+        info_Label.Parent = pb1
+        info_Label.Text = "Select Tank to import...."
+        info_Label.Visible = True
+        import_primitives_FBX()
+        info_Label.Visible = False
+        info_Label.Parent = Me
+        MM.Enabled = True
+        m_ExportExtract.Enabled = True
+        TC1.Enabled = True
+        If PRIMITIVES_MODE Then
+            m_load_textures.Checked = False
+            m_load_textures.Enabled = False
+        Else
+            m_load_textures.Enabled = True
+        End If
+
+    End Sub
+
+    Private Sub m_write_non_tank_primitive_Click(sender As Object, e As EventArgs) Handles m_write_non_tank_primitive.Click
+        frmWrite_Primitives.ShowDialog(Me)
+    End Sub
+
 #End Region
 
     Public d_sel_Len As Integer
@@ -8027,29 +8457,7 @@ n_turret:
     End Sub
     Dim t_list As TextBox
 
-    Private Sub m_sel_texture_Click(sender As Object, e As EventArgs) Handles m_sel_texture.Click
-        If current_decal < 0 Then Return
-        If t_list Is Nothing Then ' create text box and fill it with all the texture names if it hasn't been created already.
-            t_list = New TextBox
-            t_list.Multiline = True
-            t_list.Parent = decal_panel
-            t_list.Width = d_list_tb.Width
-            t_list.Height = d_list_tb.Height
-            t_list.Location = d_list_tb.Location
-            t_list.Anchor = AnchorStyles.Bottom Or AnchorStyles.Top Or AnchorStyles.Left Or AnchorStyles.Right
-            t_list.ForeColor = d_list_tb.ForeColor
-            t_list.BackColor = d_list_tb.BackColor
-            t_list.Font = d_list_tb.Font
-            t_list.ScrollBars = ScrollBars.Vertical
-            For j = 0 To decal_textures.Length - 1
-                t_list.Text += decal_textures(j).colorMap_name + " :" + j.ToString + vbCrLf
-            Next
-            AddHandler t_list.Click, AddressOf handle_t_click
-        End If
-        t_list.BringToFront()
-        d_list_tb.SendToBack()
-        current_decal_lable.Text = current_decal.ToString
-    End Sub
+
     Private Sub handle_t_click(sender As TextBox, e As EventArgs)
         If current_decal < 0 Then Return
         t_list.SelectionLength = 0
@@ -8077,67 +8485,6 @@ n_turret:
         End If
     End Sub
 
-    Private Sub m_delete_Click(sender As Object, e As EventArgs) Handles m_delete.Click
-        If decal_matrix_list.Length < 2 Then Return
-        Dim t_l(decal_matrix_list.Length - 2) As decal_matrix_list_
-        Dim ta = d_list_tb.Text.Split(vbLf)
-        Dim ts As String = ""
-        For Each s In ta
-            Dim ti = s.Split(":")
-            If ti.Length > 1 Then ' dont mess with empty lines
-                Dim tii = ti(1).Split(vbCr)
-                Dim rv = CInt(tii(0))
-                If rv <> current_decal Then
-                    If rv > current_decal Then ' If this ones larger it needs decremented.
-                        rv -= 1
-                    End If
-                    ts += ti(0) + ":" + rv.ToString + vbCrLf 're-assemble the line.
-                End If
-            End If
-        Next
-        d_list_tb.Text = ts
-        Application.DoEvents()
-        Dim cnt As Integer = 0
-        For i = 0 To decal_matrix_list.Length - 2
-            If i <> current_decal Then
-                t_l(cnt) = decal_matrix_list(i)
-                cnt += 1
-            End If
-        Next
-        ReDim Preserve decal_matrix_list(decal_matrix_list.Length - 2)
-        For i = 0 To decal_matrix_list.Length - 2
-            decal_matrix_list(i) = t_l(i)
-            'd_list_tb.Text += "Decal ID :" + i.ToString + vbCrLf
-        Next
-        'current_decal -= 1
-        'If current_decal = -1 And decal_matrix_list.Length > 1 Then
-        '    current_decal = 0
-        'End If
-        If current_decal > -1 Then
-            update_decal_order()
-            Dim new_line As Integer = 0
-            For i = 0 To decal_order.Length - 1
-                If decal_order(i) = current_decal Then
-                    new_line = i
-                    Exit For
-                End If
-            Next
-            Dim sp = d_list_tb.GetFirstCharIndexFromLine(new_line) ' get line
-            d_list_tb.SelectionStart = sp
-            Try
-                d_list_tb.Select(d_list_tb.GetFirstCharIndexOfCurrentLine(), _
-                                     d_list_tb.Lines(new_line).Length) ' select prev line
-                decal_matrix_list(new_line).get_decals_transform_info()
-
-            Catch ex As Exception
-                Return
-            End Try
-            d_current_line = new_line
-            d_sel_Len = d_list_tb.Lines(new_line).Length
-        End If
-    End Sub
-
-
     Private Sub Uwrap_SelectedItemChanged(sender As Object, e As EventArgs) Handles Uwrap.SelectedItemChanged
         If current_decal = -1 Then Return
         decal_matrix_list(current_decal).u_wrap = CSng(Uwrap.SelectedItem)
@@ -8150,7 +8497,6 @@ n_turret:
         decal_matrix_list(current_decal).v_wrap_index = Vwrap.SelectedIndex
 
     End Sub
-
 
     Private Sub save_decal_btn_Click(sender As Object, e As EventArgs) Handles save_decal_btn.Click
         If current_decal = -1 Then Return
@@ -8179,105 +8525,6 @@ n_turret:
         copy_decal()
     End Sub
 
-    Private Sub m_reload_textures_Click(sender As Object, e As EventArgs) Handles m_reload_textures.Click
-        If Not MODEL_LOADED Then
-            Return
-        End If
-        MODEL_LOADED = False ' stop drawing the tank
-        ' delete texture so we dont waste video memory!
-        For i = 0 To textures.Length - 1
-            Gl.glDeleteTextures(1, textures(i).c_id)
-            Gl.glDeleteTextures(1, textures(i).n_id)
-            If textures(i).ao_id > -1 Then
-                Gl.glDeleteTextures(1, textures(i).ao_id)
-            End If
-            Gl.glDeleteTextures(1, textures(i).gmm_id)
-            If textures(i).detail_id > -1 Then
-                Gl.glDeleteTextures(1, textures(i).detail_id)
-            End If
-        Next
-        ReDim textures(0) ' resize so it can be rebuild
-        For i = 1 To _group.Length - 1
-            build_textures(i) 'get the textures for this model. If its in the cache, use them.
-        Next
-        MODEL_LOADED = True ' enable drawing the tank
-        log_text.AppendLine("---- Reloading Textures -----")
-    End Sub
-
-    Private Sub m_extract_Click(sender As Object, e As EventArgs) Handles m_extract.Click
-        file_name = current_tank_name
-        frmExtract.ShowDialog(Me)
-
-    End Sub
-
-    Private Sub m_export_to_fbx_Click(sender As Object, e As EventArgs) Handles m_export_to_fbx.Click
-        If loaded_from_resmods Then
-            If MsgBox("You are about to write a FBX loaded from the res_mods folder!" + vbCrLf + _
-                       "Doing so will corrupt the chassis if the markers have been modified." _
-                       , MsgBoxStyle.YesNo, "DANGER Will Robinson!") = MsgBoxResult.Yes Then
-            Else
-                Return
-            End If
-        End If
-        SaveFileDialog1.Filter = "AutoDesk (*.FBX)|*.fbx"
-        SaveFileDialog1.Title = "Export FBX..."
-        SaveFileDialog1.InitialDirectory = My.Settings.fbx_path
-        If CRASH_MODE Then
-            SaveFileDialog1.FileName = short_tank_name.Replace("\/", "_") + "_CRASHED.fbx"
-        Else
-            SaveFileDialog1.FileName = short_tank_name.Replace("\/", "_") + ".fbx"
-        End If
-
-        info_Label.Parent = pb1
-
-        If SaveFileDialog1.ShowDialog = Forms.DialogResult.OK Then
-            My.Settings.fbx_path = SaveFileDialog1.FileName
-        Else
-            info_Label.Visible = False
-            info_Label.Parent = Me
-            Return
-        End If
-        frmFBX.ShowDialog(Me)
-        info_Label.Visible = False
-        info_Label.Parent = Me
-
-    End Sub
-
-    Private Sub m_edit_camo_Click(sender As Object, e As EventArgs) Handles m_edit_camo.Click
-        frmEditCamo.Visible = True
-    End Sub
-
-    Private Sub m_clean_res_mods_Click(sender As Object, e As EventArgs) Handles m_clean_res_mods.Click
-        Dim path = TANK_NAME
-        If path.Contains(":") Then
-            Dim z = path.Split(":")
-            path = z(0) + "/normal/"
-        End If
-        Dim a = path.Split("normal")
-        path = a(0)
-        path = My.Settings.res_mods_path + "/" + path
-        If MsgBox("If you have IMPORTANT FILES you need to save" + vbCrLf + _
-                   "you need to do it before continuing!!" + vbCrLf + _
-                   "Delete Files now?", MsgBoxStyle.YesNo, "WARNING!!") = MsgBoxResult.Yes Then
-            If Directory.Exists(path) Then
-                DeleteFilesFromFolder(path)
-            End If
-        End If
-    End Sub
-    Private Sub DeleteFilesFromFolder(path As String)
-        Try
-            System.IO.Directory.Delete(path, True)
-
-        Catch ex As Exception
-            MsgBox("I cant delete " + path + vbCrLf + _
-                    "Someting is accessing the folders or files!", MsgBoxStyle.Exclamation, "Access Denied!")
-        End Try
-    End Sub
-
-    Private Sub m_donate_Click(sender As Object, e As EventArgs) Handles m_donate.Click
-        Process.Start(Application.StartupPath + "\html\donate.html")
-
-    End Sub
 
 
     Private Sub grid_cb_Click(sender As Object, e As EventArgs) Handles grid_cb.Click
@@ -8297,36 +8544,6 @@ n_turret:
 
     End Sub
 
-    Private Sub m_view_res_mods_folder_Click(sender As Object, e As EventArgs) Handles m_view_res_mods_folder.Click
-        Dim p = Path.GetDirectoryName(file_name)
-        Dim f = My.Settings.res_mods_path + "\" + p
-        If Directory.Exists(f) Then
-            Process.Start(f)
-        Else
-            MsgBox("You have not extracted anything to res_mods for this tank", MsgBoxStyle.Exclamation, "Path not found!")
-        End If
-    End Sub
-
-    Private Sub m_bloom_off_CheckedChanged(sender As Object, e As EventArgs) Handles m_bloom_off.CheckedChanged
-    End Sub
-
-    Private Sub m_FXAA_CheckedChanged(sender As Object, e As EventArgs) Handles m_FXAA.CheckedChanged
-
-    End Sub
-
-    
-    Private Sub m_screen_cap_Click(sender As Object, e As EventArgs) Handles m_screen_cap.Click
-        stop_updating = True
-        Dim lx = look_point_x
-        Dim lz = look_point_z
-        look_point_x -= 0.39
-        'look_point_z += 0.5
-        frmScreenCap.ShowDialog(Me)
-        look_point_x = lx
-        look_point_z = lz
-        stop_updating = False
-    End Sub
-
     Private Sub frmMain_MouseDown(sender As Object, e As MouseEventArgs) Handles Me.MouseDown
         If Not _Started Then
 
@@ -8341,24 +8558,6 @@ n_turret:
         End Select
     End Sub
 
-    Private Sub m_ExportExtract_EnabledChanged(sender As Object, e As EventArgs) Handles m_ExportExtract.EnabledChanged
-        m_GMM_toy_cb.Visible = m_ExportExtract.Enabled
-    End Sub
-
-    Private Sub m_GMM_toy_cb_CheckedChanged(sender As Object, e As EventArgs) Handles m_GMM_toy_cb.CheckedChanged
-        frmGMM.Visible = m_GMM_toy_cb.Checked
-        If frmGMM.Visible Then
-            m_GMM_toy_cb.ForeColor = Color.Red
-            GMM_TOY_VISIBLE = 1
-        Else
-            GMM_TOY_VISIBLE = 0
-            m_GMM_toy_cb.ForeColor = Color.Black
-        End If
-    End Sub
-
-    Private Sub m_GMM_toy_cb_Click(sender As Object, e As EventArgs) Handles m_GMM_toy_cb.Click
-
-    End Sub
 
 #Region "wotmod"
     Dim searched_files As Integer = 0
@@ -9171,7 +9370,8 @@ n_turret:
     End Function
 
 #End Region
-#Region "Tank Testing"
+
+#Region "Game Launching"
 
     Private Sub m_test_wotmod_Click(sender As Object, e As EventArgs) Handles m_test_wotmod.Click
         launch_test("/res_mods/")
@@ -9249,11 +9449,4 @@ n_turret:
 
 #End Region
 
-    Private Sub m_hide_show_components_Click(sender As Object, e As EventArgs) Handles m_hide_show_components.Click
-        frmComponentView.Show()
-    End Sub
-
-    Private Sub m_set_vertex_winding_order_Click(sender As Object, e As EventArgs) Handles m_set_vertex_winding_order.Click
-        frmReverseVertexWinding.Show()
-    End Sub
 End Class

@@ -1,4 +1,4 @@
-# Tank Exporter
+### Tank Exporter
 
 ## A tool to export Tanks from World of Tanks.
 <a><img src="https://i.imgur.com/OZTVPZr.png" title="source: imgur.com" /></a>
@@ -10,25 +10,39 @@
 You can download it here: https://www.autodesk.com/developer-network/platform-technologies/fbx-converter-archives
 Or if you can not down load it from there... the 64 and 32 bit versions are located here: http://tnmshouse.com/converter/
 
+# Version 95:
+Added the ability to load, export, import and write stand alone primitive_processed files.
+Tank Exporter will NOT load textures for these yet. Also, it does not export vertex colors yet.
+This is very beta and still under development.
+
+I added code to force TE to remember where you saved and loaded files form.
+I fixed bugs in a few places.. Not opening the tanks folder in file explore is one.
+I cleaned up the UI some and replaced the terrain mesh with a version that fixes overlaping triangles.
+I fixed a bug in reading decals from the packages. (Paths Changed I was not aware of) Its finding many more decals now.
+Windows 10 likes to removed them every month for some unknow reason.
+
+
+
 # Version 94:
 Fixed a few bugs in paths to crash textures when writing a WOTMOD file.
-
 Moved UI and Settings to there sub menu under file/settings.
-
 Added a PBR template for when visuals are updated for new added models.
-
 Added a panel to Show/Hide each individual part of the tank and any other added models.
 
-Added a panel to set the vertex winding order for each part of the model. Sometimes, even when it shows correctly in the 3D app and Tank Exporter, It still shows reversed in the game.
+Added a panel to set the vertex winding order for each part of the model.
+Sometimes, even when it shows correctly in the 3D app and Tank Exporter, It still shows reversed in the game.
 
 Updated the help pages.
 
 
 # Version 93:
-This fixes a bug in selecting UV triangles while in FBX View mode. It was NOT centering on the selected triangle when the C key was pressed.
+This fixes a bug in selecting UV triangles while in FBX View mode.
+It was NOT centering on the selected triangle when the C key was pressed.
 
 This version also adds the ability to select the color of the UV outline shown in the Texture Viewing window if "Show UVs" is selected.
-When a texture is selected for viewing, the color defaults to WHITE lines. You can now change these to Yellow, Red, Green, Blue or Black. These outline colors will be used when writing a UV mask for use in texture painting.
+When a texture is selected for viewing, the color defaults to WHITE lines.
+You can now change these to Yellow, Red, Green, Blue or Black.
+These outline colors will be used when writing a UV mask for use in texture painting.
 
 # Version 92:
 The meta.xml was being packaged in the res folder in wotmod files. This is fixed with this version. Now its packaged in the root of the files directory where it should be.

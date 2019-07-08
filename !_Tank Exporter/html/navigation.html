@@ -24,15 +24,45 @@ a:hover {
 a:active {
 	color: #CC6600;
 }
+.style2 {font-family: "Courier New", Courier, monospace}
+.style3 {
+	color: #CC6600;
+	font-weight: bold;
+}
 -->
 </style>
 <p><span class="style1">Moving around in Tank Exporter:</span><br>
-  <br>
-Press the left mouse button to orbit the look at point.</p>
-<p>To zoom in and out, press the right mouse button. </p>
-<p>To move the look at point in X Z, press the middle mouse button.<br />
+  <span class="style2"><br> 
+  <span class="style3">Short Cut Keys</span></span></p>
+<p class="style2">F1 : Help<br />
+  F2 : Show light positions<br />
+  F3 : Orbit Light 1 about tank<br />
+F5 : Show/Hide tracks<br />
+F6 : Show/Hide hull<br />
+F7 : Show/Hide turret<br />
+F8 : Show/Hide Gun<br />
+F12 : Open Screen Capture Panel</p>
+<p class="style2">B : Cycle through BackGrounds<br />
+C : Center on selected triangle in Texture Viewer<br />
+  F : Show the tanks folder in File Explorer<br />
+  H : Help (These HTML pages.<br />
+  Home Key : Reset the view window <br />
+I : Import FBX 
+<span class="style3">&lt;Shift&gt; + I : Import Primitives FBX</span><br />
+L : Open Lighting panel<br /> 
+M : Show Track Bendbone Markers<br />
+N : Cycle through Vertex Normal Display (Off, By Face, By Vertex)<br /> 
+T : Show Hide Textures on the model (If it has them)
+<br />
+U : Show/Hide UVs in Texture View Window <br />
+V : Open Hide/Show Each Model Part panel<br />
+W : Display Wire Edges on models<br />
+X : Export FBX</p>
+<p class="style2">Press the left mouse button to orbit the look at point.</p>
+<p class="style2">To zoom in and out, press the right mouse button. </p>
+<p class="style2">To move the look at point in X Z, press the middle mouse button.<br />
 Also you can move the look at point by pressing SHIFT and left mouse buttons at the same time.</p>
-<p>To move the look at point Up and Down, press CTRL and the left mouse buttons at the same time.</p>
+<p class="style2">To move the look at point Up and Down, press CTRL and the left mouse buttons at the same time.</p>
 <table width="100%" border="0">
   <tr>
     <td width="261"><img src="Images/crosshairs.jpg" alt="Cross Hairs" width="261" height="198" /></td>
@@ -55,9 +85,9 @@ Also you can move the look at point by pressing SHIFT and left mouse buttons at 
   <tr>
     <td width="261"><img src="Images/showlights.jpg" alt="Show Lights" width="261" height="198" /></td>
     <td width="261"><p><img src="Images/shadows.jpg" alt="Shadows" width="261" height="198" /></p>    </td>
-    <td width="100%"><p>Pressing L will show or hide the 3 light positions in the scene. The RED colored ball is the light that orbits when you press F3.</p>
+    <td width="100%"><p>Pressing F2 will show or hide the 3 light positions in the scene. The RED colored ball is the light that orbits when you press F3.</p>
       <p>If you turn on shadows under File/Settings, there is also a setting for which light will be used to calculate the shadows.</p>
-    <p><a href="https://developer.nvidia.com/gpugems/GPUGems3/gpugems3_ch08.html" target="_blank">Information on how shadow mapping works.</a> The method I use is &quot;Moment&quot;</p></td>
+    <p><a href="https://developer.nvidia.com/gpugems/GPUGems3/gpugems3_ch08.html" target="_blank">Information on how shadow mapping works.</a> The method I use is &quot;<a href="http://developer.download.nvidia.com/SDK/10.5/direct3d/Source/VarianceShadowMapping/Doc/VarianceShadowMapping.pdf">Variance</a>&quot;</p></td>
   </tr>
 </table>
 <p><br />

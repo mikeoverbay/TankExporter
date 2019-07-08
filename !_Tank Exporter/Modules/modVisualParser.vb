@@ -28,6 +28,9 @@ Module modVisualParser
     Public Function Split(ByVal input As String, _
                           ByVal ParamArray delimiter As String()) As String()
         Return input.Split(delimiter, StringSplitOptions.None)
+        Dim a(0) As String
+        a(0) = input
+        Return a
     End Function
     Public boneMarker As Integer
     Public boneMarker2 As Integer

@@ -228,7 +228,7 @@ Module modShadow
                 Gl.glUniform1i(depth_alphaTest, _group(jj).alphaTest)
                 Gl.glUniform1i(depth_alphaRef, _group(jj).alphaRef)
                 Gl.glBindTexture(Gl.GL_TEXTURE_2D, _group(jj).normal_Id)
-                If _object(jj).visible Then
+                If _object(jj).visible And _group(jj).component_visible Then
                     Gl.glCallList(_object(jj).main_display_list)
                 End If
             End If
@@ -245,7 +245,7 @@ Module modShadow
                 Gl.glUniform1i(depth_alphaTest, _group(jj).alphaTest)
                 Gl.glUniform1i(depth_alphaRef, _group(jj).alphaRef)
                 Gl.glBindTexture(Gl.GL_TEXTURE_2D, _group(jj).normal_Id)
-                If _object(jj).visible Then
+                If _object(jj).visible And _group(jj).component_visible Then
                     Gl.glCallList(_object(jj).main_display_list)
                 End If
             End If
@@ -259,7 +259,7 @@ Module modShadow
                 Gl.glUniform1i(depth_alphaTest, _group(jj).alphaTest)
                 Gl.glUniform1i(depth_alphaRef, _group(jj).alphaRef)
                 Gl.glBindTexture(Gl.GL_TEXTURE_2D, _group(jj).normal_Id)
-                If _object(jj).visible Then
+                If _object(jj).visible And _group(jj).component_visible Then
                     Gl.glCallList(_object(jj).main_display_list)
                 End If
             End If
@@ -287,7 +287,7 @@ Module modShadow
                     Gl.glUniform1i(depth_alphaRef, _group(jj).alphaRef)
                     Gl.glBindTexture(Gl.GL_TEXTURE_2D, _group(jj).normal_Id)
 
-                    If _object(jj).visible Then
+                    If _object(jj).visible And _group(jj).component_visible Then
                         Gl.glCallList(_object(jj).main_display_list)
                     End If
                 End If
@@ -312,7 +312,7 @@ Module modShadow
                     Gl.glUniform1i(depth_alphaRef, _group(jj).alphaRef)
                     Gl.glBindTexture(Gl.GL_TEXTURE_2D, _group(jj).normal_Id)
 
-                    If _object(jj).visible Then
+                    If _object(jj).visible And _group(jj).component_visible Then
                         Gl.glCallList(_object(jj).main_display_list)
                     End If
                 End If

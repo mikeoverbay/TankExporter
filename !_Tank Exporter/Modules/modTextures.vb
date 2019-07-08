@@ -70,6 +70,7 @@ Module modTextures
         Return id
     End Function
     Public Sub export_fbx_textures(ByVal AC As Boolean)
+        If PRIMITIVES_MODE Then Return
         Dim ar = TANK_NAME.Split(":")
         Dim name As String = Path.GetFileName(ar(0))
         FBX_Texture_path = Path.GetDirectoryName(My.Settings.fbx_path) + "\" + name
@@ -297,7 +298,7 @@ Module modTextures
     End Sub
 
     Public Sub build_textures(ByVal id As Integer)
-
+        If PRIMITIVES_MODE Then Return
         Dim diffuse As String = _group(id).color_name
         Dim normal As String = _group(id).normal_name
         Dim metal As String = _group(id).metalGMM_name
@@ -305,25 +306,30 @@ Module modTextures
         Dim colorIdMap As String = _group(id).colorIDmap
         Dim detail_name As String = _group(id).detail_name
         Dim i As Integer = 0
-        For i = 0 To textures.Length - 1
-            If textures(i).c_name = diffuse Then
-                _group(id).color_name = textures(i).c_name
-                _group(id).color_Id = textures(i).c_id
-                _group(id).normal_name = textures(i).n_name
-                _group(id).normal_Id = textures(i).n_id
-                _group(id).metalGMM_name = textures(i).gmm_name
-                _group(id).metalGMM_Id = textures(i).gmm_id
-                _group(id).ao_name = textures(i).ao_name
-                _group(id).ao_id = textures(i).ao_id
-                _group(id).colorIDmap = textures(i).colorIdMap
-                _group(id).detail_Id = textures(i).detail_id
-                _group(id).alphaRef = textures(i).alphaRef
-                _group(id).doubleSided = textures(i).doubleSided
+        Try
+            For i = 0 To textures.Length - 1
 
-                _group(id).texture_id = i
-                Return
-            End If
-        Next
+                If textures(i).c_name = diffuse Then
+                    _group(id).color_name = textures(i).c_name
+                    _group(id).color_Id = textures(i).c_id
+                    _group(id).normal_name = textures(i).n_name
+                    _group(id).normal_Id = textures(i).n_id
+                    _group(id).metalGMM_name = textures(i).gmm_name
+                    _group(id).metalGMM_Id = textures(i).gmm_id
+                    _group(id).ao_name = textures(i).ao_name
+                    _group(id).ao_id = textures(i).ao_id
+                    _group(id).colorIDmap = textures(i).colorIdMap
+                    _group(id).detail_Id = textures(i).detail_id
+                    _group(id).alphaRef = textures(i).alphaRef
+                    _group(id).doubleSided = textures(i).doubleSided
+
+                    _group(id).texture_id = i
+                    Return
+                End If
+            Next
+        Catch ex As Exception
+            Return
+        End Try
 
         Dim n_id, c_id, m_id, ao_id, detail_id As Integer
 

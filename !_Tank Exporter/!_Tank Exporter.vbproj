@@ -24,7 +24,7 @@
     <UpdatePeriodically>false</UpdatePeriodically>
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
-    <ApplicationRevision>94</ApplicationRevision>
+    <ApplicationRevision>95</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
@@ -284,6 +284,12 @@
     <Compile Include="Forms\FrmShadowSettings.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Forms\frmWrite_Primitives.Designer.vb">
+      <DependentUpon>frmWrite_Primitives.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\frmWrite_Primitives.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Modules\modBloom.vb" />
     <Compile Include="Modules\modDecals.vb" />
     <Compile Include="Modules\modShadow.vb" />
@@ -425,6 +431,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\FrmShadowSettings.resx">
       <DependentUpon>FrmShadowSettings.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\frmWrite_Primitives.resx">
+      <DependentUpon>frmWrite_Primitives.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="shaders\shader programs\frmShaderEditor.resx">
       <DependentUpon>frmShaderEditor.vb</DependentUpon>
@@ -838,6 +847,8 @@
     </Content>
     <None Include="resources\MDL_bg.png" />
     <None Include="resources\FBX_bg.png" />
+    <None Include="resources\uptonMask.jpg" />
+    <None Include="resources\Katie_upton.jpg" />
     <Content Include="Templates\meta_template.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

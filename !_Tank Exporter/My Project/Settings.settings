@@ -5,12 +5,6 @@
     <Setting Name="game_path" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
-    <Setting Name="export_path" Type="System.String" Scope="User">
-      <Value Profile="(Default)" />
-    </Setting>
-    <Setting Name="fbx_path" Type="System.String" Scope="User">
-      <Value Profile="(Default)">C:\</Value>
-    </Setting>
     <Setting Name="res_mods_path" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
@@ -71,10 +65,7 @@
     <Setting Name="blender_compatible" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
-    <Setting Name="custom_image" Type="System.String" Scope="User">
-      <Value Profile="(Default)">C:\</Value>
-    </Setting>
-    <Setting Name="background_image" Type="System.String" Scope="User">
+    <Setting Name="fbx_path" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
   </Settings>

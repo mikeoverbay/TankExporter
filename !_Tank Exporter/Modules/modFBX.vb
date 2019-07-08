@@ -28,6 +28,8 @@ Module modFBX
     Public ctz As New cttools.norm_utilities
     Public FBX_LOADED As Boolean = False
     Public m_groups() As mgrp_
+    Public fbx_uv2s(100000) As uv_
+    Public uv2_total_count As Integer = 0
     Public Structure mgrp_
         Public group_list() As Integer
         Public list() As Integer
@@ -55,6 +57,8 @@ Module modFBX
             frmMain.m_show_fbx.Visible = False
             frmMain.m_show_fbx.Checked = False
             ReDim fbx_boneGroups(0)
+            frmMain.m_show_fbx.Enabled = True
+            frmMain.m_write_non_tank_primitive.Enabled = False
 
             ReDim fbxgrp(0)
             GC.Collect() 'clean up garbage
@@ -86,7 +90,11 @@ Module modFBX
         Dim i As UInt32 = 0
         Dim start_index As Integer = 0
         Dim start_vertex As Integer = 0
-        frmMain.OpenFileDialog1.InitialDirectory = My.Settings.fbx_path
+        Dim tfp As String = "C:\"
+        If File.Exists(Temp_Storage + "\Fbx_in_folder.txt") Then
+            tfp = File.ReadAllText(Temp_Storage + "\Fbx_in_folder.txt")
+        End If
+        frmMain.OpenFileDialog1.InitialDirectory = tfp
         frmMain.OpenFileDialog1.Filter = "AutoDesk (*.FBX)|*.fbx"
         frmMain.OpenFileDialog1.Title = "Import FBX..."
         If frmMain.OpenFileDialog1.FileName = "OpenFileDialog1" Then
@@ -95,7 +103,7 @@ Module modFBX
         If Not frmMain.OpenFileDialog1.ShowDialog = Forms.DialogResult.OK Then
             Return
         End If
-
+        File.WriteAllText(Temp_Storage + "\Fbx_in_folder.txt", Path.GetDirectoryName(frmMain.OpenFileDialog1.FileName))
         frmComponentView.clear_fbx_list()
         frmReverseVertexWinding.clear_group_list()
 
@@ -307,6 +315,175 @@ outofhere:
         LOADING_FBX = False ' so we dont read from the res_Mods folder
 
     End Sub
+    Public Sub import_primitives_FBX()
+        'fbx import sub
+        Dim j As UInt32 = 0
+        Dim i As UInt32 = 0
+        Dim start_index As Integer = 0
+        Dim start_vertex As Integer = 0
+        Dim tfp As String = "C:\"
+        If File.Exists(Temp_Storage + "\Fbx_Primi_in_folder.txt") Then
+            tfp = File.ReadAllText(Temp_Storage + "\Fbx_Primi_in_folder.txt")
+        End If
+        frmMain.OpenFileDialog1.InitialDirectory = tfp
+        frmMain.OpenFileDialog1.Filter = "AutoDesk (*.FBX)|*.fbx"
+        frmMain.OpenFileDialog1.Title = "Import PRIMITIVES FBX..."
+        If frmMain.OpenFileDialog1.FileName = "OpenFileDialog1" Then
+            frmMain.OpenFileDialog1.FileName = ""
+        End If
+        If Not frmMain.OpenFileDialog1.ShowDialog = Forms.DialogResult.OK Then
+            If Not PRIMITIVES_MODE Then
+                frmMain.m_load_textures.Enabled = True
+            End If
+            Return
+        End If
+        File.WriteAllText(Temp_Storage + "\Fbx_Primi_in_folder.txt", Path.GetDirectoryName(frmMain.OpenFileDialog1.FileName))
+        ReDim UV2s(100000)
+        uv2_total_count = 0
+
+        frmComponentView.clear_fbx_list()
+        frmReverseVertexWinding.clear_group_list()
+
+        My.Settings.fbx_path = Path.GetDirectoryName(frmMain.OpenFileDialog1.FileName)
+        frmMain.clean_house()
+        remove_loaded_fbx()
+        'frmMain.info_Label.Visible = True
+        frmMain.info_Label.Text = frmMain.OpenFileDialog1.FileName
+        Application.DoEvents()
+        'frmMain.pb1.Visible = False
+        Application.DoEvents()
+        Application.DoEvents()
+        frmMain.pb1.Visible = True
+        Application.DoEvents()
+
+        Dim pManager As FbxSdkManager
+        Dim scene As FbxScene
+        pManager = FbxSdkManager.Create
+        scene = FbxScene.Create(pManager, "My Scene")
+        Dim fileformat As Integer = Skill.FbxSDK.IO.FileFormat.FbxAscii
+        'Detect the file format of the file to be imported            
+        Dim filename = frmMain.OpenFileDialog1.FileName
+        If Not pManager.IOPluginRegistry.DetectFileFormat(filename, fileformat) Then
+
+            ' Unrecognizable file format.
+            ' Try to fall back to SDK's native file format (an FBX binary file).
+            fileformat = pManager.IOPluginRegistry.NativeReaderFormat
+        End If
+
+        Dim importOptions = Skill.FbxSDK.IO.FbxStreamOptionsFbxReader.Create(pManager, "")
+        Dim importer As Skill.FbxSDK.IO.FbxImporter = Skill.FbxSDK.IO.FbxImporter.Create(pManager, "")
+
+        importer.FileFormat = fileformat    ' get file format
+        Dim imp_status As Boolean = importer.Initialize(filename)
+        If Not imp_status Then
+            MsgBox("Failed to open " + frmMain.OpenFileDialog1.FileName, MsgBoxStyle.Exclamation, "FBX Load Error...")
+            pManager.Destroy()
+            GoTo outofhere
+        End If
+        If Not importer.IsFBX Then
+            MsgBox("Are you sure this is a FBX file? " + vbCrLf + frmMain.OpenFileDialog1.FileName, MsgBoxStyle.Exclamation, "FBX Load Error...")
+            pManager.Destroy()
+            GoTo outofhere
+        End If
+        importOptions.SetOption(Skill.FbxSDK.IO.FbxStreamOptionsFbx.MATERIAL, True)
+        importOptions.SetOption(Skill.FbxSDK.IO.FbxStreamOptionsFbx.TEXTURE, True)
+        importOptions.SetOption(Skill.FbxSDK.IO.FbxStreamOptionsFbx.LINK, False)
+        importOptions.SetOption(Skill.FbxSDK.IO.FbxStreamOptionsFbx.SHAPE, False)
+        importOptions.SetOption(Skill.FbxSDK.IO.FbxStreamOptionsFbx.GOBO, False)
+        importOptions.SetOption(Skill.FbxSDK.IO.FbxStreamOptionsFbx.ANIMATION, False)
+        importOptions.SetOption(Skill.FbxSDK.IO.FbxStreamOptionsFbx.GLOBAL_SETTINGS, False)
+
+        imp_status = importer.Import(scene, importOptions)
+
+        Dim rootnode As FbxNode = scene.RootNode
+
+        Dim p As FbxProperty = rootnode.GetFirstProperty
+
+        Dim sc = rootnode.Scaling.GetValueAsDouble3
+        While 1
+            'Debug.WriteLine(p.Name)
+            p = rootnode.GetNextProperty(p)
+            If Not p.IsValid Then Exit While
+        End While
+
+        Dim tankComponentCount As Int32 = 0
+        Dim TboneCount As Int32 = 0
+        'make room for the mesh data
+        Dim cnt As Integer = 0
+
+        Dim childnode As FbxNode
+        Dim mesh As FbxMesh = Nothing
+        'Dim geo As FbxGeometry = Nothing
+        ReDim fbx_boneGroups(0)
+        LOADING_FBX = True ' so we dont read from the res_Mods folder
+        Dim r_c As Integer = 0
+        For i = 1 To rootnode.GetChildCount
+            childnode = rootnode.GetChild(i - 1)
+            Dim nCnt = childnode.GetChildCount
+            If nCnt = 0 Then
+                'Stop
+            End If
+            mesh = childnode.Mesh
+            If mesh IsNot Nothing Then
+                Dim at = childnode.Light
+                Dim cam = childnode.Camera
+                If cam Is Nothing Then
+
+                    If at Is Nothing Then
+
+                        If Not childnode.Name.ToLower.Contains("clone") Then
+                            tankComponentCount += 1
+                            readMeshdata_primitives(tankComponentCount, childnode, start_vertex, start_index, scene, rootnode, mesh)
+
+                        End If
+                    End If
+                End If
+            End If
+        Next
+        'clean up 
+        importer.Destroy()
+        rootnode.Destroy()
+        pManager.Destroy()
+
+outofhere:
+        frmMain.info_Label.Text = "Creating Display Lists"
+        Application.DoEvents()
+        frmComponentView.splitter.Panel1.Controls.Clear()
+        ReDim m_groups(3)
+        m_groups(2) = New mgrp_
+        ReDim m_groups(2).list(fbxgrp.Length)
+        m_groups(2).cnt = fbxgrp.Length - 1
+        For i = 1 To fbxgrp.Length - 1
+            m_groups(2).list(i - 1) = i
+            frmComponentView.add_to_fbx_list(i, fbxgrp(i).name)
+            frmReverseVertexWinding.add_to_fbx_list(i, fbxgrp(i).name)
+            Dim id = Gl.glGenLists(1)
+            fbxgrp(i).visible = True
+            fbxgrp(i).component_visible = True
+            fbxgrp(i).reverse_winding = False
+            Gl.glNewList(id, Gl.GL_COMPILE)
+            fbxgrp(i).call_list = id
+            make_fbx_display_lists(fbxgrp(i).nPrimitives_ * 3, i)
+            Gl.glEndList()
+        Next
+        'resize uv2s
+        'ReDim Preserve uv2s(uv2_total_count)
+        m_groups(2).changed = True
+        m_groups(2).new_objects = False
+        m_groups(2).m_type = 2 'hull no flipping or anything
+        FBX_LOADED = True
+        MODEL_LOADED = True
+        frmMain.info_Label.Visible = False
+        frmMain.m_show_fbx.Checked = True
+        frmMain.m_show_fbx.Visible = True
+        frmMain.m_show_fbx.Checked = True
+        frmMain.m_show_fbx.Enabled = False
+        frmMain.m_hide_show_components.Enabled = True
+        frmMain.m_set_vertex_winding_order.Enabled = True
+        LOADING_FBX = False ' so we dont read from the res_Mods folder
+        PRIMITIVES_MODE = True
+        frmMain.m_write_non_tank_primitive.Enabled = True
+    End Sub
 
     Public Sub export_fbx()
         'export FBX
@@ -388,6 +565,7 @@ outofhere:
         Dim Vmesh2 = fbx_create_Vmesh("pin_2", pManager, v_marker2)
         Dim Vmesh3 = fbx_create_Vmesh("pin_3", pManager, v_marker3)
         Dim Vmesh4 = fbx_create_Vmesh("pin_4", pManager, v_marker4)
+        If PRIMITIVES_MODE Then GoTo NO_PINS
         For id = 0 To v_boneGroups.Length - 1
             Dim m_node = FbxNode.Create(pManager, v_boneGroups(id).groupName.ToLower.Replace(".vertices", ""))
             Dim NullNode As FbxNode
@@ -500,6 +678,7 @@ skip_v_:
             rootNode.AddChild(m_node)
             rootNode.ConnectSrcObject(m_node, FbxConnectionType.ConnectionDefault)
         Next
+NO_PINS:
         For id = 1 To object_count
             ReDim Preserve node_list(id + 1)
             'If frmFBX.export_textures.Checked Then
@@ -576,7 +755,6 @@ skip_v_:
             'add the texture from the texture array using the Texture ID for this mesh section
             layerElementTexture.DirectArray.Add(lTextures(_group(id).texture_id))
             layerElementNTexture.DirectArray.Add(lTextures_N(_group(id).texture_id))
-
             node_list(id).NodeAttribute = mymesh
             Dim dr, ds, dt As New FbxVector4
             dr.Set(0, 0, 0, 0)
@@ -592,6 +770,195 @@ skip_v_:
             'node_list(id).SetGeometricRotation(FbxNode.PivotSet.SourceSet, r_vector)
             'node_list(id).SetGeometricTranslation(FbxNode.PivotSet.SourceSet, t_vector)
             'node_list(id).SetGeometricScaling(FbxNode.PivotSet.SourceSet, s_vector)
+
+            If node_list(id).IsValid And frmFBX.export_textures.Checked Then ' useless test but Im leaving it.
+                'add the texture from the array using this models texture ID
+                node_list(id).AddMaterial(lMaterials(_group(id).texture_id))
+                '---------------------------------------
+                'If we dont connect this texture to this node, it will never show up!
+                node_list(id).ConnectSrcObject(lMaterials(_group(id).texture_id), FbxConnectionType.ConnectionDefault)
+            End If
+            node_list(id).Shading_Mode = FbxNode.ShadingMode.TextureShading ' not even sure this is needed but what ever.
+            Dim estr = pManager.LastErrorString
+            Dim vstr = mymesh.LastErrorString
+            Dim vmm = node_list(id).LastErrorString
+            Debug.WriteLine(id.ToString("000") + ":--------")
+            Debug.WriteLine(estr)
+            Debug.WriteLine(vstr)
+            Debug.WriteLine(vmm)
+
+            rootNode.AddChild(node_list(id))
+            rootNode.ConnectSrcObject(node_list(id), FbxConnectionType.ConnectionDefault)
+
+we_dont_want_this_one_saved:
+        Next 'Id
+
+
+
+        'time to save... not sure im even close to having what i need to save but fuck it!
+        Dim exporter As Skill.FbxSDK.IO.FbxExporter = FbxExporter.Create(pManager, "")
+        If Not exporter.Initialize(frmMain.SaveFileDialog1.FileName) Then
+            MsgBox("fbx unable to initialize exporter!", MsgBoxStyle.Exclamation, "FBX Error..")
+            GoTo outahere
+        End If
+        Dim version As Version = Skill.FbxSDK.IO.FbxIO.CurrentVersion
+        Console.Write(String.Format("FBX version number for this FBX SDK is {0}.{1}.{2}", _
+                          version.Major, version.Minor, version.Revision))
+        If frmFBX.export_as_binary_cb.Checked Then
+            exporter.FileFormat = IO.FileFormat.FbxBinary
+        Else
+            exporter.FileFormat = IO.FileFormat.FbxAscii
+        End If
+
+        Dim exportOptions As Skill.FbxSDK.IO.FbxStreamOptionsFbxWriter _
+                = Skill.FbxSDK.IO.FbxStreamOptionsFbxWriter.Create(pManager, "")
+        If pManager.IOPluginRegistry.WriterIsFBX(IO.FileFormat.FbxAscii) Then
+
+            ' Export options determine what kind of data is to be imported.
+            ' The default (except for the option eEXPORT_TEXTURE_AS_EMBEDDED)
+            ' is true, but here we set the options explictly.
+            exportOptions.SetOption(Skill.FbxSDK.IO.FbxStreamOptionsFbx.MATERIAL, True)
+            exportOptions.SetOption(Skill.FbxSDK.IO.FbxStreamOptionsFbx.TEXTURE, True)
+            exportOptions.SetOption(Skill.FbxSDK.IO.FbxStreamOptionsFbx.EMBEDDED, False)
+            exportOptions.SetOption(Skill.FbxSDK.IO.FbxStreamOptionsFbx.LINK, True)
+            exportOptions.SetOption(Skill.FbxSDK.IO.FbxStreamOptionsFbx.SHAPE, False)
+            exportOptions.SetOption(Skill.FbxSDK.IO.FbxStreamOptionsFbx.GOBO, False)
+            exportOptions.SetOption(Skill.FbxSDK.IO.FbxStreamOptionsFbx.ANIMATION, False)
+            exportOptions.SetOption(Skill.FbxSDK.IO.FbxStreamOptionsFbx.GLOBAL_SETTINGS, False)
+            exportOptions.SetOption(Skill.FbxSDK.IO.FbxStreamOptionsFbx.MEDIA, False)
+        End If
+        Dim status = exporter.Export(scene, exportOptions)
+        exporter.Destroy()
+        pManager.Destroy()
+        'textureAmbientLayer.Destroy()
+        'textureDiffuseLayer.Destroy()
+outahere:
+        frmFBX.Label1.Visible = True
+
+    End Sub
+    Public Sub export_primitives_fbx()
+        'export FBXprimitives_
+        Dim rootNode As FbxNode
+        Dim id As Integer
+        Dim model_name As String = ""
+        Dim mat_main As String = ""
+        Dim mat_NM As String = ""
+        Dim mat_uv2 As String = ""
+        Dim fbx_locaction As String = My.Settings.fbx_path
+        Dim rp As String = Application.StartupPath
+        Dim _date As String = Date.Now
+        Dim ar = _date.Split(" ")
+        _date = ar(0) + " " + ar(1) + ".0"
+
+
+        Dim vert_string, normal_string, uv1_string, uv2_string, uv_index, indices_string As New StringBuilder
+
+        'Tried everything so lets do it the hard way
+        '--------------------------------------------------------------------------
+        Dim m_name As String = "Material"
+        Dim s_name As String = "Phong"
+        Dim EmissiveColor = New FbxDouble3(0.0, 0.0, 0.0)
+        Dim AmbientColor = New FbxDouble3(0.9, 0.9, 0.9)
+        Dim SpecularColor = New FbxDouble3(0.7, 0.7, 0.7)
+        Dim DiffuseColor As New FbxDouble3(0.8, 0.8, 0.8)
+        '--------------------------------------------------------------------------
+        Dim pManager As FbxSdkManager
+        pManager = FbxSdkManager.Create
+        'create the material and texture arrays.
+
+        Dim texture_count = textures.Length
+        Dim lMaterials(1) As FbxSurfacePhong
+        Dim ltextures(1) As FbxTexture
+        'make the material
+        lMaterials(0) = fbx_create_material(pManager, 0) 'Material
+        ltextures(0) = fbx_create_texture(pManager, 0)
+        'create manager and scene
+        Dim scene As FbxScene
+        scene = FbxScene.Create(pManager, file_name)
+        scene.SceneInfo.Author = "Exported using Coffee_'s Tank Exporter tool"
+        scene.SceneInfo.Comment = TANK_NAME
+        'scene.CreateTake("Show all faces")
+        'scene.SetCurrentTake("Show all faces")
+
+        frmFBX.Label1.Visible = False
+        Dim node_list() = {FbxNode.Create(pManager, model_name)}
+        Dim node_Vlist() = {FbxNode.Create(pManager, "pin")}
+        '--------------------------------------------------------------------------
+        rootNode = scene.RootNode
+        rootNode.CreateTakeNode("Show all faces")
+        rootNode.SetCurrentTakeNode("Show all faces")
+
+
+        Dim dfr = New FbxVector4(0.0, 0.0, 0.0, 0.0)
+        Dim dfs = New FbxVector4(1.0, 1.0, 1.0, 0.0)
+        Dim dft As New FbxVector4(0.0, 0.0, 0.0, 1.0)
+        rootNode.SetDefaultR(dfr)
+        rootNode.SetDefaultS(dfs)
+        rootNode.SetDefaultT(dft)
+        'add the markers to the root
+        ' get total vNodes needed
+        Dim cnt As Integer = 0
+        For i = 0 To v_boneGroups.Length - 1
+            cnt += v_boneGroups(i).nodeCnt
+        Next
+        ReDim Preserve node_Vlist(cnt)
+        cnt = 0
+
+        For id = 1 To object_count
+            ReDim Preserve node_list(id + 1)
+
+            mat_main = FBX_Texture_path + "\" + Path.GetFileNameWithoutExtension(_group(id).color_name) + ".png"
+            mat_NM = FBX_Texture_path + "\" + Path.GetFileNameWithoutExtension(_group(id).normal_name) + ".png"
+            mat_uv2 = _group(id).detail_name
+
+            model_name = FBX_NAME + "~" + id.ToString
+            node_list(id) = FbxNode.Create(pManager, model_name)
+
+            'create mesh node
+            Dim mymesh = fbx_create_primi_mesh(model_name, id, pManager)
+
+            'Dim m As New FbxXMatrix
+            Dim m_ = _object(id).matrix
+            'setFbxMatrix(m_, m)
+            Dim scale As New SlimDX.Vector3
+            Dim rot As New SlimDX.Quaternion
+            Dim trans As New SlimDX.Vector3
+            Dim Mt As New SlimDX.Matrix
+            Mt = load_matrix_decompose(m_, trans, scale, rot)
+
+
+            Dim r_vector As New FbxVector4(rot.X, 0.0, rot.Z, rot.W)
+            Dim t_vector As New FbxVector4(-trans.X, trans.Y, trans.Z)
+            Dim s_vector As New FbxVector4(-scale.X, scale.Y, scale.Z, 0.0)
+            ' useless test but Im leaving it.
+
+            Dim layercontainer As FbxLayerContainer = mymesh
+
+            'add the texture from the texture array using the Texture ID for this mesh section
+
+            Dim layerElementTexture As FbxLayerElementTexture = layercontainer.GetLayer(0).DiffuseTextures
+            If layerElementTexture Is Nothing Then
+                layerElementTexture = FbxLayerElementTexture.Create(layercontainer, "diffuseMap")
+                layercontainer.GetLayer(0).DiffuseTextures = layerElementTexture
+            End If
+            'not 100% sure about the translucent but it isn't breaking anything.
+            layerElementTexture.Blend_Mode = FbxLayerElementTexture.BlendMode.Translucent
+            layerElementTexture.Alpha = 1.0
+            layerElementTexture.Mapping_Mode = FbxLayerElement.MappingMode.AllSame
+            layerElementTexture.Reference_Mode = FbxLayerElement.ReferenceMode.Direct
+
+
+            'add the texture from the texture array using the Texture ID for this mesh section
+            layerElementTexture.DirectArray.Add(ltextures(0))
+
+            node_list(id).NodeAttribute = mymesh
+            Dim dr, ds, dt As New FbxVector4
+            dr.Set(0, 0, 0, 0)
+            ds.Set(1, 1, 1, 1)
+            dt.Set(0, 0, 0, 1)
+            node_list(id).SetDefaultR(r_vector)
+            node_list(id).SetDefaultT(t_vector)
+            node_list(id).SetDefaultS(s_vector)
 
             If node_list(id).IsValid And frmFBX.export_textures.Checked Then ' useless test but Im leaving it.
                 'add the texture from the array using this models texture ID
@@ -728,10 +1095,7 @@ outahere:
                                   start_vertex As Integer, start_index As Integer, _
                                   scene As FbxScene, rootnode As FbxNode, mesh As FbxMesh)
 
-        Dim cnt As Integer
-
         ReDim Preserve fbxgrp(i)
-
 
         fbxgrp(i).name = childnode.NameOnly
         If Not fbxgrp(i).name.Contains("vehicles\") And fbxgrp(i).name.Contains("lod0\") Then
@@ -898,13 +1262,81 @@ outahere:
 
         End Try
         Return get_mesh_geo(i, childnode, start_vertex, start_index, scene, rootnode, mesh)
+    End Function
+    Private Function readMeshdata_primitives(ByVal i As Integer, ByRef childnode As FbxNode, _
+                                start_vertex As Integer, start_index As Integer, _
+                                scene As FbxScene, rootnode As FbxNode, mesh As FbxMesh)
+
+        ReDim Preserve fbxgrp(i)
 
 
-        Return True
+        fbxgrp(i).name = childnode.NameOnly
+        'get transform information -------------------------------------
+        Dim fbx_matrix As New FbxXMatrix
+        fbxgrp(i).rotation = New FbxVector4
+        fbxgrp(i).translation = New FbxVector4
+        fbxgrp(i).scale = New FbxVector4
+        fbxgrp(i).scale.X = 1.0
+        fbxgrp(i).scale.Y = 1.0
+        fbxgrp(i).scale.Z = 1.0
+
+        Dim t As New FbxTime
+        Dim GlobalUnitScale = scene.GlobalSettings.FindProperty("UnitScaleFactor", False).GetValueAsDouble
+        'Dim eval As FbxEvaluationInfo
+        'Dim er = childnode .Evaluate(
+        Dim ls = childnode.GetLocalSFromDefaultTake(FbxNode.PivotSet.SourceSet)
+        If ls.X = 1.0 Then
+            ls.X = 0.1
+            ls.Y = 0.1
+            ls.Z = 1.0
+        End If
+
+        Dim nodeGT = rootnode.GetGlobalFromDefaultTake(FbxNode.PivotSet.DestinationSet)
+
+        Dim lr = childnode.GetLocalRFromDefaultTake(FbxNode.PivotSet.SourceSet)
+        Dim lt = childnode.GetLocalTFromCurrentTake(t)
+        Dim gr = childnode.Parent.GetLocalRFromCurrentTake(t)
+
+        Dim scaling = childnode.Scaling.GetValueAsDouble3
+
+        fbxgrp(i).rotation = childnode.GetGeometricRotation(FbxNode.PivotSet.SourceSet)
+        fbxgrp(i).translation = childnode.GetGeometricTranslation(FbxNode.PivotSet.SourceSet)
+        fbxgrp(i).scale = childnode.GetGeometricScaling(FbxNode.PivotSet.SourceSet)
+        fbx_matrix.SetIdentity()
+
+        Dim dr As New FbxVector4
+        Dim dt As New FbxVector4
+        Dim ds As New FbxVector4
+
+        Dim gm = childnode.GetGlobalFromCurrentTake(t)
+
+        childnode.GetDefaultR(dr)
+        childnode.GetDefaultS(ds)
+        childnode.GetDefaultT(dt)
+        fbxgrp(i).rotation = childnode.GetGeometricRotation(FbxNode.PivotSet.SourceSet)
+        fbxgrp(i).translation = childnode.GetGeometricTranslation(FbxNode.PivotSet.SourceSet)
+        fbxgrp(i).scale = childnode.GetGeometricScaling(FbxNode.PivotSet.SourceSet)
+        Dim TnR As Double = 0
+        Try
+            TnR = Round(fbxgrp(i).rotation.X, 6) + Round(fbxgrp(i).rotation.Y, 6) + Round(fbxgrp(i).rotation.Z, 6) _
+                + Round(fbxgrp(i).translation.X, 6) + Round(fbxgrp(i).translation.Y, 6) + Round(fbxgrp(i).translation.Z, 6)
+        Catch ex As Exception
+
+        End Try
+
+        fbx_matrix.SetTRS(lt, lr, ds)
+        fbx_matrix = gm
+        fbx_matrix.Transpose()
+
+        build_fbx_matrix(i, fbx_matrix)
+        '---------------------------------------------------------------
+        Dim mat_cnt As Integer = mesh.Node.GetSrcObjectCount(FbxSurfaceMaterial.ClassId)
+        Dim material As FbxSurfaceMaterial = mesh.Node.GetSrcObject(FbxSurfaceMaterial.ClassId, 0)
+        Return get_mesh_geo(i, childnode, start_vertex, start_index, scene, rootnode, mesh)
     End Function
     Private Function get_mesh_geo(ByVal fbx_idx As Integer, ByRef childnode As FbxNode, _
-                                  start_vertex As Integer, start_index As Integer, _
-                                  scene As FbxScene, rootnode As FbxNode, mesh As FbxMesh)
+                                    start_vertex As Integer, start_index As Integer, _
+                                    scene As FbxScene, rootnode As FbxNode, mesh As FbxMesh)
 
         Dim uvlayer1 As FbxLayerElementUV = mesh.GetLayer(0).GetUVs
         Dim property_ As FbxProperty = Nothing
@@ -1027,6 +1459,7 @@ outahere:
 
                     If uv2_Layer IsNot Nothing Then
                         fbxgrp(fbx_idx).has_uv2 = 1
+                        save_has_uv2 = True
                         Select Case uv2_Layer.Mapping_Mode
                             Case FbxLayerElement.MappingMode.ByControlPoint
                                 Select Case uv2_Layer.Reference_Mode
@@ -1054,18 +1487,17 @@ outahere:
                 'vertex color
                 Dim color1 As New FbxColor
                 If colorLayer1 IsNot Nothing Then
-                    If colorLayer1.IndexArray.Count > 0 Then
-                        fbxgrp(fbx_idx).has_Vcolor = 1
-                    Else
-                        fbxgrp(fbx_idx).has_Vcolor = 0
-                    End If
+                    fbxgrp(fbx_idx).has_Vcolor = 0
+
                     Dim cv_refmode = colorLayer1.Reference_Mode
                     If cv_refmode = FbxLayerElement.ReferenceMode.IndexToDirect Then
                         color1 = colorLayer1.DirectArray(colorLayer1.IndexArray.GetAt(vertexId))
+                        fbxgrp(fbx_idx).has_Vcolor = 1
 
                     Else
                         If cv_refmode = FbxLayerElement.ReferenceMode.Direct Then
                             color1 = colorLayer1.DirectArray(vertexId)
+                            fbxgrp(fbx_idx).has_Vcolor = 1
                         End If
                     End If
                 End If
@@ -1076,6 +1508,10 @@ outahere:
                 fbxgrp(fbx_idx).vertices(vertexId).v = -uv.Y
                 fbxgrp(fbx_idx).vertices(vertexId).u2 = uv2.X
                 fbxgrp(fbx_idx).vertices(vertexId).v2 = -uv2.Y
+                'fbx_uv2s(uv2_total_count) = New uv_
+                'fbx_uv2s(uv2_total_count).u = uv2.X
+                'fbx_uv2s(uv2_total_count).v = -uv2.Y
+                'uv2_total_count += 1
                 fbxgrp(fbx_idx).vertices(vertexId).nx = normal.X
                 fbxgrp(fbx_idx).vertices(vertexId).ny = normal.Y
                 fbxgrp(fbx_idx).vertices(vertexId).nz = normal.Z
@@ -1084,6 +1520,11 @@ outahere:
                 fbxgrp(fbx_idx).vertices(vertexId).index_2 = CByte(color1.Green * 255)
                 fbxgrp(fbx_idx).vertices(vertexId).index_3 = CByte(color1.Blue * 255)
                 fbxgrp(fbx_idx).vertices(vertexId).index_4 = CByte(color1.Alpha * 255)
+
+                fbxgrp(fbx_idx).vertices(vertexId).r = CByte(color1.Red * 255)
+                fbxgrp(fbx_idx).vertices(vertexId).g = CByte(color1.Green * 255)
+                fbxgrp(fbx_idx).vertices(vertexId).b = CByte(color1.Blue * 255)
+                fbxgrp(fbx_idx).vertices(vertexId).a = CByte(color1.Alpha * 255)
 
 
                 vertexId += 1
@@ -2005,9 +2446,17 @@ whichone:
     Public Function fbx_create_texture(pManager As FbxSdkManager, id As Integer) As FbxTexture
         'need a name for this texture
         'Dim texture = FbxTexture.Create(pManager, "DiffuseMap" + ":" + id.ToString("000"))
-        Dim texture = FbxTexture.Create(pManager, FBX_Texture_path + "\" + Path.GetFileNameWithoutExtension(textures(id).c_name) + ".png")
-        ' Set texture properties.
-        texture.SetFileName(FBX_Texture_path + "\" + Path.GetFileNameWithoutExtension(textures(id).c_name) + ".png") 'Get the Texture path from the list
+        Dim texture As FbxTexture
+        If Not PRIMITIVES_MODE Then
+            texture = FbxTexture.Create(pManager, FBX_Texture_path + "\" + Path.GetFileNameWithoutExtension(textures(id).c_name) + ".png")
+            ' Set texture properties.
+            texture.SetFileName(FBX_Texture_path + "\" + Path.GetFileNameWithoutExtension(textures(id).c_name) + ".png") 'Get the Texture path from the list
+        Else
+            texture = FbxTexture.Create(pManager, "")
+            ' Set texture properties.
+            texture.SetFileName("") 'Get the Texture path from the list
+
+        End If
         texture.TextureUseType = FbxTexture.TextureUse.Standard
         texture.Mapping = FbxTexture.MappingType.Uv
         texture.MaterialUseType = FbxTexture.MaterialUse.Model
@@ -2150,6 +2599,198 @@ whichone:
                 color.Green = CDbl(_group(id).vertices(indi.v3 - off).index_2 / 255)
                 color.Blue = CDbl(_group(id).vertices(indi.v3 - off).index_3 / 255)
                 color.Alpha = 1.0 'CDbl(_group(id).vertices(I).index_4 / 255)
+                colorLayer1.DirectArray.Add(color)
+            Next
+            layer.VertexColors = colorLayer1
+        End If
+
+        '--------------------------------------------------------------------------
+        '--------------------------------------------------------------------------
+        Dim v_2 As New FbxVector2
+        Dim UV2Layer As FbxLayerElementUV = Nothing
+        If _group(id).has_uv2 = 1 Then
+
+            UV2Layer = FbxLayerElementUV.Create(myMesh, "UV2")
+            UV2Layer.Mapping_Mode = FbxLayerElement.MappingMode.ByControlPoint
+            UV2Layer.Reference_Mode = FbxLayerElement.ReferenceMode.Direct
+            layer.SetUVs(UV2Layer, FbxLayerElement.LayerElementType.AmbientTextures)
+            For I = 0 To myMesh.ControlPointsCount - 1
+                If frmFBX.flip_u.Checked Then
+                    v_2.X = _group(id).vertices(I).u2 * -1
+                Else
+                    v_2.X = _group(id).vertices(I).u2
+                End If
+
+                If frmFBX.flip_v.Checked Then
+                    v_2.Y = _group(id).vertices(I).v2 * -1
+                Else
+                    v_2.Y = _group(id).vertices(I).v2
+                End If
+                UV2Layer.DirectArray.Add(v_2)
+
+            Next
+            UV2Layer.IndexArray.Count = _group(id).nPrimitives_
+        End If
+        '--------------------------------------------------------------------------
+        '--------------------------------------------------------------------------
+        ' Create UV for Diffuse channel
+        Dim UVDiffuseLayer As FbxLayerElementUV = FbxLayerElementUV.Create(myMesh, "DiffuseUV")
+        UVDiffuseLayer.Mapping_Mode = FbxLayerElement.MappingMode.ByControlPoint
+        UVDiffuseLayer.Reference_Mode = FbxLayerElement.ReferenceMode.Direct
+        layer.SetUVs(UVDiffuseLayer, FbxLayerElement.LayerElementType.DiffuseTextures)
+        For I = 0 To myMesh.ControlPointsCount - 1
+            If frmFBX.flip_u.Checked Then
+                v_2.X = _group(id).vertices(I).u * -1
+            Else
+                v_2.X = _group(id).vertices(I).u
+            End If
+
+            If Not frmFBX.flip_v.Checked Then
+                v_2.Y = _group(id).vertices(I).v * -1
+            Else
+                v_2.Y = _group(id).vertices(I).v
+            End If
+            UVDiffuseLayer.DirectArray.Add(v_2)
+            'If fbx_cancel Then
+            '    Return myMesh
+            'End If
+        Next
+
+
+        '--------------------------------------------------------------------------
+        '--------------------------------------------------------------------------
+
+        'Now we have set the UVs as eINDEX_TO_DIRECT reference and in eBY_POLYGON_VERTEX  mapping mode
+        'we must update the size of the index array.
+        UVDiffuseLayer.IndexArray.Count = _group(id).nPrimitives_
+        'in the same way with Textures, but we are in eBY_POLYGON,
+        'we should have N polygons (1 for each faces of the object)
+        Dim pos As UInt32 = 0
+        Dim n As UInt32 = 1
+        Dim j As UInt32 = 0
+        For I = 0 To _group(id).nPrimitives_ - 1
+            myMesh.BeginPolygon(-1, -1, -1, False)
+
+            j = 0
+            pos = _group(id).indicies(n).v1 - off
+            myMesh.AddPolygon(pos)
+            UVDiffuseLayer.IndexArray.SetAt(pos, j)
+            If _group(id).has_uv2 = 1 Then
+                UV2Layer.IndexArray.SetAt(pos, j)
+            End If
+            j += 1
+            pos = _group(id).indicies(n).v2 - off
+            myMesh.AddPolygon(pos)
+            UVDiffuseLayer.IndexArray.SetAt(pos, j)
+            If _group(id).has_uv2 = 1 Then
+                UV2Layer.IndexArray.SetAt(pos, j)
+            End If
+            j += 1
+            pos = _group(id).indicies(n).v3 - off
+            myMesh.AddPolygon(pos)
+            UVDiffuseLayer.IndexArray.SetAt(pos, j)
+            If _group(id).has_uv2 = 1 Then
+                UV2Layer.IndexArray.SetAt(pos, j)
+            End If
+            n += 1
+            myMesh.EndPolygon()
+
+        Next
+        Return myMesh
+    End Function
+    Public Function fbx_create_primi_mesh(model_name As String, id As Integer, pManager As FbxSdkManager) As FbxMesh
+        Dim myMesh As FbxMesh
+        myMesh = FbxMesh.Create(pManager, model_name)
+        Dim cnt = _group(id).nPrimitives_
+        Dim off As UInt32
+        Dim v As vect3Norm
+        Dim v4 As New FbxVector4
+        Dim I As Integer
+        off = _group(id).startVertex_
+
+        '--------------------------------------------------------------------------
+        '--------------------------------------------------------------------------
+        'first we load all the vertices for the _group data
+        myMesh.InitControlPoints(_group(id).nVertices_) ' size of array
+        'add in the vertices (or control points as its called in FBX)
+        Dim cp_array(myMesh.ControlPointsCount - 1) As FbxVector4
+
+        For I = 0 To myMesh.ControlPointsCount - 1
+            cp_array(I) = New FbxVector4
+            cp_array(I).X = _group(id).vertices(I).x
+            cp_array(I).Y = _group(id).vertices(I).y
+            cp_array(I).Z = _group(id).vertices(I).z
+        Next
+
+        myMesh.ControlPoints = cp_array ' push it in to the mesh object
+        'create or get the layer 0
+        Dim layer As FbxLayer = myMesh.GetLayer(0)
+        If layer Is Nothing Then
+            myMesh.CreateLayer()
+            layer = myMesh.GetLayer(0)
+        End If
+
+        '--------------------------------------------------------------------------
+        '--------------------------------------------------------------------------
+        'normals.. seems to be working ok
+        Dim layerElementNormal = FbxLayerElementNormal.Create(myMesh, "Normals")
+        layerElementNormal.Mapping_Mode = FbxLayerElement.MappingMode.ByPolygonVertex
+        layerElementNormal.Reference_Mode = FbxLayerElement.ReferenceMode.Direct
+        'time to assign the normals to each control point.
+
+        For I = 1 To _group(id).nPrimitives_
+            Dim v1 = _group(id).indicies(I).v1
+            Dim v2 = _group(id).indicies(I).v2
+            Dim v3 = _group(id).indicies(I).v3
+            v = unpackNormal(_group(id).vertices(v1 - off).n, _group(id).BPVT_mode)
+            v4.X = v.nx
+            v4.Y = v.ny
+            v4.Z = v.nz
+            layerElementNormal.DirectArray.Add(v4)
+
+            v = unpackNormal(_group(id).vertices(v2 - off).n, _group(id).BPVT_mode)
+            v4.X = v.nx
+            v4.Y = v.ny
+            v4.Z = v.nz
+            layerElementNormal.DirectArray.Add(v4)
+
+            v = unpackNormal(_group(id).vertices(v3 - off).n, _group(id).BPVT_mode)
+            v4.X = v.nx
+            v4.Y = v.ny
+            v4.Z = v.nz
+            layerElementNormal.DirectArray.Add(v4)
+        Next
+        layer.Normals = layerElementNormal
+
+        '--------------------------------------------------------------------------
+        'weights .. no idea how to export them from the vertex data :(
+        '--------------------------------------------------------------------------
+        'export vertex colors
+        If _group(id).has_color Then ' has indices
+            Dim colorLayer1 As FbxLayerElementVertexColor = Nothing
+            colorLayer1 = FbxLayerElementVertexColor.Create(myMesh, "VertexColor")
+            colorLayer1.Name = "VertexColor"
+            colorLayer1.Mapping_Mode = FbxLayerElement.MappingMode.ByControlPoint
+            colorLayer1.Reference_Mode = FbxLayerElement.ReferenceMode.Direct
+            Dim color As New FbxColor
+            For I = 1 To _group(id).nPrimitives_
+                Dim indi = _group(id).indicies(I)
+                color.Red = CDbl(_group(id).vertices(indi.v1 - off).r)
+                color.Green = CDbl(_group(id).vertices(indi.v1 - off).g)
+                color.Blue = CDbl(_group(id).vertices(indi.v1 - off).b)
+                color.Alpha = CDbl(_group(id).vertices(indi.v1 - off).a)
+                colorLayer1.DirectArray.Add(color)
+
+                color.Red = CDbl(_group(id).vertices(indi.v2 - off).r)
+                color.Green = CDbl(_group(id).vertices(indi.v2 - off).g)
+                color.Blue = CDbl(_group(id).vertices(indi.v2 - off).b)
+                color.Alpha = CDbl(_group(id).vertices(indi.v2 - off).a)
+                colorLayer1.DirectArray.Add(color)
+
+                color.Red = CDbl(_group(id).vertices(indi.v3 - off).r)
+                color.Green = CDbl(_group(id).vertices(indi.v3 - off).g)
+                color.Blue = CDbl(_group(id).vertices(indi.v3 - off).b)
+                color.Alpha = CDbl(_group(id).vertices(indi.v3 - off).a)
                 colorLayer1.DirectArray.Add(color)
             Next
             layer.VertexColors = colorLayer1

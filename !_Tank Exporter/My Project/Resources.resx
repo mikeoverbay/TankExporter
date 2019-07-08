@@ -145,6 +145,9 @@
   <data name="grid" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\resources\grid.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="uptonMask" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\uptonMask.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
   <data name="grid_dark" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\resources\grid_dark.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
@@ -157,14 +160,17 @@
   <data name="upton" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\resources\upton.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="bone_off" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\bone_off.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
   <data name="Paste_6520" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\resources\Paste_6520.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="box_wire" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\resources\box_wire.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="hull" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\resources\hull.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="FBX_bg" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\FBX_bg.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="tower" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\resources\tower.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -178,6 +184,9 @@
   <data name="Cut_6523" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\resources\Cut_6523.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="FBX_bg1" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\FBX_bg.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
   <data name="question" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\resources\question.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
@@ -190,8 +199,8 @@
   <data name="yellow" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\resources\yellow.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="bone_off" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\resources\bone_off.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="hull" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\hull.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="grid_blank" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\resources\grid_blank.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -202,10 +211,7 @@
   <data name="MDL_bg" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\resources\MDL_bg.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="FBX_bg" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\resources\FBX_bg.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="FBX_bg1" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\resources\FBX_bg.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="Katie_upton" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\Katie_upton.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
 </root>

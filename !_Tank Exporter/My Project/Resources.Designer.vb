@@ -273,6 +273,16 @@ Namespace My.Resources
         '''<summary>
         '''  Looks up a localized resource of type System.Drawing.Bitmap.
         '''</summary>
+        Friend ReadOnly Property Katie_upton() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("Katie_upton", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Drawing.Bitmap.
+        '''</summary>
         Friend ReadOnly Property MDL_bg() As System.Drawing.Bitmap
             Get
                 Dim obj As Object = ResourceManager.GetObject("MDL_bg", resourceCulture)
@@ -326,6 +336,16 @@ Namespace My.Resources
         Friend ReadOnly Property upton() As System.Drawing.Bitmap
             Get
                 Dim obj As Object = ResourceManager.GetObject("upton", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Drawing.Bitmap.
+        '''</summary>
+        Friend ReadOnly Property uptonMask() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("uptonMask", resourceCulture)
                 Return CType(obj,System.Drawing.Bitmap)
             End Get
         End Property

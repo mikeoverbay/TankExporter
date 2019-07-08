@@ -71,6 +71,7 @@ Public Class frmTextureViewer
         drawing_ = False
         frmMain.found_triangle_tv = 0
         current_vertex = 0
+        zoom.Text = "Zoom:100%"
         draw()
         draw()
 
@@ -692,7 +693,9 @@ Public Class frmTextureViewer
             End If
             frmMain.pb1.Focus()
         End If
-
+        If e.KeyCode = Keys.U Then
+            m_show_uvs.PerformClick()
+        End If
     End Sub
 
     Private Sub frmTextureViewer_Load(sender As Object, e As EventArgs) Handles Me.Load
@@ -706,10 +709,7 @@ Public Class frmTextureViewer
         drawing_ = False
     End Sub
 
-    Private Sub frmTextureViewer_ResizeBegin(sender As Object, e As EventArgs) Handles Me.ResizeBegin
-        frmMain.found_triangle_tv = 0
-        current_vertex = 0
-    End Sub
+
 
 
 

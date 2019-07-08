@@ -69,30 +69,6 @@ Namespace My
         <Global.System.Configuration.UserScopedSettingAttribute(),  _
          Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
          Global.System.Configuration.DefaultSettingValueAttribute("")>  _
-        Public Property export_path() As String
-            Get
-                Return CType(Me("export_path"),String)
-            End Get
-            Set
-                Me("export_path") = value
-            End Set
-        End Property
-        
-        <Global.System.Configuration.UserScopedSettingAttribute(),  _
-         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
-         Global.System.Configuration.DefaultSettingValueAttribute("C:\")>  _
-        Public Property fbx_path() As String
-            Get
-                Return CType(Me("fbx_path"),String)
-            End Get
-            Set
-                Me("fbx_path") = value
-            End Set
-        End Property
-        
-        <Global.System.Configuration.UserScopedSettingAttribute(),  _
-         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
-         Global.System.Configuration.DefaultSettingValueAttribute("")>  _
         Public Property res_mods_path() As String
             Get
                 Return CType(Me("res_mods_path"),String)
@@ -332,25 +308,13 @@ Namespace My
         
         <Global.System.Configuration.UserScopedSettingAttribute(),  _
          Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
-         Global.System.Configuration.DefaultSettingValueAttribute("C:\")>  _
-        Public Property custom_image() As String
-            Get
-                Return CType(Me("custom_image"),String)
-            End Get
-            Set
-                Me("custom_image") = value
-            End Set
-        End Property
-        
-        <Global.System.Configuration.UserScopedSettingAttribute(),  _
-         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
          Global.System.Configuration.DefaultSettingValueAttribute("")>  _
-        Public Property background_image() As String
+        Public Property fbx_path() As String
             Get
-                Return CType(Me("background_image"),String)
+                Return CType(Me("fbx_path"),String)
             End Get
             Set
-                Me("background_image") = value
+                Me("fbx_path") = value
             End Set
         End Property
     End Class

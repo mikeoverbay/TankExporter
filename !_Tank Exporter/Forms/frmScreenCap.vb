@@ -146,20 +146,26 @@ Public Class frmScreenCap
             Return
         End If
         CUSTOM_IMAGE_MODE = False
+        Dim tfp = My.Settings.res_mods_path
+        If File.Exists(Temp_Storage + "\save_capture_path.txt") Then
+            tfp = File.ReadAllText(Temp_Storage + "\save_capture_path.txt")
+        End If
         set_size()
         SaveFileDialog1.Title = "Save Screen Capture PNG file..."
         SaveFileDialog1.Filter = "Save PNG Image (*.png*)|*.png"
+        SaveFileDialog1.InitialDirectory = tfp
         If SaveFileDialog1.ShowDialog = Forms.DialogResult.OK Then
             If image_rb.Checked Then
                 OpenFileDialog1.Title = "Load Custom Background Image..."
                 OpenFileDialog1.Filter = "PNG (*.png)|*.png|JPG (*.jpg)|*.jpg|DDS (*.dds)|*.dds"
-                OpenFileDialog1.FileName = My.Settings.background_image
-                OpenFileDialog1.InitialDirectory = My.Settings.custom_image
+
+                If File.Exists(Temp_Storage + "\custom_bg_path.txt") Then
+                    tfp = File.ReadAllText(Temp_Storage + "\custom_bg_path.txt")
+                End If
+                OpenFileDialog1.InitialDirectory = tfp
                 If Not OpenFileDialog1.ShowDialog = Forms.DialogResult.OK Then
                     Return
                 End If
-                My.Settings.custom_image = OpenFileDialog1.FileName
-                My.Settings.background_image = Path.GetFileName(OpenFileDialog1.FileName)
                 r_terrain = False
                 r_color_flag = False
                 r_trans = False
@@ -167,6 +173,7 @@ Public Class frmScreenCap
                     Gl.glDeleteTextures(1, custom_image_text_Id)
                 End If
                 Dim i_path = OpenFileDialog1.FileName
+                File.WriteAllText(Temp_Storage + "\custom_bg_path.txt", Path.GetDirectoryName(i_path))
                 If i_path.ToLower.Contains(".dds") Then
                     custom_image_text_Id = load_dds_file(i_path)
                 End If
@@ -179,6 +186,10 @@ Public Class frmScreenCap
                 CUSTOM_IMAGE_MODE = True
             End If
             r_filename = SaveFileDialog1.FileName
+            If File.Exists(r_filename) Then
+                File.Delete(r_filename)
+            End If
+            File.WriteAllText(Temp_Storage + "\save_capture_path.txt", Path.GetDirectoryName(r_filename))
             RENDER_OUT = True
             frmMain.pb1.Dock = DockStyle.None
             frmMain.pb1.Size = r_size
@@ -263,6 +274,9 @@ Public Class frmScreenCap
         set_custom_size()
     End Sub
     Private Sub set_custom_size()
+        If x_size_tb.Text = "" Or x_size_tb.Text = "" Then
+            Return
+        End If
         Try
             r_size.Width = Convert.ToInt32(x_size_tb.Text)
             r_size.Height = Convert.ToInt32(y_size_tb.Text)

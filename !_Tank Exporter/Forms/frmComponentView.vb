@@ -32,7 +32,7 @@
         cb.AutoSize = True
         cb.Text = id.ToString("00") + ": " + name
         cb.BackColor = Color.Transparent
-        cb.Location = New Point(5, (cb.Height * id) + 5)
+        cb.Location = New Point(5, (cb.Height * (id - 1)) + 5)
         cb.Tag = id
         cb.Checked = True
         AddHandler cb.CheckedChanged, AddressOf update_group_view
@@ -43,7 +43,7 @@
         cb.AutoSize = True
         cb.Text = id.ToString("00") + ": " + name
         cb.BackColor = Color.Transparent
-        cb.Location = New Point(5, (cb.Height * id) + 5)
+        cb.Location = New Point(5, (cb.Height * (id - 1)) + 5)
         cb.Tag = id
         cb.Checked = True
         AddHandler cb.CheckedChanged, AddressOf update_fbx_view

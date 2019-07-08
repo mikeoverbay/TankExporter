@@ -450,7 +450,7 @@ Module modDecals
         Dim c_c As Integer
 
         For Each f In dir_info
-            If Not f.ToLower.Contains("nm.d") And Not f.ToLower.Contains("gmm.d") Then
+            If Not f.ToLower.Contains("nm.d") And Not f.ToLower.Contains("gmm.d") And f.ToLower.Contains("_am") Then
                 c_names(c_c) = f
                 c_c += 1
             End If
