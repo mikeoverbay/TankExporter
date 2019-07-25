@@ -609,6 +609,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_6729AA00C8294841A8D051DA3EE28B8C"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_697281D779634BDCACA9D291EE4C7F71"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -742,6 +748,12 @@
         "Entry"
         {
         "MsmKey" = "8:_83858030BA104B9BB5212C979712CCC2"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_843F3B4BE04F41FA94F13A83B673EA60"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -3555,6 +3567,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6729AA00C8294841A8D051DA3EE28B8C"
+            {
+            "SourcePath" = "8:..\\!_Tank Exporter\\shaders\\AtlasPBR_fragment.glsl"
+            "TargetName" = "8:AtlasPBR_fragment.glsl"
+            "Tag" = "8:"
+            "Folder" = "8:_1B07A285BAA74365A2EBEF572AC0A089"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_697281D779634BDCACA9D291EE4C7F71"
             {
             "SourcePath" = "8:..\\!_Tank Exporter\\html\\Images\\diceingame.jpg"
@@ -4001,6 +4033,26 @@
             "TargetName" = "8:dicerename.jpg"
             "Tag" = "8:"
             "Folder" = "8:_589FDE83079A4FB68CA57637595D2D5A"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_843F3B4BE04F41FA94F13A83B673EA60"
+            {
+            "SourcePath" = "8:..\\!_Tank Exporter\\shaders\\AtlasPBR_vertex.glsl"
+            "TargetName" = "8:AtlasPBR_vertex.glsl"
+            "Tag" = "8:"
+            "Folder" = "8:_1B07A285BAA74365A2EBEF572AC0A089"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -6401,7 +6453,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Tank Exporter"
         "ProductCode" = "8:{0123EF12-1990-40EA-9315-3030F3526E27}"
-        "PackageCode" = "8:{59F65AB5-04C0-48A2-8E98-38651C8E134E}"
+        "PackageCode" = "8:{C96A54C0-06B0-425D-B0C4-22AB9DB5C4F8}"
         "UpgradeCode" = "8:{6ABAF23A-CB3D-4411-B78A-4855B5B5A0CD}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
@@ -6960,7 +7012,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_D88F02B810ED4918A9E68229BD46788B"
             {
-            "SourcePath" = "8:..\\!_Tank Exporter\\obj\\x86\\Release\\!_Tank Exporter.exe"
+            "SourcePath" = "8:..\\!_Tank Exporter\\obj\\x86\\Debug\\!_Tank Exporter.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_9BBCA850C4D847C495C4D74DD189C10E"
