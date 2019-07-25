@@ -10,10 +10,10 @@
 You can download it here: https://www.autodesk.com/developer-network/platform-technologies/fbx-converter-archives
 Or if you can not down load it from there... the 64 and 32 bit versions are located here: http://tnmshouse.com/converter/
 
-# Version 96:
+# Version 96: EMERGENCY RELEASE
 This fixes a bug added with the last update by WarGaming. 1.5.1.1498.</br>
-There is a new enter in list.xml tables that was causing parasing to fail.</br>
-Added more to the stand alone primitives loader. It's not finished and has more work to do.. You can export FBX but not with all textures. (I'll add that in the next release). You can NOT write the primitives yet. It will crash on most models.
+There is a new entry in the list.xml of tanks tables that was causing parasing to fail.</br>
+Added more to the stand alone primitives loader. It's not finished and has more work to do.. You can export FBX but not with all textures. I'll add that in the next release. You can NOT write the primitives yet. It will crash on most models.
 
 # Version 95:
 Added the ability to load, export, import and write stand alone primitive_processed files.
