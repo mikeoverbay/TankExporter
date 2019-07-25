@@ -31,7 +31,25 @@ Module modOpenGL
     Public position0() As Single = {2.843F, 10.0F, 9.596F, 1.0F}
     Public position1() As Single = {5.0F, 8.0F, -5.0F, 1.0F}
     Public position2() As Single = {0.0F, 10.0F, 0.0F, 1.0F}
+
+    Public W_position0() As Single = {2.843F, 10.0F, 9.596F, 1.0F}
+    Public W_position1() As Single = {5.0F, 8.0F, -5.0F, 1.0F}
+    Public W_position2() As Single = {0.0F, 10.0F, 0.0F, 1.0F}
+
     Public Sub EnableOpenGL()
+
+        position0(0) = W_position0(0)
+        position0(1) = W_position0(1)
+        position0(2) = W_position0(2)
+
+        position1(0) = W_position1(0)
+        position1(1) = W_position1(1)
+        position1(2) = W_position1(2)
+
+        position2(0) = W_position2(0)
+        position2(1) = W_position2(1)
+        position2(2) = W_position2(2)
+
         frmMain.pb2.Visible = False
         Application.DoEvents()
         Application.DoEvents()
@@ -285,9 +303,6 @@ ByVal text As String, ByVal r As Single, ByVal g As Single, ByVal b As Single, B
         'light 0
         Gl.glLightModelfv(Gl.GL_LIGHT_MODEL_AMBIENT, global_ambient)
 
-        Dim position0() As Single = {0.0F, 30.0F, 0.0F, 1.0F}
-        Dim position1() As Single = {40.0F, 10.0F, 40.0F, 1.0F}
-        Dim position2() As Single = {40.0F, 10.0F, -40.0F, 1.0F}
         'Dim position3() As Single = {-400.0F, 100.0F, -400.0F, 1.0F}
         'Dim position4() As Single = {-400.0F, 100.0F, 400.0F, 1.0F}
 

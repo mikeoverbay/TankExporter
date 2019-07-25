@@ -27,6 +27,7 @@ Public Class frmFBX
             export_fbx_textures(ACTIVECAMO) 'export all textures
         End If
         If PRIMITIVES_MODE Then
+            export_fbx_textures(False) 'export all textures
             modFBX.export_primitives_fbx()
         Else
             modFBX.export_fbx()

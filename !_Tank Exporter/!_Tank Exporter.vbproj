@@ -24,7 +24,7 @@
     <UpdatePeriodically>false</UpdatePeriodically>
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
-    <ApplicationRevision>95</ApplicationRevision>
+    <ApplicationRevision>96</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
@@ -297,6 +297,7 @@
     <Compile Include="Modules\modTrackUtilites.vb" />
     <Compile Include="Modules\modUpton.vb" />
     <Compile Include="Modules\modVisualParser.vb" />
+    <Compile Include="Modules\WorkFBO.vb" />
     <Compile Include="Settings.vb" />
     <Compile Include="shaders\shader programs\frmShaderEditor.Designer.vb">
       <DependentUpon>frmShaderEditor.vb</DependentUpon>
@@ -507,6 +508,12 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="resources\primitive\segment.blank">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="shaders\AtlasPBR_fragment.glsl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="shaders\AtlasPBR_vertex.glsl">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="shaders\bloom_fragment.glsl">

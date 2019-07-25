@@ -39,7 +39,7 @@ Module modTrackUtilites
             End If
         Next
         'if false, there is a new entry name in the list
-        Debug.WriteLine(s + " " + i.ToString)
+        'Debug.WriteLine(s + " " + i.ToString)
         Return False
 
 

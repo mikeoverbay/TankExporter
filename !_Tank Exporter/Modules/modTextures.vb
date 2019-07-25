@@ -32,6 +32,7 @@ Module modTextures
         Public detail_name As String
         Public doubleSided As Boolean
         Public alphaRef As Integer
+        Public skinned As Boolean
     End Structure
 
     Dim mStream As MemoryStream
@@ -70,8 +71,14 @@ Module modTextures
         Return id
     End Function
     Public Sub export_fbx_textures(ByVal AC As Boolean)
-        If PRIMITIVES_MODE Then Return
-        Dim ar = TANK_NAME.Split(":")
+        'If PRIMITIVES_MODE Then Return
+        Dim ar() As String
+        If PRIMITIVES_MODE Then
+            ar = Path.GetFileNameWithoutExtension(frmMain.OpenFileDialog1.FileName).Split("~")
+        Else
+            ar = TANK_NAME.Split(":")
+
+        End If
         Dim name As String = Path.GetFileName(ar(0))
         FBX_Texture_path = Path.GetDirectoryName(My.Settings.fbx_path) + "\" + name
         If Not IO.Directory.Exists(FBX_Texture_path) Then
@@ -296,15 +303,141 @@ Module modTextures
         Application.DoEvents()
 
     End Sub
+    Enum ATLAS_TYPE
+        ATLAS_AM
+        ATLAS_GBMT
+        ATLAS_MAO
 
+    End Enum
+    Private Sub get_atlas_stuff(ByVal id As Integer)
+        'This stops loading textures already loaded....
+        '===========================================================================================
+        'color
+        If _group(id).is_atlas_type = 1 Then
+            Dim diff_atlas_names As Boolean = True
+            If id > 1 Then
+                For k = id - 1 To 1 Step -1
+                    'Loop and search for matching atlas name. if it matches, copy it or set flag to load new set.
+                    'All other variables are loaded when the textures are searched for in ModTankLoader.vb
+                    If _group(id).atlasAlbedoHeight = _group(k).atlasAlbedoHeight Then
+                        If _group(k).is_atlas_type = 1 Then
+                            diff_atlas_names = False
+                            _group(id).AM_atlas = _group(k).AM_atlas
+                            '_group(id).g_tile0Tint = _group(k).g_tile0Tint
+                            '_group(id).g_tile1Tint = _group(k).g_tile1Tint
+                            '_group(id).g_tile2Tint = _group(k).g_tile2Tint
+                            _group(id).image_size = _group(k).image_size
+                            Exit For
+                        End If
+                    End If
+                Next
+            End If
+            If diff_atlas_names Or id = 1 Then
+                get_packed_atlas(_group(id).atlasAlbedoHeight, id, ATLAS_TYPE.ATLAS_AM)
+            End If
+        End If
+        '===========================================================================================
+        'GBMT
+        If _group(id).is_atlas_type = 1 Then
+            Dim diff_atlas_names As Boolean = True
+            If id > 1 Then
+                For k = id - 1 To 1 Step -1
+                    If _group(id).atlasNormalGlossSpec = _group(k).atlasNormalGlossSpec Then
+                        If _group(k).is_atlas_type = 1 Then
+                            diff_atlas_names = False
+                            _group(id).GBMT_atlas = _group(k).GBMT_atlas
+                            Exit For
+                        End If
+                    End If
+                Next
+            End If
+            If diff_atlas_names Or id = 1 Then
+                get_packed_atlas(_group(id).atlasNormalGlossSpec, id, ATLAS_TYPE.ATLAS_GBMT)
+            End If
+        End If
+        '===========================================================================================
+        'MAO
+        If _group(id).is_atlas_type = 1 Then
+            Dim diff_atlas_names As Boolean = True
+            If id > 1 Then
+                For k = id - 1 To 1 Step -1
+                    If _group(id).atlasMetallicAO = _group(k).atlasMetallicAO Then
+                        If _group(k).is_atlas_type = 1 Then
+                            diff_atlas_names = False
+                            _group(id).MAO_atlas = _group(k).MAO_atlas
+                            Exit For
+                        End If
+                    End If
+                Next
+            End If
+            If diff_atlas_names Or id = 1 Then
+                get_packed_atlas(_group(id).atlasMetallicAO, id, ATLAS_TYPE.ATLAS_MAO)
+            End If
+        End If
+        '===========================================================================================
+        'BLEND
+        If _group(id).is_atlas_type = 1 Then
+            Dim diff_atlas_names As Boolean = True
+            If id > 1 Then
+                For k = id - 1 To 1 Step -1
+                    If _group(id).atlasBlend = _group(k).atlasBlend Then
+                        If _group(k).is_atlas_type = 1 Then
+                            diff_atlas_names = False
+                            _group(id).ATLAS_BLEND_ID = _group(k).ATLAS_BLEND_ID
+                            Exit For
+                        End If
+                    End If
+                Next
+            End If
+            If diff_atlas_names Or id = 1 Then
+
+                _group(id).ATLAS_BLEND_ID = get_DDS_search_option(_group(id).atlasBlend.Replace(".png", "_hd.dds"))
+                If _group(id).ATLAS_BLEND_ID = 0 Then
+                    _group(id).ATLAS_BLEND_ID = get_DDS_search_option(_group(id).atlasBlend.Replace(".png", ".dds"))
+                End If
+            End If
+        End If
+        '===========================================================================================
+        'DIRT
+        If _group(id).is_atlas_type = 1 Then
+            Dim diff_atlas_names As Boolean = True
+            If id > 1 Then
+                For k = id - 1 To 1 Step -1
+                    If _group(id).dirtMap = _group(k).dirtMap Then
+                        If _group(k).is_atlas_type = 1 Then
+                            diff_atlas_names = False
+                            _group(id).ATLAS_DIRT_ID = _group(k).ATLAS_DIRT_ID
+                            _group(id).g_dirtColor = _group(k).g_dirtColor
+                            Exit For
+                        End If
+                    End If
+                Next
+            End If
+            If diff_atlas_names Or id = 1 Then
+                _group(id).ATLAS_DIRT_ID = get_DDS_search_option(_group(id).dirtMap.Replace(".png", "_hd.dds"))
+                If _group(id).ATLAS_DIRT_ID = 0 Then
+                    _group(id).ATLAS_DIRT_ID = get_DDS_search_option(_group(id).dirtMap.Replace(".png", ".dds"))
+                End If
+            End If
+        End If
+
+    End Sub
     Public Sub build_textures(ByVal id As Integer)
-        If PRIMITIVES_MODE Then Return
+        'If PRIMITIVES_MODE Then Return
         Dim diffuse As String = _group(id).color_name
         Dim normal As String = _group(id).normal_name
         Dim metal As String = _group(id).metalGMM_name
         Dim ao_name As String = _group(id).ao_name
         Dim colorIdMap As String = _group(id).colorIDmap
         Dim detail_name As String = _group(id).detail_name
+
+        'This stops loading textures already loaded....
+        '===========================================================================================
+        If PRIMITIVES_MODE Then 'only if loaded a stand alone
+            get_atlas_stuff(id)
+        End If
+
+
         Dim i As Integer = 0
         Try
             For i = 0 To textures.Length - 1
@@ -322,6 +455,7 @@ Module modTextures
                     _group(id).detail_Id = textures(i).detail_id
                     _group(id).alphaRef = textures(i).alphaRef
                     _group(id).doubleSided = textures(i).doubleSided
+                    _group(id).skinned = textures(i).skinned
 
                     _group(id).texture_id = i
                     Return
@@ -361,6 +495,7 @@ Module modTextures
 
         textures(i).doubleSided = _group(id).doubleSided
         textures(i).alphaRef = _group(id).alphaRef
+        textures(i).skinned = _group(id).skinned
 
         _group(id).texture_id = i
 
@@ -370,8 +505,363 @@ Module modTextures
         _group(id).ao_id = ao_id
         _group(id).detail_Id = detail_id
 
+        If _group(id).normal_Id > 0 Then
+            _group(id).use_normapMap = 1
+        End If
     End Sub
 
+    Public Function get_packed_atlas(ByVal p As String, ByVal idx As Integer, atlas_mode As Integer) As String
+
+        p = My.Settings.res_mods_path + "\" + p
+        If Not p.Contains("atlas_processed") Then p = p.Replace(".atlas", ".atlas_processed")
+
+        If Not File.Exists(p) Then
+            If Not find_and_extract_file_in_pkgs(p) Then
+                log_text.Append("Tried to extract but did not find: " + Path.GetFileName(p) + " at get_packed_atlas.")
+                Return "File Not Found"
+            End If
+        End If
+        frmMain.update_thread.Suspend()
+
+        If p.Contains(".dds") Then 'pre-built atlas map?
+            Dim p2 = p.Replace(".dds", "_hd.dds")
+            If File.Exists(p2) Then
+                p = p2
+            End If
+            Select Case atlas_mode
+                Case ATLAS_TYPE.ATLAS_AM
+                    _group(idx).AM_atlas = get_DDS_search_option(p)
+                    'atlas_textures_ids.g_atlas_size.x = pass_w / 1024
+                    'atlas_textures_ids.g_atlas_size.y = pass_h / 1024
+                    'atlas_textures_ids.t()
+                Case ATLAS_TYPE.ATLAS_GBMT
+                    _group(idx).GBMT_atlas = get_DDS_search_option(p)
+                Case ATLAS_TYPE.ATLAS_MAO
+                    _group(idx).MAO_atlas = get_DDS_search_option(p)
+            End Select
+            frmMain.update_thread.Resume()
+            Return "done"
+        End If
+
+
+
+
+        Gl.glTexEnvi(Gl.GL_TEXTURE_ENV, Gl.GL_TEXTURE_ENV_MODE, Gl.GL_REPLACE)
+        Dim buff() = File.ReadAllBytes(p)
+        Dim ms As New MemoryStream(buff)
+        Dim br As New BinaryReader(ms)
+        Dim version = br.ReadInt32
+        Dim atlas_width = br.ReadInt32
+        Dim atlas_heigth = br.ReadInt32
+        Dim useless = br.ReadInt32 ' always 1
+        useless = br.ReadInt32 'magic
+        useless = br.ReadInt32 'always 1
+        Dim dds_chunk_size = br.ReadUInt32
+        useless = br.ReadUInt32 'always 0
+        'read and get the DDS file portion
+        Dim dds_data(dds_chunk_size - 1) As Byte
+        'not sure if this is padded..
+        dds_data = br.ReadBytes(dds_chunk_size)
+        Dim dds_ms = New MemoryStream(dds_data)
+        Dim Height_atlas = get_texture_from_stream(dds_ms)
+        ''==================================================
+        ''store height atlas
+        'Select Case atlas_mode
+        '    Case ATLAS_TYPE.ATLAS_AM
+        '        If _group(idx).AM_Height_id > 0 Then
+        '            Gl.glDeleteTextures(1, _group(idx).AM_Height_id)
+        '            Gl.glFinish()
+        '            _group(idx).AM_Height_id = Height_atlas
+        '        End If
+        '    Case ATLAS_TYPE.ATLAS_GBMT
+        '        If _group(idx).GBMT_Height_id > 0 Then
+        '            Gl.glDeleteTextures(1, _group(idx).GBMT_Height_id)
+        '            Gl.glFinish()
+        '            _group(idx).GBMT_Height_id = Height_atlas
+        '        End If
+        '    Case ATLAS_TYPE.ATLAS_MAO
+        '        If _group(idx).MAO_Height_id > 0 Then
+        '            Gl.glDeleteTextures(1, _group(idx).MAO_Height_id)
+        '            Gl.glFinish()
+        '            _group(idx).MAO_Height_id = Height_atlas
+        '        End If
+        'End Select
+
+        dds_ms.Dispose()
+        'contiune to read data...
+        ReDim atlas_images_coords(30)
+        Dim w, h As Integer
+        Dim cnt As Integer = 0
+        'Read locations and sizes of each sub image and its name
+        'Gl.glEnable(Gl.GL_TEXTURE_2D)
+        While br.BaseStream.Position < br.BaseStream.Length - 1
+            atlas_images_coords(cnt).loc_xs = br.ReadInt32
+            atlas_images_coords(cnt).loc_xe = br.ReadInt32
+            atlas_images_coords(cnt).loc_ys = br.ReadInt32
+            atlas_images_coords(cnt).loc_ye = br.ReadInt32
+            atlas_images_coords(cnt).width = atlas_images_coords(cnt).loc_xe - atlas_images_coords(cnt).loc_xs
+            atlas_images_coords(cnt).heigth = atlas_images_coords(cnt).loc_ye - atlas_images_coords(cnt).loc_ys
+
+            Dim ta(100) As Byte
+            Dim term As Byte = 1
+            Dim pnt As Integer = 0
+            term = br.ReadByte
+            While term <> 0
+                ta(pnt) = term
+                pnt += 1
+                term = br.ReadByte
+            End While
+            ReDim Preserve ta(pnt - 1)
+            atlas_images_coords(cnt).image_name = Encoding.UTF8.GetString(ta)
+            atlas_images_coords(cnt).image_name = atlas_images_coords(cnt).image_name.Replace(".png", "_hd.dds")
+            If atlas_images_coords(cnt).image_id > 0 Then 'clean up memory
+                Gl.glDeleteTextures(1, atlas_images_coords(cnt).image_id)
+                Gl.glFinish()
+            End If
+            atlas_images_coords(cnt).image_id = get_DDS_search_option(My.Settings.res_mods_path + "\" + atlas_images_coords(cnt).image_name)
+            ''grab cropped image
+            GoTo dont_grab_textures 'wont be useing these
+            Select Case atlas_mode
+                Case ATLAS_TYPE.ATLAS_AM
+                    If _group(idx).g_atlas_indexs.x = cnt Then
+                        If _group(idx).AM_ID > 0 Then
+                            Gl.glDeleteTextures(1, _group(idx).AM_ID)
+                            Gl.glFinish()
+                        End If
+                        worker_fbo.reset_worker_fbo(atlas_images_coords(cnt).width, atlas_images_coords(cnt).heigth)
+                        atlas_images_coords(cnt).image_id = get_DDS_search_option(My.Settings.res_mods_path + "\" + atlas_images_coords(cnt).image_name)
+                        _group(idx).AM_ID = grab_assigned_texture(atlas_images_coords(cnt).image_id)
+                    End If
+                Case ATLAS_TYPE.ATLAS_GBMT
+                    If _group(idx).g_atlas_indexs.x = cnt Then
+                        If _group(idx).GBMT_ID > 0 Then
+                            Gl.glDeleteTextures(1, _group(idx).GBMT_ID)
+                            Gl.glFinish()
+                        End If
+                        worker_fbo.reset_worker_fbo(atlas_images_coords(cnt).width, atlas_images_coords(cnt).heigth)
+                        atlas_images_coords(cnt).image_id = get_DDS_search_option(My.Settings.res_mods_path + "\" + atlas_images_coords(cnt).image_name)
+                        _group(idx).GBMT_ID = grab_assigned_texture(atlas_images_coords(cnt).image_id)
+                    End If
+                Case ATLAS_TYPE.ATLAS_MAO
+                    If _group(idx).g_atlas_indexs.x = cnt Then
+                        If _group(idx).MAO_ID > 0 Then
+                            Gl.glDeleteTextures(1, _group(idx).MAO_ID)
+                            Gl.glFinish()
+                        End If
+                        worker_fbo.reset_worker_fbo(atlas_images_coords(cnt).width, atlas_images_coords(cnt).heigth)
+                        atlas_images_coords(cnt).image_id = get_DDS_search_option(My.Settings.res_mods_path + "\" + atlas_images_coords(cnt).image_name)
+                        _group(idx).MAO_ID = grab_assigned_texture(atlas_images_coords(cnt).image_id)
+                    End If
+            End Select
+dont_grab_textures:
+            cnt += 1
+        End While
+        ReDim Preserve atlas_images_coords(cnt - 1)
+
+        'build the atlas
+        'create the base image....
+        Dim img As Integer
+        Gl.glGenTextures(1, img)
+        Gl.glEnable(Gl.GL_TEXTURE_2D)
+        Gl.glBindTexture(Gl.GL_TEXTURE_2D, img)
+        If largestAnsio > 0 Then
+            Gl.glTexParameteri(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_MAX_ANISOTROPY_EXT, largestAnsio)
+        End If
+        Gl.glTexParameteri(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_MAG_FILTER, Gl.GL_NEAREST)
+        Gl.glTexParameteri(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_MIN_FILTER, Gl.GL_LINEAR)
+        Gl.glTexParameteri(Gl.GL_TEXTURE_2D, Gl.GL_GENERATE_MIPMAP, Gl.GL_TRUE)
+
+        Gl.glTexParameteri(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_WRAP_S, Gl.GL_CLAMP_TO_EDGE)
+        Gl.glTexParameteri(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_WRAP_T, Gl.GL_CLAMP_TO_EDGE)
+
+        Gl.glTexImage2D(Gl.GL_TEXTURE_2D, 0, Gl.GL_RGBA8, atlas_width, atlas_heigth, 0, Gl.GL_RGBA, Gl.GL_UNSIGNED_BYTE, Nothing)
+        Gl.glBindTexture(Gl.GL_TEXTURE_2D, 0)
+        '==========================================================
+
+
+        'setup FBO if needed
+        'If worker_fbo.worker_fbo = 0 Then
+        worker_fbo.reset_worker_fbo(atlas_images_coords(0).width, atlas_images_coords(0).heigth)
+        'End If
+        _group(idx).image_size.x = atlas_images_coords(0).width
+        _group(idx).image_size.y = atlas_images_coords(0).heigth
+
+        For i = 0 To cnt - 1
+            If worker_fbo.mWIDTH <> atlas_images_coords(i).width Or _
+                 worker_fbo.mHEIGTH <> atlas_images_coords(i).heigth Then
+                worker_fbo.reset_worker_fbo(atlas_images_coords(i).width, atlas_images_coords(i).heigth)
+            End If
+
+            worker_fbo.draw_to_fbo_no_clip(atlas_images_coords(i).image_id)
+            Gl.glBindTexture(Gl.GL_TEXTURE_2D, img)
+            Gl.glCopyTexSubImage2D(Gl.GL_TEXTURE_2D, 0, _
+                                   atlas_images_coords(i).loc_xs, _
+                                   atlas_images_coords(i).loc_ys, _
+                                   0, _
+                                   0, _
+                                   atlas_images_coords(i).width, _
+                                   atlas_images_coords(i).heigth)
+
+            Gdi.SwapBuffers(pb1_hDC)
+            Gl.glDeleteTextures(1, atlas_images_coords(i).image_id)
+            Gl.glFinish()
+        Next
+        img = convert_image_to_mips(img, atlas_width, atlas_heigth)
+        Select Case atlas_mode
+            Case ATLAS_TYPE.ATLAS_AM
+                _group(idx).AM_atlas = img
+            Case ATLAS_TYPE.ATLAS_GBMT
+                _group(idx).GBMT_atlas = img
+            Case ATLAS_TYPE.ATLAS_MAO
+                _group(idx).MAO_atlas = img
+        End Select
+        '==================================
+
+
+
+        'Gl.glBindTexture(Gl.GL_TEXTURE_2D, img)
+        'Gl.glBindFramebufferEXT(Gl.GL_FRAMEBUFFER_EXT, 0) 'rebind default FBO
+        'w = frmMain.pb1.Width
+        'h = frmMain.pb1.Height
+        'ResizeGL(w, h)
+
+        'Gl.glMatrixMode(Gl.GL_PROJECTION) 'Select Projection
+        'Gl.glLoadIdentity() 'Reset The Matrix
+        'Gl.glOrtho(0, w, -h, 0, -200.0, 100.0) 'Select Ortho Mode
+        'Gl.glMatrixMode(Gl.GL_MODELVIEW)    'Select Modelview Matrix
+        'Gl.glLoadIdentity() 'Reset The Matrix
+        'Gl.glDisable(Gl.GL_DEPTH_TEST)
+
+
+        'frmMain.draw_main_rec(New Point, w, h)
+        'Gdi.SwapBuffers(pb1_hDC)
+        'Gl.glBindTexture(Gl.GL_TEXTURE_2D, Height_atlas)
+        'frmMain.draw_main_rec(New Point, w, h)
+        'Gdi.SwapBuffers(pb1_hDC)
+        'Gl.glDeleteTextures(1, Height_atlas)
+        'Gl.glBindTexture(Gl.GL_TEXTURE_2D, 0)
+        ''Gl.glDisable(Gl.GL_TEXTURE_2D)
+
+        frmMain.update_thread.Resume()
+load_no_more:
+        Return "OK"
+    End Function
+    Private Function convert_image_to_mips(ByVal img As Integer, ByVal width As Integer, ByVal heigth As Integer) As Integer
+        worker_fbo.reset_worker_fbo(width, heigth)
+        worker_fbo.draw_to_fbo_no_clip(img)
+        Gl.glFinish()
+        Dim Id As Integer = Il.ilGenImage
+        Il.ilBindImage(Id)
+        Il.ilTexImage(width, heigth, 0, 4, Il.IL_RGBA, Il.IL_UNSIGNED_BYTE, Nothing)
+        Dim temp_image As Integer
+        Gl.glGenTextures(1, temp_image)
+        Gl.glBindTexture(Gl.GL_TEXTURE_2D, img)
+        Gl.glGetTexImage(Gl.GL_TEXTURE_2D, 0, Gl.GL_RGBA8, Gl.GL_UNSIGNED_BYTE, Il.ilGetData())
+
+
+        If largestAnsio > 0 Then
+            Gl.glTexParameteri(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_MAX_ANISOTROPY_EXT, largestAnsio)
+        End If
+        Gl.glTexParameteri(Gl.GL_TEXTURE_2D, Gl.GL_GENERATE_MIPMAP, Gl.GL_TRUE)
+        Dim e1 = Gl.glGetError
+
+        'Gl.glDeleteTextures(1, img)
+        Gl.glFinish()
+
+        Il.ilBindImage(0)
+        Il.ilDeleteImage(Id)
+        Gl.glDeleteTextures(1, temp_image)
+        Gl.glFinish()
+        Return img
+
+        Gl.glGenTextures(1, img)
+        Gl.glEnable(Gl.GL_TEXTURE_2D)
+        Gl.glBindTexture(Gl.GL_TEXTURE_2D, img)
+        If largestAnsio > 0 Then
+            Gl.glTexParameteri(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_MAX_ANISOTROPY_EXT, largestAnsio)
+        End If
+        Gl.glTexParameteri(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_MAG_FILTER, Gl.GL_LINEAR)
+        Gl.glTexParameteri(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_MIN_FILTER, Gl.GL_LINEAR_MIPMAP_LINEAR)
+        Gl.glTexParameteri(Gl.GL_TEXTURE_2D, Gl.GL_GENERATE_MIPMAP, Gl.GL_TRUE)
+
+        Gl.glTexParameteri(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_WRAP_S, Gl.GL_REPEAT)
+        Gl.glTexParameteri(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_WRAP_T, Gl.GL_REPEAT)
+
+        Gl.glTexImage2D(Gl.GL_TEXTURE_2D, 0, Gl.GL_RGBA8, width, heigth, 0, Gl.GL_RGBA, Gl.GL_UNSIGNED_BYTE, Il.ilGetData())
+        Dim e = Gl.glGetError
+
+        Return img
+
+        Return False
+    End Function
+
+
+    Private Function grab_assigned_texture(ByVal t_id As Integer) As Integer
+        Dim img As Integer
+        Gl.glGenTextures(1, img)
+        Gl.glEnable(Gl.GL_TEXTURE_2D)
+        Gl.glBindTexture(Gl.GL_TEXTURE_2D, img)
+        Gl.glTexParameteri(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_MAG_FILTER, Gl.GL_LINEAR)
+        Gl.glTexParameteri(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_MIN_FILTER, Gl.GL_LINEAR_MIPMAP_LINEAR)
+
+        Gl.glTexParameteri(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_WRAP_S, Gl.GL_REPEAT)
+        Gl.glTexParameteri(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_WRAP_T, Gl.GL_REPEAT)
+
+        Gl.glTexImage2D(Gl.GL_TEXTURE_2D, 0, Gl.GL_RGBA8, WorkFBO.worker_fbo.mWIDTH, WorkFBO.worker_fbo.mHEIGTH, 0, Gl.GL_RGBA, Gl.GL_UNSIGNED_BYTE, Nothing)
+        Gl.glBindTexture(Gl.GL_TEXTURE_2D, 0)
+        Gl.glCopyTexSubImage2D(Gl.GL_TEXTURE_2D, 0, _
+                       0, _
+                       0, _
+                       0, _
+                       0, _
+                       WorkFBO.worker_fbo.mHEIGTH, _
+                       WorkFBO.worker_fbo.mHEIGTH)
+
+        If largestAnsio > 0 Then
+            Gl.glTexParameteri(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_MAX_ANISOTROPY_EXT, largestAnsio)
+        End If
+        Gl.glTexParameteri(Gl.GL_TEXTURE_2D, Gl.GL_GENERATE_MIPMAP, Gl.GL_TRUE)
+        Return img
+    End Function
+    Public Function get_DDS_search_option(ByRef p As String) As Integer
+        'loads DDS.. Asked to find it if it does not exist in res_mods
+        p = p.Replace("/", "\")
+        p = p.Replace(My.Settings.res_mods_path + "\", "")
+        If Not File.Exists(My.Settings.res_mods_path + "\" + p) Then
+            'If MsgBox(Path.GetFileName(p) + vbCrLf + " was not found in res_mods" + vbCrLf + _
+            '        "Would you like me to extract it from the PKG files?", MsgBoxStyle.YesNo, "File Not Found...") = MsgBoxResult.Yes Then
+            If Not find_and_extract_file_in_pkgs(p) Then
+                Return 0
+            Else
+                Return load_dds_file(My.Settings.res_mods_path + "\" + p)
+            End If
+        Else
+            Return load_dds_file(My.Settings.res_mods_path + "\" + p)
+        End If
+        'Else
+        'End If
+        Return 0
+    End Function
+    Public Function find_and_extract_file_in_pkgs(ByVal p As String) As Boolean
+        'Searched and extracts file p to res_mods.
+        'This does NOT overwrite existing files.
+        Dim pp = p.Replace(My.Settings.res_mods_path + "\", "") ' strip res_mods path off head of file name
+        For Each f In pkg_search_list
+            Using zipf As New ZipFile(f)
+                For Each entry In zipf
+                    If Not entry.IsDirectory Then
+                        If entry.FileName.ToLower = pp.ToLower.Replace("\", "/") Then
+                            entry.Extract(My.Settings.res_mods_path + "\", ExtractExistingFileAction.DoNotOverwrite)
+                            zipf.Dispose()
+                            GC.Collect()
+                            Return True
+                        End If
+                    End If
+                Next
+            End Using
+        Next
+        Return False
+    End Function
     Public Function get_texture_id(name As String) As Integer
         Dim id As Integer
         If name Is Nothing Then name = ""
@@ -421,6 +911,10 @@ Module modTextures
             Return id
         Else
             'look in current pkg for SD texture
+            If PRIMITIVES_MODE Then
+                Return get_DDS_search_option(name)
+            End If
+
             ent = frmMain.packages(current_tank_package)(name) ' look in tank package
             If ent Is Nothing Then 'if not found in current pkg than look in shared
                 If frmMain.packages_2(current_tank_package) IsNot Nothing Then
@@ -762,6 +1256,7 @@ Module modTextures
         End If
         Return Nothing
     End Function
+    Dim pass_w, pass_h As Integer
     Public Function load_dds_file(ByVal fs As String) As Integer
         Dim image_id As Integer = -1
 
@@ -776,6 +1271,8 @@ Module modTextures
             ' Ilu.iluMirror()
             Dim width As Integer = Il.ilGetInteger(Il.IL_IMAGE_WIDTH)
             Dim height As Integer = Il.ilGetInteger(Il.IL_IMAGE_HEIGHT)
+            pass_h = height
+            pass_w = width
             'Dim dds_format = Il.ilGetInteger(Il.IL_DXTC_DATA_FORMAT)
             'Debug.WriteLine(dds_format.ToString)
 
@@ -901,9 +1398,6 @@ Module modTextures
         Il.ilBindImage(0)
         Ilu.iluDeleteImage(texID)
         Return image_id
-        'ms.Close()
-        'ms.Dispose()
-        'GC.Collect()
     End Function
 
     Public Function get_image(ByVal file As String) As Image

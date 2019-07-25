@@ -421,9 +421,6 @@ done:
         x = 2.846
         z = 9.586
 
-        position0(0) = 0.0
-        position0(1) = 8.0
-        position0(2) = 0.0
 
 
         tank_label.Text = ""
@@ -830,6 +827,7 @@ done:
             'load_camo()
             '===================================================================================
             load_customization_files()
+            build_list_table()
             'MsgBox("Past load_customization_files", MsgBoxStyle.Exclamation, "Debug")
             load_season_icons()
             load_tank_buttons()
@@ -893,6 +891,8 @@ done:
             Application.DoEvents()
         End If
 
+        'build pkg list
+        make_pgk_searh_list()
 
         TC1.SelectedIndex = 0
         Application.DoEvents()
@@ -1264,7 +1264,30 @@ done:
 
 
     End Sub
-
+    Private Sub make_pgk_searh_list()
+        'build a list of package files to search for items
+        Dim p = My.Settings.game_path + "\res\packages\"
+        Dim di = Directory.GetFiles(p)
+        Dim cnt As Integer = 0
+        ReDim pkg_search_list(100)
+        For Each f In di
+            Dim ts = Path.GetFileName(f)
+            Dim ar = ts.Split("_")
+            If IsNumeric(ar(0)) Then
+                pkg_search_list(cnt) = f
+                cnt += 1
+            End If
+            If ar(0) = "shared" Then
+                pkg_search_list(cnt) = f
+                cnt += 1
+            End If
+            If ar(0) = "hangar" Then
+                pkg_search_list(cnt) = f
+                cnt += 1
+            End If
+        Next
+        ReDim Preserve pkg_search_list(cnt - 1)
+    End Sub
     Private Sub load_resources()
         Dim t As New Stopwatch
         info_Label.Text = "loading Environment models"
@@ -1453,13 +1476,13 @@ done:
         End If
     End Sub
 
+    Dim nations() As String = {"usa.xml", "uk.xml", _
+                             "china.xml", "czech.xml", _
+                             "france.xml", "germany.xml", _
+                             "japan.xml", "poland.xml", _
+                             "ussr.xml", "sweden.xml", _
+                             "italy.xml"}
     Private Sub load_customization_files()
-        Dim nations() As String = {"usa.xml", "uk.xml", _
-                                   "china.xml", "czech.xml", _
-                                   "france.xml", "germany.xml", _
-                                   "japan.xml", "poland.xml", _
-                                   "ussr.xml", "sweden.xml", _
-                                   "italy.xml"}
         For Each entry In scripts_pkg
 
             If entry.FileName.Contains("item_defs/") Then
@@ -1472,7 +1495,7 @@ done:
                                 entry.Extract(ms)
                                 openXml_stream_2(ms, Path.GetFileNameWithoutExtension(entry.FileName))
                                 filename = entry.FileName
-                                Debug.WriteLine(entry.FileName)
+                                'Debug.WriteLine(entry.FileName)
                                 Dim ta = entry.FileName.Split("/")
 
                                 build_customization_tables(zed, filename)
@@ -1484,6 +1507,56 @@ done:
             'Exit For
         Next
 
+    End Sub
+
+    Private Sub build_list_table()
+        Dim cnt As Integer = 0
+        For Each entry In scripts_pkg
+            If entry.FileName.ToLower.Contains("item_defs/vehicles") And _
+                entry.FileName.ToLower.Contains("list.xml") Then
+                Dim dt As New DataSet
+                Dim ms As New MemoryStream()
+                entry.Extract(ms)
+                openXml_stream_2(ms, Path.GetFileNameWithoutExtension(entry.FileName))
+                custom_list_tables(cnt) = New DataSet
+                Dim Xreader As New StringReader(TheXML_String)
+                custom_list_tables(cnt).ReadXml(Xreader)
+                For Each t In custom_list_tables(cnt).Tables
+                    If t.TableName <> "price" And t.TableName.ToLower <> "observer" _
+                        And t.TableName.ToLower <> "map_list" _
+                        And t.TableName.ToLower <> "notinshop" Then
+                        Dim t2 As New DataTable
+                        t2 = t.Copy
+                        dt.Tables.Add(t2)
+                    End If
+                Next
+                custom_list_tables(cnt) = dt.Copy
+                'change the data to what we need
+                Dim tbl = custom_list_tables(cnt).Copy
+                For Each dtbl In tbl.Tables
+                    Dim r = dtbl.rows(0)
+                    Dim rv = r.item("tags").split(" ")
+                    Dim ts As String = ""
+                    Select Case rv(0)
+                        Case "mediumTank"
+                            ts = "Medium"
+                        Case "lightTank"
+                            ts = "Light"
+                        Case "heavyTank"
+                            ts = "Heavy"
+                        Case "SPG"
+                            ts = "Artillary"
+                        Case "AT-SPG"
+                            ts = "Destoryer"
+                    End Select
+                    custom_list_tables(cnt).Tables(dtbl.TableName).Columns.add("type")
+                    custom_list_tables(cnt).Tables(dtbl.TableName).Rows(0).Item("type") = ts
+                Next
+                cnt += 1
+            End If
+        Next
+        GC.Collect()
+ 
     End Sub
 
     Private Sub build_customization_tables(ByVal id As Integer, ByVal filename As String)
@@ -1516,6 +1589,10 @@ done:
         'these color strings are located in each nations customization.xml file
         'Nation is IMPORTANT! See nations() array for order in load_customization_files() sub.
         Select Case id
+            Case 0
+                acolor = "82 72 51 0" 'usa
+            Case 1
+                acolor = "82 72 51 0" 'uk
             Case 2
                 acolor = "61 62 42 0" ' china
             Case 3
@@ -1524,20 +1601,16 @@ done:
                 acolor = "15 36 36 0" 'france
             Case 5
                 acolor = "90 103 94 0" 'germany
-            Case 10
-                acolor = "15 36 36 0" 'italy
             Case 6
                 acolor = "15 36 36 0" 'japan
             Case 7
                 acolor = "15 36 36 0" 'poland
-            Case 9
-                acolor = "15 36 36 0" 'sweden
-            Case 1
-                acolor = "82 72 51 0" 'uk
-            Case 0
-                acolor = "82 72 51 0" 'usa
             Case 8
                 acolor = "61 62 42 0" 'ussr
+            Case 9
+                acolor = "15 36 36 0" 'sweden
+            Case 10
+                acolor = "15 36 36 0" 'italy
 
         End Select
         dataset.Tables("armorcolor").Columns.Add("aColor")
@@ -2294,7 +2367,7 @@ tryagain:
             start_up_log.AppendLine("Could not find: " + fpath)
             Return
         End If
-        Dim fpath_1 = My.Settings.game_path + "\res\packages\vehicles_level_" + i.ToString("00") + "_hd" + ext
+        Dim fpath_1 = My.Settings.game_path + "/res/packages/vehicles_level_" + i.ToString("00") + "_hd" + ext
         If File.Exists(fpath_1) Then
             packages_HD(i) = Ionic.Zip.ZipFile.Read(fpath_1)
             start_up_log.AppendLine("Getting Tank data from: " + fpath_1)
@@ -2309,7 +2382,7 @@ tryagain:
             'start_up_log.AppendLine("Could not find: " + fpath)
             'Return
         End If
-        fpath_1 = My.Settings.game_path + "\res\packages\vehicles_level_" + i.ToString("00") + "_hd-part2.pkg"
+        fpath_1 = My.Settings.game_path + "/res/packages/vehicles_level_" + i.ToString("00") + "_hd-part2.pkg"
         If File.Exists(fpath_1) Then
             packages_HD_2(i) = Ionic.Zip.ZipFile.Read(fpath_1)
             start_up_log.AppendLine("Getting Tank data from: " + fpath_1)
@@ -2824,6 +2897,70 @@ tryagain:
         End If
 
     End Sub
+    Private Sub draw_v_colors(id As Integer)
+        'This is just to visualize the color stream.
+        'It does not look like it has any importance.
+        Dim vt1, vt2, vt3 As vec3
+        Dim n1, n2, n3 As vec3
+        Dim c1, c2, c3 As vec3
+        Gl.glBegin(Gl.GL_TRIANGLES)
+        For i As UInt32 = 1 To _group(id).nPrimitives_ - 1
+            '-----------------
+            Dim v1 = _group(id).indicies(i).v1
+            Dim v2 = _group(id).indicies(i).v2
+            Dim v3 = _group(id).indicies(i).v3
+            '--
+            vt1.x = _group(id).vertices(v1).x
+            vt1.y = _group(id).vertices(v1).y
+            vt1.z = _group(id).vertices(v1).z
+            '--
+            n1.x = _group(id).vertices(v1).nx
+            n1.y = _group(id).vertices(v1).ny
+            n1.z = _group(id).vertices(v1).nz
+            '--
+            c1.x = _group(id).vertices(v1).r * 125.0!
+            c1.y = _group(id).vertices(v1).g * 125.0!
+            c1.z = _group(id).vertices(v1).b * 125.0!
+            '-----------------
+            vt2.x = _group(id).vertices(v2).x
+            vt2.y = _group(id).vertices(v2).y
+            vt2.z = _group(id).vertices(v2).z
+            '--
+            n2.x = _group(id).vertices(v2).nx
+            n2.y = _group(id).vertices(v2).ny
+            n2.z = _group(id).vertices(v2).nz
+            '--
+            c2.x = _group(id).vertices(v2).r * 125.0!
+            c2.y = _group(id).vertices(v2).g * 125.0!
+            c2.z = _group(id).vertices(v2).b * 125.0!
+            '-----------------
+            vt3.x = _group(id).vertices(v3).x
+            vt3.y = _group(id).vertices(v3).y
+            vt3.z = _group(id).vertices(v3).z
+            '--
+            n3.x = _group(id).vertices(v3).nx
+            n3.y = _group(id).vertices(v3).ny
+            n3.z = _group(id).vertices(v3).nz
+            '--
+            c3.x = _group(id).vertices(v3).r * 125.0!
+            c3.y = _group(id).vertices(v3).g * 125.0!
+            c3.z = _group(id).vertices(v3).b * 125.0!
+            '-----------------
+            Gl.glColor3f(c1.x, c1.y, c1.z)
+            Gl.glNormal3f(n1.x, n1.y, n1.z)
+            Gl.glVertex3f(vt1.x, vt1.y, vt1.z)
+
+            Gl.glColor3f(c2.x, c2.y, c2.z)
+            Gl.glNormal3f(n2.x, n2.y, n2.z)
+            Gl.glVertex3f(vt2.x, vt2.y, vt2.z)
+
+            Gl.glColor3f(c3.x, c3.y, c3.z)
+            Gl.glNormal3f(n3.x, n3.y, n3.z)
+            Gl.glVertex3f(vt3.x, vt3.y, vt3.z)
+
+        Next
+        Gl.glEnd()
+    End Sub
     '###########################################################################################################################################
     Public Sub draw_scene()
         Application.DoEvents()
@@ -2851,10 +2988,9 @@ tryagain:
             '  MessageBox.Show("Unable to make rendering context current")
             Return
         End If
-        'gl_busy = False
-        'Return
+
         Gl.glBindFramebufferEXT(Gl.GL_FRAMEBUFFER_EXT, gBufferFBO)
-        'Gl.glBindFramebufferEXT(Gl.GL_FRAMEBUFFER_EXT, 0)
+
         G_Buffer.attachColor_And_blm_tex1()
         For jj = 1 To object_count
             If _group(jj).alphaTest = 0 Then
@@ -2960,7 +3096,6 @@ tryagain:
         End If
         ViewPerspective(w, h)
         'adjust light2
-        position2(0) = -10.0 : position2(1) = 7.5 : position2(2) = -2.4
         set_eyes()
         Gl.glLightfv(Gl.GL_LIGHT0, Gl.GL_POSITION, position0)
         Gl.glLightfv(Gl.GL_LIGHT1, Gl.GL_POSITION, position1)
@@ -3081,7 +3216,7 @@ tryagain:
                     Gl.glUniform1i(fbx_enableVcolor, 0)
                 End If
                 For jj = 1 To fbxgrp.Length - 1
-                    If fbxgrp(jj).visible Then
+                    If fbxgrp(jj).visible And fbxgrp(jj).component_visible Then
                         Gl.glUniform1i(fbx_texture_count, fbxgrp(jj).texture_count)
                         Gl.glUniform1i(fbx_is_GAmap, fbxgrp(jj).is_GAmap)
                         If fbxgrp(jj).bumped Then
@@ -3101,7 +3236,7 @@ tryagain:
                         End If
                         Gl.glPushMatrix()
                         Gl.glMultMatrixd(fbxgrp(jj).matrix)
-                        If fbxgrp(jj).component_visible Then Gl.glCallList(fbxgrp(jj).call_list)
+                        Gl.glCallList(fbxgrp(jj).call_list)
                         Gl.glPopMatrix()
                     End If
                 Next
@@ -3149,7 +3284,7 @@ tryagain:
             End If
             For jj = 1 To object_count
                 If _group(jj).is_carraige Then
-                    Gl.glFrontFace(Gl.GL_CW)
+                    Gl.glFrontFace(Gl.GL_CCW)
                 Else
                     Gl.glFrontFace(Gl.GL_CCW)
                 End If
@@ -3185,19 +3320,168 @@ tryagain:
 
             End If
         End If
-        'draw BSP2?
-        'draw BSP2_Tree?
-        'If MODEL_LOADED And Not m_show_fbx.Checked And m_show_bsp2_tree.Checked Then
-        '    view_status_string += ": BSP2 Tree Visiable : "
-        '    For jj = 1 To object_count
-        '        If _object(jj).visible Then
-        '            Gl.glCallList(_group(jj).bsp2_tree_id)
-        '        End If
-        '    Next
-        'End If
-        Dim id As Integer = SELECTED_CAMO_BUTTON
+        '===========================================================
+        'test color stream
+        If False And MODEL_LOADED Then
+            G_Buffer.attachColorTexture()
+            Gl.glDisable(Gl.GL_CULL_FACE)
+            Gl.glDisable(Gl.GL_BLEND)
+            Gl.glFrontFace(Gl.GL_CW)
+            Gl.glEnable(Gl.GL_LIGHTING)
+            Gl.glPolygonMode(Gl.GL_FRONT_AND_BACK, Gl.GL_FILL)
+            For i = 1 To object_count
+                If _group(i).component_visible Then
+                    Try
+                        Call draw_v_colors(i)
+
+                    Catch ex As Exception
+
+                    End Try
+                End If
+            Next
+            GoTo nothing_else
+        End If
+        '===========================================================
+        'Stand Alone Primtives colored render
+        If MODEL_LOADED And m_load_textures.Checked And Not m_show_fbx.Checked And Not m_simple_lighting.Checked And PRIMITIVES_MODE Then
+            Gl.glFrontFace(Gl.GL_CCW)
+            If wire_cb.Checked Then
+                Gl.glEnable(Gl.GL_POLYGON_OFFSET_FILL)
+            End If
+
+            Gl.glUseProgram(shader_list.AtlasPBR_shader)
+            Gl.glUniform1i(atlasPBR_atlas_AM_map, 0)
+            Gl.glUniform1i(atlasPBR_atlas_GBMT_map, 1)
+            Gl.glUniform1i(atlasPBR_atlas_MAO_map, 2)
+            Gl.glUniform1i(atlasPBR_BLEND_map, 3)
+            Gl.glUniform1i(atlasPBR_DIRT_map, 4)
+
+            Gl.glUniform1i(atlasPBR_colorMap, 5)
+            Gl.glUniform1i(atlasPBR_colorMap2, 6)
+            Gl.glUniform1i(atlasPBR_normalMap, 7)
+
+            'Gl.glUniform1i(atlasPBR_AM_map, 8)
+            'Gl.glUniform1i(atlasPBR_GBMT_map, 9)
+            'Gl.glUniform1i(atlasPBR_MAO_map, 10)
+            Gl.glUniform1i(atlasPBR_GMM_Map, 8)
+
+            Gl.glUniform1f(atlasPBR_specular, S_level) ' convert to 0.0 to 1.0
+            Gl.glUniform1f(atlasPBR_ambient, A_level)
+            Gl.glUniform1f(atlasPBR_brightness, T_level)
+
+
+            For jj = 1 To object_count
+                If _group(jj).doubleSided = True Then
+                    Gl.glDisable(Gl.GL_CULL_FACE)
+                Else
+                    Gl.glEnable(Gl.GL_CULL_FACE)
+                End If
+                'atlas maps.....................................................
+                Gl.glActiveTexture(Gl.GL_TEXTURE0 + 0)
+                Gl.glBindTexture(Gl.GL_TEXTURE_2D, _group(jj).AM_atlas)
+                Gl.glActiveTexture(Gl.GL_TEXTURE0 + 1)
+                Gl.glBindTexture(Gl.GL_TEXTURE_2D, _group(jj).GBMT_atlas)
+                Gl.glActiveTexture(Gl.GL_TEXTURE0 + 2)
+                Gl.glBindTexture(Gl.GL_TEXTURE_2D, _group(jj).MAO_atlas)
+
+                Gl.glActiveTexture(Gl.GL_TEXTURE0 + 3)
+                Gl.glBindTexture(Gl.GL_TEXTURE_2D, _group(jj).ATLAS_BLEND_ID)
+                Gl.glActiveTexture(Gl.GL_TEXTURE0 + 4)
+                Gl.glBindTexture(Gl.GL_TEXTURE_2D, _group(jj).ATLAS_DIRT_ID)
+                Gl.glActiveTexture(Gl.GL_TEXTURE0 + 5)
+                Gl.glBindTexture(Gl.GL_TEXTURE_2D, _group(jj).color_Id)
+                Gl.glActiveTexture(Gl.GL_TEXTURE0 + 6)
+                Gl.glBindTexture(Gl.GL_TEXTURE_2D, _group(jj).detail_Id) 'diffuse2 map
+                Gl.glActiveTexture(Gl.GL_TEXTURE0 + 7)
+                Gl.glBindTexture(Gl.GL_TEXTURE_2D, _group(jj).normal_Id)
+                'single maps.....................................................
+                'Gl.glActiveTexture(Gl.GL_TEXTURE0 + 8)
+                'Gl.glBindTexture(Gl.GL_TEXTURE_2D, _group(jj).AM_ID)
+                'Gl.glActiveTexture(Gl.GL_TEXTURE0 + 9)
+                'Gl.glBindTexture(Gl.GL_TEXTURE_2D, _group(jj).GBMT_ID)
+                'Gl.glActiveTexture(Gl.GL_TEXTURE0 + 10)
+                'Gl.glBindTexture(Gl.GL_TEXTURE_2D, _group(jj).MAO_ID)
+
+                Gl.glActiveTexture(Gl.GL_TEXTURE0 + 8)
+                Gl.glBindTexture(Gl.GL_TEXTURE_2D, _group(jj).metalGMM_Id)
+
+                Gl.glUniform1i(atlasPBR_IS_ATLAS, _group(jj).is_atlas_type)
+                Gl.glUniform1i(atlasPBR_USE_UV2, _group(jj).use_uv2)
+                Gl.glUniform1i(atlasPBR_use_normapMap, _group(jj).use_normapMap)
+                Gl.glUniform1i(atlasPBR_is_ANM, _group(jj).ANM)
+
+                Gl.glUniform2f(atlasPBR_UVrepete, _group(jj).x_repete, _group(jj).y_repete)
+
+                'Gl.glUniform4f(atlasPBR_atlas_TILE, _group(jj).atlas_uv_coords.x, _group(jj).atlas_uv_coords.y, _group(jj).atlas_uv_coords.z, _group(jj).atlas_uv_coords.w)
+                Gl.glUniform4f(atlasPBR_sizes, _group(jj).g_atlas_size.x, _group(jj).g_atlas_size.y, _group(jj).g_atlas_size.z, _group(jj).g_atlas_size.w)
+                Gl.glUniform4f(atlasPBR_INDEXES, _group(jj).g_atlas_indexs.x, _group(jj).g_atlas_indexs.y, _group(jj).g_atlas_indexs.z, _group(jj).g_atlas_indexs.w)
+
+                Gl.glUniform4f(atlasPBR_g_tile0Tint, _group(jj).g_tile0Tint.x, _group(jj).g_tile0Tint.y, _group(jj).g_tile0Tint.z, _group(jj).g_tile0Tint.w)
+                Gl.glUniform4f(atlasPBR_g_tile1Tint, _group(jj).g_tile1Tint.x, _group(jj).g_tile1Tint.y, _group(jj).g_tile1Tint.z, _group(jj).g_tile1Tint.w)
+                Gl.glUniform4f(atlasPBR_g_tile2Tint, _group(jj).g_tile2Tint.x, _group(jj).g_tile2Tint.y, _group(jj).g_tile2Tint.z, _group(jj).g_tile2Tint.w)
+                Gl.glUniform4f(atlasPBR_g_dirtColor, _group(jj).g_dirtColor.x, _group(jj).g_dirtColor.y, _group(jj).g_dirtColor.z, _group(jj).g_dirtColor.w)
+                Gl.glUniform2f(atlasPBR_image_size, _group(jj).image_size.x, _group(jj).image_size.y)
+                Gl.glUniform1i(atlasPBR_alpha_enable, _group(jj).alphaTest)
+                Gl.glUniform1i(atlasPBR_alpha_value, _group(jj).alphaRef)
+
+                If _group(jj).component_visible Then Gl.glCallList(_object(jj).main_display_list)
+            Next
+            Gl.glUseProgram(0)
+            'Gl.glActiveTexture(Gl.GL_TEXTURE0 + 11)
+            'Gl.glBindTexture(Gl.GL_TEXTURE_2D, 0) '10
+            'Gl.glActiveTexture(Gl.GL_TEXTURE0 + 10)
+            'Gl.glBindTexture(Gl.GL_TEXTURE_2D, 0) '10
+            'Gl.glActiveTexture(Gl.GL_TEXTURE0 + 9)
+            'Gl.glBindTexture(Gl.GL_TEXTURE_2D, 0) '9
+            Gl.glActiveTexture(Gl.GL_TEXTURE0 + 8)
+            Gl.glBindTexture(Gl.GL_TEXTURE_2D, 0) '8
+            Gl.glActiveTexture(Gl.GL_TEXTURE0 + 7)
+            Gl.glBindTexture(Gl.GL_TEXTURE_2D, 0) '7
+            Gl.glActiveTexture(Gl.GL_TEXTURE0 + 6)
+            Gl.glBindTexture(Gl.GL_TEXTURE_2D, 0) '6
+            Gl.glActiveTexture(Gl.GL_TEXTURE0 + 5)
+            Gl.glBindTexture(Gl.GL_TEXTURE_2D, 0) '5
+            Gl.glActiveTexture(Gl.GL_TEXTURE0 + 4)
+            Gl.glBindTexture(Gl.GL_TEXTURE_2D, 0) '4
+            Gl.glActiveTexture(Gl.GL_TEXTURE0 + 3)
+            Gl.glBindTexture(Gl.GL_TEXTURE_2D, 0) '3
+            Gl.glActiveTexture(Gl.GL_TEXTURE0 + 2)
+            Gl.glBindTexture(Gl.GL_TEXTURE_2D, 0) '2
+            Gl.glActiveTexture(Gl.GL_TEXTURE0 + 1)
+            Gl.glBindTexture(Gl.GL_TEXTURE_2D, 0) '1
+            Gl.glActiveTexture(Gl.GL_TEXTURE0 + 0)
+            Gl.glBindTexture(Gl.GL_TEXTURE_2D, 0) '0
+
+            G_Buffer.attachColorTexture()
+
+            If wire_cb.Checked Then
+                Gl.glDisable(Gl.GL_TEXTURE_2D)
+                Gl.glDisable(Gl.GL_LIGHTING)
+                Gl.glDisable(Gl.GL_POLYGON_OFFSET_FILL)
+                Gl.glPolygonMode(Gl.GL_FRONT_AND_BACK, Gl.GL_LINE)
+                If VertexColor_cb.Checked Then
+                    Gl.glColor3f(0.6, 0.6, 0.6)
+                Else
+                    Gl.glColor3f(0.7, 0.7, 0.7)
+                End If
+                For jj = 1 To object_count
+                    If _group(jj).is_carraige Then
+                        Gl.glFrontFace(Gl.GL_CW)
+                    Else
+                        Gl.glFrontFace(Gl.GL_CCW)
+                    End If
+                    If _object(jj).visible Then
+                        If _group(jj).component_visible Then Gl.glCallList(_object(jj).main_display_list)
+                    End If
+                Next
+            End If
+
+        End If
+
+        '===========================================================
         'Draw fully rendered?
-        If MODEL_LOADED And m_load_textures.Checked And Not m_show_fbx.Checked And Not m_simple_lighting.Checked Then
+        Dim id As Integer = SELECTED_CAMO_BUTTON
+        If MODEL_LOADED And m_load_textures.Checked And Not m_show_fbx.Checked And Not m_simple_lighting.Checked And Not PRIMITIVES_MODE Then
             view_status_string += "Textured : "
 
             G_Buffer.attachColor_And_blm_tex1()
@@ -3249,7 +3533,7 @@ tryagain:
                 Gl.glUniform1i(tank_is_Track, _object(jj).is_track)
 
                 If _group(jj).is_carraige Then
-                    Gl.glFrontFace(Gl.GL_CW)
+                    Gl.glFrontFace(Gl.GL_CCW)
                 Else
                     Gl.glFrontFace(Gl.GL_CCW)
                 End If
@@ -3443,6 +3727,7 @@ tryagain:
 
 
         End If
+nothing_else:
         '==========================================
         ' draw selected poly if set to do so.
         'Gl.glDisable(Gl.GL_CULL_FACE)
@@ -3821,7 +4106,7 @@ fuckit:
         OLD_WINDOW_HEIGHT = pb1.Height
         refresh_counter += 1
     End Sub
-    Private Sub draw_main_rec(ByVal p As Point, ByVal w As Integer, ByVal h As Integer)
+    Public Sub draw_main_rec(ByVal p As Point, ByVal w As Integer, ByVal h As Integer)
         Gl.glBegin(Gl.GL_QUADS)
         'G_Buffer.getsize(w, h)
         '  CW...
@@ -4913,23 +5198,45 @@ fuckit:
         Dim x, z As Single
         Dim s As Single = 2.0
         l_timer.Restart()
+        Dim l_scaler As Single = 1.0!
+        Dim l_radius As Single = 0.0!
         While _Started
             need_update()
             angle_offset = 0
-
+            'scale light based on mode
+            If PRIMITIVES_MODE Then
+                l_scaler = 5.0!
+            Else
+                l_scaler = 1.0!
+            End If
             Application.DoEvents()
             If Not gl_busy And Not Me.WindowState = FormWindowState.Minimized Then
+                'scale light based on mode
+                If Not spin_light Then
+                    position0(0) = W_position0(0) * l_scaler
+                    position0(1) = W_position0(1) * l_scaler
+                    position0(2) = W_position0(2) * l_scaler
+                End If
+
+                position1(0) = W_position1(0) * l_scaler
+                position1(1) = W_position1(1) * l_scaler
+                position1(2) = W_position1(2) * l_scaler
+
+                position2(0) = W_position2(0) * l_scaler
+                position2(1) = W_position2(1) * l_scaler
+                position2(2) = W_position2(2) * l_scaler
 
                 If Not w_changing And Not stop_updating Then
                     If spin_light And l_timer.ElapsedMilliseconds > 32 Then
+                        l_radius = Sqrt(position0(0) ^ 2 + position0(2) ^ 2)
                         l_timer.Restart()
-                        l_rot += 0.015
+                        l_rot += 0.03
                         If l_rot > 2 * PI Then
                             l_rot -= (2 * PI)
                         End If
                         sun_angle = l_rot
-                        x = Cos(l_rot) * (sun_radius * s)
-                        z = Sin(l_rot) * (sun_radius * s)
+                        x = Cos(l_rot) * l_radius
+                        z = Sin(l_rot) * l_radius
 
                         position0(0) = x
                         position0(1) = 10.0
@@ -5044,10 +5351,6 @@ fuckit:
                 Gl.glFinish()
                 Gl.glDeleteLists(_object(i).uv2_display_list, 1)
                 Gl.glFinish()
-                Gl.glDeleteLists(_group(i).bsp2_id, 1)
-                Gl.glFinish()
-                Gl.glDeleteLists(_group(i).bsp2_tree_id, 1)
-                Gl.glFinish()
                 '-------
                 Gl.glDeleteTextures(1, _group(i).color_Id)
                 Gl.glFinish()
@@ -5059,8 +5362,32 @@ fuckit:
                 Gl.glFinish()
                 Gl.glDeleteTextures(1, _group(i).metalGMM_Id)
                 Gl.glFinish()
+                Gl.glDeleteTextures(1, _group(i).AM_ID)
+                'atlas textures/ stand alone prmitives
+                Gl.glFinish()
+                Gl.glDeleteTextures(1, _group(i).GBMT_ID)
+                Gl.glFinish()
+                Gl.glDeleteTextures(1, _group(i).MAO_ID)
+                Gl.glFinish()
+                Gl.glDeleteTextures(1, _group(i).AM_Height_id)
+                Gl.glFinish()
+                Gl.glDeleteTextures(1, _group(i).GBMT_Height_id)
+                Gl.glFinish()
+                Gl.glDeleteTextures(1, _group(i).ATLAS_BLEND_ID)
+                Gl.glFinish()
+                Gl.glDeleteTextures(1, _group(i).ATLAS_DIRT_ID)
+                Gl.glFinish()
+                Gl.glDeleteTextures(1, _group(i).AM_atlas)
+                Gl.glFinish()
+                Gl.glDeleteTextures(1, _group(i).GBMT_atlas)
+                Gl.glFinish()
+                Gl.glDeleteTextures(1, _group(i).MAO_atlas)
+                Gl.glFinish()
+
             Next
         End If
+
+
         object_count = 0
         ReDim _group(0)
         _group(0) = New _grps
@@ -6184,7 +6511,7 @@ n_turret:
                 ent.Extract(z_path, ExtractExistingFileAction.DoNotOverwrite)
                 cnt += 1
             Else
-                Debug.WriteLine("missing camo: " + l.camoName)
+                'Debug.WriteLine("missing camo: " + l.camoName)
             End If
         Next
         t.Dispose()
@@ -6535,6 +6862,18 @@ n_turret:
                 itemDefXmlString = ts
 
             End If
+            Dim tar = itemDefXmlString.Split("vbcrlf")
+            Dim seg_path As String = ""
+            For i = 0 To tar.Length - 1
+                If tar(i).Contains("segmentModelLeft") Then
+                    Dim sega = tar(i).Split("left>")
+                    Dim sega1 = sega(1).Split("</")
+                    seg_path = Path.GetDirectoryName(sega1(0)).Replace("\", "/")
+                End If
+            Next
+            If seg_path = "" Then ' 'Dont allow a search with a empty string. It will find every thing!!
+                seg_path = "donkey_breath"
+            End If
             If frmExtract.m_customization.Checked Then ' export customization?
 
                 Try ' catch any exception thrown
@@ -6581,565 +6920,49 @@ n_turret:
             If CRASH_MODE Then
                 crash = "donky_smuggler"
             End If
+            '=============================================================
+            'Look based on tanks name
             For i = 1 To packages.Length - 2
-                For Each ent In packages(i)
-                    If ent.FileName.Contains(ar(2)) Then
-                        If Not ent.FileName.Contains("collision_client") Then
-                            If Not ent.FileName.Contains(crash) Then
-                                If Not models Then
-                                    Select Case all_lods
-                                        Case True
-                                            If ent.FileName.ToLower.Contains("track") Then
-                                                If frmExtract.ext_chassis.Checked Then
-                                                    If ent.FileName.ToLower.Contains("track") Then
-                                                        ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                                                    End If
-                                                End If
-                                            End If
-                                            Select Case frmExtract.ext_chassis.Checked
-                                                Case True
-                                                    If ent.FileName.ToLower.Contains("chassis") Then
-                                                        ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                                                    End If
-                                            End Select
-                                            Select Case frmExtract.ext_hull.Checked
-                                                Case True
-                                                    If ent.FileName.ToLower.Contains("hull") Then
-                                                        ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                                                    End If
-                                            End Select
-                                            Select Case frmExtract.ext_turret.Checked
-                                                Case True
-                                                    If ent.FileName.ToLower.Contains("turret") Then
-                                                        ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                                                    End If
-                                            End Select
-                                            Select Case frmExtract.ext_gun.Checked
-                                                Case True
-                                                    If ent.FileName.ToLower.Contains("gun") Then
-                                                        ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                                                    End If
-                                            End Select
-                                        Case False
-                                            If ent.FileName.ToLower.Contains("track") Then
-                                                If frmExtract.ext_chassis.Checked Then
-                                                    If ent.FileName.ToLower.Contains("track") Then
-                                                        ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                                                    End If
-                                                End If
-                                            End If
-                                            If ent.FileName.ToLower.Contains("lod0") Then
-                                                Select Case frmExtract.ext_chassis.Checked
-                                                    Case True
-                                                        If ent.FileName.ToLower.Contains("chassis") Then
-                                                            ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                                                        End If
-                                                End Select
-                                                Select Case frmExtract.ext_hull.Checked
-                                                    Case True
-                                                        If ent.FileName.ToLower.Contains("hull") Then
-                                                            ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                                                        End If
-                                                End Select
-                                                Select Case frmExtract.ext_turret.Checked
-                                                    Case True
-                                                        If ent.FileName.ToLower.Contains("turret") Then
-                                                            ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                                                        End If
-                                                End Select
-                                                Select Case frmExtract.ext_gun.Checked
-                                                    Case True
-                                                        If ent.FileName.ToLower.Contains("gun") Then
-                                                            ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                                                        End If
-                                                End Select
-                                            End If
-                                    End Select
-                                End If 'if model
-                                Select Case ent.FileName.Contains("dds") And Not frmExtract.no_textures.Checked
-                                    Case True
-                                        Select Case frmExtract.ext_chassis.Checked
-                                            Case True
-                                                If ent.FileName.ToLower.Contains("chassis") Then
-                                                    ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                                                End If
-                                        End Select
-                                        Select Case frmExtract.ext_hull.Checked
-                                            Case True
-                                                If ent.FileName.ToLower.Contains("hull") Then
-                                                    ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                                                End If
-                                        End Select
-                                        Select Case frmExtract.ext_turret.Checked
-                                            Case True
-                                                If ent.FileName.ToLower.Contains("turret") Then
-                                                    ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                                                End If
-                                        End Select
-                                        Select Case frmExtract.ext_gun.Checked
-                                            Case True
-                                                If ent.FileName.ToLower.Contains("gun") Then
-                                                    ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                                                End If
-                                        End Select
-                                End Select
-                            End If ' crash
-                        End If ' collision_client
-                    End If ' filename match
-                Next ' next entry
-            Next 'next package
+                search_and_extract(packages(i), ar(2))
+            Next
             ' now check package_2 data
             Dim start_from As Integer = 5 ' This might change and its used in 2 places
             For i = start_from To 10
-                For Each ent In packages_2(i)
-                    If ent.FileName.Contains(ar(2)) Then
-                        If Not ent.FileName.Contains("collision_client") Then
-                            If Not ent.FileName.Contains(crash) Then
-                                If Not models Then
-                                    Select Case all_lods
-                                        Case True
-                                            If ent.FileName.ToLower.Contains("track") Then
-                                                If frmExtract.ext_chassis.Checked Then
-                                                    If ent.FileName.ToLower.Contains("track") Then
-                                                        ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                                                    End If
-                                                End If
-                                            End If
-                                            Select Case frmExtract.ext_chassis.Checked
-                                                Case True
-                                                    If ent.FileName.ToLower.Contains("chassis") Then
-                                                        ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                                                    End If
-                                            End Select
-                                            Select Case frmExtract.ext_hull.Checked
-                                                Case True
-                                                    If ent.FileName.ToLower.Contains("hull") Then
-                                                        ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                                                    End If
-                                            End Select
-                                            Select Case frmExtract.ext_turret.Checked
-                                                Case True
-                                                    If ent.FileName.ToLower.Contains("turret") Then
-                                                        ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                                                    End If
-                                            End Select
-                                            Select Case frmExtract.ext_gun.Checked
-                                                Case True
-                                                    If ent.FileName.ToLower.Contains("gun") Then
-                                                        ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                                                    End If
-                                            End Select
-                                        Case False
-                                            If ent.FileName.ToLower.Contains("track") Then
-                                                If frmExtract.ext_chassis.Checked Then
-                                                    If ent.FileName.ToLower.Contains("track") Then
-                                                        ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                                                    End If
-                                                End If
-                                            End If
-                                            If ent.FileName.ToLower.Contains("lod0") Then
-                                                Select Case frmExtract.ext_chassis.Checked
-                                                    Case True
-                                                        If ent.FileName.ToLower.Contains("chassis") Then
-                                                            ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                                                        End If
-                                                End Select
-                                                Select Case frmExtract.ext_hull.Checked
-                                                    Case True
-                                                        If ent.FileName.ToLower.Contains("hull") Then
-                                                            ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                                                        End If
-                                                End Select
-                                                Select Case frmExtract.ext_turret.Checked
-                                                    Case True
-                                                        If ent.FileName.ToLower.Contains("turret") Then
-                                                            ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                                                        End If
-                                                End Select
-                                                Select Case frmExtract.ext_gun.Checked
-                                                    Case True
-                                                        If ent.FileName.ToLower.Contains("gun") Then
-                                                            ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                                                        End If
-                                                End Select
-                                            End If
-                                    End Select
-                                End If 'if model
-                                Select Case ent.FileName.Contains("dds") And Not frmExtract.no_textures.Checked
-                                    Case True
-                                        Select Case frmExtract.ext_chassis.Checked
-                                            Case True
-                                                If ent.FileName.ToLower.Contains("chassis") Then
-                                                    ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                                                End If
-                                        End Select
-                                        Select Case frmExtract.ext_hull.Checked
-                                            Case True
-                                                If ent.FileName.ToLower.Contains("hull") Then
-                                                    ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                                                End If
-                                        End Select
-                                        Select Case frmExtract.ext_turret.Checked
-                                            Case True
-                                                If ent.FileName.ToLower.Contains("turret") Then
-                                                    ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                                                End If
-                                        End Select
-                                        Select Case frmExtract.ext_gun.Checked
-                                            Case True
-                                                If ent.FileName.ToLower.Contains("gun") Then
-                                                    ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                                                End If
-                                        End Select
-                                End Select
-                            End If ' crash
-                        End If ' collision_client
-                    End If ' filename match
-                Next ' next entry
-            Next 'next package
+                search_and_extract(packages_2(i), ar(2))
+            Next
             ' now check package_hd data
             For i = 1 To packages_HD.Length - 2
-                If packages_HD(i) IsNot Nothing Then
-
-                    For Each ent In packages_HD(i)
-                        If ent.FileName.Contains(ar(2)) Then
-                            If Not ent.FileName.Contains("collision_client") Then
-                                If Not ent.FileName.Contains(crash) Then
-                                    If Not models Then
-                                        Select Case all_lods
-                                            Case True
-                                                If ent.FileName.ToLower.Contains("track") Then
-                                                    If frmExtract.ext_chassis.Checked Then
-                                                        If ent.FileName.ToLower.Contains("track") Then
-                                                            ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                                                        End If
-                                                    End If
-                                                End If
-                                                Select Case frmExtract.ext_chassis.Checked
-                                                    Case True
-                                                        If ent.FileName.ToLower.Contains("chassis") Then
-                                                            ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                                                        End If
-                                                End Select
-                                                Select Case frmExtract.ext_hull.Checked
-                                                    Case True
-                                                        If ent.FileName.ToLower.Contains("hull") Then
-                                                            ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                                                        End If
-                                                End Select
-                                                Select Case frmExtract.ext_turret.Checked
-                                                    Case True
-                                                        If ent.FileName.ToLower.Contains("turret") Then
-                                                            ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                                                        End If
-                                                End Select
-                                                Select Case frmExtract.ext_gun.Checked
-                                                    Case True
-                                                        If ent.FileName.ToLower.Contains("gun") Then
-                                                            ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                                                        End If
-                                                End Select
-                                            Case False
-                                                If ent.FileName.ToLower.Contains("track") Then
-                                                    If frmExtract.ext_chassis.Checked Then
-                                                        If ent.FileName.ToLower.Contains("track") Then
-                                                            ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                                                        End If
-                                                    End If
-                                                End If
-                                                If ent.FileName.ToLower.Contains("lod0") Then
-                                                    Select Case frmExtract.ext_chassis.Checked
-                                                        Case True
-                                                            If ent.FileName.ToLower.Contains("chassis") Then
-                                                                ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                                                            End If
-                                                    End Select
-                                                    Select Case frmExtract.ext_hull.Checked
-                                                        Case True
-                                                            If ent.FileName.ToLower.Contains("hull") Then
-                                                                ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                                                            End If
-                                                    End Select
-                                                    Select Case frmExtract.ext_turret.Checked
-                                                        Case True
-                                                            If ent.FileName.ToLower.Contains("turret") Then
-                                                                ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                                                            End If
-                                                    End Select
-                                                    Select Case frmExtract.ext_gun.Checked
-                                                        Case True
-                                                            If ent.FileName.ToLower.Contains("gun") Then
-                                                                ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                                                            End If
-                                                    End Select
-                                                End If
-                                        End Select
-                                    End If 'if model
-                                    Select Case ent.FileName.Contains("dds") And Not frmExtract.no_textures.Checked
-                                        Case True
-                                            Select Case frmExtract.ext_chassis.Checked
-                                                Case True
-                                                    If ent.FileName.ToLower.Contains("chassis") Then
-                                                        ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                                                        p = ent.FileName
-                                                    End If
-                                            End Select
-                                            Select Case frmExtract.ext_hull.Checked
-                                                Case True
-                                                    If ent.FileName.ToLower.Contains("hull") Then
-                                                        ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                                                        p = ent.FileName
-                                                    End If
-                                            End Select
-                                            Select Case frmExtract.ext_turret.Checked
-                                                Case True
-                                                    If ent.FileName.ToLower.Contains("turret") Then
-                                                        ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                                                        p = ent.FileName
-                                                    End If
-                                            End Select
-                                            Select Case frmExtract.ext_gun.Checked
-                                                Case True
-                                                    If ent.FileName.ToLower.Contains("gun") Then
-                                                        ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                                                        p = ent.FileName
-                                                    End If
-                                            End Select
-                                    End Select
-                                End If ' crash
-                            End If ' collision_client
-                        End If ' filename match
-                    Next ' next entry
-                End If 'isnot nothing
-            Next 'next package
+                search_and_extract(packages_HD(i), ar(2))
+            Next
             'now check package_hd_2 data
             For i = start_from To packages_HD.Length - 2
-                If packages_HD_2(i) IsNot Nothing Then
-
-                    For Each ent In packages_HD_2(i)
-                        If ent.FileName.Contains(ar(2)) Then
-                            If Not ent.FileName.Contains("collision_client") Then
-                                If Not ent.FileName.Contains(crash) Then
-                                    If Not models Then
-                                        Select Case all_lods
-                                            Case True
-                                                If ent.FileName.ToLower.Contains("track") Then
-                                                    If frmExtract.ext_chassis.Checked Then
-                                                        If ent.FileName.ToLower.Contains("track") Then
-                                                            ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                                                        End If
-                                                    End If
-                                                End If
-                                                Select Case frmExtract.ext_chassis.Checked
-                                                    Case True
-                                                        If ent.FileName.ToLower.Contains("chassis") Then
-                                                            ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                                                        End If
-                                                End Select
-                                                Select Case frmExtract.ext_hull.Checked
-                                                    Case True
-                                                        If ent.FileName.ToLower.Contains("hull") Then
-                                                            ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                                                        End If
-                                                End Select
-                                                Select Case frmExtract.ext_turret.Checked
-                                                    Case True
-                                                        If ent.FileName.ToLower.Contains("turret") Then
-                                                            ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                                                        End If
-                                                End Select
-                                                Select Case frmExtract.ext_gun.Checked
-                                                    Case True
-                                                        If ent.FileName.ToLower.Contains("gun") Then
-                                                            ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                                                        End If
-                                                End Select
-                                            Case False
-                                                If ent.FileName.ToLower.Contains("track") Then
-                                                    If frmExtract.ext_chassis.Checked Then
-                                                        If ent.FileName.ToLower.Contains("track") Then
-                                                            ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                                                        End If
-                                                    End If
-                                                End If
-                                                If ent.FileName.ToLower.Contains("lod0") Then
-                                                    Select Case frmExtract.ext_chassis.Checked
-                                                        Case True
-                                                            If ent.FileName.ToLower.Contains("chassis") Then
-                                                                ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                                                            End If
-                                                    End Select
-                                                    Select Case frmExtract.ext_hull.Checked
-                                                        Case True
-                                                            If ent.FileName.ToLower.Contains("hull") Then
-                                                                ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                                                            End If
-                                                    End Select
-                                                    Select Case frmExtract.ext_turret.Checked
-                                                        Case True
-                                                            If ent.FileName.ToLower.Contains("turret") Then
-                                                                ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                                                            End If
-                                                    End Select
-                                                    Select Case frmExtract.ext_gun.Checked
-                                                        Case True
-                                                            If ent.FileName.ToLower.Contains("gun") Then
-                                                                ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                                                            End If
-                                                    End Select
-                                                End If
-                                        End Select
-                                    End If 'if model
-                                    Select Case ent.FileName.Contains("dds") And Not frmExtract.no_textures.Checked
-                                        Case True
-                                            Select Case frmExtract.ext_chassis.Checked
-                                                Case True
-                                                    If ent.FileName.ToLower.Contains("chassis") Then
-                                                        ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                                                        p = ent.FileName
-                                                    End If
-                                            End Select
-                                            Select Case frmExtract.ext_hull.Checked
-                                                Case True
-                                                    If ent.FileName.ToLower.Contains("hull") Then
-                                                        ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                                                        p = ent.FileName
-                                                    End If
-                                            End Select
-                                            Select Case frmExtract.ext_turret.Checked
-                                                Case True
-                                                    If ent.FileName.ToLower.Contains("turret") Then
-                                                        ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                                                        p = ent.FileName
-                                                    End If
-                                            End Select
-                                            Select Case frmExtract.ext_gun.Checked
-                                                Case True
-                                                    If ent.FileName.ToLower.Contains("gun") Then
-                                                        ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                                                        p = ent.FileName
-                                                    End If
-                                            End Select
-                                    End Select
-                                End If ' crash
-                            End If ' collision_client
-                        End If ' filename match
-                    Next ' next entry
-                End If 'isnot nothing
-            Next 'next package
+                search_and_extract(packages_HD_2(i), ar(2))
+            Next
             'now check built package
-            If shared_contents_build IsNot Nothing Then
+            search_and_extract(shared_contents_build, ar(2))
+            '=============================================================
+            'This has to be done because some tanks share the tracks with others.
+            'I'll need to update the wotmod builder to deal with these or leave it?
+            'look based on track path..
+            For i = 1 To packages.Length - 2
+                search_and_extract(packages(i), seg_path)
+            Next
+            ' now check package_2 data
+            For i = start_from To 10
+                search_and_extract(packages_2(i), seg_path)
+            Next
+            ' now check package_hd data
+            For i = 1 To packages_HD.Length - 2
+                search_and_extract(packages_HD(i), seg_path)
+            Next
+            'now check package_hd_2 data
+            For i = start_from To packages_HD.Length - 2
+                search_and_extract(packages_HD_2(i), seg_path)
+            Next
+            'now check built package
+            search_and_extract(shared_contents_build, seg_path)
 
-                For Each ent In shared_contents_build
-                    If ent.FileName.Contains(ar(2)) Then
-                        If Not ent.FileName.Contains("collision_client") Then
-                            If Not ent.FileName.Contains(crash) Then
-                                If Not models Then
-                                    Select Case all_lods
-                                        Case True
-                                            If ent.FileName.ToLower.Contains("track") Then
-                                                If frmExtract.ext_chassis.Checked Then
-                                                    If ent.FileName.ToLower.Contains("track") Then
-                                                        ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                                                    End If
-                                                End If
-                                            End If
-                                            Select Case frmExtract.ext_chassis.Checked
-                                                Case True
-                                                    If ent.FileName.ToLower.Contains("chassis") Then
-                                                        ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                                                    End If
-                                            End Select
-                                            Select Case frmExtract.ext_hull.Checked
-                                                Case True
-                                                    If ent.FileName.ToLower.Contains("hull") Then
-                                                        ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                                                    End If
-                                            End Select
-                                            Select Case frmExtract.ext_turret.Checked
-                                                Case True
-                                                    If ent.FileName.ToLower.Contains("turret") Then
-                                                        ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                                                    End If
-                                            End Select
-                                            Select Case frmExtract.ext_gun.Checked
-                                                Case True
-                                                    If ent.FileName.ToLower.Contains("gun") Then
-                                                        ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                                                    End If
-                                            End Select
-                                        Case False
-                                            If ent.FileName.ToLower.Contains("track") Then
-                                                If frmExtract.ext_chassis.Checked Then
-                                                    If ent.FileName.ToLower.Contains("track") Then
-                                                        ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                                                    End If
-                                                End If
-                                            End If
-                                            If ent.FileName.ToLower.Contains("lod0") Then
-                                                Select Case frmExtract.ext_chassis.Checked
-                                                    Case True
-                                                        If ent.FileName.ToLower.Contains("chassis") Then
-                                                            ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                                                        End If
-                                                End Select
-                                                Select Case frmExtract.ext_hull.Checked
-                                                    Case True
-                                                        If ent.FileName.ToLower.Contains("hull") Then
-                                                            ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                                                        End If
-                                                End Select
-                                                Select Case frmExtract.ext_turret.Checked
-                                                    Case True
-                                                        If ent.FileName.ToLower.Contains("turret") Then
-                                                            ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                                                        End If
-                                                End Select
-                                                Select Case frmExtract.ext_gun.Checked
-                                                    Case True
-                                                        If ent.FileName.ToLower.Contains("gun") Then
-                                                            ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                                                        End If
-                                                End Select
-                                            End If
-                                    End Select
-                                End If 'if model
-                                Select Case ent.FileName.Contains("dds") And Not frmExtract.no_textures.Checked
-                                    Case True
-                                        Select Case frmExtract.ext_chassis.Checked
-                                            Case True
-                                                If ent.FileName.ToLower.Contains("chassis") Then
-                                                    ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                                                    p = ent.FileName
-                                                End If
-                                        End Select
-                                        Select Case frmExtract.ext_hull.Checked
-                                            Case True
-                                                If ent.FileName.ToLower.Contains("hull") Then
-                                                    ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                                                    p = ent.FileName
-                                                End If
-                                        End Select
-                                        Select Case frmExtract.ext_turret.Checked
-                                            Case True
-                                                If ent.FileName.ToLower.Contains("turret") Then
-                                                    ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                                                    p = ent.FileName
-                                                End If
-                                        End Select
-                                        Select Case frmExtract.ext_gun.Checked
-                                            Case True
-                                                If ent.FileName.ToLower.Contains("gun") Then
-                                                    ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                                                    p = ent.FileName
-                                                End If
-                                        End Select
-                                End Select
-                            End If ' crash
-                        End If ' collision_client
-                    End If ' filename match
-                Next ' next entry
-            End If 'isnot nothing
+
             If frmExtract.create_work_area_cb.Checked And Not frmExtract.no_textures.Checked Then
                 p = My.Settings.res_mods_path + "\" + Path.GetDirectoryName(p)
                 Dim wap = p + "\Work Area"
@@ -7170,7 +6993,127 @@ n_turret:
         End Try
         TC1.Enabled = True
     End Sub
-    '==========================================
+    Private Sub search_and_extract(ByRef package As ZipFile, ByRef search_name As String)
+        Dim crash As String = "crash"
+        If CRASH_MODE Then
+            crash = "donky_smuggler"
+        End If
+        Dim p As String = ""
+        If package IsNot Nothing Then
+
+            For Each ent In package
+                If ent.FileName.Contains(search_name) Then
+                    If Not ent.FileName.Contains("collision_client") Then
+                        If Not ent.FileName.Contains(crash) Then
+                            If Not frmExtract.no_models.Checked Then
+                                Select Case frmExtract.all_lods_rb.Checked
+                                    Case True
+                                        If ent.FileName.ToLower.Contains("track") Then
+                                            If frmExtract.ext_chassis.Checked Then
+                                                If ent.FileName.ToLower.Contains("track") Then
+                                                    ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
+                                                End If
+                                            End If
+                                        End If
+                                        Select Case frmExtract.ext_chassis.Checked
+                                            Case True
+                                                If ent.FileName.ToLower.Contains("chassis") Then
+                                                    ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
+                                                End If
+                                        End Select
+                                        Select Case frmExtract.ext_hull.Checked
+                                            Case True
+                                                If ent.FileName.ToLower.Contains("hull") Then
+                                                    ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
+                                                End If
+                                        End Select
+                                        Select Case frmExtract.ext_turret.Checked
+                                            Case True
+                                                If ent.FileName.ToLower.Contains("turret") Then
+                                                    ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
+                                                End If
+                                        End Select
+                                        Select Case frmExtract.ext_gun.Checked
+                                            Case True
+                                                If ent.FileName.ToLower.Contains("gun") Then
+                                                    ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
+                                                End If
+                                        End Select
+                                    Case False
+                                        If ent.FileName.ToLower.Contains("track") Then
+                                            If frmExtract.ext_chassis.Checked Then
+                                                If ent.FileName.ToLower.Contains("track") Then
+                                                    ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
+                                                End If
+                                            End If
+                                        End If
+                                        If ent.FileName.ToLower.Contains("lod0") Then
+                                            Select Case frmExtract.ext_chassis.Checked
+                                                Case True
+                                                    If ent.FileName.ToLower.Contains("chassis") Then
+                                                        ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
+                                                    End If
+                                            End Select
+                                            Select Case frmExtract.ext_hull.Checked
+                                                Case True
+                                                    If ent.FileName.ToLower.Contains("hull") Then
+                                                        ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
+                                                    End If
+                                            End Select
+                                            Select Case frmExtract.ext_turret.Checked
+                                                Case True
+                                                    If ent.FileName.ToLower.Contains("turret") Then
+                                                        ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
+                                                    End If
+                                            End Select
+                                            Select Case frmExtract.ext_gun.Checked
+                                                Case True
+                                                    If ent.FileName.ToLower.Contains("gun") Then
+                                                        ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
+                                                    End If
+                                            End Select
+                                        End If
+                                End Select
+                            End If 'if model
+                            Select Case ent.FileName.Contains("dds") And Not frmExtract.no_textures.Checked
+                                Case True
+                                    Select Case frmExtract.ext_chassis.Checked
+                                        Case True
+                                            If ent.FileName.ToLower.Contains("chassis") Then
+                                                ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
+                                                p = ent.FileName
+                                            End If
+                                    End Select
+                                    Select Case frmExtract.ext_hull.Checked
+                                        Case True
+                                            If ent.FileName.ToLower.Contains("hull") Then
+                                                ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
+                                                p = ent.FileName
+                                            End If
+                                    End Select
+                                    Select Case frmExtract.ext_turret.Checked
+                                        Case True
+                                            If ent.FileName.ToLower.Contains("turret") Then
+                                                ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
+                                                p = ent.FileName
+                                            End If
+                                    End Select
+                                    Select Case frmExtract.ext_gun.Checked
+                                        Case True
+                                            If ent.FileName.ToLower.Contains("gun") Then
+                                                ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
+                                                p = ent.FileName
+                                            End If
+                                    End Select
+                            End Select
+                        End If ' crash
+                    End If ' collision_client
+                End If ' filename match
+            Next ' next entry
+        End If 'isnot nothing
+
+    End Sub
+
 
 #Region "menu_button_functions"
     Private Sub m_load_Click(sender As Object, e As EventArgs) Handles m_load.Click
@@ -8298,13 +8241,14 @@ n_turret:
         frmComponentView.splitter.Panel1.Controls.Clear()
         frmComponentView.splitter.Panel2.Controls.Clear()
 
-        m_load_textures.Checked = False
+        m_load_textures.Checked = True
         If Not build_primitive_data(False) Then
             MsgBox("Primitive failed to open!", MsgBoxStyle.Exclamation, "Load Error!")
             PRIMITIVES_MODE = False
             m_load_textures.Checked = True
             Return
         End If
+        TANK_NAME = Path.GetFileName(file_name)
         m_hide_show_components.Enabled = True
         m_set_vertex_winding_order.Enabled = True
         m_ExportExtract.Enabled = True

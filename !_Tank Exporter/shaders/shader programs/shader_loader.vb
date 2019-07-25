@@ -7,6 +7,7 @@ Imports Tao.Platform.Windows
 Module shader_loader
     Public shader_list As New shader_list_
     Public Class shader_list_
+        Public AtlasPBR_shader As Integer
         Public normal_shader As Integer
         Public mixer_shader As Integer
         Public tank_shader As Integer
@@ -552,8 +553,60 @@ Module shader_loader
         CE_camo_tile = Gl.glGetUniformLocation(shader_list.camoExporter_shader, "camo_tile")
     End Sub
 
+    Public atlasPBR_atlas_TILE, atlasPBR_sizes, atlasPBR_g_tile0Tint, atlasPBR_g_tile1Tint, atlasPBR_g_tile2Tint As Integer
+    Public atlasPBR_g_dirtColor, atlasPBR_use_normapMap, atlasPBR_UVrepete As Integer
+    Public atlasPBR_colorMap, atlasPBR_colorMap2, atlasPBR_normalMap, atlasPBR_Tex_Size As Integer
+    Public atlasPBR_atlas_AM_map, atlasPBR_atlas_GBMT_map, atlasPBR_atlas_MAO_map, atlasPBR_BLEND_map, atlasPBR_DIRT_map As Integer
+    Public atlasPBR_AM_map, atlasPBR_GBMT_map, atlasPBR_MAO_map, atlasPBR_image_size As Integer
+    Public atlasPBR_IS_ATLAS, atlasPBR_USE_UV2, atlasPBR_ambient, atlasPBR_specular, atlasPBR_brightness As Integer
+    Public atlasPBR_INDEXES, atlasPBR_is_ANM, atlasPBR_GMM_Map, atlasPBR_alpha_enable, atlasPBR_alpha_value As Integer
+    '==============================================================================================================
+    Public Sub set_AtlasPBR_shader_variables()
+        atlasPBR_atlas_AM_map = Gl.glGetUniformLocation(shader_list.AtlasPBR_shader, "ATLAS_AM_Map")
+        atlasPBR_atlas_GBMT_map = Gl.glGetUniformLocation(shader_list.AtlasPBR_shader, "ATLAS_GBMT_Map")
+        atlasPBR_atlas_MAO_map = Gl.glGetUniformLocation(shader_list.AtlasPBR_shader, "ATLAS_MAO_Map")
+
+        'atlasPBR_AM_map = Gl.glGetUniformLocation(shader_list.AtlasPBR_shader, "AM_Map")
+        'atlasPBR_GBMT_map = Gl.glGetUniformLocation(shader_list.AtlasPBR_shader, "GBMT_Map")
+        'atlasPBR_MAO_map = Gl.glGetUniformLocation(shader_list.AtlasPBR_shader, "MAO_Map")
+
+
+        atlasPBR_BLEND_map = Gl.glGetUniformLocation(shader_list.AtlasPBR_shader, "ATLAS_BLEND_MAP")
+        atlasPBR_DIRT_map = Gl.glGetUniformLocation(shader_list.AtlasPBR_shader, "ATLAS_DIRT_MAP")
+
+        atlasPBR_colorMap = Gl.glGetUniformLocation(shader_list.AtlasPBR_shader, "colorMap")
+        atlasPBR_colorMap2 = Gl.glGetUniformLocation(shader_list.AtlasPBR_shader, "colorMap2")
+        atlasPBR_normalMap = Gl.glGetUniformLocation(shader_list.AtlasPBR_shader, "normalMap")
+        atlasPBR_GMM_Map = Gl.glGetUniformLocation(shader_list.AtlasPBR_shader, "GMM_map")
+
+        atlasPBR_atlas_TILE = Gl.glGetUniformLocation(shader_list.AtlasPBR_shader, "atlas_TILE")
+        atlasPBR_sizes = Gl.glGetUniformLocation(shader_list.AtlasPBR_shader, "atlas_sizes")
+        atlasPBR_INDEXES = Gl.glGetUniformLocation(shader_list.AtlasPBR_shader, "atlas_indexes")
+
+        atlasPBR_g_tile0Tint = Gl.glGetUniformLocation(shader_list.AtlasPBR_shader, "g_tile0Tint")
+        atlasPBR_g_tile1Tint = Gl.glGetUniformLocation(shader_list.AtlasPBR_shader, "g_tile1Tint")
+        atlasPBR_g_tile2Tint = Gl.glGetUniformLocation(shader_list.AtlasPBR_shader, "g_tile2Tint")
+        atlasPBR_g_dirtColor = Gl.glGetUniformLocation(shader_list.AtlasPBR_shader, "g_dirtColor")
+
+        atlasPBR_IS_ATLAS = Gl.glGetUniformLocation(shader_list.AtlasPBR_shader, "IS_ATLAS")
+        atlasPBR_USE_UV2 = Gl.glGetUniformLocation(shader_list.AtlasPBR_shader, "use_UV2")
+
+        atlasPBR_ambient = Gl.glGetUniformLocation(shader_list.AtlasPBR_shader, "A_level")
+        atlasPBR_specular = Gl.glGetUniformLocation(shader_list.AtlasPBR_shader, "S_level")
+        atlasPBR_brightness = Gl.glGetUniformLocation(shader_list.AtlasPBR_shader, "T_level")
+        atlasPBR_use_normapMap = Gl.glGetUniformLocation(shader_list.AtlasPBR_shader, "use_normapMAP")
+        atlasPBR_is_ANM = Gl.glGetUniformLocation(shader_list.AtlasPBR_shader, "is_ANM_Map")
+        atlasPBR_UVrepete = Gl.glGetUniformLocation(shader_list.AtlasPBR_shader, "UV_tiling")
+        atlasPBR_Tex_Size = Gl.glGetUniformLocation(shader_list.AtlasPBR_shader, "tex_size")
+        atlasPBR_alpha_enable = Gl.glGetUniformLocation(shader_list.AtlasPBR_shader, "alpha_enable")
+        atlasPBR_alpha_value = Gl.glGetUniformLocation(shader_list.AtlasPBR_shader, "alpha_value")
+        atlasPBR_image_size = Gl.glGetUniformLocation(shader_list.AtlasPBR_shader, "image_size")
+    End Sub
+
+
 
     Public Sub set_shader_variables()
+        set_AtlasPBR_shader_variables()
         set_tank_shader_variables()
         set_normal_shader_variables()
         set_mixer_shader_variables()

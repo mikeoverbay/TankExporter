@@ -43,8 +43,6 @@ Public Class frmModelInfo
             Next
             strings(n) = ""
             n += 1
-        End If
-        If FBX_LOADED Then
             For i = 1 To fbxgrp.Length - 1
                 strings(n) = pad_string("ID Number: " + i.ToString("00"))
                 strings(n) += "Name: " + fbxgrp(i).name
@@ -55,7 +53,7 @@ Public Class frmModelInfo
         strings(n) = ""
         n += 1
         'MaxiPad = 0
-        If MODEL_LOADED And Not PRIMITIVES_MODE Then
+        If MODEL_LOADED Then
             For i = 1 To _group.Length - 1
                 Dim name = _group(i).name.Split(":")
                 If Path.GetFileNameWithoutExtension(name(0)).Length > MaxiPad Then
@@ -77,10 +75,8 @@ Public Class frmModelInfo
                 strings(n) += pad_string2("Has Colour: " + _group(i).has_color.ToString)
                 n += 1
             Next
-        End If
-        strings(n) = ""
-        n += 1
-        If MODEL_LOADED Then
+            strings(n) = ""
+            n += 1
             For i = 1 To object_count
                 strings(n) = pad_string("ID Number: " + i.ToString("00"))
                 strings(n) += "name: " + _group(i).name

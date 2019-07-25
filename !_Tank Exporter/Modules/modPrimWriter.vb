@@ -764,7 +764,7 @@ found_it:
         'first find out whats been deleted
         For i = 0 To v_boneGroups.Length - 1
             Dim cnt = v_boneGroups(i).nodeCnt
-            Debug.WriteLine(v_boneGroups(i).groupName + " ==========================")
+            'Debug.WriteLine(v_boneGroups(i).groupName + " ==========================")
             For j = 0 To v_boneGroups(i).node_list.Length - 1
                 If v_boneGroups(i).node_list(j) IsNot Nothing Then
 
@@ -835,7 +835,7 @@ found_it:
                                 Return
                             End If
                             visual_changed = True
-                            Debug.WriteLine("found: grp id:" + i.ToString + "  idx:" + k.ToString)
+                            'Debug.WriteLine("found: grp id:" + i.ToString + "  idx:" + k.ToString)
                         End If
 
                     End If
@@ -1170,51 +1170,8 @@ found_section:
         '-------------------------------------------------------------
 
         'write colored vertice data if the model has them.
-        Dim has_color As Boolean = False ' flag for wrting table at the end of the .primitive
-        Dim color_data_size As Integer
-        pnter = m_groups(ID).list(0)
-        If PRIMITIVES_MODE Then
-            p = br.BaseStream.Position
+        'Color is NEVER put back in the primtive OR Visual file!
 
-            If fbxgrp(pnter).has_Vcolor = 1 Then
-
-                Dim c_p1 = "PBVScolour".ToCharArray
-                ReDim Preserve c_p1(67)
-                Dim c_p2 = "colour".ToCharArray
-                ReDim Preserve c_p2(63)
-                br.Write(c_p1)
-                br.Write(c_p2)
-                br.Write(total_verts)
-
-                has_color = True ' yes.. make it true
-
-                For i = 1 To obj_cnt
-                    pnter = m_groups(2).list(i - 1)
-                    Dim c = fbxgrp(pnter).nVertices_
-                    For z = 0 To c - 1
-                        br.Write(fbxgrp(pnter).vertices(z).r)
-                        br.Write(fbxgrp(pnter).vertices(z).g)
-                        br.Write(fbxgrp(pnter).vertices(z).b)
-                        br.Write(fbxgrp(pnter).vertices(z).a)
-                    Next
-                Next
-
-                l = (br.BaseStream.Position) Mod 4L
-                Console.Write("color_pnt" + vbTab + "base {0} , mod-4 {1} " + vbCrLf, br.BaseStream.Position, (br.BaseStream.Position) Mod 4L)
-                If l > 0 Then
-                    For i = 1 To 4 - l
-                        br.Write(b)
-                        color_data_size += 1
-                    Next
-                End If
-                color_data_size = br.BaseStream.Position - p
-            End If
-        Else
-
-        End If
-        '-------------------------------------------------------------
-
-        'write_BSP2(ID)
         '-------------------------------------------------------------
 
         Dim header_length As UInt32 = 68 + 64
@@ -1269,8 +1226,7 @@ found_section:
                 br.Write(b)
             Next
             offset += i - 1
-        End If
-        '-------------------------------------------------------------
+        End If        '-------------------------------------------------------------
         If save_has_uv2 And PRIMITIVES_MODE Then
             'write uv2 table entry
             tsa = "uv2".ToArray
@@ -1290,179 +1246,133 @@ found_section:
         End If
 no_UV2EVER:
         '-------------------------------------------------------------
-        If has_color Then
-            'write uv2 table entry
-            tsa = "colour".ToArray
-            br.Write(color_data_size)
-            br.Write(dummy) : br.Write(dummy) : br.Write(dummy) : br.Write(dummy)
-            br.Write(Convert.ToUInt32(tsa.Length))
-            br.Write(tsa)
-            offset += tsa.Length + 24
-            l = (br.BaseStream.Position) Mod 4L
-            Console.Write("color_pnt" + vbTab + "base {0} , mod-4 {1} " + vbCrLf, br.BaseStream.Position, (br.BaseStream.Position) Mod 4L)
-            If l > 0 Then
-                For i = 1 To 4 - l
-                    br.Write(b)
-                Next
-                offset += i - 1
-            End If
-        End If
 
-        '-------------------------------------------------------------
-        'write BSP2 if it exists
-        GoTo noBSP_anymore
-        For i = 1 To obj_cnt
-            pnter = m_groups(ID).list(i - 1)
+        br.Write(offset) ' start of entries at the end of the file.
 
-            If _group(pnter).bsp2_id > 0 Then
-
-                tsa = "bsp2".ToArray
-                br.Write(bsp2_size)
-                br.Write(dummy) : br.Write(dummy) : br.Write(dummy) : br.Write(dummy)
-                br.Write(Convert.ToUInt32(tsa.Length))
-                br.Write(tsa)
-                offset += tsa.Length + 24
-                l = (br.BaseStream.Position) Mod 4L
-                Console.Write("bsp2_pnt" + vbTab + "base {0} , mod-4 {1} " + vbCrLf, br.BaseStream.Position, (br.BaseStream.Position) Mod 4L)
-                If l > 0 Then
-                    For j = 1 To 4 - l
-                        br.Write(b)
-                    Next
-                    offset += j - 1
-                End If
-                '--- bsp2_materials
-                tsa = "bsp2_materials".ToArray
-                br.Write(bsp2_mat_size)
-                br.Write(dummy) : br.Write(dummy) : br.Write(dummy) : br.Write(dummy)
-                br.Write(Convert.ToUInt32(tsa.Length))
-                br.Write(tsa)
-                offset += tsa.Length + 24
-                l = (br.BaseStream.Position) Mod 4L
-                Console.Write("bsp2_m_pnt" + vbTab + "base {0} , mod-4 {1} " + vbCrLf + "---end ---" + vbCrLf, br.BaseStream.Position, (br.BaseStream.Position) Mod 4L)
-                If l > 0 Then
-                    For j = 1 To 4 - l
-                        br.Write(b)
-                    Next
-                    offset += j - 1
-                End If
-                Exit For
-            End If
-        Next
-noBSP_anymore:
-        br.Write(offset)
         'thats all folks !!
         br.Close()
         r.Close()
         r.Dispose()
         r = Nothing
-        If Not PRIMITIVES_MODE Then 'dont worry about the visual if we are writing a non tank primitive
-            Dim f = XML_Strings(m_groups(ID).m_type)
-            f = f.Replace(vbCr, "")
-            Dim pos As Integer = 0
-            OBJECT_WAS_INSERTED = m_groups(ID).new_objects
+        Dim f = XML_Strings(m_groups(ID).m_type)
+        f = f.Replace(vbCr, "")
+        Dim pos As Integer = 0
+        OBJECT_WAS_INSERTED = m_groups(ID).new_objects
 
-            If OBJECT_WAS_INSERTED Then
+        If OBJECT_WAS_INSERTED Then
 
 
-                '------------------------
+            '------------------------
 
-                Dim inst_start As Integer = 0
-                Dim pgrp As Integer = 0
-                For pos = 0 To m_groups(ID).cnt
-                    If f.Contains("<PG_ID>" + pos.ToString + "</PG_ID>") Then
-                        inst_start = InStr(f, "<PG_ID>" + pos.ToString + "</PG_ID>")
-                        pgrp += 1
-                    End If
-                Next
-
-                pos = 0
-                Dim templateColorOnly As String
-                Dim templateNormal As String
-                Dim templateNormalSpec As String
-                Dim templatePBR As String = File.ReadAllText(Application.StartupPath + "\Templates\templatePBR.txt")
-                If ID = 4 Then
-                    templateColorOnly = File.ReadAllText(Application.StartupPath + "\Templates\templateColorOnlyGUN.txt")
-                    templateNormal = File.ReadAllText(Application.StartupPath + "\Templates\templateNormalGUN.txt")
-                    templateNormalSpec = File.ReadAllText(Application.StartupPath + "\Templates\templateNormalSpecGUN.txt")
-                Else
-                    templateColorOnly = File.ReadAllText(Application.StartupPath + "\Templates\templateColorOnly.txt")
-                    templateNormal = File.ReadAllText(Application.StartupPath + "\Templates\templateNormal.txt")
-                    templateNormalSpec = File.ReadAllText(Application.StartupPath + "\Templates\templateNormalSpec.txt")
+            Dim inst_start As Integer = 0
+            Dim pgrp As Integer = 0
+            For pos = 0 To m_groups(ID).cnt
+                If f.Contains("<PG_ID>" + pos.ToString + "</PG_ID>") Then
+                    inst_start = InStr(f, "<PG_ID>" + pos.ToString + "</PG_ID>")
+                    pgrp += 1
                 End If
-                Dim first, last As Integer
-                first = m_groups(ID).existingCount
-                last = m_groups(ID).cnt - first
-                For item_num = first To last
-                    Dim primObj As String = ""
-                    Dim fbx_id As Integer = m_groups(ID).list(item_num) 'get id for this new item
-                    Dim new_name = fbxgrp(fbx_id).name ' get objects name
-
-                    'default.....
-                    primObj = templateColorOnly
-
-                    'normalMap.....
-                    If fbxgrp(fbx_id).normal_name IsNot Nothing Then
-                        primObj = templateNormal ' bump shader
-                    End If
-
-                    'specular.....
-                    If fbxgrp(fbx_id).normal_name IsNot Nothing And fbxgrp(fbx_id).specular_name IsNot Nothing Then
-                        primObj = templateNormalSpec  ' bump shader
-                    End If
-
-                    If frmWritePrimitive.use_pbr_template_cb.Checked Then
-                        primObj = templatePBR
-                    End If
-
-                    'check for legit texture assignments
-                    If fbxgrp(fbx_id).normal_name Is Nothing And fbxgrp(fbx_id).specular_name IsNot Nothing Then
-                        MsgBox("You have a specularMap but no normalMap for " + new_name + "..." + vbCrLf + _
-                                "Defaulting to colorOnly shader...", MsgBoxStyle.Exclamation, "Texture Mapping Issue...")
-                    End If
-                    primObj = primObj.Replace("<PG_ID>0</PG_ID>", "<PG_ID>" + pgrp.ToString + "</PG_ID>") ' update primitive grp id
-                    pgrp += 1 ' add one for each new item
-                    primObj = primObj.Replace("Kustom_mat", new_name) ' update indentity name
-
-                    Try ' this will change shortly
-                        Dim new_s As String = fbxgrp(fbx_id).normal_name
-                        primObj = primObj.Replace("NORMAL_NAME", move_convert_new_textures(new_s, fbxgrp(fbx_id).name))
-                    Catch ex As Exception
-                    End Try
-                    Try
-                        Dim new_s As String = fbxgrp(fbx_id).color_name
-                        primObj = primObj.Replace("COLOR_NAME", move_convert_new_textures(new_s, fbxgrp(fbx_id).name)) ' update diffuse texture name
-                    Catch ex As Exception
-                    End Try
-                    Try
-                        Dim new_s As String = fbxgrp(fbx_id).specular_name
-                        primObj = primObj.Replace("SPECULAR_NAME", move_convert_new_textures(new_s, fbxgrp(fbx_id).name)) ' update diffuse texture name
-                    Catch ex As Exception
-                    End Try
-                    Try
-
-                    Catch ex As Exception
-                    End Try
-                    pos = f.IndexOf("<groupOrigin>", inst_start)
-                    inst_start = pos
-                    f = f.Insert(pos, primObj)
-                Next
-
-
-            End If
-            f = f.Replace("  ", "")
-            f = f.Replace(vbCrLf, vbLf)
-
-            f = f.Replace(vbTab, "")
-            For i = 0 To 100
-                f = f.Replace("<primitiveGroup>" + vbLf + "<PG_ID>" + i.ToString + "</PG_ID>", "<primitiveGroup>" + i.ToString)
             Next
 
-            f = f.Replace("SceneRoot", "Scene Root")
-            Dim fn As String = m_groups(ID).f_name(0)
-            fn = fn.Replace(".primitives", ".visual")
-            File.WriteAllText(My.Settings.res_mods_path + "\" + fn, f)
+            pos = 0
+            Dim templateColorOnly As String
+            Dim templateNormal As String
+            Dim templateNormalSpec As String
+            Dim templatePBR As String = File.ReadAllText(Application.StartupPath + "\Templates\templatePBR.txt")
+            If ID = 4 Then
+                templateColorOnly = File.ReadAllText(Application.StartupPath + "\Templates\templateColorOnlyGUN.txt")
+                templateNormal = File.ReadAllText(Application.StartupPath + "\Templates\templateNormalGUN.txt")
+                templateNormalSpec = File.ReadAllText(Application.StartupPath + "\Templates\templateNormalSpecGUN.txt")
+            Else
+                templateColorOnly = File.ReadAllText(Application.StartupPath + "\Templates\templateColorOnly.txt")
+                templateNormal = File.ReadAllText(Application.StartupPath + "\Templates\templateNormal.txt")
+                templateNormalSpec = File.ReadAllText(Application.StartupPath + "\Templates\templateNormalSpec.txt")
+            End If
+            Dim first, last As Integer
+            first = m_groups(ID).existingCount
+            last = m_groups(ID).cnt - first
+            For item_num = first To last
+                Dim primObj As String = ""
+                Dim fbx_id As Integer = m_groups(ID).list(item_num) 'get id for this new item
+                Dim new_name = fbxgrp(fbx_id).name ' get objects name
+
+                'default.....
+                primObj = templateColorOnly
+
+                'normalMap.....
+                If fbxgrp(fbx_id).normal_name IsNot Nothing Then
+                    primObj = templateNormal ' bump shader
+                End If
+
+                'specular.....
+                If fbxgrp(fbx_id).normal_name IsNot Nothing And fbxgrp(fbx_id).specular_name IsNot Nothing Then
+                    primObj = templateNormalSpec  ' bump shader
+                End If
+
+                If frmWritePrimitive.use_pbr_template_cb.Checked Then
+                    primObj = templatePBR
+                End If
+
+                'check for legit texture assignments
+                If fbxgrp(fbx_id).normal_name Is Nothing And fbxgrp(fbx_id).specular_name IsNot Nothing Then
+                    MsgBox("You have a specularMap but no normalMap for " + new_name + "..." + vbCrLf + _
+                            "Defaulting to colorOnly shader...", MsgBoxStyle.Exclamation, "Texture Mapping Issue...")
+                End If
+                primObj = primObj.Replace("<PG_ID>0</PG_ID>", "<PG_ID>" + pgrp.ToString + "</PG_ID>") ' update primitive grp id
+                pgrp += 1 ' add one for each new item
+                primObj = primObj.Replace("Kustom_mat", new_name) ' update indentity name
+
+                Try ' this will change shortly
+                    Dim new_s As String = fbxgrp(fbx_id).normal_name
+                    primObj = primObj.Replace("NORMAL_NAME", move_convert_new_textures(new_s, fbxgrp(fbx_id).name))
+                Catch ex As Exception
+                End Try
+                Try
+                    Dim new_s As String = fbxgrp(fbx_id).color_name
+                    primObj = primObj.Replace("COLOR_NAME", move_convert_new_textures(new_s, fbxgrp(fbx_id).name)) ' update diffuse texture name
+                Catch ex As Exception
+                End Try
+                Try
+                    Dim new_s As String = fbxgrp(fbx_id).specular_name
+                    primObj = primObj.Replace("SPECULAR_NAME", move_convert_new_textures(new_s, fbxgrp(fbx_id).name)) ' update diffuse texture name
+                Catch ex As Exception
+                End Try
+                Try
+
+                Catch ex As Exception
+                End Try
+                pos = f.IndexOf("<groupOrigin>", inst_start)
+                inst_start = pos
+                f = f.Insert(pos, primObj)
+            Next
+
 
         End If
+
+        f = f.Replace("  ", "")
+        f = f.Replace(vbCrLf, vbLf)
+        Dim va = f.Split(vbLf)
+        Dim v2(va.Length - 1) As String
+        Dim cnt As Integer = 0
+        For i = 0 To va.Length - 1
+            If Not va(i).Contains("colour") Then
+                v2(cnt) = va(i)
+                cnt += 1
+            End If
+        Next
+        f = ""
+        For i = 0 To cnt - 1
+            f += v2(i) + vbLf
+        Next
+        f = f.Replace(vbTab, "")
+        For i = 0 To 100
+            f = f.Replace("<primitiveGroup>" + vbLf + "<PG_ID>" + i.ToString + "</PG_ID>", "<primitiveGroup>" + i.ToString)
+        Next
+
+        f = f.Replace("SceneRoot", "Scene Root")
+        Dim fn As String = m_groups(ID).f_name(0)
+        fn = fn.Replace(".primitives", ".visual")
+        File.WriteAllText(My.Settings.res_mods_path + "\" + fn.Replace(".primitives", ".visual"), f)
+
 
     End Sub
 
@@ -1734,7 +1644,7 @@ noBSP_anymore:
         End Try
         tbr.Close()
         ms.Dispose()
-        Debug.WriteLine(rc.ToString)
+        'Debug.WriteLine(rc.ToString)
     End Sub
     Private Structure xyznuvtb_
         Dim x, y, z As Single

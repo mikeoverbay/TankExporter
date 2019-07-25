@@ -36,7 +36,7 @@ Module ModTankLoader
     End Structure
     Public uv2_data() As uv_
     Public uv2_data_fbx() As Single
-    Dim has_uv2, has_color, has_bsp, has_bsp_materials As Boolean
+    Dim has_uv2, has_color As Boolean
     Dim xmlget_mode, entry_count As Integer
     Public log_text As New StringBuilder
     Public start_up_log As New StringBuilder
@@ -76,6 +76,7 @@ Module ModTankLoader
     End Structure
     Private Structure item_list_
         Public section_name_id As Integer
+        Public identifier() As String
         Public vert_name As String
         Public vert_data() As Byte
         Public indi_name As String
@@ -144,6 +145,9 @@ Module ModTankLoader
         Public color1 As vec3
         Public color2 As vec3
         Public color3 As vec3
+        Public c1 As vect4
+        Public c2 As vect4
+        Public c3 As vect4
 
         'UVs
         Public uv1 As uv_
@@ -312,6 +316,7 @@ Module ModTankLoader
         Public color_name As String
         Public AM_in_res_mods As Boolean
         Public metalGMM_Id As Integer
+        Public ANM As Integer
         Public metalGMM_name As String
         Public GMM_in_res_mods As Boolean
         Public colorIDmap As String
@@ -345,6 +350,7 @@ Module ModTankLoader
         Public tank_shift As vect3
         Public detail_tile As vec2
         Public has_uv2 As Integer
+        Public use_uv2 As Integer
         Public has_color As Integer
         Public has_Vcolor As Integer
         Public header As String
@@ -357,6 +363,46 @@ Module ModTankLoader
         Public component_visible As Boolean
         Public reverse_winding As Boolean
         Public tank_part As String
+
+        Public skinned As Boolean
+
+        Public is_atlas_type As Integer
+        Public g_atlas_size As vect4
+        Public g_atlas_indexs As vect4
+        Public atlasNormalGlossSpec As String
+        Public atlasMetallicAO As String
+        Public atlasBlend As String
+        Public atlasAlbedoHeight As String
+        Public AM_Height_id As Integer
+        Public GBMT_Height_id As Integer
+        Public MAO_Height_id As Integer
+        Public atlas_uv_coords As vect4
+        Public g_dirtColor As vect4
+        Public g_tile2Tint As vect4
+        Public g_tile1Tint As vect4
+        Public g_tile0Tint As vect4
+        Public g_dirtParams As vect4
+
+        Public dirtMap As String
+        'Public ATLAS_AM_ID As Integer
+        'Public ATLAS_GBMT_ID As Integer
+        'Public ATLAS_MAO_ID As Integer
+        Public AM_ID As Integer
+        Public GBMT_ID As Integer
+        Public MAO_ID As Integer
+        Public ATLAS_BLEND_ID As Integer
+        Public ATLAS_DIRT_ID As Integer
+        Public use_normapMap As Integer
+        Public swizzle() As Integer
+        Public swizzle_cnt As Integer
+        Public x_repete As Single
+        Public y_repete As Single
+
+        Public AM_atlas As Integer
+        Public GBMT_atlas As Integer
+        Public MAO_atlas As Integer
+        Public atlas_size As vec2
+        Public image_size As vec2
     End Structure
     Public Structure uvect3
         Public v1 As UInt32
@@ -369,11 +415,13 @@ Module ModTankLoader
         Public v3 As vect3
         Public color As vec3
     End Structure
+    Dim ordered_names(1) As item_list_
+
 #End Region
 
     Public Function build_primitive_data(_add As Boolean) As Boolean
         '------------
-        Dim f_name_vertices, f_name_indices, f_name_uv2, f_name_color, bsp_materials_name, bsp_name As String
+        Dim f_name_vertices, f_name_indices, f_name_uv2, f_name_color As String
         Dim tbuf() As vertice_
 
         Dim pg_flag As Boolean = False
@@ -429,8 +477,6 @@ Module ModTankLoader
         If file_name.Contains("/_skins") Then
             Dim s_parts = file_name.Split("/")
             file_name = s_parts(0) + "/" + s_parts(1) + "/" + s_parts(2) + "/" + s_parts(5) + "/" + s_parts(6) + "/" + s_parts(7)
-            'file_name = file_name.Replace("/_skins/RoyalCorps", "")
-            'file_name = file_name.Replace("/_skins/SD", "")
 
         End If
         If InStr(Path.GetFileNameWithoutExtension(file_name), "Chassis") > 0 Then
@@ -451,11 +497,7 @@ Module ModTankLoader
 
         section_names(xmlget_mode) = New names_
 
-        If xmlget_mode = 1 Or xmlget_mode = 4 Then
-            has_bsp = False
-        Else
-            has_bsp = True
-        End If
+ 
         file_name = file_name.Replace("\", "/")
         If CRASH_MODE Then
             file_name = file_name.Replace("/normal/", "/crash/")
@@ -474,100 +516,14 @@ Module ModTankLoader
         If xmlget_mode = 1 Then
             praseVisualXml()
         End If
-        '============================
-        Dim t = xmldataset.Copy
-        Dim geo, _stream As New DataTable
 
-        If t.Tables.Contains("geometry") Then
-            geo = t.Tables("geometry").Copy
-
+        '####################################################################################
+        'Since I wrote this, The order has been fucking backwards!
+        'This fixes that major screwup with out affecting existing
+        'models people have been working on.
+        If Not Get_ordered_names() Then
+            Return False 'Something went wrong with getting names in visual file
         End If
-        Dim has_stream As Boolean = False
-        Try
-            If t.Tables.Contains("stream") Then
-                _stream = t.Tables("stream").Copy
-            End If
-            has_stream = True
-        Catch ex As Exception
-
-        End Try
-
-        Dim indxcol As DataColumn = New DataColumn("index")
-        indxcol.DataType = System.Type.GetType("System.Int32")
-        geo.Columns.Add(indxcol)
-        For i = 0 To geo.Rows.Count - 1
-            geo.Rows(i).Item("index") = i
-        Next
-        Dim ordered_names(1) As item_list_
-        Try
-            If Not geo.Columns.Contains("stream") Then
-                geo.Columns.Add("stream").DefaultValue = Nothing
-            End If
-        Catch ex As Exception
-
-        End Try
-
-        Try
-
-            Dim p_ = From row_ In geo.AsEnumerable _
-                        Select _
-                        vert_name = row_.Field(Of String)("vertices"), _
-                        indi_name = row_.Field(Of String)("primitive"), _
-                        uv2_name = row_.Field(Of String)("stream"), _
-                        colour_name = row_.Field(Of String)("stream"), _
-                        index = row_.Field(Of Int32)("geometry_Id") _
-                        Order By index Descending
-
-            ReDim ordered_names(p_.Count)
-            cnt = 0
-            For Each p In p_
-                ordered_names(cnt).uv2_name = ""
-                ordered_names(cnt).color_name = ""
-                ordered_names(cnt).vert_name = p.vert_name.Trim
-                ordered_names(cnt).indi_name = p.indi_name.Trim
-                If p.uv2_name IsNot Nothing Then
-                    If Not p.uv2_name.Contains("colour") Then
-                        ordered_names(cnt).uv2_name = p.uv2_name.Trim
-                    End If
-                End If
-                If p.colour_name IsNot Nothing Then
-                    If Not p.colour_name.Contains("uv2") Then
-                        ordered_names(cnt).color_name = p.colour_name.Trim
-                    End If
-                End If
-                ordered_names(cnt).index = p.index
-                'must clear these first!
-                If has_stream Then
-                    Dim pp_ = From row In _stream.AsEnumerable _
-                        Where row.Field(Of Integer)("geometry_Id") = p.index
-                        Select st = row.Field(Of String)("stream_Text")
-                    For Each pa In pp_
-                        If pa IsNot Nothing Then
-                            If pa.Contains("colour") Then
-                                ordered_names(cnt).color_name = pa.Trim
-                            Else
-                                If pa.Contains("uv2") Then
-                                    ordered_names(cnt).uv2_name = pa.Trim
-                                End If
-                            End If
-                        End If
-                    Next
-                End If
-                cnt += 1
-            Next
-        Catch ex As Exception
-
-            indxcol.Dispose()
-            geo.Dispose()
-            t.Dispose()
-            MsgBox("Tank: " & file_name & " XML is screwy!", MsgBoxStyle.Exclamation, "Moron authors!")
-            Return False
-
-        End Try
-
-        indxcol.Dispose()
-        geo.Dispose()
-        t.Dispose()
         '####################################################################################
         'Load Prmitive Data
         cnt = 0
@@ -679,10 +635,6 @@ Module ModTankLoader
         f_name_indices = "zz"
         f_name_uv2 = "zz"
         f_name_color = "zz"
-        bsp_name = "zz"
-        bsp_materials_name = "zz"
-        has_bsp = False
-        has_bsp_materials = False
         has_uv2 = False
         has_color = False
         'End If
@@ -692,7 +644,7 @@ Module ModTankLoader
         For i = 0 To entry_count - 1
             'find type name in section names.
             If InStr(section_names(xmlget_mode).names(i), "vertices") > 0 Then
-                Debug.WriteLine("vertices")
+                'Debug.WriteLine("vertices")
                 f_name_vertices = section_names(xmlget_mode).names(i).Trim
                 sub_groups += 1 ' if this has sub models
                 If xmlget_mode = 1 Then
@@ -700,26 +652,19 @@ Module ModTankLoader
                 End If
             End If
             If InStr(section_names(xmlget_mode).names(i), "indices") > 0 Then
-                Debug.WriteLine("indices")
+                'Debug.WriteLine("indices")
                 f_name_indices = section_names(xmlget_mode).names(i).Trim
                 section_id = i
             End If
             If InStr(section_names(xmlget_mode).names(i).ToLower, "uv2") > 0 Then
-                Debug.WriteLine("uv2")
+                'Debug.WriteLine("uv2")
                 f_name_uv2 = section_names(xmlget_mode).names(i).Trim
             End If
             If InStr(section_names(xmlget_mode).names(i), "colour") > 0 Then
-                Debug.WriteLine("colour")
+                'Debug.WriteLine("colour")
                 f_name_color = section_names(xmlget_mode).names(i).Trim
             End If
-            If InStr(section_names(xmlget_mode).names(i), "bsp2") > 0 Then
-                Debug.WriteLine("bsp2")
-                bsp_name = section_names(xmlget_mode).names(i).Trim
-            End If
-            If InStr(section_names(xmlget_mode).names(i), "bsp2_materials") > 0 Then
-                Debug.WriteLine("bsp2_materials")
-                bsp_name = section_names(xmlget_mode).names(i).Trim
-            End If
+
             Try
 
                 Dim id As Integer = 0
@@ -729,69 +674,34 @@ Module ModTankLoader
                     If ordered_names(id).vert_name = f_name_vertices Then
                         ReDim ordered_names(id).vert_data(section_sizes(i))
                         stream.Position = section_locations(i)
-                        For sec_l As UInt32 = 0 To section_sizes(i) - 1
-                            ordered_names(id).vert_data(sec_l) = b_reader.ReadByte
-                        Next
-                        'File.WriteAllBytes("C:\BSP2_DATA\" + ordered_names(id).vert_name + " " + id.ToString, ordered_names(id).vert_data)
+                        ordered_names(id).vert_data = b_reader.ReadBytes(section_sizes(i))
                         GoTo next_m
                     End If
                     If ordered_names(id).indi_name = f_name_indices Then
                         ordered_names(id).section_name_id = section_id
                         ReDim ordered_names(id).indi_data(section_sizes(i))
                         stream.Position = section_locations(i)
-                        For sec_l As UInt32 = 0 To section_sizes(i) - 1
-                            ordered_names(id).indi_data(sec_l) = b_reader.ReadByte
-                        Next
-                        'File.WriteAllBytes("C:\BSP2_DATA\" + ordered_names(id).indi_name + " " + id.ToString, ordered_names(id).indi_data)
+                        ordered_names(id).indi_data = b_reader.ReadBytes(section_sizes(i))
                         GoTo next_m
                     End If
                     If ordered_names(id).color_name = f_name_color Then
                         ordered_names(id).has_color = True
-                        ReDim ordered_names(id).color_data(section_sizes(i))
                         stream.Position = section_locations(i)
-
                         b_reader.BaseStream.Position += 132
 
                         ordered_names(id).color_count = b_reader.ReadUInt32
-                        color_size = ordered_names(id).color_count
-
-                        ReDim color_data(color_size * 4)
-
-                        For sec_l As UInt32 = 0 To (color_size * 4) - 1
-                            color_data(sec_l) = b_reader.ReadByte
-                        Next
-                        has_color = True
-                        GoTo next_m
-                    End If
-                    If bsp_name = "bsp2" Then
-                        ordered_names(id).has_bsp2 = True
-                        ReDim ordered_names(id).bsp2_data(section_sizes(i))
-                        stream.Position = section_locations(i)
-                        For sec_l As UInt32 = 0 To section_sizes(i) - 1
-                            ordered_names(id).bsp2_data(sec_l) = b_reader.ReadByte
-                        Next
-                        'File.WriteAllBytes("C:\BSP2_DATA" + object_count.ToString, ordered_names(id).bsp2_data)
-                        GoTo next_m
-                    End If
-                    If bsp_name = "bsp2_materials" Then
-                        ordered_names(id).has_bsp_material = True
-                        ReDim ordered_names(id).bsp2_material_data(section_sizes(i))
-                        stream.Position = section_locations(i)
-                        For sec_l As UInt32 = 0 To section_sizes(i) - 1
-                            ordered_names(id).bsp2_material_data(sec_l) = b_reader.ReadByte
-                        Next
-                        Dim materials_string As String = System.Text.Encoding.UTF8.GetString(ordered_names(id).bsp2_material_data)
+                        ReDim ordered_names(id).color_data(section_sizes(i) - 137)
+                        ordered_names(id).color_data = b_reader.ReadBytes(section_sizes(i) - 136)
                         GoTo next_m
                     End If
                     If ordered_names(id).uv2_name = f_name_uv2 Then
                         ordered_names(id).has_uv2 = True
                         stream.Position = section_locations(i)
-                        ReDim ordered_names(id).uv2_data(section_sizes(i))
                         b_reader.BaseStream.Position += 132
+
                         ordered_names(id).uv2_cnt = b_reader.ReadUInt32
-                        For sec_l As UInt32 = 0 To section_sizes(i) - 137
-                            ordered_names(id).uv2_data(sec_l) = b_reader.ReadByte
-                        Next
+                        ReDim ordered_names(id).uv2_data(section_sizes(i) - 137)
+                        ordered_names(id).uv2_data = b_reader.ReadBytes(section_sizes(i) - 136)
                         GoTo next_m
                     End If
 
@@ -805,8 +715,6 @@ next_m:
                 f_name_indices = "zz"
                 f_name_uv2 = "zz"
                 f_name_color = "zz"
-                bsp_name = "zz"
-                bsp_materials_name = "zz"
             Catch ex As Exception
                 log_text.Append("Something is wrong with primitives contents table.")
                 Return False
@@ -821,20 +729,19 @@ next_m:
         ' This has to happen BEFORE the next_sub_section loop!
         Dim add_flag As Boolean = _add
         'Try
-        If has_color Then ' we need to convert them in to RGBA so they can he wrote to a FBX as vertex colors
-            ReDim color_rgb(color_size )
-            For i = 0 To (color_size - 1)
-                color_rgb(i).r = CSng(color_data((i * 4) + 0) / 255)
-                color_rgb(i).g = CSng(color_data((i * 4) + 1) / 255)
-                color_rgb(i).b = CSng(color_data((i * 4) + 2) / 255)
-                color_rgb(i).a = CSng(color_data((i * 4) + 3) / 255)
-            Next
-        End If
 
         Dim sg = sub_groups - 1
         While sub_groups > 0
             sub_groups -= 1 ' take one off.. if there is one, this results is zero and collects only one model set
-            'pg_flag: used to know where to point for data
+            If ordered_names(sg - sub_groups).has_color Then ' we need to convert them in to RGBA so they can he wrote to a FBX as vertex colors
+                ReDim color_rgb(ordered_names(sg - sub_groups).color_count - 1)
+                For i = 0 To (ordered_names(sg - sub_groups).color_count - 1)
+                    color_rgb(i).r = CSng(ordered_names(sg - sub_groups).color_data((i * 4) + 0) / 255)
+                    color_rgb(i).g = CSng(ordered_names(sg - sub_groups).color_data((i * 4) + 1) / 255)
+                    color_rgb(i).b = CSng(ordered_names(sg - sub_groups).color_data((i * 4) + 2) / 255)
+                    color_rgb(i).a = CSng(ordered_names(sg - sub_groups).color_data((i * 4) + 3) / 255)
+                Next
+            End If
 
             ' changed july 7/11/14
             f_name_vertices = ordered_names(sg - sub_groups).vert_name
@@ -843,11 +750,12 @@ next_m:
             If ordered_names(sg - sub_groups).uv2_name.Length > 2 Then
                 has_uv2 = True
                 save_has_uv2 = True
-                'f_name_uv2 = Temp_Storage + "\" & ordered_names(sg - sub_groups).uv2_name & ".sec"
             Else
                 has_uv2 = False
                 save_has_uv2 = False
             End If
+
+
             If ordered_names(sg - sub_groups).color_name.Length > 0 Then
                 has_color = True
             Else
@@ -954,7 +862,7 @@ next_m:
             End If
             vh.nVertice_count = vb_reader.ReadUInt32
             'now that we have a count.. lets see if we need to get the uv2 coords
-            If has_uv2 Then
+            If ordered_names(sg - sub_groups).has_uv2 Then
                 If ordered_names(sg - sub_groups).uv2_name.Length > 2 Then
                     ordered_names(sg - sub_groups).uv2_cnt = get_uv2(ordered_names(sg - sub_groups).uv2_data, ordered_names(sg - sub_groups).uv2_cnt)
                 Else
@@ -966,15 +874,11 @@ next_m:
             If Not _add Then
                 object_start = 1
                 big_l = ih.nInd_groups 'get object count
-                'object_count = big_l
-                'object_table = DataSet1.objtbl.Clone ' need a table for the DGV
             Else
                 object_start = object_count + 1
                 big_l = object_count + ih.nInd_groups
-                'object_count = big_l
-
             End If
-            'ReDim Preserve _object(object_count + 1) 'clear it out
+
             ReDim Preserve _object(big_l)   'create spaces for n' objects
             For i = object_start To big_l
                 _object(i) = New obj    ' make new objects
@@ -988,46 +892,20 @@ next_m:
             i = 0
             Dim p As Integer = 6
             For k As UInt32 = object_start To big_l
-                'If ordered_names(sg - sub_groups).has_color Then
-                '    'Color data does not seem to effect the models in game in any way.
-                '    _group(k).has_color = 1
-                '    Dim c_size As Integer
-                '    Dim c_start As Integer
-                '    Try
-                '        c_size = pGroups(sg - sub_groups).nVertices_ * c_stride
-                '        c_start = pGroups(sg - sub_groups).startVertex_ * c_stride
 
-                '    Catch ex As Exception
-                '        c_size = pGroups(1).nVertices_ * c_stride
-
-                '    End Try
-                '    ReDim _group(k).color_data(c_size)
-                '    For cc = 0 To c_size - 1
-                '        _group(k).color_data(cc) = ordered_names(sg - sub_groups).color_data(c_start + cc)
-                '    Next
-                '    'ordered_names(sg - sub_groups).color_data.CopyTo(_group(k).color_data, 0)
-                'End If
                 _group(k).bsp2_id = -1
-                If ordered_names(sg - sub_groups).has_bsp2 Then
-                    ReDim _group(k).bsp2_data(ordered_names(sg - sub_groups).bsp2_data.Length)
-                    ordered_names(sg - sub_groups).bsp2_data.CopyTo(_group(k).bsp2_data, 0)
-                End If
-                If ordered_names(sg - sub_groups).has_bsp_material Then
-                    ReDim _group(k).bsp2_material_data(ordered_names(sg - sub_groups).bsp2_material_data.Length)
-                    ordered_names(sg - sub_groups).bsp2_material_data.CopyTo(_group(k).bsp2_material_data, 0)
-                End If
 
                 _group(k).BPVT_mode = BPVT_mode
+
+                has_uv2 = ordered_names(sg - sub_groups).has_uv2
+                save_has_uv2 = has_uv2
                 If has_uv2 Then
                     _group(k).has_uv2 = 1
                 Else
                     _group(k).has_uv2 = 0
                 End If
-                If has_color Then
-                    _group(k).has_color = 1
-                Else
-                    _group(k).has_color = 0
-                End If
+                _group(k).has_color = 0
+
                 Dim pos As UInt32
                 Try
 
@@ -1048,6 +926,7 @@ next_m:
                     Return False
                 End Try
                 ReDim _group(k).vertices(pos + 1)
+                Dim color_runner As Integer = 0
                 For cnt = 0 To pos
                     Try
                         tbuf(i) = New vertice_
@@ -1069,12 +948,7 @@ next_m:
                     End If
                     tbuf(i).u = vb_reader.ReadSingle
                     tbuf(i).v = vb_reader.ReadSingle
-                    'If stride = 40 Then
-                    '    tbuf(i).index_1 = vb_reader.ReadByte()
-                    '    tbuf(i).index_2 = vb_reader.ReadByte()
-                    '    tbuf(i).index_3 = vb_reader.ReadByte()
 
-                    'End If
                     If stride = 37 Or stride = 40 Then
                         tbuf(i).index_1 = vb_reader.ReadByte()
                         tbuf(i).index_2 = vb_reader.ReadByte()
@@ -1122,11 +996,13 @@ next_m:
                         _group(k).vertices(cnt).u2 = uv2_data(i).u
                         _group(k).vertices(cnt).v2 = uv2_data(i).v
                     End If
-                    If has_color Then
-                        _group(k).vertices(cnt).r = color_rgb(i).r
-                        _group(k).vertices(cnt).g = color_rgb(i).g
-                        _group(k).vertices(cnt).b = color_rgb(i).b
-                        _group(k).vertices(cnt).a = color_rgb(i).a
+                    If ordered_names(sg - sub_groups).has_color Then
+                        _group(k).has_color = 1
+                        _group(k).vertices(cnt).r = color_rgb(color_runner).r
+                        _group(k).vertices(cnt).g = color_rgb(color_runner).g
+                        _group(k).vertices(cnt).b = color_rgb(color_runner).b
+                        _group(k).vertices(cnt).a = color_rgb(color_runner).a
+                        color_runner += 1
                     End If
                     i += 1
                 Next cnt
@@ -1156,16 +1032,7 @@ next_m:
                 Else
                     get_translations(jj, jj + 1 - object_start) ' get texture name(s) and if this is multi textured
                     narray = ordered_names(sg - sub_groups).vert_name.Split(".")
-
                 End If
-                If ordered_names(sg - sub_groups).has_bsp2 Then
-                    make_bsp2_list(object_count)
-                End If
-                'If _group(jj).has_uv2 = 1 Then
-                '    get_uv2(ordered_names(running).uv2_data, ordered_names(running).uv2_data.Length / 4)
-                'End If
-                'get the textures if we are exporting
-
                 build_textures(jj) ' make a new texture and find out if this texture as been used... if so, existing texture will be pointed at
 
                 log_text.Append("loaded Model:" + "ID:" + object_count.ToString + ":" + file_name + vbCrLf)
@@ -1176,81 +1043,88 @@ next_m:
                 _object(jj).name = file_name + ":" + current_tank_package.ToString + ":" + jj.ToString
                 _group(jj).name = file_name + ":" + current_tank_package.ToString + ":" + jj.ToString
                 _group(jj).header = vh.header_text ' save vertex type
-                If _object(jj).name.ToLower.Contains("chassis") Then
-                    'check if wheeled vehicle.. If so, set flag to disable writing chassis primitive.
-                    If TheXML_String.ToLower.Contains("pbs_wheel_skinned") Then
-                        is_wheeled_vehicle = True
-                    Else
-                        is_wheeled_vehicle = False
-                    End If
-                    If _group(jj).color_name.ToLower.Contains("chass") Then
-                        _group(jj).tank_part = "chassis"
-                        _object(jj).is_track = 0
-                    Else
-                        _group(jj).tank_part = "track"
-                        _object(jj).is_track = 1
-                    End If
-                    If XML_Strings(1).Length = 0 Then
-                        XML_Strings(1) = TheXML_String
-                    End If
-                    _object(jj).camo_tiling = chassis_tiling
-                    _object(jj).exclude_camo = 1
-                    _object(jj).use_camo = 0
-                End If
-                If hull_count = 0 Then
-                    If _object(jj).name.ToLower.Contains("hull") Then
-                        _group(jj).tank_part = "hull"
-                        If XML_Strings(2).Length = 0 Then
-                            XML_Strings(2) = TheXML_String
+                If Not PRIMITIVES_MODE Then
+                    Try
+
+                        If _object(jj).name.ToLower.Contains("chassis") Then
+                            'check if wheeled vehicle.. If so, set flag to disable writing chassis primitive.
+                            If TheXML_String.ToLower.Contains("pbs_wheel_skinned") Then
+                                is_wheeled_vehicle = True
+                            Else
+                                is_wheeled_vehicle = False
+                            End If
+                            If _group(jj).color_name.ToLower.Contains("chass") Then
+                                _group(jj).tank_part = "chassis"
+                                _object(jj).is_track = 0
+                            Else
+                                _group(jj).tank_part = "track"
+                                _object(jj).is_track = 1
+                            End If
+                            If XML_Strings(1).Length = 0 Then
+                                XML_Strings(1) = TheXML_String
+                            End If
+                            _object(jj).camo_tiling = chassis_tiling
+                            _object(jj).exclude_camo = 1
+                            _object(jj).use_camo = 0
                         End If
-                        _object(jj).camo_tiling = hull_tiling
-                        _object(jj).use_camo = 0
-                        _object(jj).exclude_camo = 0
-                        hull_count += 1
-                    End If
-                Else
-                    If _object(jj).name.ToLower.Contains("hull") Then
-                        _group(jj).tank_part = "hull"
-                        _object(jj).camo_tiling = hull_tiling
-                        _object(jj - 1).exclude_camo = 1
-                        _object(jj).use_camo = 0
-                    End If
+                        If hull_count = 0 Then
+                            If _object(jj).name.ToLower.Contains("hull") Then
+                                _group(jj).tank_part = "hull"
+                                If XML_Strings(2).Length = 0 Then
+                                    XML_Strings(2) = TheXML_String
+                                End If
+                                _object(jj).camo_tiling = hull_tiling
+                                _object(jj).use_camo = 0
+                                _object(jj).exclude_camo = 0
+                                hull_count += 1
+                            End If
+                        Else
+                            If _object(jj).name.ToLower.Contains("hull") Then
+                                _group(jj).tank_part = "hull"
+                                _object(jj).camo_tiling = hull_tiling
+                                _object(jj - 1).exclude_camo = 1
+                                _object(jj).use_camo = 0
+                            End If
 
-                End If
-                If turret_count = 0 Then
-                    If _object(jj).name.ToLower.Contains("turret") Then
-                        _group(jj).tank_part = "turret"
-                        If XML_Strings(3).Length = 0 Then
-                            XML_Strings(3) = TheXML_String
                         End If
-                        _object(jj).camo_tiling = turret_tiling
-                        _object(jj).use_camo = 0
-                        _object(jj).exclude_camo = 0
-                        turret_count += 1
-                    End If
-                Else
-                    If _object(jj).name.ToLower.Contains("turret") Then
-                        _group(jj).tank_part = "turret"
-                        _object(jj).exclude_camo = 1
-                        _object(jj).use_camo = 0
-                    End If
+                        If turret_count = 0 Then
+                            If _object(jj).name.ToLower.Contains("turret") Then
+                                _group(jj).tank_part = "turret"
+                                If XML_Strings(3).Length = 0 Then
+                                    XML_Strings(3) = TheXML_String
+                                End If
+                                _object(jj).camo_tiling = turret_tiling
+                                _object(jj).use_camo = 0
+                                _object(jj).exclude_camo = 0
+                                turret_count += 1
+                            End If
+                        Else
+                            If _object(jj).name.ToLower.Contains("turret") Then
+                                _group(jj).tank_part = "turret"
+                                _object(jj).exclude_camo = 1
+                                _object(jj).use_camo = 0
+                            End If
 
-                End If
-                If _object(jj).name.ToLower.Contains("gun") Then
-                    _group(jj).tank_part = "gun"
-                    If XML_Strings(4).Length = 0 Then
-                        XML_Strings(4) = TheXML_String
-                    End If
-                    _object(jj).camo_tiling = gun_tiling
-                    _object(jj).use_camo = 0
-                    _object(jj).exclude_camo = 0
-                End If
-                If _object(jj).name.ToLower.Contains("segment") Then
-                    _group(jj).tank_part = "segment"
-                    _object(jj).exclude_camo = 1
-                    _object(jj).use_camo = 0
-                End If
+                        End If
+                        If _object(jj).name.ToLower.Contains("gun") Then
+                            _group(jj).tank_part = "gun"
+                            If XML_Strings(4).Length = 0 Then
+                                XML_Strings(4) = TheXML_String
+                            End If
+                            _object(jj).camo_tiling = gun_tiling
+                            _object(jj).use_camo = 0
+                            _object(jj).exclude_camo = 0
+                        End If
+                        If _object(jj).name.ToLower.Contains("segment") Then
+                            _group(jj).tank_part = "segment"
+                            _object(jj).exclude_camo = 1
+                            _object(jj).use_camo = 0
+                        End If
 
+                    Catch ex As Exception
+
+                    End Try
+                End If 'not primitive_mode
                 _group(jj).component_visible = True
 
                 Dim tn = _group(jj).name.Split(":")
@@ -1292,7 +1166,11 @@ next_m:
                     'save the vertex pointers
                     _group(jj).indicies(i) = New uvect3
                     _group(jj).is_carraige = False
-                    If file_name.ToLower.Contains("hull") Or file_name.ToLower.Contains("turret") Then
+
+                    'this needs to be sorted out for primitives
+                    Dim i1, i2, i3 As Integer
+                    i1 = p1 : i2 = p2 : i3 = p3
+                    If file_name.ToLower.Contains("hull") Or file_name.ToLower.Contains("turret") Or PRIMITIVES_MODE Then
                         _group(jj).indicies(i).v1 = p2
                         _group(jj).indicies(i).v2 = p1
                         _group(jj).indicies(i).v3 = p3
@@ -1301,17 +1179,25 @@ next_m:
                         _group(jj).indicies(i).v2 = p2
                         _group(jj).indicies(i).v3 = p3
                     End If
-                    'stupid hack to fix the chassis carraige from being rendered inside out
-                    If file_name.ToLower.Contains("/chassis.") Then
-                        If running > 2 Then
-                            '_group(jj).is_carraige = True
-                        End If
-                    End If
+                    'If _group(jj).skinned And PRIMITIVES_MODE Then
+                    '    p1 = i2
+                    '    p2 = i1
+                    '    p3 = i3
+                    'Else
+                    '    p1 = i1
+                    '    p2 = i2
+                    '    p3 = i3
+
+                    'End If
 
                     '1st
                     _object(jj).tris(i).color1.x = tbuf(p1).index_1 / 255.0!
                     _object(jj).tris(i).color1.y = tbuf(p1).index_2 / 255.0!
                     _object(jj).tris(i).color1.z = tbuf(p1).index_3 / 255.0!
+                    _object(jj).tris(i).c1.x = tbuf(p1).r
+                    _object(jj).tris(i).c1.y = tbuf(p1).g
+                    _object(jj).tris(i).c1.z = tbuf(p1).b
+                    _object(jj).tris(i).c1.w = tbuf(p1).a
 
                     _object(jj).tris(i).v1.x = tbuf(p1).x
                     _object(jj).tris(i).v1.y = tbuf(p1).y
@@ -1339,8 +1225,8 @@ next_m:
                     _object(jj).tris(i).t1 = unpackNormal(tbuf(p1).t)
                     _object(jj).tris(i).b1 = unpackNormal(tbuf(p1).bn)
 
+                    _object(jj).tris(i).uv1_2 = New uv_
                     If has_uv2 Then
-                        _object(jj).tris(i).uv1_2 = New uv_
                         _object(jj).tris(i).uv1_2 = uv2_data(p1)
                         _object(jj).tris(i).uv2_id_1 = p1
                     End If
@@ -1350,6 +1236,10 @@ next_m:
                     _object(jj).tris(i).color2.x = tbuf(p2).index_1 / 255.0!
                     _object(jj).tris(i).color2.y = tbuf(p2).index_2 / 255.0!
                     _object(jj).tris(i).color2.z = tbuf(p2).index_3 / 255.0!
+                    _object(jj).tris(i).c2.x = tbuf(p2).r
+                    _object(jj).tris(i).c2.y = tbuf(p2).g
+                    _object(jj).tris(i).c2.z = tbuf(p2).b
+                    _object(jj).tris(i).c2.w = tbuf(p2).a
 
                     _object(jj).tris(i).v2.x = tbuf(p2).x
                     _object(jj).tris(i).v2.y = tbuf(p2).y
@@ -1376,8 +1266,8 @@ next_m:
                     _object(jj).tris(i).t2 = unpackNormal(tbuf(p2).t)
                     _object(jj).tris(i).b2 = unpackNormal(tbuf(p2).bn)
 
+                    _object(jj).tris(i).uv2_2 = New uv_
                     If has_uv2 Then
-                        _object(jj).tris(i).uv2_2 = New uv_
                         _object(jj).tris(i).uv2_2 = uv2_data(p2)
                         _object(jj).tris(i).uv2_id_2 = p2
                     End If
@@ -1386,6 +1276,10 @@ next_m:
                     _object(jj).tris(i).color3.x = tbuf(p3).index_1 / 255.0!
                     _object(jj).tris(i).color3.y = tbuf(p3).index_2 / 255.0!
                     _object(jj).tris(i).color3.z = tbuf(p3).index_3 / 255.0!
+                    _object(jj).tris(i).c3.x = tbuf(p3).r
+                    _object(jj).tris(i).c3.y = tbuf(p3).g
+                    _object(jj).tris(i).c3.z = tbuf(p3).b
+                    _object(jj).tris(i).c3.w = tbuf(p3).a
 
                     _object(jj).tris(i).v3.x = tbuf(p3).x
                     _object(jj).tris(i).v3.y = tbuf(p3).y
@@ -1412,8 +1306,8 @@ next_m:
                     _object(jj).tris(i).t3 = unpackNormal(tbuf(p3).t)
                     _object(jj).tris(i).b3 = unpackNormal(tbuf(p3).bn)
 
+                    _object(jj).tris(i).uv3_2 = New uv_
                     If has_uv2 Then
-                        _object(jj).tris(i).uv3_2 = New uv_
                         _object(jj).tris(i).uv3_2 = uv2_data(p3)
                         _object(jj).tris(i).uv2_id_3 = p3
                     End If
@@ -1429,11 +1323,10 @@ next_m:
                     If -_object(jj).tris(i).v1.z > z_max Then z_max = -_object(jj).tris(i).v1.z
 
                 Next
-                ' Update data grid view binding source
-                'saves having to hide all the cracked sections
+
                 ReDim _group(jj).matrix(16)
                 loop_count += 1
-                'check_winding(jj)
+
                 Application.DoEvents()
                 make_lists(jj)
 
@@ -1477,7 +1370,165 @@ all_done:
         'frmMain.Text = "File: " + file_name.Replace(".visual", ".primitives")
         Return True
     End Function
+    Private Function Get_ordered_names()
+        Dim t = xmldataset.Copy
+        Dim geo, _stream, material As New DataTable
+        material = t.Tables("material")
 
+        If t.Tables.Contains("geometry") Then
+            geo = t.Tables("geometry").Copy
+
+        End If
+        Dim has_stream As Boolean = False
+        Try
+            If t.Tables.Contains("stream") Then
+                _stream = t.Tables("stream").Copy
+            End If
+            has_stream = True
+        Catch ex As Exception
+
+        End Try
+        Dim indxcol As DataColumn = New DataColumn("index")
+        indxcol.DataType = System.Type.GetType("System.Int32")
+        geo.Columns.Add(indxcol)
+        For i = 0 To geo.Rows.Count - 1
+            geo.Rows(i).Item("index") = i
+        Next
+
+        If Not PRIMITIVES_MODE Then
+
+            Try
+                If Not geo.Columns.Contains("stream") Then
+                    geo.Columns.Add("stream").DefaultValue = Nothing
+                End If
+            Catch ex As Exception
+
+            End Try
+
+            Try
+                Dim p_ = From row_ In geo.AsEnumerable _
+                            Select _
+                            vert_name = row_.Field(Of String)("vertices"), _
+                            indi_name = row_.Field(Of String)("primitive"), _
+                            uv2_name = row_.Field(Of String)("stream"), _
+                            colour_name = row_.Field(Of String)("stream"), _
+                            index = row_.Field(Of Int32)("geometry_Id") _
+                            Order By index Descending '<--- this line failed BAD! It did NOT sort the items descending!!
+
+
+                ReDim ordered_names(p_.Count)
+                Dim cnt = 0
+                For Each p In p_
+                    ordered_names(cnt).uv2_name = ""
+                    ordered_names(cnt).color_name = ""
+                    ordered_names(cnt).vert_name = p.vert_name.Trim
+                    ordered_names(cnt).indi_name = p.indi_name.Trim
+                    If p.uv2_name IsNot Nothing Then
+                        If Not p.uv2_name.Contains("colour") Then
+                            ordered_names(cnt).uv2_name = p.uv2_name.Trim
+                        End If
+                    End If
+                    If p.colour_name IsNot Nothing Then
+                        If Not p.colour_name.Contains("uv2") Then
+                            ordered_names(cnt).color_name = p.colour_name.Trim
+                        End If
+                    End If
+                    ordered_names(cnt).index = p.index
+                    'must clear these first!
+                    If has_stream Then
+                        Dim pp_ = From row In _stream.AsEnumerable _
+                            Where row.Field(Of Integer)("geometry_Id") = p.index
+                            Select st = row.Field(Of String)("stream_Text")
+                        For Each pa In pp_
+                            If pa IsNot Nothing Then
+                                If pa.Contains("colour") Then
+                                    ordered_names(cnt).color_name = pa.Trim
+                                End If
+                                If pa.Contains("uv2") Then
+                                    ordered_names(cnt).uv2_name = pa.Trim
+                                End If
+                            End If
+                        Next
+                    End If
+                    cnt += 1
+                Next
+            Catch ex As Exception
+
+                indxcol.Dispose()
+                geo.Dispose()
+                t.Dispose()
+                MsgBox("Tank: " & file_name & " XML is screwy!", MsgBoxStyle.Exclamation, "Moron authors!")
+                Return False
+            End Try
+        Else
+            'If primitive mode active we are here... Sort them correctly
+            Try
+                If Not geo.Columns.Contains("stream") Then
+                    geo.Columns.Add("stream").DefaultValue = Nothing
+                End If
+            Catch ex As Exception
+
+            End Try
+
+            Try
+                Dim p_ = From row_ In geo.AsEnumerable _
+                            Select _
+                            vert_name = row_.Field(Of String)("vertices"), _
+                            indi_name = row_.Field(Of String)("primitive"), _
+                            uv2_name = row_.Field(Of String)("stream"), _
+                            colour_name = row_.Field(Of String)("stream"), _
+                            index = row_.Field(Of Int32)("geometry_Id") _
+                            Order By index
+
+
+                ReDim ordered_names(p_.Count)
+                Dim cnt = 0
+                For Each p In p_
+                    ordered_names(cnt).uv2_name = ""
+                    ordered_names(cnt).color_name = ""
+                    ordered_names(cnt).vert_name = p.vert_name.Trim
+                    ordered_names(cnt).indi_name = p.indi_name.Trim
+                    If p.uv2_name IsNot Nothing Then
+                        If Not p.uv2_name.Contains("colour") Then
+                            ordered_names(cnt).uv2_name = p.uv2_name.Trim
+                        End If
+                    End If
+                    If p.colour_name IsNot Nothing Then
+                        If Not p.colour_name.Contains("uv2") Then
+                            ordered_names(cnt).color_name = p.colour_name.Trim
+                        End If
+                    End If
+                    ordered_names(cnt).index = p.index
+                    'must clear these first!
+                    If has_stream Then
+                        Dim pp_ = From row In _stream.AsEnumerable _
+                            Where row.Field(Of Integer)("geometry_Id") = p.index
+                            Select st = row.Field(Of String)("stream_Text")
+                        For Each pa In pp_
+                            If pa IsNot Nothing Then
+                                If pa.Contains("colour") Then
+                                    ordered_names(cnt).color_name = pa.Trim
+                                End If
+                                If pa.Contains("uv2") Then
+                                    ordered_names(cnt).uv2_name = pa.Trim
+                                End If
+                            End If
+                        Next
+                    End If
+                    cnt += 1
+                Next
+            Catch ex As Exception
+
+                indxcol.Dispose()
+                geo.Dispose()
+                t.Dispose()
+                MsgBox("Tank: " & file_name & " XML is screwy!", MsgBoxStyle.Exclamation, "Moron authors!")
+                Return False
+
+            End Try
+        End If
+        Return True
+    End Function
     Dim verts(0) As b_verts_
     Public Structure b_verts_
         Public v1, v2, v3 As SlimDX.Vector3
@@ -1501,181 +1552,6 @@ all_done:
             Return v
         End Function
     End Structure
-    Private Sub make_bsp2_list(ByVal k As Integer)
-        Return
-        Dim ms As New MemoryStream(_group(k).bsp2_data)
-        Dim br As New BinaryReader(ms)
-        ms.Position = 0
-
-        Dim header = br.ReadUInt32
-        Dim data_start = br.ReadUInt32
-        Dim s1 = br.ReadUInt32
-        Dim s2 = br.ReadUInt32
-        Dim v_cnt = br.ReadUInt32
-        Dim v3_len = br.ReadUInt32
-        Dim v2_len = br.ReadUInt32
-        Dim ls = Gl.glGenLists(1)
-        _group(k).bsp2_id = ls
-        Gl.glNewList(ls, Gl.GL_COMPILE)
-        Gl.glBegin(Gl.GL_TRIANGLES)
-        Dim flip As Single = 1.0
-        If file_name.ToLower.Contains("gun") Then
-            flip = -1.0
-        End If
-        Dim v1, v2, v3, norm As SlimDX.Vector3
-        ReDim verts(v_cnt)
-        Try
-            ms.Position = 60
-            Dim n As vect3
-            For l As UInt32 = 0 To (v_cnt - 1)
-
-                v1.X = br.ReadSingle
-                v1.Y = br.ReadSingle
-                v1.Z = br.ReadSingle
-
-                v2.X = br.ReadSingle
-                v2.Y = br.ReadSingle
-                v2.Z = br.ReadSingle
-
-                v3.X = br.ReadSingle
-                v3.Y = br.ReadSingle
-                v3.Z = br.ReadSingle
-
-                norm = SlimDX.Vector3.Cross(v2 - v1, v3 - v1) 'calc face normal
-                norm.Normalize()
-
-                v1.Z *= flip
-                v2.Z *= flip
-                v3.Z *= flip
-
-                v1 = transform_vector3(v1, _object(k).matrix) ' transform locations
-                v2 = transform_vector3(v2, _object(k).matrix)
-                v3 = transform_vector3(v3, _object(k).matrix)
-                verts(l) = New b_verts_
-                verts(l).v1 = v1
-                verts(l).v2 = v2
-                verts(l).v3 = v3
-                n.x = norm.X
-                n.y = norm.Y
-                n.z = norm.Z * flip
-                n = rotate_transform(n, _object(k).matrix) ' transform normal
-                verts(l).n = n
-                Gl.glNormal3f(n.x, n.y, n.z)
-                Gl.glVertex3f(v1.X, v1.Y, v1.Z)
-                Gl.glVertex3f(v2.X, v2.Y, v2.Z)
-                Gl.glVertex3f(v3.X, v3.Y, v3.Z)
-                br.ReadUInt32()
-            Next
-        Catch ex As Exception
-        End Try
-        Gl.glEnd()
-        'I think I understand how the BSP2 works.. visualizing it might be an issue
-        ReDim bspTree(v3_len)
-        For i = 0 To CInt(v3_len)
-            bspTree(i) = New bsptree_
-        Next
-        Dim p = 60 + (v_cnt * 40) + (v2_len * 4)
-        ms.Position = p
-        For i = 1 To CInt(v3_len)
-            Dim n1, n2, n3, n4 As UInt32
-            Dim v As vect3
-            Dim f As Single
-            Dim indx = i
-            n1 = br.ReadUInt32
-            'If n1 < &HFFF0 Then
-            '    indx = n1
-            'End If
-            n2 = br.ReadUInt32
-            v.x = br.ReadSingle
-            v.y = br.ReadSingle
-            v.z = br.ReadSingle
-            f = br.ReadSingle
-            n3 = br.ReadUInt32
-            n4 = br.ReadUInt32
-            br.ReadUInt32()
-            br.ReadUInt32()
-
-            bspTree(indx).n1 = n1
-            bspTree(indx).n2 = n2
-            bspTree(indx).n3 = n3
-            bspTree(indx).n4 = n4
-            bspTree(indx).v = v
-            bspTree(indx).v.x = v.x
-            bspTree(indx).v.y = v.y
-            bspTree(indx).v.z = v.z
-            bspTree(indx).f = f
-
-            'Debug.WriteLine(i.ToString("X00000") + ": " _
-            '                + bspTree(i).n1.ToString("X") + " " _
-            '                + bspTree(i).n2.ToString("X") + " " _
-            '                + bspTree(i).n3.ToString("X") + " " _
-            '                + bspTree(i).n4.ToString("X"))
-        Next
-
-
-        Gl.glEndList()
-        '------------------------------------
-        'all this is the BSP2 tree.. not sure how it all works yet.
-        Dim l2 = Gl.glGenLists(1)
-        _group(k).bsp2_tree_id = l2
-        Gl.glNewList(l2, Gl.GL_COMPILE)
-        Gl.glDisable(Gl.GL_LIGHTING)
-        Gl.glBegin(Gl.GL_LINES)
-        Dim ve As New vect3
-        Dim r, g, b As Single
-        For i = 1 To CInt(v3_len)
-            Dim sidx = bspTree(i).n3
-            Dim n1 As UInt32 = bspTree(i).n1
-            Dim n2 As UInt32 = bspTree(i).n2
-            r = 0.0
-            g = 0.0
-            b = 0.6
-
-            If n1 > &HFFFF Then
-                r = 0.6
-                b = 0.0
-            End If
-            If n2 >= &HFFFF Then
-                g = 0.6
-                b = 0.0
-            End If
-
-            Gl.glColor3f(0.2, 0.6, 0.2)
-            If sidx < &HFFFF Then
-                Dim slen = bspTree(i).n4
-                Dim vs = transform(bspTree(i).v, _object(k).matrix)
-                verts(sidx).get_center()
-                ve = verts(sidx).getoff()
-                Gl.glVertex3f(vs.x, vs.y, vs.z) ' root to vertex offset
-                Gl.glVertex3f(ve.x, ve.y, ve.z)
-                vs = verts(sidx).getoff()
-                ve = verts(sidx).get_center()
-                Gl.glColor3f(r, g, b)
-                Gl.glVertex3f(vs.x, vs.y, vs.z) 'vertex offset to vertex center
-                Gl.glVertex3f(ve.x, ve.y, ve.z)
-                Dim opnt As Int32 = 1
-
-                For j = 0 To CInt(slen - 2)
-                    ve = verts(sidx + j).getoff 'offset to offset
-                    verts(sidx + j + opnt).get_center() ' need to calc center before using it!
-                    vs = verts(sidx + j + opnt).getoff
-                    Gl.glVertex3f(vs.x, vs.y, vs.z)
-                    Gl.glVertex3f(ve.x, ve.y, ve.z)
-
-                    vs = verts(sidx + j + opnt).getoff
-                    ve = verts(sidx + j + opnt).get_center
-                    Gl.glVertex3f(vs.x, vs.y, vs.z) 'offset to center
-                    Gl.glVertex3f(ve.x, ve.y, ve.z)
-                Next
-            End If
-        Next
-no_more:
-        Gl.glEnd()
-        Gl.glColor3f(0.3, 0.3, 0.3)
-        Gl.glEnable(Gl.GL_LIGHTING)
-        Gl.glEndList()
-        ms.Dispose()
-    End Sub
 
     Dim mstream As New MemoryStream
     Private Function get_uv2(ByRef data() As Byte, ByVal cnt As Integer) As Integer
@@ -1692,10 +1568,18 @@ no_more:
 
     Public Function openVisual(ByVal filename As String) As Boolean
         Try
+check_res_mods:
             filename = filename.Replace(" - Copy", "")
 
             Dim mstream = New MemoryStream
             If File.Exists(My.Settings.res_mods_path + "/" + filename) And Not LOADING_FBX Then
+                If Not File.Exists(My.Settings.res_mods_path + "\" + filename.Replace(".model", ".visual_processed")) Then
+                    If PRIMITIVES_MODE Then
+                        If find_and_extract_file_in_pkgs(filename.Replace(".model", ".visual_processed")) Then
+                            GoTo check_res_mods
+                        End If
+                    End If
+                End If
                 Dim buf = File.ReadAllBytes(My.Settings.res_mods_path + "\" + filename.Replace(".model", ".visual_processed"))
                 mstream = New MemoryStream(buf)
                 If openXml_stream(mstream, "") Then
@@ -1716,6 +1600,11 @@ no_more:
                 Return True
             End If
 look_again:
+            If PRIMITIVES_MODE Then
+                If find_and_extract_file_in_pkgs(filename) Then
+                    GoTo check_res_mods
+                End If
+            End If
             Dim e As ZipEntry = frmMain.packages(current_tank_package)(filename)
             If e IsNot Nothing Then
                 e.Extract(mstream)
@@ -1933,7 +1822,6 @@ get_visual:
         End If
 
 
-        'tbl_nodes.Rows.RemoveAt(0)
         ' pre-set these before in case this isnt part of a tank :)
         _object(id).translate.x = 0.0
         _object(id).translate.y = 0.0
@@ -1952,21 +1840,7 @@ get_visual:
             _object(id).row3.x = _object(id).row3.x
             _object(id).row3.y = 0.0
             _object(id).row3.z = _object(id).row3.z
-
-            '_object(id).row2.x *= -1.0
-            '_object(id).row2.y *= -1.0
             _object(id).row2.z *= -1.0
-
-            '_object(id).row0.x *= -1.0
-            '_object(id).row0.y *= -1.0
-            '_object(id).row0.z *= -1.0
-
-            '_object(id).row1.x *= -1.0
-            ''_object(id).row1.y *= -1.0
-            '_object(id).row1.z *= -1.0
-
-            '_object(id).row2.x *= -1.0
-            '_object(id).row2.z *= -1.0
         End If
 
         If xmlget_mode = 2 Then ' hull
@@ -1980,14 +1854,10 @@ get_visual:
                 turret_location.x = turret_trans.x + tank_location.x
                 turret_location.y = turret_trans.y + tank_location.y
                 turret_location.z = turret_trans.z + tank_location.z
-
             End If
-
             _object(id).row3.x = tank_location.x
             _object(id).row3.y = tank_location.y
             _object(id).row3.z = tank_location.z
-            '_object(id).row2.z *= -1.0
-            '_object(id).row3.z *= -1.0
         End If
 
         If xmlget_mode = 3 Then ' turret
@@ -2006,41 +1876,22 @@ get_visual:
                 _object(id).row3.y = turret_location.y
                 _object(id).row3.x = turret_location.x
 
-                '_object(id).row3.x += turret_location.x
-                '_object(id).row3.y += turret_location.y
-                '_object(id).row3.z += turret_location.z
-
             End If
         End If
 
         If xmlget_mode = 4 Then ' Gun
             gun_trans2 = get_matrix(id, "Gun", "G")
 
-
-            '_object(id).translate.x = ar(0) + gun_location.x
-            '_object(id).translate.y = ar(1) + gun_location.y
-            '_object(id).translate.z = ar(2) + gun_location.z
             _object(id).row3.x = -(gun_trans2.x - gun_location.x - turret_location.x)
             _object(id).row3.y = (gun_trans2.y + gun_location.y + turret_location.y)
             _object(id).row3.z = (gun_location.z + turret_location.z)
 
-            '_object(id).row0.x *= -1.0
-            '_object(id).row3.z *= -1.0
-            '_object(id).row2.z *= -1.0
-            '_object(id).row2.z *= -1.0
-            '_object(id).row0.x *= -1.0
-            '_object(id).row2.z *= -1.0
             If Not CRASH_MODE Then
                 _object(id).row2.x *= -1.0
                 _object(id).row2.y *= -1.0
                 _object(id).row2.z *= -1.0
 
             End If
-
-            '_object(id).row0.x *= -1.0
-            '_object(id).row0.z *= -1.0
-            '_object(id).row2.x *= -1.0
-            '_object(id).row2.z *= -1.0
 
         End If
 
@@ -2050,18 +1901,8 @@ get_visual:
         End If
         If xmlget_mode = 0 Then
             get_matrix(id, "Scene Root", "")
-            'If frmMain.m_world_of_tanks_mode.Checked Then
-            '    ' _object(id).row3.z *= -1.0
-            'Else
-            '    If TheXML_String.Contains("Root_BlendBone") Then
-            '        get_matrix(id, "Root_BlendBone", "")
-            '    End If
-            '    ' _object(id).row0.x *= -1.0
-            '    '_object(id).row2.z *= -1.0
-            'End If
 
         End If
-
 
         store_matrix(id)
 
@@ -2075,12 +1916,9 @@ get_visual:
         _group(id).hasColorID = Nothing
         _group(id).alphaTest = 0
         _group(id).hasColorID = 0
+
+        'finds the textures
         get_texturesNames_and_State(id, loop_count)
-
-        'this creates the matrix opengl uses.
-        ' it flips the signs on some cells in the matrix
-        'Im still fucking with this !
-
 
         Try
             _group(id).multi_textured = (_group(id).detail_name IsNot Nothing And _group(id).color_name IsNot Nothing)
@@ -2096,12 +1934,10 @@ get_visual:
         _group(id).metalGMM_Id = -1
         _group(id).normal_Id = -1
         _group(id).detail_Id = -1
-        'tbl_prim_group.Clear()
+
         If tbl_property IsNot Nothing Then
-            'tbl_property.Clear()
             tbl_property.Dispose()
         End If
-        'tbl_prim_group.Dispose()
         t.Dispose()
         GC.Collect()
     End Sub
@@ -2128,10 +1964,37 @@ get_visual:
         Return get_textures_and_names(id, sp1(loop_count))
         Return Nothing
     End Function
+
     Public Function get_textures_and_names(ByVal id As Integer, ByVal thestring As String) As Boolean
         'the old method sucks so.. im redoing it.. for the 3rd time!
         'log_text.append( " Id: " + id.ToString + " Searching .Visual for Texture paths." + vbCrLf
         Dim primStart As Integer = 1
+        _group(id).g_tile0Tint.x = 1.0!
+        _group(id).g_tile0Tint.y = 1.0!
+        _group(id).g_tile0Tint.z = 1.0!
+        _group(id).g_tile0Tint.w = 1.0!
+
+        _group(id).g_tile1Tint.x = 1.0!
+        _group(id).g_tile1Tint.y = 1.0!
+        _group(id).g_tile1Tint.z = 1.0!
+        _group(id).g_tile1Tint.w = 1.0!
+
+        _group(id).g_tile2Tint.x = 1.0!
+        _group(id).g_tile2Tint.y = 1.0!
+        _group(id).g_tile2Tint.z = 1.0!
+        _group(id).g_tile2Tint.w = 1.0!
+
+        _group(id).g_dirtColor.x = 1.0!
+        _group(id).g_dirtColor.y = 1.0!
+        _group(id).g_dirtColor.z = 1.0!
+        _group(id).g_dirtColor.w = 1.0!
+        ReDim _group(id).swizzle(3)
+        _group(id).swizzle(0) = 0
+        _group(id).swizzle(1) = 1
+        _group(id).swizzle(2) = 2
+        Dim swiz_cnt As Integer = 0
+        _group(id).swizzle_cnt = 1
+        'so we dont use the diffusedmap2 as diffused in search
         thestring = thestring.Replace("diffuseMap2", "difffuseMap2")
         If thestring.ToLower.Contains("texture=") Then
             log_text.Append("Texture XML format is non-standard" + vbCrLf)
@@ -2162,6 +2025,173 @@ get_visual:
             Return False
         End If
         Dim diff_pos As Integer
+        '===================================================================================
+        'July 14th, 2019.. Started on stand alone primtive loading
+        diff_pos = InStr(primStart, thestring, "atlasNormalGlossSpec")
+        If diff_pos > 0 Then
+            Dim tex1_pos = InStr(diff_pos, thestring, "<Texture>") + "<Texture>".Length
+            Dim tex1_Epos = InStr(tex1_pos, thestring, "</Texture>")
+            Dim newS As String = ""
+            newS = Mid(thestring, tex1_pos, tex1_Epos - tex1_pos).Replace("/", "\")
+            _group(id).atlasNormalGlossSpec = newS
+        End If
+
+        diff_pos = InStr(primStart, thestring, "atlasMetallicAO")
+        If diff_pos > 0 Then
+            Dim tex1_pos = InStr(diff_pos, thestring, "<Texture>") + "<Texture>".Length
+            Dim tex1_Epos = InStr(tex1_pos, thestring, "</Texture>")
+            Dim newS As String = ""
+            newS = Mid(thestring, tex1_pos, tex1_Epos - tex1_pos).Replace("/", "\")
+            _group(id).atlasMetallicAO = newS
+        End If
+
+        diff_pos = InStr(primStart, thestring, "atlasBlend")
+        If diff_pos > 0 Then
+            Dim tex1_pos = InStr(diff_pos, thestring, "<Texture>") + "<Texture>".Length
+            Dim tex1_Epos = InStr(tex1_pos, thestring, "</Texture>")
+            Dim newS As String = ""
+            newS = Mid(thestring, tex1_pos, tex1_Epos - tex1_pos).Replace("/", "\")
+            _group(id).atlasBlend = newS
+        End If
+
+        diff_pos = InStr(primStart, thestring, "atlasAlbedoHeight")
+        If diff_pos > 0 Then
+            Dim tex1_pos = InStr(diff_pos, thestring, "<Texture>") + "<Texture>".Length
+            Dim tex1_Epos = InStr(tex1_pos, thestring, "</Texture>")
+            Dim newS As String = ""
+            newS = Mid(thestring, tex1_pos, tex1_Epos - tex1_pos).Replace("/", "\")
+            If Not newS.Contains("atlas_processed") Then newS = newS.Replace(".atlas", ".atlas_processed")
+            _group(id).atlasAlbedoHeight = newS
+        End If
+
+        diff_pos = InStr(primStart, thestring, "dirtMap")
+        If diff_pos > 0 Then
+            Dim tex1_pos = InStr(diff_pos, thestring, "<Texture>") + "<Texture>".Length
+            Dim tex1_Epos = InStr(tex1_pos, thestring, "</Texture>")
+            Dim newS As String = ""
+            newS = Mid(thestring, tex1_pos, tex1_Epos - tex1_pos).Replace("/", "\")
+            _group(id).dirtMap = newS
+        End If
+        '------------- get sizes, colors and indexes
+        diff_pos = InStr(primStart, thestring, "g_tile2Tint")
+        If diff_pos > 0 Then
+            Dim tex1_pos = InStr(diff_pos, thestring, "<Vector4>") + "<Vector4>".Length
+            Dim tex1_Epos = InStr(tex1_pos, thestring, "</Vector4>")
+            Dim newS As String = ""
+            newS = Mid(thestring, tex1_pos, tex1_Epos - tex1_pos).Replace("/", "\")
+            Dim ta = newS.Split(" ")
+            _group(id).g_tile2Tint.x = Convert.ToSingle(ta(0))
+            _group(id).g_tile2Tint.y = Convert.ToSingle(ta(1))
+            _group(id).g_tile2Tint.z = Convert.ToSingle(ta(2))
+            _group(id).g_tile2Tint.w = Convert.ToSingle(ta(3))
+            _group(id).swizzle(swiz_cnt) = 2
+            _group(id).swizzle_cnt += 1
+            swiz_cnt += 1
+        End If
+
+        diff_pos = InStr(primStart, thestring, "g_tile1Tint")
+        If diff_pos > 0 Then
+            Dim tex1_pos = InStr(diff_pos, thestring, "<Vector4>") + "<Vector4>".Length
+            Dim tex1_Epos = InStr(tex1_pos, thestring, "</Vector4>")
+            Dim newS As String = ""
+            newS = Mid(thestring, tex1_pos, tex1_Epos - tex1_pos).Replace("/", "\")
+            Dim ta = newS.Split(" ")
+            _group(id).g_tile1Tint.x = Convert.ToSingle(ta(0))
+            _group(id).g_tile1Tint.y = Convert.ToSingle(ta(1))
+            _group(id).g_tile1Tint.z = Convert.ToSingle(ta(2))
+            _group(id).g_tile1Tint.w = Convert.ToSingle(ta(3))
+            _group(id).swizzle(swiz_cnt) = 1
+            _group(id).swizzle_cnt += 1
+            swiz_cnt += 1
+        End If
+
+        diff_pos = InStr(primStart, thestring, "g_tile0Tint")
+        If diff_pos > 0 Then
+            Dim tex1_pos = InStr(diff_pos, thestring, "<Vector4>") + "<Vector4>".Length
+            Dim tex1_Epos = InStr(tex1_pos, thestring, "</Vector4>")
+            Dim newS As String = ""
+            newS = Mid(thestring, tex1_pos, tex1_Epos - tex1_pos).Replace("/", "\")
+            Dim ta = newS.Split(" ")
+            _group(id).g_tile0Tint.x = Convert.ToSingle(ta(0))
+            _group(id).g_tile0Tint.y = Convert.ToSingle(ta(1))
+            _group(id).g_tile0Tint.z = Convert.ToSingle(ta(2))
+            _group(id).g_tile0Tint.w = Convert.ToSingle(ta(3))
+            _group(id).swizzle(swiz_cnt) = 0
+            _group(id).swizzle_cnt += 1
+            swiz_cnt += 1
+        End If
+
+        diff_pos = InStr(primStart, thestring, "g_atlasSizes")
+        If diff_pos > 0 Then
+            Dim tex1_pos = InStr(diff_pos, thestring, "<Vector4>") + "<Vector4>".Length
+            Dim tex1_Epos = InStr(tex1_pos, thestring, "</Vector4>")
+            Dim newS As String = ""
+            newS = Mid(thestring, tex1_pos, tex1_Epos - tex1_pos).Replace("/", "\")
+            Dim ta = newS.Split(" ")
+            _group(id).g_atlas_size.x = Convert.ToSingle(ta(0))
+            _group(id).g_atlas_size.y = Convert.ToSingle(ta(1))
+            _group(id).g_atlas_size.z = Convert.ToSingle(ta(2))
+            _group(id).g_atlas_size.w = Convert.ToSingle(ta(3))
+        End If
+
+        diff_pos = InStr(primStart, thestring, "g_atlasIndexes")
+        If diff_pos > 0 Then
+            Dim tex1_pos = InStr(diff_pos, thestring, "<Vector4>") + "<Vector4>".Length
+            Dim tex1_Epos = InStr(tex1_pos, thestring, "</Vector4>")
+            Dim newS As String = ""
+            newS = Mid(thestring, tex1_pos, tex1_Epos - tex1_pos).Replace("/", "\")
+            Dim ta = newS.Split(" ")
+            _group(id).g_atlas_indexs.x = Convert.ToSingle(ta(0))
+            _group(id).g_atlas_indexs.y = Convert.ToSingle(ta(1))
+            _group(id).g_atlas_indexs.z = Convert.ToSingle(ta(2))
+            _group(id).g_atlas_indexs.w = Convert.ToSingle(ta(3))
+        End If
+
+        diff_pos = InStr(primStart, thestring, "g_dirtColor")
+        If diff_pos > 0 Then
+            Dim tex1_pos = InStr(diff_pos, thestring, "<Vector4>") + "<Vector4>".Length
+            Dim tex1_Epos = InStr(tex1_pos, thestring, "</Vector4>")
+            Dim newS As String = ""
+            newS = Mid(thestring, tex1_pos, tex1_Epos - tex1_pos).Replace("/", "\")
+            Dim ta = newS.Split(" ")
+            _group(id).g_dirtColor.x = Convert.ToSingle(ta(0))
+            _group(id).g_dirtColor.y = Convert.ToSingle(ta(1))
+            _group(id).g_dirtColor.z = Convert.ToSingle(ta(2))
+            _group(id).g_dirtColor.w = Convert.ToSingle(ta(3))
+        End If
+
+        diff_pos = InStr(primStart, thestring, "g_dirtParams")
+        If diff_pos > 0 Then
+            Dim tex1_pos = InStr(diff_pos, thestring, "<Vector4>") + "<Vector4>".Length
+            Dim tex1_Epos = InStr(tex1_pos, thestring, "</Vector4>")
+            Dim newS As String = ""
+            newS = Mid(thestring, tex1_pos, tex1_Epos - tex1_pos).Replace("/", "\")
+            Dim ta = newS.Split(" ")
+            _group(id).g_dirtParams.x = Convert.ToSingle(ta(0))
+            _group(id).g_dirtParams.y = Convert.ToSingle(ta(1))
+            _group(id).g_dirtParams.z = Convert.ToSingle(ta(2))
+            _group(id).g_dirtParams.w = Convert.ToSingle(ta(3))
+        End If
+
+        ' Atlas or Skinned?
+        diff_pos = InStr(primStart, thestring, "<fx>")
+        If diff_pos > 0 Then
+            Dim tex1_pos = InStr(diff_pos, thestring, "<fx>") + "<fx>".Length
+            Dim tex1_Epos = InStr(tex1_pos, thestring, "</fx>")
+            Dim newS As String = ""
+            newS = Mid(thestring, tex1_pos, tex1_Epos - tex1_pos).Replace("/", "\")
+            If newS.Contains("skinned") Then
+                _group(id).skinned = True
+            End If
+            If newS.Contains("PBS_tiled_atlas") Then
+                _group(id).is_atlas_type = 1
+            End If
+            If newS.Contains("PBS_ext_dual") Then
+                _group(id).use_uv2 = 1
+            End If
+        End If
+
+        '===================================================================================
         diff_pos = InStr(primStart, thestring, "g_detailUVTiling")
         If diff_pos > 0 Then
             Dim tex1_pos = InStr(diff_pos, thestring, "<Vector4>") + "<Vector4>".Length
@@ -2186,16 +2216,6 @@ get_visual:
             _group(id).detail_Id = -1
         End If
 
-        diff_pos = InStr(primStart, thestring, "metallicGlossMap")
-        If diff_pos > 0 Then
-            Dim tex1_pos = InStr(diff_pos, thestring, "<Texture>") + "<texture>".Length
-            Dim tex1_Epos = InStr(tex1_pos, thestring, "</Texture>")
-            Dim newS As String = ""
-            newS = Mid(thestring, tex1_pos, tex1_Epos - tex1_pos).Replace("/", "\")
-            _group(id).metalGMM_name = newS.Replace("tga", "dds")
-            _group(id).metalGMM_Id = -1
-        End If
-
         diff_pos = InStr(primStart, thestring, "diffuseMap")
         If diff_pos > 0 Then
 
@@ -2210,16 +2230,16 @@ get_visual:
             _group(id).color_Id = -1
         End If
 
-        'diff_pos = InStr(primStart, thestring, "difffuseMap2")
-        'If diff_pos > 0 Then
-        '    Dim tex1_pos = InStr(diff_pos, thestring, "<Texture>") + "<texture>".Length
-        '    Dim tex1_Epos = InStr(tex1_pos, thestring, "</Texture>")
-        '    Dim newS As String = ""
-        '    newS = Mid(thestring, tex1_pos, tex1_Epos - tex1_pos).Replace("/", "\")
-        '    _group(id).detail_name = newS.Replace("tga", "dds")
-        '    'Debug.Write(newS & vbCrLf)
-        '    _group(id).detail_Id = -1
-        'End If
+        diff_pos = InStr(primStart, thestring, "difffuseMap2")
+        If diff_pos > 0 Then
+            Dim tex1_pos = InStr(diff_pos, thestring, "<Texture>") + "<texture>".Length
+            Dim tex1_Epos = InStr(tex1_pos, thestring, "</Texture>")
+            Dim newS As String = ""
+            newS = Mid(thestring, tex1_pos, tex1_Epos - tex1_pos).Replace("/", "\")
+            _group(id).detail_name = newS.Replace("tga", "dds")
+            'Debug.Write(newS & vbCrLf)
+            _group(id).detail_Id = -1
+        End If
         diff_pos = InStr(primStart, thestring, "excludeMaskAndAOMap")
         If diff_pos > 0 Then
             Dim tex1_pos = InStr(diff_pos, thestring, "<Texture>") + "<texture>".Length
@@ -2240,11 +2260,14 @@ get_visual:
             _group(id).normal_name = newS.Replace("tga", "dds")
             If InStr(newS, "_ANM") > 0 Then
                 _object(id).ANM = 1
+                _group(id).ANM = 1
             Else
                 _object(id).ANM = 0
+                _group(id).ANM = 0
             End If
             _group(id).bumped = True
             _group(id).normal_Id = -1
+            _group(id).use_normapMap = 1
         Else
             _group(id).bumped = False
         End If
@@ -2325,7 +2348,7 @@ get_visual:
             Dim tex1_Epos = InStr(tex1_pos, thestring, "</Bool>")
             Dim newS As String = ""
             newS = Mid(thestring, tex1_pos, tex1_Epos - tex1_pos).Replace("/", "\")
-            Debug.WriteLine(newS)
+            'Debug.WriteLine(newS)
             If newS = "true" Then
                 _group(id).doubleSided = True
             Else
@@ -2343,7 +2366,7 @@ get_visual:
             Dim tex1_Epos = InStr(tex1_pos, thestring, "</Texture>")
             Dim newS As String = ""
             newS = Mid(thestring, tex1_pos, tex1_Epos - tex1_pos).Replace("/", "\")
-            Debug.WriteLine(newS)
+            'Debug.WriteLine(newS)
             _group(id).colorIDmap = newS
             _group(id).hasColorID = 1
         Else
@@ -2352,6 +2375,7 @@ get_visual:
         Return True
 
     End Function
+
     Public Function unpackNormal(ByVal packed As UInt32)
         Dim pkz, pky, pkx As Int32
         pkz = packed And &HFFC00000
@@ -2429,9 +2453,31 @@ get_visual:
         Dim e = Gl.glGetError
 
     End Sub
+    Public max_u, max_v, min_u, min_v As Single
+    Private Sub get_uv_repetes(ByVal jj As Integer, i As Integer)
+        Dim v1 = _object(jj).tris(i).uv1
+        Dim v2 = _object(jj).tris(i).uv2
+        Dim v3 = _object(jj).tris(i).uv3
+        If v1.u > max_u Then max_u = v1.u
+        If v2.u > max_u Then max_u = v2.u
+        If v3.u > max_u Then max_u = v3.u
 
+        If v1.u < min_u Then min_u = v1.u
+        If v2.u < min_u Then min_u = v2.u
+        If v3.u < min_u Then min_u = v3.u
 
+        If v1.v > max_v Then max_v = v1.v
+        If v2.v > max_v Then max_v = v2.v
+        If v3.v > max_v Then max_v = v3.v
+
+        If v1.v < min_v Then min_v = v1.v
+        If v2.v < min_v Then min_v = v2.v
+        If v3.v < min_v Then min_v = v3.v
+
+    End Sub
     Private Sub main_list(ByVal cnt As UInteger, ByVal jj As UInt32)
+        min_u = 10000.0!
+        min_v = 10000.0!
         Gl.glBegin(Gl.GL_TRIANGLES)
         'trans_vertex(jj)
         For i As UInt32 = 1 To cnt
@@ -2440,7 +2486,9 @@ get_visual:
             Gl.glNormal3f(_object(jj).tris(i).n1.x, _object(jj).tris(i).n1.y, _object(jj).tris(i).n1.z) 'normal
             Gl.glMultiTexCoord3f(1, _object(jj).tris(i).t1.x, _object(jj).tris(i).t1.y, _object(jj).tris(i).t1.z) 'tangent
             Gl.glMultiTexCoord3f(2, _object(jj).tris(i).b1.x, _object(jj).tris(i).b1.y, _object(jj).tris(i).b1.z) ' bitangent
-            Gl.glMultiTexCoord2f(0, _object(jj).tris(i).uv1.u, _object(jj).tris(i).uv1.v) 'uv
+            Gl.glMultiTexCoord2f(0, _object(jj).tris(i).uv1.u, _object(jj).tris(i).uv1.v) 'uv1
+            Gl.glMultiTexCoord2f(4, _object(jj).tris(i).uv1_2.u, _object(jj).tris(i).uv1_2.v) 'uv2
+            Gl.glMultiTexCoord4f(5, _object(jj).tris(i).c1.x, _object(jj).tris(i).c1.y, _object(jj).tris(i).c1.z, _object(jj).tris(i).c1.w) 'color
 
             Gl.glMultiTexCoord3f(3, _object(jj).tris(i).color1.x, _object(jj).tris(i).color1.y, _object(jj).tris(i).color1.z) 'color
 
@@ -2449,7 +2497,9 @@ get_visual:
             Gl.glNormal3f(_object(jj).tris(i).n2.x, _object(jj).tris(i).n2.y, _object(jj).tris(i).n2.z)
             Gl.glMultiTexCoord3f(1, _object(jj).tris(i).t2.x, _object(jj).tris(i).t2.y, _object(jj).tris(i).t2.z)
             Gl.glMultiTexCoord3f(2, _object(jj).tris(i).b2.x, _object(jj).tris(i).b2.y, _object(jj).tris(i).b2.z)
-            Gl.glMultiTexCoord2f(0, _object(jj).tris(i).uv2.u, _object(jj).tris(i).uv2.v)
+            Gl.glMultiTexCoord2f(0, _object(jj).tris(i).uv2.u, _object(jj).tris(i).uv2.v) 'uv1
+            Gl.glMultiTexCoord2f(4, _object(jj).tris(i).uv2_2.u, _object(jj).tris(i).uv2_2.v) 'uv2
+            Gl.glMultiTexCoord4f(5, _object(jj).tris(i).c2.x, _object(jj).tris(i).c2.y, _object(jj).tris(i).c2.z, _object(jj).tris(i).c2.w) 'color
 
             Gl.glMultiTexCoord3f(3, _object(jj).tris(i).color2.x, _object(jj).tris(i).color2.y, _object(jj).tris(i).color2.z) 'color
 
@@ -2458,13 +2508,19 @@ get_visual:
             Gl.glNormal3f(_object(jj).tris(i).n3.x, _object(jj).tris(i).n3.y, _object(jj).tris(i).n3.z)
             Gl.glMultiTexCoord3f(1, _object(jj).tris(i).t3.x, _object(jj).tris(i).t3.y, _object(jj).tris(i).t3.z)
             Gl.glMultiTexCoord3f(2, _object(jj).tris(i).b3.x, _object(jj).tris(i).b3.y, _object(jj).tris(i).b3.z)
-            Gl.glMultiTexCoord2f(0, _object(jj).tris(i).uv3.u, _object(jj).tris(i).uv3.v)
+            Gl.glMultiTexCoord2f(0, _object(jj).tris(i).uv3.u, _object(jj).tris(i).uv3.v) 'uv1
+            Gl.glMultiTexCoord2f(4, _object(jj).tris(i).uv3_2.u, _object(jj).tris(i).uv3_2.v) 'uv2
+            Gl.glMultiTexCoord4f(5, _object(jj).tris(i).c3.x, _object(jj).tris(i).c3.y, _object(jj).tris(i).c3.z, _object(jj).tris(i).c3.w) 'color
 
             Gl.glMultiTexCoord3f(3, _object(jj).tris(i).color3.x, _object(jj).tris(i).color3.y, _object(jj).tris(i).color3.z) 'color
 
             Gl.glVertex3f(_object(jj).tris(i).v3.x, _object(jj).tris(i).v3.y, _object(jj).tris(i).v3.z)
-
+            get_uv_repetes(jj, i)
         Next
+        Dim x_s = max_u - min_u
+        Dim y_s = max_v - min_v
+        _group(jj).x_repete = x_s
+        _group(jj).y_repete = y_s
         Gl.glEnd()
     End Sub
 

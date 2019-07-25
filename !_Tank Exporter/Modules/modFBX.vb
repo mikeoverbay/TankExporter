@@ -625,10 +625,10 @@ outofhere:
                 Dim estr = pManager.LastErrorString
                 Dim vstr = Vmesh.LastErrorString
                 Dim vmm = node_Vlist(cnt).LastErrorString
-                Debug.WriteLine(cnt.ToString("000") + ":--------")
-                Debug.WriteLine(estr)
-                Debug.WriteLine(vstr)
-                Debug.WriteLine(vmm)
+                'Debug.WriteLine(cnt.ToString("000") + ":--------")
+                'Debug.WriteLine(estr)
+                'Debug.WriteLine(vstr)
+                'Debug.WriteLine(vmm)
                 Dim blender_mode As Boolean = True
 
                 If frmFBX.blender_cb.Checked Then
@@ -782,10 +782,10 @@ NO_PINS:
             Dim estr = pManager.LastErrorString
             Dim vstr = mymesh.LastErrorString
             Dim vmm = node_list(id).LastErrorString
-            Debug.WriteLine(id.ToString("000") + ":--------")
-            Debug.WriteLine(estr)
-            Debug.WriteLine(vstr)
-            Debug.WriteLine(vmm)
+            'Debug.WriteLine(id.ToString("000") + ":--------")
+            'Debug.WriteLine(estr)
+            'Debug.WriteLine(vstr)
+            'Debug.WriteLine(vmm)
 
             rootNode.AddChild(node_list(id))
             rootNode.ConnectSrcObject(node_list(id), FbxConnectionType.ConnectionDefault)
@@ -855,23 +855,20 @@ outahere:
 
         'Tried everything so lets do it the hard way
         '--------------------------------------------------------------------------
-        Dim m_name As String = "Material"
-        Dim s_name As String = "Phong"
-        Dim EmissiveColor = New FbxDouble3(0.0, 0.0, 0.0)
-        Dim AmbientColor = New FbxDouble3(0.9, 0.9, 0.9)
-        Dim SpecularColor = New FbxDouble3(0.7, 0.7, 0.7)
-        Dim DiffuseColor As New FbxDouble3(0.8, 0.8, 0.8)
-        '--------------------------------------------------------------------------
         Dim pManager As FbxSdkManager
         pManager = FbxSdkManager.Create
         'create the material and texture arrays.
 
         Dim texture_count = textures.Length
-        Dim lMaterials(1) As FbxSurfacePhong
-        Dim ltextures(1) As FbxTexture
-        'make the material
-        lMaterials(0) = fbx_create_material(pManager, 0) 'Material
-        ltextures(0) = fbx_create_texture(pManager, 0)
+        Dim lMaterials(texture_count) As FbxSurfacePhong
+        Dim lTextures(texture_count) As FbxTexture
+        Dim lTextures_N(texture_count) As FbxTexture
+        'make the materials
+        For i = 0 To texture_count - 1
+            lMaterials(i) = fbx_create_material(pManager, i) 'Material
+            lTextures(i) = fbx_create_texture(pManager, i) 'Color Map
+            lTextures_N(i) = fbx_create_texture_N(pManager, i) 'Normal Map
+        Next
         'create manager and scene
         Dim scene As FbxScene
         scene = FbxScene.Create(pManager, file_name)
@@ -913,7 +910,6 @@ outahere:
 
             model_name = FBX_NAME + "~" + id.ToString
             node_list(id) = FbxNode.Create(pManager, model_name)
-
             'create mesh node
             Dim mymesh = fbx_create_primi_mesh(model_name, id, pManager)
 
@@ -930,16 +926,16 @@ outahere:
             Dim r_vector As New FbxVector4(rot.X, 0.0, rot.Z, rot.W)
             Dim t_vector As New FbxVector4(-trans.X, trans.Y, trans.Z)
             Dim s_vector As New FbxVector4(-scale.X, scale.Y, scale.Z, 0.0)
-            ' useless test but Im leaving it.
 
             Dim layercontainer As FbxLayerContainer = mymesh
 
-            'add the texture from the texture array using the Texture ID for this mesh section
-
             Dim layerElementTexture As FbxLayerElementTexture = layercontainer.GetLayer(0).DiffuseTextures
+            Dim layerElementNTexture As FbxLayerElementTexture = layercontainer.GetLayer(0).BumpTextures
             If layerElementTexture Is Nothing Then
                 layerElementTexture = FbxLayerElementTexture.Create(layercontainer, "diffuseMap")
                 layercontainer.GetLayer(0).DiffuseTextures = layerElementTexture
+                layerElementNTexture = FbxLayerElementTexture.Create(layercontainer, "normalMap")
+                layercontainer.GetLayer(0).BumpTextures = layerElementNTexture
             End If
             'not 100% sure about the translucent but it isn't breaking anything.
             layerElementTexture.Blend_Mode = FbxLayerElementTexture.BlendMode.Translucent
@@ -947,10 +943,15 @@ outahere:
             layerElementTexture.Mapping_Mode = FbxLayerElement.MappingMode.AllSame
             layerElementTexture.Reference_Mode = FbxLayerElement.ReferenceMode.Direct
 
+            layerElementNTexture.Blend_Mode = FbxLayerElementTexture.BlendMode.Translucent
+            layerElementNTexture.Alpha = 1.0
+            layerElementNTexture.Mapping_Mode = FbxLayerElement.MappingMode.AllSame
+            layerElementNTexture.Reference_Mode = FbxLayerElement.ReferenceMode.Direct
 
             'add the texture from the texture array using the Texture ID for this mesh section
-            layerElementTexture.DirectArray.Add(ltextures(0))
-
+            layerElementTexture.DirectArray.Add(lTextures(_group(id).texture_id))
+            layerElementNTexture.DirectArray.Add(lTextures_N(_group(id).texture_id))
+            'add the texture from the texture array using the Texture ID for this mesh section
             node_list(id).NodeAttribute = mymesh
             Dim dr, ds, dt As New FbxVector4
             dr.Set(0, 0, 0, 0)
@@ -962,19 +963,24 @@ outahere:
 
             If node_list(id).IsValid And frmFBX.export_textures.Checked Then ' useless test but Im leaving it.
                 'add the texture from the array using this models texture ID
-                node_list(id).AddMaterial(lMaterials(_group(id).texture_id))
-                '---------------------------------------
-                'If we dont connect this texture to this node, it will never show up!
-                node_list(id).ConnectSrcObject(lMaterials(_group(id).texture_id), FbxConnectionType.ConnectionDefault)
+                Try
+                    node_list(id).AddMaterial(lMaterials(_group(id).texture_id))
+
+                    '---------------------------------------
+                    'If we dont connect this texture to this node, it will never show up!
+                    node_list(id).ConnectSrcObject(lMaterials(_group(id).texture_id), FbxConnectionType.ConnectionDefault)
+                Catch ex As Exception
+
+                End Try
             End If
             node_list(id).Shading_Mode = FbxNode.ShadingMode.TextureShading ' not even sure this is needed but what ever.
             Dim estr = pManager.LastErrorString
             Dim vstr = mymesh.LastErrorString
             Dim vmm = node_list(id).LastErrorString
-            Debug.WriteLine(id.ToString("000") + ":--------")
-            Debug.WriteLine(estr)
-            Debug.WriteLine(vstr)
-            Debug.WriteLine(vmm)
+            'Debug.WriteLine(id.ToString("000") + ":--------")
+            'Debug.WriteLine(estr)
+            'Debug.WriteLine(vstr)
+            'Debug.WriteLine(vmm)
 
             rootNode.AddChild(node_list(id))
             rootNode.ConnectSrcObject(node_list(id), FbxConnectionType.ConnectionDefault)
@@ -2327,7 +2333,7 @@ whichone:
         'need colors defined
         Dim EmissiveColor = New FbxDouble3(0.0, 0.0, 0.0)
         Dim TransparencyColor = New FbxDouble3(0.0, 0.0, 0.0)
-        Dim AmbientColor = New FbxDouble3(0.9, 0.9, 0.9)
+        Dim AmbientColor = New FbxDouble3(0.4, 0.4, 0.4)
         Dim SpecularColor = New FbxDouble3(0.7, 0.7, 0.7)
         Dim DiffuseColor As New FbxDouble3(0.8, 0.8, 0.8)
         'Need a name for this material
@@ -2335,8 +2341,8 @@ whichone:
         lMaterial.EmissiveColor = EmissiveColor
         lMaterial.AmbientColor = AmbientColor
         lMaterial.DiffuseColor = DiffuseColor
-        lMaterial.DiffuseFactor = 100.0
-        lMaterial.AmbientFactor = 100.0
+        lMaterial.DiffuseFactor = 70.0
+        lMaterial.AmbientFactor = 40.0
         lMaterial.SpecularColor = SpecularColor
         lMaterial.SpecularFactor = 0.3
         lMaterial.TransparencyFactor = 0.0
@@ -2447,16 +2453,9 @@ whichone:
         'need a name for this texture
         'Dim texture = FbxTexture.Create(pManager, "DiffuseMap" + ":" + id.ToString("000"))
         Dim texture As FbxTexture
-        If Not PRIMITIVES_MODE Then
-            texture = FbxTexture.Create(pManager, FBX_Texture_path + "\" + Path.GetFileNameWithoutExtension(textures(id).c_name) + ".png")
-            ' Set texture properties.
-            texture.SetFileName(FBX_Texture_path + "\" + Path.GetFileNameWithoutExtension(textures(id).c_name) + ".png") 'Get the Texture path from the list
-        Else
-            texture = FbxTexture.Create(pManager, "")
-            ' Set texture properties.
-            texture.SetFileName("") 'Get the Texture path from the list
-
-        End If
+        texture = FbxTexture.Create(pManager, FBX_Texture_path + "\" + Path.GetFileNameWithoutExtension(textures(id).c_name) + ".png")
+        ' Set texture properties.
+        texture.SetFileName(FBX_Texture_path + "\" + Path.GetFileNameWithoutExtension(textures(id).c_name) + ".png") 'Get the Texture path from the list
         texture.TextureUseType = FbxTexture.TextureUse.Standard
         texture.Mapping = FbxTexture.MappingType.Uv
         texture.MaterialUseType = FbxTexture.MaterialUse.Model
@@ -2701,6 +2700,7 @@ whichone:
     Public Function fbx_create_primi_mesh(model_name As String, id As Integer, pManager As FbxSdkManager) As FbxMesh
         Dim myMesh As FbxMesh
         myMesh = FbxMesh.Create(pManager, model_name)
+
         Dim cnt = _group(id).nPrimitives_
         Dim off As UInt32
         Dim v As vect3Norm
@@ -2765,8 +2765,9 @@ whichone:
         '--------------------------------------------------------------------------
         'weights .. no idea how to export them from the vertex data :(
         '--------------------------------------------------------------------------
+        '--------------------------------------------------------------------------
         'export vertex colors
-        If _group(id).has_color Then ' has indices
+        If _group(id).header.Contains("iii") Then ' has indices
             Dim colorLayer1 As FbxLayerElementVertexColor = Nothing
             colorLayer1 = FbxLayerElementVertexColor.Create(myMesh, "VertexColor")
             colorLayer1.Name = "VertexColor"
@@ -2775,25 +2776,76 @@ whichone:
             Dim color As New FbxColor
             For I = 1 To _group(id).nPrimitives_
                 Dim indi = _group(id).indicies(I)
-                color.Red = CDbl(_group(id).vertices(indi.v1 - off).r)
-                color.Green = CDbl(_group(id).vertices(indi.v1 - off).g)
-                color.Blue = CDbl(_group(id).vertices(indi.v1 - off).b)
-                color.Alpha = CDbl(_group(id).vertices(indi.v1 - off).a)
+                color.Red = CDbl(_group(id).vertices(indi.v1 - off).index_1 / 255)
+                color.Green = CDbl(_group(id).vertices(indi.v1 - off).index_2 / 255)
+                color.Blue = CDbl(_group(id).vertices(indi.v1 - off).index_3 / 255)
+                color.Alpha = 1.0 'CDbl(_group(id).vertices(I).index_4 / 255)
                 colorLayer1.DirectArray.Add(color)
 
-                color.Red = CDbl(_group(id).vertices(indi.v2 - off).r)
-                color.Green = CDbl(_group(id).vertices(indi.v2 - off).g)
-                color.Blue = CDbl(_group(id).vertices(indi.v2 - off).b)
-                color.Alpha = CDbl(_group(id).vertices(indi.v2 - off).a)
+                color.Red = CDbl(_group(id).vertices(indi.v2 - off).index_1 / 255)
+                color.Green = CDbl(_group(id).vertices(indi.v2 - off).index_2 / 255)
+                color.Blue = CDbl(_group(id).vertices(indi.v2 - off).index_3 / 255)
+                color.Alpha = 1.0 'CDbl(_group(id).vertices(I).index_4 / 255)
                 colorLayer1.DirectArray.Add(color)
 
-                color.Red = CDbl(_group(id).vertices(indi.v3 - off).r)
-                color.Green = CDbl(_group(id).vertices(indi.v3 - off).g)
-                color.Blue = CDbl(_group(id).vertices(indi.v3 - off).b)
-                color.Alpha = CDbl(_group(id).vertices(indi.v3 - off).a)
+                color.Red = CDbl(_group(id).vertices(indi.v3 - off).index_1 / 255)
+                color.Green = CDbl(_group(id).vertices(indi.v3 - off).index_2 / 255)
+                color.Blue = CDbl(_group(id).vertices(indi.v3 - off).index_3 / 255)
+                color.Alpha = 1.0 'CDbl(_group(id).vertices(I).index_4 / 255)
                 colorLayer1.DirectArray.Add(color)
             Next
             layer.VertexColors = colorLayer1
+        End If
+
+        '--------------------------------------------------------------------------
+        'export vertex colors2
+        If _group(id).has_color Then ' has indices
+
+
+            'Dim Colors_RG As FbxLayerElementUV = Nothing
+            'Dim Colors_B As FbxLayerElementUV = Nothing
+            'Colors_RG = FbxLayerElementUV.Create(myMesh, "COLORS RG")
+            'Colors_RG.Name = "Colors RG"
+            'Colors_RG.Mapping_Mode = FbxLayerElement.MappingMode.ByPolygonVertex
+            'Colors_RG.Reference_Mode = FbxLayerElement.ReferenceMode.Direct
+            'layer.SetUVs(Colors_RG, FbxLayerElement.LayerElementType.BumpTextures)
+
+            'Colors_B = FbxLayerElementUV.Create(myMesh, "COLORS B")
+            'Colors_B.Name = "Colors B"
+            'Colors_B.Mapping_Mode = FbxLayerElement.MappingMode.ByPolygonVertex
+            'Colors_B.Reference_Mode = FbxLayerElement.ReferenceMode.Direct
+            'layer.SetUVs(Colors_B, FbxLayerElement.LayerElementType.EmissiveTextures)
+
+            'Dim color As New FbxVector2
+            'For I = 1 To _group(id).nPrimitives_
+            '    Dim indi = _group(id).indicies(I)
+            '    '----------
+            '    'red and green
+            '    color.X = CDbl(_group(id).vertices(indi.v1 - off).r)
+            '    color.Y = CDbl(_group(id).vertices(indi.v1 - off).g)
+            '    Colors_RG.DirectArray.Add(color)
+
+            '    color.X = CDbl(_group(id).vertices(indi.v2 - off).r)
+            '    color.Y = CDbl(_group(id).vertices(indi.v2 - off).g)
+            '    Colors_RG.DirectArray.Add(color)
+
+            '    color.X = CDbl(_group(id).vertices(indi.v3 - off).r)
+            '    color.Y = CDbl(_group(id).vertices(indi.v3 - off).g)
+            '    Colors_RG.DirectArray.Add(color)
+            '    '----------
+            '    'blue and alpha
+            '    color.X = CDbl(_group(id).vertices(indi.v1 - off).b)
+            '    color.Y = CDbl(_group(id).vertices(indi.v1 - off).a)
+            '    Colors_B.DirectArray.Add(color)
+            '    color.X = CDbl(_group(id).vertices(indi.v1 - off).b)
+            '    color.Y = CDbl(_group(id).vertices(indi.v1 - off).a)
+            '    Colors_B.DirectArray.Add(color)
+            '    color.X = CDbl(_group(id).vertices(indi.v1 - off).b)
+            '    color.Y = CDbl(_group(id).vertices(indi.v1 - off).a)
+            '    Colors_B.DirectArray.Add(color)
+            'Next
+            'Colors_RG.IndexArray.Count = _group(id).nPrimitives_
+            'Colors_B.IndexArray.Count = _group(id).nPrimitives_
         End If
 
         '--------------------------------------------------------------------------
@@ -2825,6 +2877,9 @@ whichone:
         End If
         '--------------------------------------------------------------------------
         '--------------------------------------------------------------------------
+        Dim min_u, max_u, min_v, max_v As Single
+        min_u = 100000.0
+        min_v = 100000.0
         ' Create UV for Diffuse channel
         Dim UVDiffuseLayer As FbxLayerElementUV = FbxLayerElementUV.Create(myMesh, "DiffuseUV")
         UVDiffuseLayer.Mapping_Mode = FbxLayerElement.MappingMode.ByControlPoint
@@ -2843,11 +2898,23 @@ whichone:
                 v_2.Y = _group(id).vertices(I).v
             End If
             UVDiffuseLayer.DirectArray.Add(v_2)
+            If v_2.X < min_u Then
+                min_u = v_2.X
+            End If
+            If v_2.X > max_u Then
+                max_u = v_2.X
+            End If
+            If v_2.Y < min_v Then
+                min_v = v_2.Y
+            End If
+            If v_2.Y > max_v Then
+                max_v = v_2.Y
+            End If
             'If fbx_cancel Then
             '    Return myMesh
             'End If
         Next
-
+        Debug.WriteLine(id.ToString + " : " + min_u.ToString + " : " + max_u.ToString + " : " + min_v.ToString + " : " + max_v.ToString)
 
         '--------------------------------------------------------------------------
         '--------------------------------------------------------------------------

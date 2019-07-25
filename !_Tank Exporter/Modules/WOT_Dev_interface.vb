@@ -87,8 +87,14 @@ Module WOT_Dev_interface
             End If
 
         Next
-
-
+        Dim tr1 As DataRow = TankDataTable.NewRow
+        tr1("tag") = "G114_Skorpian"
+        tr1("shortname") = "Skorpion"
+        tr1("tier") = "8"
+        tr1("nation") = "germany"
+        tr1("type") = "Destoryer"
+        TankDataTable.Rows.Add(tr1)
+        TankDataTable.AcceptChanges()
     End Sub
 
     Public Sub get_tank_names()

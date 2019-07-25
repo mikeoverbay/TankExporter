@@ -23,6 +23,19 @@ Module modGlobals
     Public S_level, A_level, T_level As Single
     Public selected_light As Integer = 0
     '##################################
+    Public pkg_search_list() As String
+
+    Public atlas_images_coords() As atlas_image_data_
+    'Public atlas_textures_ids As atlas_texture_ids_
+    'Public am_atlas_index_array() As int_coords_
+
+    'Public MAO_atlas_render_index_array() As single_coords_
+    'Public MAO_atlas_index_array() As int_coords_
+
+    'Public GBMT_atlas_render_index_array() As single_coords_
+    'Public GBMT_atlas_index_array() As int_coords_
+
+
     Public FBX_NAME As String = ""
     Public decal_path As String
     Public terrain_modelId As Integer
@@ -85,6 +98,25 @@ Module modGlobals
     Public mouse_speed_global As Single
     Public is_wheeled_vehicle As Boolean
 
+    Public Structure atlas_image_data_
+        Public loc_xs, loc_ys, loc_xe, loc_ye, width, heigth As Integer
+        Public image_name As String
+        Public image_id As Integer
+    End Structure
+    Public Structure atlas_texture_ids_
+        Public Atlas_loaded As Boolean
+        Public AM_atlas As Integer
+        Public GBMT_atlas As Integer
+        Public MAO_atlas As Integer
+        Public atlas_size As vec2
+    End Structure
+
+    Public Structure single_coords_
+        Public top_x, top_y, bot_x, bot_y As Single
+    End Structure
+    Public Structure int_coords_
+        Public top_x, top_y, bot_x, bot_y As Integer
+    End Structure
     Public Structure path_data_
         Dim dist As Single
         Dim pos1 As SlimDX.Vector3
@@ -146,6 +178,7 @@ Module modGlobals
     Dim gun_primitive, gun_visual As MemoryStream
     Public current_tank_package As Integer
     Public custom_tables(10) As DataSet
+    Public custom_list_tables(10) As DataSet
     Public gun_tile() As vect4
     Public hull_tile() As vect4
     Public turret_tile() As vect4

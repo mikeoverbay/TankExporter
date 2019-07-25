@@ -15,7 +15,15 @@ Public Class frmWrite_Primitives
             Return
         End If
         File.WriteAllText(Temp_Storage + "\primitive_file_save_path.txt", Path.GetDirectoryName(SaveFileDialog1.FileName))
-
+        Dim v_path = SaveFileDialog1.FileName.Replace(".primitives", ".visual")
+        If Not File.Exists(v_path) Then
+            MsgBox("Unable to open: " + Path.GetFileName(v_path), MsgBoxStyle.Exclamation, "NO VISUAL FILE!")
+            Me.Hide()
+            Return
+        End If
+        Dim ms As New MemoryStream(File.ReadAllBytes(v_path))
+        openXml_stream(ms, Path.GetFileName(v_path))
+        XML_Strings(2) = TheXML_String.Replace("map_", "")
         Dim fn = SaveFileDialog1.FileName
         fn = fn.Replace(My.Settings.res_mods_path + "\", "")
         ReDim m_groups(2).f_name(1)
