@@ -196,7 +196,7 @@ vec3 getIBLContribution(PBRInfo pbrInputs, vec3 n, vec3 reflection)
     // retrieve a scale and bias to F0. See [1], Figure 3
     vec3 brdf = SRGBtoLINEAR(texture2D(u_brdfLUT, vec2(pbrInputs.NdotV*0.1, (1.0 - pbrInputs.perceptualRoughness)*0.1))).rgb;
     vec3 diffuseLight = SRGBtoLINEAR(textureCubeLod(cubeMap, n, 7)).rgb;
-     reflection.xyz *= -1.0;// like so many other things, DirectX to OpenDL causes axis issues.
+     reflection.xyz *= -1.0;// like so many other things, DirectX to OpenGL causes axis issues.
     vec3 specularLight = SRGBtoLINEAR(textureCubeLod(cubeMap, reflection, lod)).rgb;
 
     vec3 diffuse = diffuseLight * pbrInputs.diffuseColor;
@@ -450,10 +450,6 @@ for (int i = 0; i < 3; i++){
     vec3 ambient = diffuseContrib.rgb * A_level*0.25;
     colorMix *= vec3(shadow);
     colorMix += (ambient + (ambient*NdotL));
-        // Calculate lighting contribution from image based lighting source (IBL)
-    #define USE_IBL;
-    #ifdef USE_IBL
-    #endif
 
     // This section uses mix to override final color for reference app visualization
     // of various parameters in the lighting equation. Great for Debuging!

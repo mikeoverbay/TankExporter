@@ -1,6 +1,6 @@
 ﻿#version 130
 //AtlasPBR_vertex.glsl
-//Used to light all models
+//Used to light primitive models
 
 out vec2 TC1;
 out vec2 TC2;

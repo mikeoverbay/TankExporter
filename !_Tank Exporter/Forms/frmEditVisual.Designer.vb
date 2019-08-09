@@ -38,6 +38,7 @@ Partial Class frmEditVisual
         Me.m_g_xml = New System.Windows.Forms.ToolStripMenuItem()
         Me.m_up = New System.Windows.Forms.ToolStripMenuItem()
         Me.m_down = New System.Windows.Forms.ToolStripMenuItem()
+        Me.m_p_xml = New System.Windows.Forms.ToolStripMenuItem()
         Me.CMS.SuspendLayout()
         Me.MenuStrip1.SuspendLayout()
         Me.SuspendLayout()
@@ -87,7 +88,7 @@ Partial Class frmEditVisual
         '
         'MenuStrip1
         '
-        Me.MenuStrip1.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.m_file, Me.m_c_xml, Me.m_h_xml, Me.m_t_xml, Me.m_g_xml, Me.m_up, Me.m_down})
+        Me.MenuStrip1.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.m_file, Me.m_c_xml, Me.m_h_xml, Me.m_t_xml, Me.m_g_xml, Me.m_p_xml, Me.m_up, Me.m_down})
         Me.MenuStrip1.Location = New System.Drawing.Point(0, 0)
         Me.MenuStrip1.Name = "MenuStrip1"
         Me.MenuStrip1.Size = New System.Drawing.Size(545, 24)
@@ -123,7 +124,7 @@ Partial Class frmEditVisual
         'm_t_xml
         '
         Me.m_t_xml.Name = "m_t_xml"
-        Me.m_t_xml.Size = New System.Drawing.Size(51, 20)
+        Me.m_t_xml.Size = New System.Drawing.Size(50, 20)
         Me.m_t_xml.Text = "Turret"
         '
         'm_g_xml
@@ -149,6 +150,12 @@ Partial Class frmEditVisual
         Me.m_down.Name = "m_down"
         Me.m_down.Size = New System.Drawing.Size(28, 20)
         Me.m_down.Text = "ToolStripMenuItem2"
+        '
+        'm_p_xml
+        '
+        Me.m_p_xml.Name = "m_p_xml"
+        Me.m_p_xml.Size = New System.Drawing.Size(66, 20)
+        Me.m_p_xml.Text = "Primitive"
         '
         'frmEditVisual
         '
@@ -183,4 +190,5 @@ Partial Class frmEditVisual
     Friend WithEvents m_paste As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents m_down As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents m_up As System.Windows.Forms.ToolStripMenuItem
+    Friend WithEvents m_p_xml As System.Windows.Forms.ToolStripMenuItem
 End Class

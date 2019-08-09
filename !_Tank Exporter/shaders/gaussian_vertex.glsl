@@ -1,6 +1,6 @@
 ﻿#version 130
 // gausian_vertex
-// blure shader
+// blur shader
 out vec2 TexCoords;
 
 void main(void) {

@@ -10,6 +10,14 @@
 You can download it here: https://www.autodesk.com/developer-network/platform-technologies/fbx-converter-archives
 Or if you can not down load it from there... the 64 and 32 bit versions are located here: http://tnmshouse.com/converter/
 
+# Version 97:
+This updates the stand alone primitives FBX exporter.<br/>
+This fixes a bug loading a few tanks.<br/>
+Updates to Help HTML pages.<br/>
+Updates to FBX Exporter Panel.<br/>
+You can now export tangent normal maps with the FBX.<br/>
+Read the Pirmitives section in the help files.<br/>
+
 # Version 96: EMERGENCY RELEASE
 This fixes a bug added with the last update by WarGaming. 1.5.1.1498.</br>
 There is a new entry in the list.xml tank tables that was causing parasing to fail.</br>

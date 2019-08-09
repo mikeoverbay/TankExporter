@@ -260,7 +260,10 @@ Public Class frmScreenCap
 
     Private Sub x_size_tb_TextChanged(sender As Object, e As EventArgs) Handles x_size_tb.TextChanged
         If Not IsNumeric(x_size_tb.Text) Or x_size_tb.Text.Contains(" ") Or x_size_tb.Text.Contains(".") Then
-            x_size_tb.Text = Strings.Left(x_size_tb.Text, x_size_tb.Text.Length - 1)
+            Try
+                x_size_tb.Text = Strings.Left(x_size_tb.Text, x_size_tb.Text.Length - 1)
+            Catch ex As Exception
+            End Try
             x_size_tb.SelectionStart = x_size_tb.Text.Length
         End If
         set_custom_size()
@@ -268,7 +271,10 @@ Public Class frmScreenCap
 
     Private Sub y_size_tb_TextChanged(sender As Object, e As EventArgs) Handles y_size_tb.TextChanged
         If Not IsNumeric(y_size_tb.Text) Or y_size_tb.Text.Contains(" ") Or y_size_tb.Text.Contains(".") Then
-            y_size_tb.Text = Strings.Left(y_size_tb.Text, y_size_tb.Text.Length - 1)
+            Try
+                y_size_tb.Text = Strings.Left(y_size_tb.Text, y_size_tb.Text.Length - 1)
+            Catch ex As Exception
+            End Try
             y_size_tb.SelectionStart = y_size_tb.Text.Length
         End If
         set_custom_size()

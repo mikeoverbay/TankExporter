@@ -1,6 +1,6 @@
 ﻿#version 330 core
 // gausian_fragment
-// blure shader
+// blur shader
 
 out vec4 FragColor;  
 in vec2 TexCoords;

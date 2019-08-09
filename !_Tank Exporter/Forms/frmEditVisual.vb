@@ -43,13 +43,20 @@
         set_menu_colors()
         get_xml()
     End Sub
+    Private Sub m_p_xml_Click(sender As Object, e As EventArgs) Handles m_p_xml.Click
+        check_modified()
+        current_xml = 0
+        set_menu_colors()
+        get_xml()
+
+    End Sub
 
     Private Sub set_menu_colors()
         m_c_xml.ForeColor = Color.Black
         m_h_xml.ForeColor = Color.Black
         m_t_xml.ForeColor = Color.Black
         m_g_xml.ForeColor = Color.Black
-
+        m_p_xml.ForeColor = Color.Black
         If current_xml = 1 Then
             m_c_xml.ForeColor = Color.Red
         End If
@@ -62,12 +69,15 @@
         If current_xml = 4 Then
             m_g_xml.ForeColor = Color.Red
         End If
+        If current_xml = 0 Then
+            m_p_xml.ForeColor = Color.Red
+        End If
 
     End Sub
     Private Sub check_modified()
         If change_cnt > 0 Then
             If MsgBox("You modified this XML. Update Data?", MsgBoxStyle.YesNo, "Changes..") = MsgBoxResult.Yes Then
-                For i = 0 To 30
+                For i = 30 To 0 Step -1
                     Dim ast = RichTextBox1.Text.Replace("<primitiveGroup>" + ControlChars.CrLf.ToCharArray() + "<PG_ID>" + i.ToString + "</PG_ID>", "<primitiveGroup>" + i.ToString)
                     RichTextBox1.Text = ast
                 Next
@@ -123,4 +133,5 @@
         Catch ex As Exception
         End Try
     End Sub
+
 End Class

@@ -1,0 +1,61 @@
+<style type="text/css">
+<!--
+body {
+	background-image: url(Images/carbon.jpg);
+	background-repeat: repeat;
+}
+body,td,th {
+	color: #FFFFFF;
+}
+a:link {
+	color: #FFFFFF;
+}
+a:visited {
+	color: #CCCCCC;
+}
+a:hover {
+	color: #66CCFF;
+}
+a:active {
+	color: #FF6600;
+}
+.style1 {
+	color: #CC6600;
+	font-size: 24px;
+	font-weight: bold;
+}
+.style2 {
+	color: #CC6600;
+	font-weight: bold;
+}
+-->
+</style>
+<div align="center"><span class="style1">Working with Stand Alone Primitives.</span><br/>
+</div>
+<p>First... <a href="https://github.com/mikeoverbay/PKGexplorer" class="style2">Get this tool!</a> PGK Explorer makes it a snap to search and extract models and other data from the world of tanks PKG files.<br />
+  <br />
+Once you have that.. find a model you would like to load in Tank Exporter and extract its data<br />
+Here is a video showing the basic use of PKG Exporter.</p>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/J8Of2BYKaRw" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+<p><br/>
+  <br/>
+Most of the features in Tank Exporter work with stand alone primitives.<br />
+Obviously, features to work with the tanks such as hiding each tank component is not going to function.<br />
+You can use the hide panel however.. Press 'V' to show the hide/show control panel.<br />
+Stand alone primitives also have no Blend Bone pins or vertex colors that are used in Tank Exporter.</p>
+<p> In order to export the textures along with the models, Tank Exporter creates special textures mixed from the atlas textures.<br />
+  The textures generated are large 4096 x 4096 PNG files. Anything less and the quality us unacceptable.<br />
+Not all components of a primitive set use atlas textures.. Those regular textures are exported unchanged.<br />
+The reason Tank Exporter creates these custom textures is because exporting the atlas textures is unusable.<br />
+Exporting these custom textures with the FBX can take a bit of time depending on the speed of your computer.<br />
+Tank Exporter now allows converting the normal maps in to standard tangent maps all 3D apps use.<br />
+Also, you have an option to create a texture for each model or one shared texture.<br />
+You may need to split off textures by model if the have overlapping UV mapping.
+</p>
+<p>Tank Exporter will search the PKG files for files that are missing that it needs to load the primitive.<br />
+This can take some time.. Just let Tank Exporter run until it finds and loads all data for the primitives.</p>
+<p><span class="style2">Tank Exporter can NOT write primitives of stand alone primitives as of now! It will probably crash TE if you try. <br />
+</span><br /> 
+Here is a sample of a bunker primitive model loaded in Tank Exporter...</p>
+<p><img src="Images/sample_primitive.jpg" alt="Sample" width="800" height="480" /><br />
+</p>

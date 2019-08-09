@@ -8,25 +8,30 @@ Module shader_loader
     Public shader_list As New shader_list_
     Public Class shader_list_
         Public AtlasPBR_shader As Integer
-        Public normal_shader As Integer
-        Public mixer_shader As Integer
-        Public tank_shader As Integer
-        Public fbx_shader As Integer
-        Public gaussian_shader As Integer
-        Public FXAA_shader As Integer
-        Public cube_shader As Integer
-        Public depth_shader As Integer
-        Public toLinear_shader As Integer
-        Public shadowTest_shader As Integer
-        Public terrainShader_shader As Integer
         Public basic_shader As Integer
-        Public r2mono_shader As Integer
-        Public decalsCpass_shader As Integer
-        Public dome_shader As Integer
         Public bloom_shader As Integer
-        Public colorMult_shader As Integer
-        Public channelMute_shader As Integer
+        Public blurBchannel_shader As Integer
         Public camoExporter_shader As Integer
+        Public channelMute_shader As Integer
+        Public colorMult_shader As Integer
+        Public convertNormalMap_shader As Integer
+        Public cube_shader As Integer
+        Public decalsCpass_shader As Integer
+        Public depth_shader As Integer
+        Public dome_shader As Integer
+        Public fbx_shader As Integer
+        Public FXAA_shader As Integer
+        Public gaussian_shader As Integer
+        Public gDetail_shader As Integer
+        Public mixer_shader As Integer
+        Public normal_shader As Integer
+        Public r2mono_shader As Integer
+        Public shadowTest_shader As Integer
+        Public tank_shader As Integer
+        Public terrainShader_shader As Integer
+        Public textureBuilder_shader As Integer
+        Public textureNormalBuilder_shader As Integer
+        Public toLinear_shader As Integer
     End Class
 
 #Region "variables"
@@ -65,6 +70,8 @@ Module shader_loader
     Public Sub make_shaders()
         'I'm tierd of all the work every time I add a shader.
         'So... Im going to automate the process.. Hey.. its a computer for fucks sake!
+        'This works by figuring out what files are in the shaders folder.. paring them up and creating the shader.
+        'Names are important! Only one "_" is allowed in the names as a delimiter. _vertex, _geo and _fragment.
         Dim f_list() As String = IO.Directory.GetFiles(Application.StartupPath + "\shaders\", "*fragment.glsl")
         Dim v_list() As String = IO.Directory.GetFiles(Application.StartupPath + "\shaders\", "*vertex.glsl")
         Dim g_list() As String = IO.Directory.GetFiles(Application.StartupPath + "\shaders\", "*geo.glsl")
@@ -107,8 +114,6 @@ Module shader_loader
                 Dim id = assemble_shader(vs, gs, fs, .shader_id, .shader_name, .has_geo)
                 .set_call_id(id)
                 .shader_id = id
-
-                'Debug.WriteLine(.shader_name + "  Id:" + .shader_id.ToString)
             End With
         Next
 
@@ -406,9 +411,16 @@ Module shader_loader
 
     '==============================================================================================================
     Public gaus_image, gaus_switch As Integer
-    Public Sub set_gaussian_variables()
+    Public Sub set_blurbchannel_variables()
         gaus_image = Gl.glGetUniformLocation(shader_list.gaussian_shader, "image")
         gaus_switch = Gl.glGetUniformLocation(shader_list.gaussian_shader, "horizontal")
+    End Sub
+
+    '==============================================================================================================
+    Public blurB_image, blurB_switch As Integer
+    Public Sub set_gaussian_variables()
+        blurB_image = Gl.glGetUniformLocation(shader_list.blurBchannel_shader, "image")
+        blurB_switch = Gl.glGetUniformLocation(shader_list.blurBchannel_shader, "horizontal")
     End Sub
 
     '==============================================================================================================
@@ -554,22 +566,18 @@ Module shader_loader
     End Sub
 
     Public atlasPBR_atlas_TILE, atlasPBR_sizes, atlasPBR_g_tile0Tint, atlasPBR_g_tile1Tint, atlasPBR_g_tile2Tint As Integer
-    Public atlasPBR_g_dirtColor, atlasPBR_use_normapMap, atlasPBR_UVrepete As Integer
+    Public atlasPBR_g_dirtColor, atlasPBR_use_normapMap, atlasPBR_UVrepete, atlasPBR_dirtParams As Integer
     Public atlasPBR_colorMap, atlasPBR_colorMap2, atlasPBR_normalMap, atlasPBR_Tex_Size As Integer
     Public atlasPBR_atlas_AM_map, atlasPBR_atlas_GBMT_map, atlasPBR_atlas_MAO_map, atlasPBR_BLEND_map, atlasPBR_DIRT_map As Integer
-    Public atlasPBR_AM_map, atlasPBR_GBMT_map, atlasPBR_MAO_map, atlasPBR_image_size As Integer
+    Public atlasPBR_image_size, atlasPBR_a_group, atlasPBR_b_group, atlasPBR_cube, atlasPBR_brdf As Integer
     Public atlasPBR_IS_ATLAS, atlasPBR_USE_UV2, atlasPBR_ambient, atlasPBR_specular, atlasPBR_brightness As Integer
     Public atlasPBR_INDEXES, atlasPBR_is_ANM, atlasPBR_GMM_Map, atlasPBR_alpha_enable, atlasPBR_alpha_value As Integer
+    Public atlasPBR_camPos As Integer
     '==============================================================================================================
     Public Sub set_AtlasPBR_shader_variables()
         atlasPBR_atlas_AM_map = Gl.glGetUniformLocation(shader_list.AtlasPBR_shader, "ATLAS_AM_Map")
         atlasPBR_atlas_GBMT_map = Gl.glGetUniformLocation(shader_list.AtlasPBR_shader, "ATLAS_GBMT_Map")
         atlasPBR_atlas_MAO_map = Gl.glGetUniformLocation(shader_list.AtlasPBR_shader, "ATLAS_MAO_Map")
-
-        'atlasPBR_AM_map = Gl.glGetUniformLocation(shader_list.AtlasPBR_shader, "AM_Map")
-        'atlasPBR_GBMT_map = Gl.glGetUniformLocation(shader_list.AtlasPBR_shader, "GBMT_Map")
-        'atlasPBR_MAO_map = Gl.glGetUniformLocation(shader_list.AtlasPBR_shader, "MAO_Map")
-
 
         atlasPBR_BLEND_map = Gl.glGetUniformLocation(shader_list.AtlasPBR_shader, "ATLAS_BLEND_MAP")
         atlasPBR_DIRT_map = Gl.glGetUniformLocation(shader_list.AtlasPBR_shader, "ATLAS_DIRT_MAP")
@@ -578,6 +586,9 @@ Module shader_loader
         atlasPBR_colorMap2 = Gl.glGetUniformLocation(shader_list.AtlasPBR_shader, "colorMap2")
         atlasPBR_normalMap = Gl.glGetUniformLocation(shader_list.AtlasPBR_shader, "normalMap")
         atlasPBR_GMM_Map = Gl.glGetUniformLocation(shader_list.AtlasPBR_shader, "GMM_map")
+
+        atlasPBR_cube = Gl.glGetUniformLocation(shader_list.decalsCpass_shader, "cubeMap")
+        atlasPBR_brdf = Gl.glGetUniformLocation(shader_list.decalsCpass_shader, "u_brdfLUT")
 
         atlasPBR_atlas_TILE = Gl.glGetUniformLocation(shader_list.AtlasPBR_shader, "atlas_TILE")
         atlasPBR_sizes = Gl.glGetUniformLocation(shader_list.AtlasPBR_shader, "atlas_sizes")
@@ -601,11 +612,94 @@ Module shader_loader
         atlasPBR_alpha_enable = Gl.glGetUniformLocation(shader_list.AtlasPBR_shader, "alpha_enable")
         atlasPBR_alpha_value = Gl.glGetUniformLocation(shader_list.AtlasPBR_shader, "alpha_value")
         atlasPBR_image_size = Gl.glGetUniformLocation(shader_list.AtlasPBR_shader, "image_size")
+        atlasPBR_dirtParams = Gl.glGetUniformLocation(shader_list.AtlasPBR_shader, "dirt_params")
+
+        atlasPBR_a_group = Gl.glGetUniformLocation(shader_list.AtlasPBR_shader, "u_ScaleFGDSpec")
+        atlasPBR_b_group = Gl.glGetUniformLocation(shader_list.AtlasPBR_shader, "u_ScaleDiffBaseMR")
+        atlasPBR_camPos = Gl.glGetUniformLocation(shader_list.AtlasPBR_shader, "camPosition")
+
     End Sub
 
+    Public gDetail_colorMap, gDetail_normalMap, gDetail_GMM_Map, gDetail_detailMap, gDetail_inf, g_Detail_reject_tiling As Integer
+    Public gDetail_A_level, gDetail_S_level, gDetail_T_level, gDetail_cubeMap, gDetail_has_Detail As Integer
+    Public gDetail_alpha_enabled, gDetail_alpha_value, gDetail_dirtParams, gDetail_is_glass As Integer
+    Public gDetail_a_group, gDetail_b_group, gDetail_brdf As Integer
+    '==============================================================================================================
+    Public Sub set_gDetail_shader_variables()
+        gDetail_colorMap = Gl.glGetUniformLocation(shader_list.gDetail_shader, "colorMap")
+        gDetail_normalMap = Gl.glGetUniformLocation(shader_list.gDetail_shader, "normalMap")
+        gDetail_GMM_Map = Gl.glGetUniformLocation(shader_list.gDetail_shader, "GMM_Map")
+        gDetail_detailMap = Gl.glGetUniformLocation(shader_list.gDetail_shader, "detailMap")
+        gDetail_cubeMap = Gl.glGetUniformLocation(shader_list.gDetail_shader, "cubeMap")
+        gDetail_brdf = Gl.glGetUniformLocation(shader_list.decalsCpass_shader, "u_brdfLUT")
 
+        g_Detail_reject_tiling = Gl.glGetUniformLocation(shader_list.gDetail_shader, "g_detailRejectTiling")
+        gDetail_inf = Gl.glGetUniformLocation(shader_list.gDetail_shader, "g_detailInfluences")
+        g_Detail_reject_tiling = Gl.glGetUniformLocation(shader_list.gDetail_shader, "g_detailRejectTiling")
 
+        gDetail_A_level = Gl.glGetUniformLocation(shader_list.gDetail_shader, "A_level")
+        gDetail_S_level = Gl.glGetUniformLocation(shader_list.gDetail_shader, "S_level")
+        gDetail_T_level = Gl.glGetUniformLocation(shader_list.gDetail_shader, "T_level")
+
+        gDetail_alpha_enabled = Gl.glGetUniformLocation(shader_list.gDetail_shader, "alpha_enable")
+        gDetail_alpha_value = Gl.glGetUniformLocation(shader_list.gDetail_shader, "alpha_value")
+        gDetail_is_glass = Gl.glGetUniformLocation(shader_list.gDetail_shader, "is_glass")
+        gDetail_has_Detail = Gl.glGetUniformLocation(shader_list.gDetail_shader, "has_detail_map")
+
+        gDetail_a_group = Gl.glGetUniformLocation(shader_list.gDetail_shader, "u_ScaleFGDSpec")
+        gDetail_b_group = Gl.glGetUniformLocation(shader_list.gDetail_shader, "u_ScaleDiffBaseMR")
+
+    End Sub
+
+    Public textureBuilder_atlasAM, textureBuilder_atlasBlend, textureBuilder_atlasDirt, textureBuilder_tint0, textureBuilder_tint1, textureBuilder_tint2, textureBuilder_dirtColor As Integer
+    Public textureBuilder_repeat, textureBuilder_atlasSize, textureBuilder_indexes As Integer
+    '==============================================================================================================
+    Public Sub set_textureBuilder_variables()
+        textureBuilder_atlasAM = Gl.glGetUniformLocation(shader_list.textureBuilder_shader, "atlasMap")
+        textureBuilder_atlasBlend = Gl.glGetUniformLocation(shader_list.textureBuilder_shader, "atlasBlend")
+        textureBuilder_atlasDirt = Gl.glGetUniformLocation(shader_list.textureBuilder_shader, "atlasDirt")
+
+        textureBuilder_tint0 = Gl.glGetUniformLocation(shader_list.textureBuilder_shader, "g_tile0Tint")
+        textureBuilder_tint1 = Gl.glGetUniformLocation(shader_list.textureBuilder_shader, "g_tile1Tint")
+        textureBuilder_tint2 = Gl.glGetUniformLocation(shader_list.textureBuilder_shader, "g_tile2Tint")
+        textureBuilder_dirtColor = Gl.glGetUniformLocation(shader_list.textureBuilder_shader, "g_dirtColor")
+
+        textureBuilder_repeat = Gl.glGetUniformLocation(shader_list.textureBuilder_shader, "UV_tiling")
+        textureBuilder_atlasSize = Gl.glGetUniformLocation(shader_list.textureBuilder_shader, "atlas_sizes")
+        textureBuilder_indexes = Gl.glGetUniformLocation(shader_list.textureBuilder_shader, "atlas_indexes")
+
+    End Sub
+    Public textureNormalBuilder_atlasAM, textureNormalBuilder_atlasBlend As Integer
+    Public textureNormalBuilder_repeat, textureNormalBuilder_atlasSize, textureNormalBuilder_indexes As Integer
+    Public textureNormalBuilder_convert, textureNormalBuilder_flip_y As Integer
+    '==============================================================================================================
+    Public Sub set_textureNormalBuilder_variables()
+        textureNormalBuilder_atlasAM = Gl.glGetUniformLocation(shader_list.textureNormalBuilder_shader, "atlasMap")
+        textureNormalBuilder_atlasBlend = Gl.glGetUniformLocation(shader_list.textureNormalBuilder_shader, "atlasBlend")
+
+        textureNormalBuilder_repeat = Gl.glGetUniformLocation(shader_list.textureNormalBuilder_shader, "UV_tiling")
+        textureNormalBuilder_atlasSize = Gl.glGetUniformLocation(shader_list.textureNormalBuilder_shader, "atlas_sizes")
+        textureNormalBuilder_indexes = Gl.glGetUniformLocation(shader_list.textureNormalBuilder_shader, "atlas_indexes")
+
+        textureNormalBuilder_convert = Gl.glGetUniformLocation(shader_list.textureNormalBuilder_shader, "convert")
+        textureNormalBuilder_flip_y = Gl.glGetUniformLocation(shader_list.textureNormalBuilder_shader, "flip_y")
+
+    End Sub
+
+    Public convertMap_map, convertMap_flip_y, convertMap_convert As Integer
+    '==============================================================================================================
+    Public Sub set_convertNormalMap_variables()
+        convertMap_map = Gl.glGetUniformLocation(shader_list.convertNormalMap_shader, "map")
+        convertMap_convert = Gl.glGetUniformLocation(shader_list.convertNormalMap_shader, "convert")
+        convertMap_flip_y = Gl.glGetUniformLocation(shader_list.convertNormalMap_shader, "flip_y")
+
+    End Sub
     Public Sub set_shader_variables()
+
+        set_textureBuilder_variables()
+        set_textureNormalBuilder_variables()
+        set_convertNormalMap_variables()
+        set_gDetail_shader_variables()
         set_AtlasPBR_shader_variables()
         set_tank_shader_variables()
         set_normal_shader_variables()
@@ -626,6 +720,7 @@ Module shader_loader
         set_colorMult_variables()
         set_channelMute_variables()
         set_camoExporter_variables()
+        set_blurbchannel_variables()
         Return
     End Sub
     '==============================================================================================================

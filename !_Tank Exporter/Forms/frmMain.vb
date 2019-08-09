@@ -2765,6 +2765,70 @@ tryagain:
     End Sub
     '###########################################################################################################################################
     'decals
+    Private Sub draw_v_colors(id As Integer)
+        'This is just to visualize the color stream.
+        'It does not look like it has any importance.
+        Dim vt1, vt2, vt3 As vec3
+        Dim n1, n2, n3 As vec3
+        Dim c1, c2, c3 As vec3
+        Gl.glBegin(Gl.GL_TRIANGLES)
+        For i As UInt32 = 1 To _group(id).nPrimitives_ - 1
+            '-----------------
+            Dim v1 = _group(id).indicies(i).v1
+            Dim v2 = _group(id).indicies(i).v2
+            Dim v3 = _group(id).indicies(i).v3
+            '--
+            vt1.x = _group(id).vertices(v1).x
+            vt1.y = _group(id).vertices(v1).y
+            vt1.z = _group(id).vertices(v1).z
+            '--
+            n1.x = _group(id).vertices(v1).nx
+            n1.y = _group(id).vertices(v1).ny
+            n1.z = _group(id).vertices(v1).nz
+            '--
+            c1.x = _group(id).vertices(v1).r * 125.0!
+            c1.y = _group(id).vertices(v1).g * 125.0!
+            c1.z = _group(id).vertices(v1).b * 125.0!
+            '-----------------
+            vt2.x = _group(id).vertices(v2).x
+            vt2.y = _group(id).vertices(v2).y
+            vt2.z = _group(id).vertices(v2).z
+            '--
+            n2.x = _group(id).vertices(v2).nx
+            n2.y = _group(id).vertices(v2).ny
+            n2.z = _group(id).vertices(v2).nz
+            '--
+            c2.x = _group(id).vertices(v2).r * 125.0!
+            c2.y = _group(id).vertices(v2).g * 125.0!
+            c2.z = _group(id).vertices(v2).b * 125.0!
+            '-----------------
+            vt3.x = _group(id).vertices(v3).x
+            vt3.y = _group(id).vertices(v3).y
+            vt3.z = _group(id).vertices(v3).z
+            '--
+            n3.x = _group(id).vertices(v3).nx
+            n3.y = _group(id).vertices(v3).ny
+            n3.z = _group(id).vertices(v3).nz
+            '--
+            c3.x = _group(id).vertices(v3).r * 125.0!
+            c3.y = _group(id).vertices(v3).g * 125.0!
+            c3.z = _group(id).vertices(v3).b * 125.0!
+            '-----------------
+            Gl.glColor3f(c1.x, c1.y, c1.z)
+            Gl.glNormal3f(n1.x, n1.y, n1.z)
+            Gl.glVertex3f(vt1.x, vt1.y, vt1.z)
+
+            Gl.glColor3f(c2.x, c2.y, c2.z)
+            Gl.glNormal3f(n2.x, n2.y, n2.z)
+            Gl.glVertex3f(vt2.x, vt2.y, vt2.z)
+
+            Gl.glColor3f(c3.x, c3.y, c3.z)
+            Gl.glNormal3f(n3.x, n3.y, n3.z)
+            Gl.glVertex3f(vt3.x, vt3.y, vt3.z)
+
+        Next
+        Gl.glEnd()
+    End Sub
     Private Sub draw_decals()
         If frmScreenCap.RENDER_OUT And Not frmScreenCap.r_terrain Then
             Return
@@ -2897,70 +2961,269 @@ tryagain:
         End If
 
     End Sub
-    Private Sub draw_v_colors(id As Integer)
-        'This is just to visualize the color stream.
-        'It does not look like it has any importance.
-        Dim vt1, vt2, vt3 As vec3
-        Dim n1, n2, n3 As vec3
-        Dim c1, c2, c3 As vec3
-        Gl.glBegin(Gl.GL_TRIANGLES)
-        For i As UInt32 = 1 To _group(id).nPrimitives_ - 1
-            '-----------------
-            Dim v1 = _group(id).indicies(i).v1
-            Dim v2 = _group(id).indicies(i).v2
-            Dim v3 = _group(id).indicies(i).v3
-            '--
-            vt1.x = _group(id).vertices(v1).x
-            vt1.y = _group(id).vertices(v1).y
-            vt1.z = _group(id).vertices(v1).z
-            '--
-            n1.x = _group(id).vertices(v1).nx
-            n1.y = _group(id).vertices(v1).ny
-            n1.z = _group(id).vertices(v1).nz
-            '--
-            c1.x = _group(id).vertices(v1).r * 125.0!
-            c1.y = _group(id).vertices(v1).g * 125.0!
-            c1.z = _group(id).vertices(v1).b * 125.0!
-            '-----------------
-            vt2.x = _group(id).vertices(v2).x
-            vt2.y = _group(id).vertices(v2).y
-            vt2.z = _group(id).vertices(v2).z
-            '--
-            n2.x = _group(id).vertices(v2).nx
-            n2.y = _group(id).vertices(v2).ny
-            n2.z = _group(id).vertices(v2).nz
-            '--
-            c2.x = _group(id).vertices(v2).r * 125.0!
-            c2.y = _group(id).vertices(v2).g * 125.0!
-            c2.z = _group(id).vertices(v2).b * 125.0!
-            '-----------------
-            vt3.x = _group(id).vertices(v3).x
-            vt3.y = _group(id).vertices(v3).y
-            vt3.z = _group(id).vertices(v3).z
-            '--
-            n3.x = _group(id).vertices(v3).nx
-            n3.y = _group(id).vertices(v3).ny
-            n3.z = _group(id).vertices(v3).nz
-            '--
-            c3.x = _group(id).vertices(v3).r * 125.0!
-            c3.y = _group(id).vertices(v3).g * 125.0!
-            c3.z = _group(id).vertices(v3).b * 125.0!
-            '-----------------
-            Gl.glColor3f(c1.x, c1.y, c1.z)
-            Gl.glNormal3f(n1.x, n1.y, n1.z)
-            Gl.glVertex3f(vt1.x, vt1.y, vt1.z)
+    Private Sub draw_detail_primtive(ByVal jj As Integer)
+        G_Buffer.attachColorTexture()
 
-            Gl.glColor3f(c2.x, c2.y, c2.z)
-            Gl.glNormal3f(n2.x, n2.y, n2.z)
-            Gl.glVertex3f(vt2.x, vt2.y, vt2.z)
+        If _group(jj).is_glass = 1 Then
+            Gl.glEnable(Gl.GL_BLEND)
+            Gl.glBlendEquationSeparate(Gl.GL_FUNC_ADD, Gl.GL_FUNC_ADD)
+            Gl.glBlendFuncSeparate(Gl.GL_SRC_ALPHA, Gl.GL_ONE_MINUS_SRC_ALPHA, Gl.GL_ONE, Gl.GL_ONE_MINUS_SRC_ALPHA)
+            Gl.glBlendFunc(Gl.GL_SRC_ALPHA, Gl.GL_ONE_MINUS_SRC_ALPHA)
+            'Gl.glDisable(Gl.GL_DEPTH_TEST)
+            Gl.glDepthMask(Gl.GL_FALSE)
+        Else
+            Gl.glDisable(Gl.GL_BLEND)
+            Gl.glEnable(Gl.GL_DEPTH_TEST)
+        End If
+        'sucks these all have to be unbound first
+        Gl.glActiveTexture(Gl.GL_TEXTURE0 + 10)
+        Gl.glBindTexture(Gl.GL_TEXTURE_CUBE_MAP, 0) '10
+        Gl.glActiveTexture(Gl.GL_TEXTURE0 + 9)
+        Gl.glBindTexture(Gl.GL_TEXTURE_2D, 0) '9
+        Gl.glActiveTexture(Gl.GL_TEXTURE0 + 8)
+        Gl.glBindTexture(Gl.GL_TEXTURE_2D, 0) '8
+        Gl.glActiveTexture(Gl.GL_TEXTURE0 + 7)
+        Gl.glBindTexture(Gl.GL_TEXTURE_2D, 0) '7
+        Gl.glActiveTexture(Gl.GL_TEXTURE0 + 6)
+        Gl.glBindTexture(Gl.GL_TEXTURE_2D, 0) '6
+        Gl.glActiveTexture(Gl.GL_TEXTURE0 + 5)
+        Gl.glBindTexture(Gl.GL_TEXTURE_2D, 0) '5
+        Gl.glActiveTexture(Gl.GL_TEXTURE0 + 4)
+        Gl.glBindTexture(Gl.GL_TEXTURE_2D, 0) '4
+        Gl.glActiveTexture(Gl.GL_TEXTURE0 + 3)
+        Gl.glBindTexture(Gl.GL_TEXTURE_2D, 0) '3
+        Gl.glActiveTexture(Gl.GL_TEXTURE0 + 2)
+        Gl.glBindTexture(Gl.GL_TEXTURE_2D, 0) '2
+        Gl.glActiveTexture(Gl.GL_TEXTURE0 + 1)
+        Gl.glBindTexture(Gl.GL_TEXTURE_2D, 0) '1
+        Gl.glActiveTexture(Gl.GL_TEXTURE0 + 0)
+        Gl.glBindTexture(Gl.GL_TEXTURE_2D, 0) '0
 
-            Gl.glColor3f(c3.x, c3.y, c3.z)
-            Gl.glNormal3f(n3.x, n3.y, n3.z)
-            Gl.glVertex3f(vt3.x, vt3.y, vt3.z)
+        Gl.glUseProgram(shader_list.gDetail_shader)
+        Gl.glUniform1i(gDetail_colorMap, 0)
+        Gl.glUniform1i(gDetail_normalMap, 1)
+        Gl.glUniform1i(gDetail_GMM_Map, 2)
+        Gl.glUniform1i(gDetail_detailMap, 3)
+        Gl.glUniform1i(gDetail_brdf, 4)
+        Gl.glUniform1i(gDetail_cubeMap, 5)
 
-        Next
-        Gl.glEnd()
+        Gl.glUniform1i(gDetail_is_glass, _group(jj).is_glass)
+        Gl.glUniform1i(gDetail_alpha_enabled, _group(jj).alphaTest)
+        Gl.glUniform1i(gDetail_alpha_value, _group(jj).alphaRef)
+        Gl.glUniform4f(gDetail_dirtParams, _group(jj).g_dirtParams.x, _group(jj).g_dirtParams.y, _group(jj).g_dirtParams.z, _group(jj).g_dirtParams.w)
+        'switches for shader debug
+        Dim v1, v2, v3, v4 As Single
+        v1 = CSng(section_a And 1) : v2 = CSng((section_a And 2) >> 1) : v3 = CSng((section_a And 4) >> 2) : v4 = CSng((section_a And 8) >> 3)
+        Gl.glUniform4f(gDetail_a_group, v1, v2, v3, v4)
+        v1 = CSng(section_b And 1) : v2 = CSng((section_b And 2) >> 1) : v3 = CSng((section_b And 4) >> 2) : v4 = CSng((section_b And 8) >> 3)
+        Gl.glUniform4f(gDetail_b_group, v1, v2, v3, v4)
+
+
+        Gl.glUniform4f(gDetail_inf, _group(jj).g_detailInfluences.x, _
+                                    _group(jj).g_detailInfluences.y, _
+                                    _group(jj).g_detailInfluences.z, _
+                                    _group(jj).g_detailInfluences.w)
+
+        Gl.glUniform4f(g_Detail_reject_tiling, _group(jj).g_detailRejectTiling.x, _
+                                    _group(jj).g_detailRejectTiling.y, _
+                                    _group(jj).g_detailRejectTiling.z, _
+                                    _group(jj).g_detailRejectTiling.w)
+
+        Gl.glUniform1f(gDetail_A_level, A_level)
+        Gl.glUniform1f(gDetail_S_level, S_level) ' convert to 0.0 to 1.0
+        Gl.glUniform1f(gDetail_T_level, T_level)
+        Gl.glUniform1i(gDetail_has_Detail, _group(jj).g_detailMap_id) 'great than zero, we have a detail map
+        Gl.glActiveTexture(Gl.GL_TEXTURE0 + 0)
+        Gl.glBindTexture(Gl.GL_TEXTURE_2D, _group(jj).color_Id)
+        Gl.glActiveTexture(Gl.GL_TEXTURE0 + 1)
+        Gl.glBindTexture(Gl.GL_TEXTURE_2D, _group(jj).normal_Id)
+        Gl.glActiveTexture(Gl.GL_TEXTURE0 + 2)
+        Gl.glBindTexture(Gl.GL_TEXTURE_2D, _group(jj).metalGMM_Id)
+        Gl.glActiveTexture(Gl.GL_TEXTURE0 + 3)
+        Gl.glBindTexture(Gl.GL_TEXTURE_2D, _group(jj).g_detailMap_id)
+        Gl.glActiveTexture(Gl.GL_TEXTURE0 + 4)
+        Gl.glBindTexture(Gl.GL_TEXTURE_2D, u_brdfLUT)
+        Gl.glActiveTexture(Gl.GL_TEXTURE0 + 5)
+        Gl.glBindTexture(Gl.GL_TEXTURE_CUBE_MAP, cube_texture_id)
+
+        If _group(jj).component_visible Then
+            Gl.glCallList(_object(jj).main_display_list)
+        End If
+        Gl.glBindTexture(Gl.GL_TEXTURE_CUBE_MAP, 0) 'while texture 5 is active.
+
+        Gl.glUseProgram(0)
+
     End Sub
+    Private Sub draw_Primitive()
+        Gl.glFrontFace(Gl.GL_CCW)
+        'affects all models
+        If wire_cb.Checked Then
+            Gl.glEnable(Gl.GL_POLYGON_OFFSET_FILL)
+        End If
+
+        Dim has_glass As Boolean = False
+        For jj = 1 To object_count
+            '=====================================
+            'affects each model
+            If _group(jj).doubleSided = True Then
+                Gl.glDisable(Gl.GL_CULL_FACE)
+            Else
+                Gl.glEnable(Gl.GL_CULL_FACE)
+            End If
+
+            'if this is a detail entry, go draw this item
+            If _group(jj).is_detail_type = 1 Then
+                draw_detail_primtive(jj)
+            Else
+                If _group(jj).is_glass = 1 Then
+                    has_glass = True
+                End If
+                Gl.glDisable(Gl.GL_BLEND)
+                Gl.glEnable(Gl.GL_DEPTH_TEST)
+                Gl.glDepthMask(Gl.GL_TRUE)
+                Gl.glUseProgram(shader_list.AtlasPBR_shader)
+                Gl.glUniform1i(atlasPBR_atlas_AM_map, 0)
+                Gl.glUniform1i(atlasPBR_atlas_GBMT_map, 1)
+                Gl.glUniform1i(atlasPBR_atlas_MAO_map, 2)
+                Gl.glUniform1i(atlasPBR_BLEND_map, 3)
+                Gl.glUniform1i(atlasPBR_DIRT_map, 4)
+                Gl.glUniform1i(atlasPBR_colorMap, 5)
+                Gl.glUniform1i(atlasPBR_colorMap2, 6)
+                Gl.glUniform1i(atlasPBR_normalMap, 7)
+                Gl.glUniform1i(atlasPBR_GMM_Map, 8)
+                Gl.glUniform1i(atlasPBR_brdf, 9)
+                Gl.glUniform1i(atlasPBR_cube, 10)
+
+
+                Gl.glUniform1f(atlasPBR_specular, S_level) ' convert to 0.0 to 1.0
+                Gl.glUniform1f(atlasPBR_ambient, A_level)
+                Gl.glUniform1f(atlasPBR_brightness, T_level)
+                'atlas maps.....................................................
+                Gl.glActiveTexture(Gl.GL_TEXTURE0 + 0)
+                Gl.glBindTexture(Gl.GL_TEXTURE_2D, _group(jj).AM_atlas)
+                Gl.glActiveTexture(Gl.GL_TEXTURE0 + 1)
+                Gl.glBindTexture(Gl.GL_TEXTURE_2D, _group(jj).GBMT_atlas)
+                Gl.glActiveTexture(Gl.GL_TEXTURE0 + 2)
+                Gl.glBindTexture(Gl.GL_TEXTURE_2D, _group(jj).MAO_atlas)
+
+                Gl.glActiveTexture(Gl.GL_TEXTURE0 + 3)
+                Gl.glBindTexture(Gl.GL_TEXTURE_2D, _group(jj).ATLAS_BLEND_ID)
+                Gl.glActiveTexture(Gl.GL_TEXTURE0 + 4)
+                Gl.glBindTexture(Gl.GL_TEXTURE_2D, _group(jj).ATLAS_DIRT_ID)
+
+                Gl.glActiveTexture(Gl.GL_TEXTURE0 + 5)
+                Gl.glBindTexture(Gl.GL_TEXTURE_2D, _group(jj).color_Id)
+                Gl.glActiveTexture(Gl.GL_TEXTURE0 + 6)
+                Gl.glBindTexture(Gl.GL_TEXTURE_2D, _group(jj).detail_Id) 'diffuse2 map
+                Gl.glActiveTexture(Gl.GL_TEXTURE0 + 7)
+                Gl.glBindTexture(Gl.GL_TEXTURE_2D, _group(jj).normal_Id)
+                Gl.glActiveTexture(Gl.GL_TEXTURE0 + 8)
+                Gl.glBindTexture(Gl.GL_TEXTURE_2D, _group(jj).metalGMM_Id)
+                Gl.glActiveTexture(Gl.GL_TEXTURE0 + 9)
+                Gl.glBindTexture(Gl.GL_TEXTURE_2D, u_brdfLUT)
+                Gl.glActiveTexture(Gl.GL_TEXTURE0 + 10)
+                Gl.glBindTexture(Gl.GL_TEXTURE_CUBE_MAP, cube_texture_id)
+
+                Gl.glUniform3f(atlasPBR_camPos, eyeX, eyeY, eyeZ)
+
+                Gl.glUniform1i(atlasPBR_IS_ATLAS, _group(jj).is_atlas_type)
+                Gl.glUniform1i(atlasPBR_USE_UV2, _group(jj).use_uv2)
+                Gl.glUniform1i(atlasPBR_use_normapMap, _group(jj).use_normapMap)
+                Gl.glUniform1i(atlasPBR_is_ANM, _group(jj).ANM)
+
+
+                Gl.glUniform2f(atlasPBR_UVrepete, _group(jj).x_repete, _group(jj).y_repete)
+                Gl.glUniform4f(atlasPBR_sizes, _group(jj).g_atlas_size.x, _group(jj).g_atlas_size.y, _group(jj).g_atlas_size.z, _group(jj).g_atlas_size.w)
+                Gl.glUniform4f(atlasPBR_INDEXES, _group(jj).g_atlas_indexs.x, _group(jj).g_atlas_indexs.y, _group(jj).g_atlas_indexs.z, _group(jj).g_atlas_indexs.w)
+
+                Gl.glUniform4f(atlasPBR_dirtParams, _group(jj).g_dirtParams.x, _group(jj).g_dirtParams.y, _group(jj).g_dirtParams.z, _group(jj).g_dirtParams.w)
+
+                Gl.glUniform4f(atlasPBR_g_tile0Tint, _group(jj).g_tile0Tint.x, _group(jj).g_tile0Tint.y, _group(jj).g_tile0Tint.z, _group(jj).g_tile0Tint.w)
+                Gl.glUniform4f(atlasPBR_g_tile1Tint, _group(jj).g_tile1Tint.x, _group(jj).g_tile1Tint.y, _group(jj).g_tile1Tint.z, _group(jj).g_tile1Tint.w)
+                Gl.glUniform4f(atlasPBR_g_tile2Tint, _group(jj).g_tile2Tint.x, _group(jj).g_tile2Tint.y, _group(jj).g_tile2Tint.z, _group(jj).g_tile2Tint.w)
+                Gl.glUniform4f(atlasPBR_g_dirtColor, _group(jj).g_dirtColor.x, _group(jj).g_dirtColor.y, _group(jj).g_dirtColor.z, _group(jj).g_dirtColor.w)
+                Gl.glUniform2f(atlasPBR_image_size, _group(jj).image_size.x, _group(jj).image_size.y)
+                Gl.glUniform1i(atlasPBR_alpha_enable, _group(jj).alphaTest)
+                Gl.glUniform1i(atlasPBR_alpha_value, _group(jj).alphaRef)
+
+                'switches for shader debug
+                Dim v1, v2, v3, v4 As Single
+                v1 = CSng(section_a And 1) : v2 = CSng((section_a And 2) >> 1) : v3 = CSng((section_a And 4) >> 2) : v4 = CSng((section_a And 8) >> 3)
+                Gl.glUniform4f(atlasPBR_a_group, v1, v2, v3, v4)
+                v1 = CSng(section_b And 1) : v2 = CSng((section_b And 2) >> 1) : v3 = CSng((section_b And 4) >> 2) : v4 = CSng((section_b And 8) >> 3)
+                Gl.glUniform4f(atlasPBR_b_group, v1, v2, v3, v4)
+
+
+                If _group(jj).component_visible Then
+                    If Not _group(jj).is_glass = 1 Then
+                        Gl.glCallList(_object(jj).main_display_list)
+                    End If
+                End If
+            End If
+            Gl.glUseProgram(0)
+        Next
+        If has_glass Then
+            For jj = 0 To object_count
+                If _group(jj).is_glass = 1 Then
+                    Gl.glDisable(Gl.GL_CULL_FACE)
+                    draw_detail_primtive(jj)
+                    Gl.glEnable(Gl.GL_CULL_FACE)
+                    Gl.glEnable(Gl.GL_DEPTH_TEST)
+                    Gl.glDepthMask(Gl.GL_TRUE)
+                End If
+            Next
+        End If
+        'Gl.glActiveTexture(Gl.GL_TEXTURE0 + 11)
+        'Gl.glBindTexture(Gl.GL_TEXTURE_2D, 0) '10
+        Gl.glActiveTexture(Gl.GL_TEXTURE0 + 10)
+        Gl.glBindTexture(Gl.GL_TEXTURE_CUBE_MAP, 0) '10
+        Gl.glActiveTexture(Gl.GL_TEXTURE0 + 9)
+        Gl.glBindTexture(Gl.GL_TEXTURE_2D, 0) '9
+        Gl.glActiveTexture(Gl.GL_TEXTURE0 + 8)
+        Gl.glBindTexture(Gl.GL_TEXTURE_2D, 0) '8
+        Gl.glActiveTexture(Gl.GL_TEXTURE0 + 7)
+        Gl.glBindTexture(Gl.GL_TEXTURE_2D, 0) '7
+        Gl.glActiveTexture(Gl.GL_TEXTURE0 + 6)
+        Gl.glBindTexture(Gl.GL_TEXTURE_2D, 0) '6
+        Gl.glActiveTexture(Gl.GL_TEXTURE0 + 5)
+        Gl.glBindTexture(Gl.GL_TEXTURE_2D, 0) '5
+        Gl.glActiveTexture(Gl.GL_TEXTURE0 + 4)
+        Gl.glBindTexture(Gl.GL_TEXTURE_2D, 0) '4
+        Gl.glActiveTexture(Gl.GL_TEXTURE0 + 3)
+        Gl.glBindTexture(Gl.GL_TEXTURE_2D, 0) '3
+        Gl.glActiveTexture(Gl.GL_TEXTURE0 + 2)
+        Gl.glBindTexture(Gl.GL_TEXTURE_2D, 0) '2
+        Gl.glActiveTexture(Gl.GL_TEXTURE0 + 1)
+        Gl.glBindTexture(Gl.GL_TEXTURE_2D, 0) '1
+        Gl.glActiveTexture(Gl.GL_TEXTURE0 + 0)
+        Gl.glBindTexture(Gl.GL_TEXTURE_2D, 0) '0
+
+
+        G_Buffer.attachColorTexture()
+        If wire_cb.Checked Then
+            Gl.glDisable(Gl.GL_TEXTURE_2D)
+            Gl.glDisable(Gl.GL_LIGHTING)
+            Gl.glDisable(Gl.GL_POLYGON_OFFSET_FILL)
+            Gl.glPolygonMode(Gl.GL_FRONT_AND_BACK, Gl.GL_LINE)
+            If VertexColor_cb.Checked Then
+                Gl.glColor3f(0.6, 0.6, 0.6)
+            Else
+                Gl.glColor3f(0.7, 0.7, 0.7)
+            End If
+            For jj = 1 To object_count
+                If _group(jj).is_carraige Then
+                    Gl.glFrontFace(Gl.GL_CW)
+                Else
+                    Gl.glFrontFace(Gl.GL_CCW)
+                End If
+                If _object(jj).visible Then
+                    If _group(jj).component_visible Then Gl.glCallList(_object(jj).main_display_list)
+                End If
+            Next
+        End If
+
+    End Sub
+
     '###########################################################################################################################################
     Public Sub draw_scene()
         Application.DoEvents()
@@ -3344,138 +3607,8 @@ tryagain:
         '===========================================================
         'Stand Alone Primtives colored render
         If MODEL_LOADED And m_load_textures.Checked And Not m_show_fbx.Checked And Not m_simple_lighting.Checked And PRIMITIVES_MODE Then
-            Gl.glFrontFace(Gl.GL_CCW)
-            If wire_cb.Checked Then
-                Gl.glEnable(Gl.GL_POLYGON_OFFSET_FILL)
-            End If
-
-            Gl.glUseProgram(shader_list.AtlasPBR_shader)
-            Gl.glUniform1i(atlasPBR_atlas_AM_map, 0)
-            Gl.glUniform1i(atlasPBR_atlas_GBMT_map, 1)
-            Gl.glUniform1i(atlasPBR_atlas_MAO_map, 2)
-            Gl.glUniform1i(atlasPBR_BLEND_map, 3)
-            Gl.glUniform1i(atlasPBR_DIRT_map, 4)
-
-            Gl.glUniform1i(atlasPBR_colorMap, 5)
-            Gl.glUniform1i(atlasPBR_colorMap2, 6)
-            Gl.glUniform1i(atlasPBR_normalMap, 7)
-
-            'Gl.glUniform1i(atlasPBR_AM_map, 8)
-            'Gl.glUniform1i(atlasPBR_GBMT_map, 9)
-            'Gl.glUniform1i(atlasPBR_MAO_map, 10)
-            Gl.glUniform1i(atlasPBR_GMM_Map, 8)
-
-            Gl.glUniform1f(atlasPBR_specular, S_level) ' convert to 0.0 to 1.0
-            Gl.glUniform1f(atlasPBR_ambient, A_level)
-            Gl.glUniform1f(atlasPBR_brightness, T_level)
-
-
-            For jj = 1 To object_count
-                If _group(jj).doubleSided = True Then
-                    Gl.glDisable(Gl.GL_CULL_FACE)
-                Else
-                    Gl.glEnable(Gl.GL_CULL_FACE)
-                End If
-                'atlas maps.....................................................
-                Gl.glActiveTexture(Gl.GL_TEXTURE0 + 0)
-                Gl.glBindTexture(Gl.GL_TEXTURE_2D, _group(jj).AM_atlas)
-                Gl.glActiveTexture(Gl.GL_TEXTURE0 + 1)
-                Gl.glBindTexture(Gl.GL_TEXTURE_2D, _group(jj).GBMT_atlas)
-                Gl.glActiveTexture(Gl.GL_TEXTURE0 + 2)
-                Gl.glBindTexture(Gl.GL_TEXTURE_2D, _group(jj).MAO_atlas)
-
-                Gl.glActiveTexture(Gl.GL_TEXTURE0 + 3)
-                Gl.glBindTexture(Gl.GL_TEXTURE_2D, _group(jj).ATLAS_BLEND_ID)
-                Gl.glActiveTexture(Gl.GL_TEXTURE0 + 4)
-                Gl.glBindTexture(Gl.GL_TEXTURE_2D, _group(jj).ATLAS_DIRT_ID)
-                Gl.glActiveTexture(Gl.GL_TEXTURE0 + 5)
-                Gl.glBindTexture(Gl.GL_TEXTURE_2D, _group(jj).color_Id)
-                Gl.glActiveTexture(Gl.GL_TEXTURE0 + 6)
-                Gl.glBindTexture(Gl.GL_TEXTURE_2D, _group(jj).detail_Id) 'diffuse2 map
-                Gl.glActiveTexture(Gl.GL_TEXTURE0 + 7)
-                Gl.glBindTexture(Gl.GL_TEXTURE_2D, _group(jj).normal_Id)
-                'single maps.....................................................
-                'Gl.glActiveTexture(Gl.GL_TEXTURE0 + 8)
-                'Gl.glBindTexture(Gl.GL_TEXTURE_2D, _group(jj).AM_ID)
-                'Gl.glActiveTexture(Gl.GL_TEXTURE0 + 9)
-                'Gl.glBindTexture(Gl.GL_TEXTURE_2D, _group(jj).GBMT_ID)
-                'Gl.glActiveTexture(Gl.GL_TEXTURE0 + 10)
-                'Gl.glBindTexture(Gl.GL_TEXTURE_2D, _group(jj).MAO_ID)
-
-                Gl.glActiveTexture(Gl.GL_TEXTURE0 + 8)
-                Gl.glBindTexture(Gl.GL_TEXTURE_2D, _group(jj).metalGMM_Id)
-
-                Gl.glUniform1i(atlasPBR_IS_ATLAS, _group(jj).is_atlas_type)
-                Gl.glUniform1i(atlasPBR_USE_UV2, _group(jj).use_uv2)
-                Gl.glUniform1i(atlasPBR_use_normapMap, _group(jj).use_normapMap)
-                Gl.glUniform1i(atlasPBR_is_ANM, _group(jj).ANM)
-
-                Gl.glUniform2f(atlasPBR_UVrepete, _group(jj).x_repete, _group(jj).y_repete)
-
-                'Gl.glUniform4f(atlasPBR_atlas_TILE, _group(jj).atlas_uv_coords.x, _group(jj).atlas_uv_coords.y, _group(jj).atlas_uv_coords.z, _group(jj).atlas_uv_coords.w)
-                Gl.glUniform4f(atlasPBR_sizes, _group(jj).g_atlas_size.x, _group(jj).g_atlas_size.y, _group(jj).g_atlas_size.z, _group(jj).g_atlas_size.w)
-                Gl.glUniform4f(atlasPBR_INDEXES, _group(jj).g_atlas_indexs.x, _group(jj).g_atlas_indexs.y, _group(jj).g_atlas_indexs.z, _group(jj).g_atlas_indexs.w)
-
-                Gl.glUniform4f(atlasPBR_g_tile0Tint, _group(jj).g_tile0Tint.x, _group(jj).g_tile0Tint.y, _group(jj).g_tile0Tint.z, _group(jj).g_tile0Tint.w)
-                Gl.glUniform4f(atlasPBR_g_tile1Tint, _group(jj).g_tile1Tint.x, _group(jj).g_tile1Tint.y, _group(jj).g_tile1Tint.z, _group(jj).g_tile1Tint.w)
-                Gl.glUniform4f(atlasPBR_g_tile2Tint, _group(jj).g_tile2Tint.x, _group(jj).g_tile2Tint.y, _group(jj).g_tile2Tint.z, _group(jj).g_tile2Tint.w)
-                Gl.glUniform4f(atlasPBR_g_dirtColor, _group(jj).g_dirtColor.x, _group(jj).g_dirtColor.y, _group(jj).g_dirtColor.z, _group(jj).g_dirtColor.w)
-                Gl.glUniform2f(atlasPBR_image_size, _group(jj).image_size.x, _group(jj).image_size.y)
-                Gl.glUniform1i(atlasPBR_alpha_enable, _group(jj).alphaTest)
-                Gl.glUniform1i(atlasPBR_alpha_value, _group(jj).alphaRef)
-
-                If _group(jj).component_visible Then Gl.glCallList(_object(jj).main_display_list)
-            Next
-            Gl.glUseProgram(0)
-            'Gl.glActiveTexture(Gl.GL_TEXTURE0 + 11)
-            'Gl.glBindTexture(Gl.GL_TEXTURE_2D, 0) '10
-            'Gl.glActiveTexture(Gl.GL_TEXTURE0 + 10)
-            'Gl.glBindTexture(Gl.GL_TEXTURE_2D, 0) '10
-            'Gl.glActiveTexture(Gl.GL_TEXTURE0 + 9)
-            'Gl.glBindTexture(Gl.GL_TEXTURE_2D, 0) '9
-            Gl.glActiveTexture(Gl.GL_TEXTURE0 + 8)
-            Gl.glBindTexture(Gl.GL_TEXTURE_2D, 0) '8
-            Gl.glActiveTexture(Gl.GL_TEXTURE0 + 7)
-            Gl.glBindTexture(Gl.GL_TEXTURE_2D, 0) '7
-            Gl.glActiveTexture(Gl.GL_TEXTURE0 + 6)
-            Gl.glBindTexture(Gl.GL_TEXTURE_2D, 0) '6
-            Gl.glActiveTexture(Gl.GL_TEXTURE0 + 5)
-            Gl.glBindTexture(Gl.GL_TEXTURE_2D, 0) '5
-            Gl.glActiveTexture(Gl.GL_TEXTURE0 + 4)
-            Gl.glBindTexture(Gl.GL_TEXTURE_2D, 0) '4
-            Gl.glActiveTexture(Gl.GL_TEXTURE0 + 3)
-            Gl.glBindTexture(Gl.GL_TEXTURE_2D, 0) '3
-            Gl.glActiveTexture(Gl.GL_TEXTURE0 + 2)
-            Gl.glBindTexture(Gl.GL_TEXTURE_2D, 0) '2
-            Gl.glActiveTexture(Gl.GL_TEXTURE0 + 1)
-            Gl.glBindTexture(Gl.GL_TEXTURE_2D, 0) '1
-            Gl.glActiveTexture(Gl.GL_TEXTURE0 + 0)
-            Gl.glBindTexture(Gl.GL_TEXTURE_2D, 0) '0
-
-            G_Buffer.attachColorTexture()
-
-            If wire_cb.Checked Then
-                Gl.glDisable(Gl.GL_TEXTURE_2D)
-                Gl.glDisable(Gl.GL_LIGHTING)
-                Gl.glDisable(Gl.GL_POLYGON_OFFSET_FILL)
-                Gl.glPolygonMode(Gl.GL_FRONT_AND_BACK, Gl.GL_LINE)
-                If VertexColor_cb.Checked Then
-                    Gl.glColor3f(0.6, 0.6, 0.6)
-                Else
-                    Gl.glColor3f(0.7, 0.7, 0.7)
-                End If
-                For jj = 1 To object_count
-                    If _group(jj).is_carraige Then
-                        Gl.glFrontFace(Gl.GL_CW)
-                    Else
-                        Gl.glFrontFace(Gl.GL_CCW)
-                    End If
-                    If _object(jj).visible Then
-                        If _group(jj).component_visible Then Gl.glCallList(_object(jj).main_display_list)
-                    End If
-                Next
-            End If
-
+            G_Buffer.attachColor_And_blm_tex1()
+            draw_Primitive()
         End If
 
         '===========================================================
@@ -5362,8 +5495,10 @@ fuckit:
                 Gl.glFinish()
                 Gl.glDeleteTextures(1, _group(i).metalGMM_Id)
                 Gl.glFinish()
-                Gl.glDeleteTextures(1, _group(i).AM_ID)
+                Gl.glDeleteTextures(1, _group(i).g_detailMap_id)
+                Gl.glFinish()
                 'atlas textures/ stand alone prmitives
+                Gl.glDeleteTextures(1, _group(i).AM_ID)
                 Gl.glFinish()
                 Gl.glDeleteTextures(1, _group(i).GBMT_ID)
                 Gl.glFinish()
@@ -5383,7 +5518,63 @@ fuckit:
                 Gl.glFinish()
                 Gl.glDeleteTextures(1, _group(i).MAO_atlas)
                 Gl.glFinish()
+            Next
+        End If
+        'clean up any textures in lists.
+        If AM_index_texture_list IsNot Nothing Then
+            For k = 0 To AM_index_texture_list.Length - 1
+                If AM_index_texture_list(k).list IsNot Nothing Then
 
+                    For i = 0 To AM_index_texture_list(k).list.Length - 1
+                        With AM_index_texture_list(k).list(i)
+                            If .texture_id > 0 Then
+                                Gl.glDeleteTextures(1, .texture_id)
+                                Gl.glFinish()
+                            End If
+                            If .texture_id > 0 Then
+                                Gl.glDeleteTextures(1, .texture_id)
+                                Gl.glFinish()
+                            End If
+                            If .texture_id > 0 Then
+                                Gl.glDeleteTextures(1, .texture_id)
+                                Gl.glFinish()
+                            End If
+                        End With
+                        With GBMT_index_texture_list(k).list(i)
+                            If .texture_id > 0 Then
+                                Gl.glDeleteTextures(1, .texture_id)
+                                Gl.glFinish()
+                            End If
+                            If .texture_id > 0 Then
+                                Gl.glDeleteTextures(1, .texture_id)
+                                Gl.glFinish()
+                            End If
+                            If .texture_id > 0 Then
+                                Gl.glDeleteTextures(1, .texture_id)
+                                Gl.glFinish()
+                            End If
+                        End With
+                        Try
+
+                            With MAO_index_texture_list(k).list(i)
+                                If .texture_id > 0 Then
+                                    Gl.glDeleteTextures(1, .texture_id)
+                                    Gl.glFinish()
+                                End If
+                                If .texture_id > 0 Then
+                                    Gl.glDeleteTextures(1, .texture_id)
+                                    Gl.glFinish()
+                                End If
+                                If .texture_id > 0 Then
+                                    Gl.glDeleteTextures(1, .texture_id)
+                                    Gl.glFinish()
+                                End If
+                            End With
+                        Catch ex As Exception
+
+                        End Try
+                    Next
+                End If
             Next
         End If
 
@@ -8109,7 +8300,7 @@ n_turret:
             SaveFileDialog1.FileName = short_tank_name.Replace("\/", "_") + ".fbx"
         End If
         If PRIMITIVES_MODE Then
-            SaveFileDialog1.FileName = Path.GetFileNameWithoutExtension(file_name)
+            SaveFileDialog1.FileName = Path.GetFileNameWithoutExtension(OpenFileDialog1.FileName)
             FBX_NAME = SaveFileDialog1.FileName
         End If
         info_Label.Parent = pb1
@@ -8166,6 +8357,14 @@ n_turret:
     End Sub
 
     Private Sub m_view_res_mods_folder_Click(sender As Object, e As EventArgs) Handles m_view_res_mods_folder.Click
+        If PRIMITIVES_MODE Then
+            Dim fp = OpenFileDialog1.FileName
+            fp = Path.GetDirectoryName(fp)
+            If Directory.Exists(fp) Then
+                Process.Start(fp)
+                Return
+            End If
+        End If
         Dim a = TANK_NAME.Split(":")
         Dim p = a(0)
         Dim f = My.Settings.res_mods_path + "\" + p
@@ -8242,13 +8441,19 @@ n_turret:
         frmComponentView.splitter.Panel2.Controls.Clear()
 
         m_load_textures.Checked = True
+        ReDim AM_index_texture_list(0)
+        ReDim GBMT_index_texture_list(0)
+        ReDim MAO_index_texture_list(0)
+
         If Not build_primitive_data(False) Then
             MsgBox("Primitive failed to open!", MsgBoxStyle.Exclamation, "Load Error!")
             PRIMITIVES_MODE = False
             m_load_textures.Checked = True
             Return
         End If
+
         TANK_NAME = Path.GetFileName(file_name)
+        Me.Text = TANK_NAME
         m_hide_show_components.Enabled = True
         m_set_vertex_winding_order.Enabled = True
         m_ExportExtract.Enabled = True

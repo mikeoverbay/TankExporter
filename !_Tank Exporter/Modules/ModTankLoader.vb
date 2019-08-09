@@ -312,6 +312,7 @@ Module ModTankLoader
         Public alphaRef As Integer
         Public alphaTest As Integer
         Public color_Id As Integer
+        Public is_glass As Integer
         Public detail_Id As Integer
         Public color_name As String
         Public AM_in_res_mods As Boolean
@@ -383,18 +384,25 @@ Module ModTankLoader
         Public g_tile0Tint As vect4
         Public g_dirtParams As vect4
 
+        Public is_detail_type As Integer
+        Public g_detailMap As String
+        Public g_detailMap_id As Integer
+        Public g_detailInfluences As vect4
+        Public g_detailRejectTiling As vect4
+
         Public dirtMap As String
         'Public ATLAS_AM_ID As Integer
         'Public ATLAS_GBMT_ID As Integer
         'Public ATLAS_MAO_ID As Integer
         Public AM_ID As Integer
+        Public AM_ID_name As String
         Public GBMT_ID As Integer
+        Public GBMT_ID_name As String
         Public MAO_ID As Integer
+        Public MAO_ID_name As String
         Public ATLAS_BLEND_ID As Integer
         Public ATLAS_DIRT_ID As Integer
         Public use_normapMap As Integer
-        Public swizzle() As Integer
-        Public swizzle_cnt As Integer
         Public x_repete As Single
         Public y_repete As Single
 
@@ -403,6 +411,12 @@ Module ModTankLoader
         Public MAO_atlas As Integer
         Public atlas_size As vec2
         Public image_size As vec2
+
+        Public swizzle() As Integer
+
+        Public fbx_texture_id As Integer
+        Public fbx_N_texture_id As Integer
+        Public rendered As Boolean
     End Structure
     Public Structure uvect3
         Public v1 As UInt32
@@ -494,10 +508,10 @@ Module ModTankLoader
         If InStr(Path.GetFileNameWithoutExtension(file_name), "segment") > 0 Then
             xmlget_mode = 5
         End If
-
+        If PRIMITIVES_MODE Then xmlget_mode = 0
         section_names(xmlget_mode) = New names_
 
- 
+
         file_name = file_name.Replace("\", "/")
         If CRASH_MODE Then
             file_name = file_name.Replace("/normal/", "/crash/")
@@ -540,6 +554,10 @@ Module ModTankLoader
             loaded_from_resmods = True
         Else
             'no.. get the file from the package...
+            If current_tank_package = 0 Then 'trap excep thrown by stand alone primitive load.
+                log_text.Append("File Not Found in package.." + file_name + vbCrLf)
+                Return False
+            End If
             Dim entry As ZipEntry = frmMain.packages(current_tank_package)(file_name)
             If entry IsNot Nothing Then
                 entry.Extract(r)
@@ -934,9 +952,14 @@ next_m:
                     Catch ex As Exception
                         Return False
                     End Try
-                    tbuf(i).x = vb_reader.ReadSingle '* -1.0!
+                    tbuf(i).x = vb_reader.ReadSingle
                     tbuf(i).y = vb_reader.ReadSingle
                     tbuf(i).z = vb_reader.ReadSingle
+
+                    round_signed_to(tbuf(i).x, 2)
+                    round_signed_to(tbuf(i).y, 2)
+                    round_signed_to(tbuf(i).z, 2)
+
 
                     If realNormals Then
                         tbuf(i).nx = vb_reader.ReadSingle
@@ -1043,6 +1066,9 @@ next_m:
                 _object(jj).name = file_name + ":" + current_tank_package.ToString + ":" + jj.ToString
                 _group(jj).name = file_name + ":" + current_tank_package.ToString + ":" + jj.ToString
                 _group(jj).header = vh.header_text ' save vertex type
+                If PRIMITIVES_MODE Then
+                    XML_Strings(0) = TheXML_String
+                End If
                 If Not PRIMITIVES_MODE Then
                     Try
 
@@ -1370,6 +1396,12 @@ all_done:
         'frmMain.Text = "File: " + file_name.Replace(".visual", ".primitives")
         Return True
     End Function
+    Public Sub round_signed_to(ByRef n As Single, ByRef places As Integer)
+        Dim t As Single = Truncate(n)
+        Dim r As Integer = (n - t) * (10 ^ places)
+        Dim r2 As Single = r / (10 ^ places)
+        n = t + r2
+    End Sub
     Private Function Get_ordered_names()
         Dim t = xmldataset.Copy
         Dim geo, _stream, material As New DataTable
@@ -1529,6 +1561,7 @@ all_done:
         End If
         Return True
     End Function
+
     Dim verts(0) As b_verts_
     Public Structure b_verts_
         Public v1, v2, v3 As SlimDX.Vector3
@@ -1951,7 +1984,6 @@ get_visual:
                                     }
 
     End Sub
-
     Public Function get_texturesNames_and_State(id, loop_count)
         Dim delim As String() = New String(0) {"<primitiveGroup>"}
         Dim sp1 = TheXML_String.Split(delim, StringSplitOptions.None)
@@ -1964,6 +1996,36 @@ get_visual:
         Return get_textures_and_names(id, sp1(loop_count))
         Return Nothing
     End Function
+
+    '=======================================
+    Private Sub find_swizzle(ByVal id As Integer, ByVal thestring As String)
+        ReDim _group(id).swizzle(3)
+        _group(id).swizzle(0) = 2
+        _group(id).swizzle(1) = 1
+        _group(id).swizzle(2) = 0
+        Dim pos As Integer = 1
+        Dim hit_cnt As Integer = 0
+        For i = 0 To 2
+            If pos > 0 Then
+
+                pos = InStr(pos, thestring, "g_tile")
+                If pos > 0 Then
+                    Dim tex1_pos = pos
+                    Dim tex1_Epos = InStr(tex1_pos, thestring, "<Vector4>")
+                    Dim midS = Mid(thestring, tex1_pos, tex1_Epos - tex1_pos).Replace("g_tile", "")
+                    midS = midS.Replace("Tint", "")
+                    Try
+                        _group(id).swizzle(i) = CInt(midS)
+
+                    Catch ex As Exception
+
+                    End Try
+                    pos = tex1_Epos
+                End If
+            End If
+        Next
+    End Sub
+    '=======================================
 
     Public Function get_textures_and_names(ByVal id As Integer, ByVal thestring As String) As Boolean
         'the old method sucks so.. im redoing it.. for the 3rd time!
@@ -1988,12 +2050,21 @@ get_visual:
         _group(id).g_dirtColor.y = 1.0!
         _group(id).g_dirtColor.z = 1.0!
         _group(id).g_dirtColor.w = 1.0!
-        ReDim _group(id).swizzle(3)
-        _group(id).swizzle(0) = 0
-        _group(id).swizzle(1) = 1
-        _group(id).swizzle(2) = 2
-        Dim swiz_cnt As Integer = 0
-        _group(id).swizzle_cnt = 1
+
+        _group(id).g_dirtParams.x = 1.0!
+        _group(id).g_dirtParams.y = 1.0!
+        _group(id).g_dirtParams.z = 1.0!
+        _group(id).g_dirtParams.w = 0.0!
+        _group(id).g_atlas_size.x = 0
+        _group(id).g_atlas_size.y = 0
+        _group(id).g_atlas_size.z = 0
+        _group(id).g_atlas_size.w = 0
+        _group(id).g_atlas_indexs.x = 0
+        _group(id).g_atlas_indexs.y = 0
+        _group(id).g_atlas_indexs.z = 0
+        _group(id).g_atlas_indexs.w = 0
+
+        find_swizzle(id, thestring)
         'so we dont use the diffusedmap2 as diffused in search
         thestring = thestring.Replace("diffuseMap2", "difffuseMap2")
         If thestring.ToLower.Contains("texture=") Then
@@ -2072,6 +2143,16 @@ get_visual:
             newS = Mid(thestring, tex1_pos, tex1_Epos - tex1_pos).Replace("/", "\")
             _group(id).dirtMap = newS
         End If
+
+        diff_pos = InStr(primStart, thestring, "g_detailMap")
+        If diff_pos > 0 Then
+            Dim tex1_pos = InStr(diff_pos, thestring, "<Texture>") + "<Texture>".Length
+            Dim tex1_Epos = InStr(tex1_pos, thestring, "</Texture>")
+            Dim newS As String = ""
+            newS = Mid(thestring, tex1_pos, tex1_Epos - tex1_pos).Replace("/", "\")
+            _group(id).g_detailMap = newS
+        End If
+
         '------------- get sizes, colors and indexes
         diff_pos = InStr(primStart, thestring, "g_tile2Tint")
         If diff_pos > 0 Then
@@ -2084,9 +2165,6 @@ get_visual:
             _group(id).g_tile2Tint.y = Convert.ToSingle(ta(1))
             _group(id).g_tile2Tint.z = Convert.ToSingle(ta(2))
             _group(id).g_tile2Tint.w = Convert.ToSingle(ta(3))
-            _group(id).swizzle(swiz_cnt) = 2
-            _group(id).swizzle_cnt += 1
-            swiz_cnt += 1
         End If
 
         diff_pos = InStr(primStart, thestring, "g_tile1Tint")
@@ -2100,9 +2178,6 @@ get_visual:
             _group(id).g_tile1Tint.y = Convert.ToSingle(ta(1))
             _group(id).g_tile1Tint.z = Convert.ToSingle(ta(2))
             _group(id).g_tile1Tint.w = Convert.ToSingle(ta(3))
-            _group(id).swizzle(swiz_cnt) = 1
-            _group(id).swizzle_cnt += 1
-            swiz_cnt += 1
         End If
 
         diff_pos = InStr(primStart, thestring, "g_tile0Tint")
@@ -2116,9 +2191,6 @@ get_visual:
             _group(id).g_tile0Tint.y = Convert.ToSingle(ta(1))
             _group(id).g_tile0Tint.z = Convert.ToSingle(ta(2))
             _group(id).g_tile0Tint.w = Convert.ToSingle(ta(3))
-            _group(id).swizzle(swiz_cnt) = 0
-            _group(id).swizzle_cnt += 1
-            swiz_cnt += 1
         End If
 
         diff_pos = InStr(primStart, thestring, "g_atlasSizes")
@@ -2173,6 +2245,32 @@ get_visual:
             _group(id).g_dirtParams.w = Convert.ToSingle(ta(3))
         End If
 
+        diff_pos = InStr(primStart, thestring, "g_detailRejectTiling")
+        If diff_pos > 0 Then
+            Dim tex1_pos = InStr(diff_pos, thestring, "<Vector4>") + "<Vector4>".Length
+            Dim tex1_Epos = InStr(tex1_pos, thestring, "</Vector4>")
+            Dim newS As String = ""
+            newS = Mid(thestring, tex1_pos, tex1_Epos - tex1_pos).Replace("/", "\")
+            Dim ta = newS.Split(" ")
+            _group(id).g_detailRejectTiling.x = Convert.ToSingle(ta(0))
+            _group(id).g_detailRejectTiling.y = Convert.ToSingle(ta(1))
+            _group(id).g_detailRejectTiling.z = Convert.ToSingle(ta(2))
+            _group(id).g_detailRejectTiling.w = Convert.ToSingle(ta(3))
+        End If
+
+        diff_pos = InStr(primStart, thestring, "g_detailInfluences")
+        If diff_pos > 0 Then
+            Dim tex1_pos = InStr(diff_pos, thestring, "<Vector4>") + "<Vector4>".Length
+            Dim tex1_Epos = InStr(tex1_pos, thestring, "</Vector4>")
+            Dim newS As String = ""
+            newS = Mid(thestring, tex1_pos, tex1_Epos - tex1_pos).Replace("/", "\")
+            Dim ta = newS.Split(" ")
+            _group(id).g_detailInfluences.x = Convert.ToSingle(ta(0))
+            _group(id).g_detailInfluences.y = Convert.ToSingle(ta(1))
+            _group(id).g_detailInfluences.z = Convert.ToSingle(ta(2))
+            _group(id).g_detailInfluences.w = Convert.ToSingle(ta(3))
+        End If
+
         ' Atlas or Skinned?
         diff_pos = InStr(primStart, thestring, "<fx>")
         If diff_pos > 0 Then
@@ -2182,6 +2280,7 @@ get_visual:
             newS = Mid(thestring, tex1_pos, tex1_Epos - tex1_pos).Replace("/", "\")
             If newS.Contains("skinned") Then
                 _group(id).skinned = True
+                _group(id).doubleSided = True ' skinned models have backwards vertex winding order
             End If
             If newS.Contains("PBS_tiled_atlas") Then
                 _group(id).is_atlas_type = 1
@@ -2189,6 +2288,13 @@ get_visual:
             If newS.Contains("PBS_ext_dual") Then
                 _group(id).use_uv2 = 1
             End If
+            If newS.Contains("PBS_ext_detail") Then
+                _group(id).is_detail_type = 1
+            End If
+            If newS.Contains("PBS_glass.fx") Then
+                _group(id).is_glass = 1
+            End If
+
         End If
 
         '===================================================================================
@@ -2197,7 +2303,12 @@ get_visual:
             Dim tex1_pos = InStr(diff_pos, thestring, "<Vector4>") + "<Vector4>".Length
             Dim tex1_Epos = InStr(tex1_pos, thestring, "</Vector4>")
             Dim newS As String = ""
+            If tex1_Epos = 0 Then
+                tex1_pos = InStr(diff_pos, thestring, "<Vector2>") + "<Vector2>".Length
+                tex1_Epos = InStr(tex1_pos, thestring, "</Vector2>")
+            End If
             newS = Mid(thestring, tex1_pos, tex1_Epos - tex1_pos).Replace("/", "\")
+
             Dim ar = newS.Split(" ")
             _group(id).detail_tile.x = CSng(ar(0))
             _group(id).detail_tile.y = CSng(ar(1))
@@ -2217,6 +2328,20 @@ get_visual:
         End If
 
         diff_pos = InStr(primStart, thestring, "diffuseMap")
+        If diff_pos > 0 Then
+
+            Dim tex1_pos = InStr(diff_pos, thestring, "<Texture>") + "<texture>".Length
+            Dim tex1_Epos = InStr(tex1_pos, thestring, "</Texture>")
+            Dim newS As String = ""
+            newS = Mid(thestring, tex1_pos, tex1_Epos - tex1_pos).Replace("/", "\")
+            If newS = exclusionMask_name Then
+                GLOBAL_exclusionMask = 0
+            End If
+            _group(id).color_name = newS.Replace("tga", "dds")
+            _group(id).color_Id = -1
+        End If
+
+        diff_pos = InStr(primStart, thestring, "dirtAlbedoMap")
         If diff_pos > 0 Then
 
             Dim tex1_pos = InStr(diff_pos, thestring, "<Texture>") + "<texture>".Length
@@ -2273,6 +2398,18 @@ get_visual:
         End If
 
         diff_pos = InStr(primStart, thestring, "metallicGlossMap")
+        If diff_pos > 0 Then
+
+            Dim tex1_pos = InStr(diff_pos, thestring, "<Texture>") + "<texture>".Length
+            Dim tex1_Epos = InStr(tex1_pos, thestring, "</Texture>")
+            Dim newS As String = ""
+            newS = Mid(thestring, tex1_pos, tex1_Epos - tex1_pos).Replace("/", "\")
+            _group(id).metalGMM_name = newS
+            _group(id).metal_textured = True
+            _group(id).metalGMM_Id = -1
+        End If
+
+        diff_pos = InStr(primStart, thestring, "glassMap")
         If diff_pos > 0 Then
 
             Dim tex1_pos = InStr(diff_pos, thestring, "<Texture>") + "<texture>".Length
@@ -2349,10 +2486,12 @@ get_visual:
             Dim newS As String = ""
             newS = Mid(thestring, tex1_pos, tex1_Epos - tex1_pos).Replace("/", "\")
             'Debug.WriteLine(newS)
-            If newS = "true" Then
-                _group(id).doubleSided = True
-            Else
-                _group(id).doubleSided = False
+            If Not _group(id).doubleSided Then
+                If newS = "true" Then
+                    _group(id).doubleSided = True
+                Else
+                    _group(id).doubleSided = False
+                End If
             End If
 
         Else
@@ -2375,6 +2514,7 @@ get_visual:
         Return True
 
     End Function
+    '=======================================
 
     Public Function unpackNormal(ByVal packed As UInt32)
         Dim pkz, pky, pkx As Int32

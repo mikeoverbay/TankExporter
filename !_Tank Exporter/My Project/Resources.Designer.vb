@@ -183,6 +183,16 @@ Namespace My.Resources
         '''<summary>
         '''  Looks up a localized resource of type System.Drawing.Bitmap.
         '''</summary>
+        Friend ReadOnly Property game_of_war() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("game_of_war", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Drawing.Bitmap.
+        '''</summary>
         Friend ReadOnly Property gradiant() As System.Drawing.Bitmap
             Get
                 Dim obj As Object = ResourceManager.GetObject("gradiant", resourceCulture)
@@ -336,6 +346,16 @@ Namespace My.Resources
         Friend ReadOnly Property upton() As System.Drawing.Bitmap
             Get
                 Dim obj As Object = ResourceManager.GetObject("upton", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Drawing.Bitmap.
+        '''</summary>
+        Friend ReadOnly Property upton_BnW() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("upton_BnW", resourceCulture)
                 Return CType(obj,System.Drawing.Bitmap)
             End Get
         End Property
