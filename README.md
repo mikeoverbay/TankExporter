@@ -16,7 +16,7 @@ This fixes a bug loading a few tanks.<br/>
 Updates to Help HTML pages.<br/>
 Updates to FBX Exporter Panel.<br/>
 You can now export tangent normal maps with the FBX.<br/>
-Read the Pirmitives section in the help files.<br/>
+Read the Primitives section in the help files.<br/>
 
 # Version 96: EMERGENCY RELEASE
 This fixes a bug added with the last update by WarGaming. 1.5.1.1498.</br>
