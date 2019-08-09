@@ -1003,6 +1003,9 @@ next_m:
                     End If
                     _group(k).vertices(cnt).u = tbuf(i).u
                     _group(k).vertices(cnt).v = tbuf(i).v
+                    round_signed_to(_group(k).vertices(cnt).u, 4)
+                    round_signed_to(_group(k).vertices(cnt).v, 4)
+
                     _group(k).vertices(cnt).index_1 = tbuf(i).index_1
                     _group(k).vertices(cnt).index_2 = tbuf(i).index_2
                     _group(k).vertices(cnt).index_3 = tbuf(i).index_3
@@ -1018,6 +1021,9 @@ next_m:
                     If has_uv2 Then
                         _group(k).vertices(cnt).u2 = uv2_data(i).u
                         _group(k).vertices(cnt).v2 = uv2_data(i).v
+                        round_signed_to(_group(k).vertices(cnt).u2, 4)
+                        round_signed_to(_group(k).vertices(cnt).v2, 4)
+
                     End If
                     If ordered_names(sg - sub_groups).has_color Then
                         _group(k).has_color = 1

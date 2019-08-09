@@ -442,6 +442,41 @@ Module modTextures
         Dim uv1a, uv1b, uv1c As vec2
         Dim uv2a, uv2b, uv2c As vec2
         Dim p1, p2, p3 As Integer
+        Gl.glPolygonMode(Gl.GL_FRONT_AND_BACK, Gl.GL_LINE)
+        Gl.glLineWidth(6)
+        Gl.glBegin(Gl.GL_TRIANGLES)
+        For j = 1 To _group(id).indicies.Length - 1
+            p1 = _group(id).indicies(j).v1 - _group(id).startVertex_
+            p2 = _group(id).indicies(j).v2 - _group(id).startVertex_
+            p3 = _group(id).indicies(j).v3 - _group(id).startVertex_
+            uv2a.x = _group(id).vertices(p1).u2
+            uv2a.y = _group(id).vertices(p1).v2
+            uv2b.x = _group(id).vertices(p2).u2
+            uv2b.y = _group(id).vertices(p2).v2
+            uv2c.x = _group(id).vertices(p3).u2
+            uv2c.y = _group(id).vertices(p3).v2
+
+            uv1a.x = _group(id).vertices(p1).u
+            uv1a.y = _group(id).vertices(p1).v
+            uv1b.x = _group(id).vertices(p2).u
+            uv1b.y = _group(id).vertices(p2).v
+            uv1c.x = _group(id).vertices(p3).u
+            uv1c.y = _group(id).vertices(p3).v
+
+            Gl.glMultiTexCoord2f(1, uv2a.x, uv2a.y)
+            Gl.glMultiTexCoord2f(0, uv1a.x, uv1a.y)
+            Gl.glVertex2f(uv2a.x, uv2a.y)
+
+            Gl.glMultiTexCoord2f(1, uv2b.x, uv2b.y)
+            Gl.glMultiTexCoord2f(0, uv1b.x, uv1b.y)
+            Gl.glVertex2f(uv2b.x, uv2b.y)
+
+            Gl.glMultiTexCoord2f(1, uv2c.x, uv2c.y)
+            Gl.glMultiTexCoord2f(0, uv1c.x, uv1c.y)
+            Gl.glVertex2f(uv2c.x, uv2c.y)
+        Next
+        Gl.glEnd()
+        Gl.glPolygonMode(Gl.GL_FRONT_AND_BACK, Gl.GL_FILL)
         Gl.glBegin(Gl.GL_TRIANGLES)
         For j = 1 To _group(id).indicies.Length - 1
             p1 = _group(id).indicies(j).v1 - _group(id).startVertex_
@@ -574,7 +609,6 @@ save_it:
         Gl.glLoadIdentity() 'Reset The Matrix
         Gl.glReadBuffer(Gl.GL_BACK)
 
-        Gl.glPolygonMode(Gl.GL_FRONT_AND_BACK, Gl.GL_FILL)
 
         Gl.glDisable(Gl.GL_CULL_FACE)
         Gl.glDisable(Gl.GL_DEPTH_TEST)
@@ -583,6 +617,41 @@ save_it:
         Dim uv1a, uv1b, uv1c As vec2
         Dim uv2a, uv2b, uv2c As vec2
         Dim p1, p2, p3 As Integer
+        Gl.glPolygonMode(Gl.GL_FRONT_AND_BACK, Gl.GL_LINE)
+        Gl.glLineWidth(6)
+        Gl.glBegin(Gl.GL_TRIANGLES)
+        For j = 1 To _group(id).indicies.Length - 1
+            p1 = _group(id).indicies(j).v1 - _group(id).startVertex_
+            p2 = _group(id).indicies(j).v2 - _group(id).startVertex_
+            p3 = _group(id).indicies(j).v3 - _group(id).startVertex_
+            uv2a.x = _group(id).vertices(p1).u2
+            uv2a.y = _group(id).vertices(p1).v2
+            uv2b.x = _group(id).vertices(p2).u2
+            uv2b.y = _group(id).vertices(p2).v2
+            uv2c.x = _group(id).vertices(p3).u2
+            uv2c.y = _group(id).vertices(p3).v2
+
+            uv1a.x = _group(id).vertices(p1).u
+            uv1a.y = _group(id).vertices(p1).v
+            uv1b.x = _group(id).vertices(p2).u
+            uv1b.y = _group(id).vertices(p2).v
+            uv1c.x = _group(id).vertices(p3).u
+            uv1c.y = _group(id).vertices(p3).v
+
+            Gl.glMultiTexCoord2f(1, uv2a.x, uv2a.y)
+            Gl.glMultiTexCoord2f(0, uv1a.x, uv1a.y)
+            Gl.glVertex2f(uv2a.x, uv2a.y)
+
+            Gl.glMultiTexCoord2f(1, uv2b.x, uv2b.y)
+            Gl.glMultiTexCoord2f(0, uv1b.x, uv1b.y)
+            Gl.glVertex2f(uv2b.x, uv2b.y)
+
+            Gl.glMultiTexCoord2f(1, uv2c.x, uv2c.y)
+            Gl.glMultiTexCoord2f(0, uv1c.x, uv1c.y)
+            Gl.glVertex2f(uv2c.x, uv2c.y)
+        Next
+        Gl.glEnd()
+        Gl.glPolygonMode(Gl.GL_FRONT_AND_BACK, Gl.GL_FILL)
         Gl.glBegin(Gl.GL_TRIANGLES)
         For j = 1 To _group(id).indicies.Length - 1
             p1 = _group(id).indicies(j).v1 - _group(id).startVertex_
@@ -622,6 +691,8 @@ save_it:
         Gl.glBindTexture(Gl.GL_TEXTURE_2D, 0)
         Gl.glActiveTexture(Gl.GL_TEXTURE0 + 0)
         Gl.glBindTexture(Gl.GL_TEXTURE_2D, 0)
+
+        Gl.glLineWidth(1)
 
 save_it:
         '========= switch ============
