@@ -956,9 +956,9 @@ next_m:
                     tbuf(i).y = vb_reader.ReadSingle
                     tbuf(i).z = vb_reader.ReadSingle
 
-                    round_signed_to(tbuf(i).x, 2)
-                    round_signed_to(tbuf(i).y, 2)
-                    round_signed_to(tbuf(i).z, 2)
+                    round_signed_to(tbuf(i).x, 3)
+                    round_signed_to(tbuf(i).y, 3)
+                    round_signed_to(tbuf(i).z, 3)
 
 
                     If realNormals Then
