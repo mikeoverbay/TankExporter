@@ -10,6 +10,14 @@
 You can download it here: https://www.autodesk.com/developer-network/platform-technologies/fbx-converter-archives
 Or if you can not down load it from there... the 64 and 32 bit versions are located here: http://tnmshouse.com/converter/
 
+# Version 98:
+This update shortens the names even more in the FBX files.<br/>
+Blender can not use names over 63 characters in length.<br/>
+This update adds a check box to the File/Settings menu to deal with normal maps that were exported as tangent (blue) maps.<br/>
+<a><img src="https://i.imgur.com/0mGLXjq.png" title="source: imgur.com" /></a><br/>
+Also.. This adds a new vertex format BPVTxyznuviiiww<br/>
+This forced me to create the tangent and biTangent vectors used in bump mapping as they are not in the models vertex data.<br/>
+
 # Version 97:
 This updates the stand alone primitives FBX exporter.<br/>
 This fixes a bug loading a few tanks.<br/>

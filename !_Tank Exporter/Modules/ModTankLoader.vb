@@ -175,7 +175,9 @@ Module ModTankLoader
         Public uv2_id_1 As UInt32
         Public uv2_id_2 As UInt32
         Public uv2_id_3 As UInt32
-
+        Public indi_id_1 As Integer
+        Public indi_id_2 As Integer
+        Public indi_id_3 As Integer
     End Class
     Public Class uv_
         Public u As Single
@@ -852,26 +854,34 @@ next_m:
             Dim BPVT_mode As Boolean = False
             Dim realNormals As Boolean = False
             Dim c_stride As Integer = 5
+            Dim compute_tangents As Boolean
             If vh.header_text = "xyznuv" Then
                 stride = 32
                 realNormals = True
+                compute_tangents = True
             End If
             If vh.header_text = "BPVTxyznuv" Then
                 BPVT_mode = True
                 stride = 24
                 realNormals = False
+                compute_tangents = True
             End If
-            If InStr(vh.header_text, "xyznuviiiwwtb") > 0 Then
+            If vh.header_text = "xyznuviiiwwtb" > 0 Then
                 stride = 37
             End If
-            If InStr(vh.header_text, "BPVTxyznuviiiwwtb") > 0 Then
+            If vh.header_text = "BPVTxyznuviiiww" Then
+                BPVT_mode = True
+                stride = 32
+                compute_tangents = True
+            End If
+            If vh.header_text = "BPVTxyznuviiiwwtb" Then
                 BPVT_mode = True
                 stride = 40
             End If
-            If InStr(vh.header_text, "xyznuvtb") > 0 Then
+            If vh.header_text = "xyznuvtb" Then
                 stride = 32
             End If
-            If InStr(vh.header_text, "BPVTxyznuvtb") > 0 Then
+            If vh.header_text = "BPVTxyznuvtb" Then
                 BPVT_mode = True
                 stride = 32
             End If
@@ -971,8 +981,7 @@ next_m:
                     End If
                     tbuf(i).u = vb_reader.ReadSingle
                     tbuf(i).v = vb_reader.ReadSingle
-
-                    If stride = 37 Or stride = 40 Then
+                    If vh.header_text = "BPVTxyznuviiiww" Then
                         tbuf(i).index_1 = vb_reader.ReadByte()
                         tbuf(i).index_2 = vb_reader.ReadByte()
                         tbuf(i).index_3 = vb_reader.ReadByte()
@@ -981,13 +990,26 @@ next_m:
                         tbuf(i).weight_2 = vb_reader.ReadByte()
                         tbuf(i).weight_3 = vb_reader.ReadByte()
                         tbuf(i).weight_4 = vb_reader.ReadByte()
-                        tbuf(i).t = vb_reader.ReadUInt32
-                        tbuf(i).bn = vb_reader.ReadUInt32
+                        'no tangent and bitangent on BPVTxyznuviiiww type vertex
                     Else
-                        If Not realNormals And Not stride = 24 Then
-                            'these dont exist in XYZNUV format vertex
+
+                        If stride = 37 Or stride = 40 Then
+                            tbuf(i).index_1 = vb_reader.ReadByte()
+                            tbuf(i).index_2 = vb_reader.ReadByte()
+                            tbuf(i).index_3 = vb_reader.ReadByte()
+                            tbuf(i).index_4 = vb_reader.ReadByte()
+                            tbuf(i).weight_1 = vb_reader.ReadByte()
+                            tbuf(i).weight_2 = vb_reader.ReadByte()
+                            tbuf(i).weight_3 = vb_reader.ReadByte()
+                            tbuf(i).weight_4 = vb_reader.ReadByte()
                             tbuf(i).t = vb_reader.ReadUInt32
                             tbuf(i).bn = vb_reader.ReadUInt32
+                        Else
+                            If Not realNormals And Not stride = 24 Then
+                                'these dont exist in XYZNUV format vertex
+                                tbuf(i).t = vb_reader.ReadUInt32
+                                tbuf(i).bn = vb_reader.ReadUInt32
+                            End If
                         End If
                     End If
                     _group(k).vertices(cnt) = New vertice_
@@ -1223,6 +1245,7 @@ next_m:
                     'End If
 
                     '1st
+                    _object(jj).tris(i).indi_id_1 = p1
                     _object(jj).tris(i).color1.x = tbuf(p1).index_1 / 255.0!
                     _object(jj).tris(i).color1.y = tbuf(p1).index_2 / 255.0!
                     _object(jj).tris(i).color1.z = tbuf(p1).index_3 / 255.0!
@@ -1265,6 +1288,7 @@ next_m:
 
                     '2nd
 
+                    _object(jj).tris(i).indi_id_2 = p2
                     _object(jj).tris(i).color2.x = tbuf(p2).index_1 / 255.0!
                     _object(jj).tris(i).color2.y = tbuf(p2).index_2 / 255.0!
                     _object(jj).tris(i).color2.z = tbuf(p2).index_3 / 255.0!
@@ -1305,6 +1329,7 @@ next_m:
                     End If
 
                     '3rd
+                    _object(jj).tris(i).indi_id_3 = p3
                     _object(jj).tris(i).color3.x = tbuf(p3).index_1 / 255.0!
                     _object(jj).tris(i).color3.y = tbuf(p3).index_2 / 255.0!
                     _object(jj).tris(i).color3.z = tbuf(p3).index_3 / 255.0!
@@ -1359,6 +1384,9 @@ next_m:
                 ReDim _group(jj).matrix(16)
                 loop_count += 1
 
+                If compute_tangents Then
+                    get_tangents(jj)
+                End If
                 Application.DoEvents()
                 make_lists(jj)
 
@@ -1366,6 +1394,7 @@ next_m:
                 _object(jj).modified = False
                 GC.Collect()
                 _group(jj).table_entry_name = ordered_names(sg - sub_groups).indi_name
+
             Next jj
 no_line:
 
@@ -1408,6 +1437,35 @@ all_done:
         Dim r2 As Single = r / (10 ^ places)
         n = t + r2
     End Sub
+    Private Sub get_tangents(ByVal id As Integer)
+        Dim uv1, uv2, uv3 As uv_
+        Dim v1, v2, v3 As vect3
+        For i As UInteger = 1 To _object(id).count
+         
+            v1 = _object(id).tris(i).v1
+            uv1 = _object(id).tris(i).uv1
+            v2 = _object(id).tris(i).v2
+            uv2 = _object(id).tris(i).uv2
+            v3 = _object(id).tris(i).v3
+            uv3 = _object(id).tris(i).uv3
+            Dim tan, bn As vect3
+            ComputeTangentBasis(v1, v2, v3, uvToVec3t(uv1), uvToVec3t(uv2), uvToVec3t(uv3), tan, bn) ' calculate tan and biTan
+            _object(id).tris(i).t1 = tan
+            _object(id).tris(i).t2 = tan
+            _object(id).tris(i).t3 = tan
+            _object(id).tris(i).b1 = bn
+            _object(id).tris(i).b2 = bn
+            _object(id).tris(i).b3 = bn
+        Next
+
+    End Sub
+    Private Function uvToVec3t(ByVal uv As uv_) As vect3
+        Dim v As vect3
+        v.x = uv.u
+        v.y = uv.v
+        v.z = 0.0!
+        Return v
+    End Function
     Private Function Get_ordered_names()
         Dim t = xmldataset.Copy
         Dim geo, _stream, material As New DataTable

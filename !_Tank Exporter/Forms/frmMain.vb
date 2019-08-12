@@ -3481,7 +3481,11 @@ tryagain:
                 For jj = 1 To fbxgrp.Length - 1
                     If fbxgrp(jj).visible And fbxgrp(jj).component_visible Then
                         Gl.glUniform1i(fbx_texture_count, fbxgrp(jj).texture_count)
-                        Gl.glUniform1i(fbx_is_GAmap, fbxgrp(jj).is_GAmap)
+                        If m_tangent_normalMaps.Checked Then
+                            Gl.glUniform1i(fbx_is_GAmap, 0)
+                        Else
+                            Gl.glUniform1i(fbx_is_GAmap, 1)
+                        End If
                         If fbxgrp(jj).bumped Then
                             Gl.glUniform1i(fbx_bumped, 1)
                         Else
@@ -9597,5 +9601,6 @@ n_turret:
     End Sub
 
 #End Region
+
 
 End Class

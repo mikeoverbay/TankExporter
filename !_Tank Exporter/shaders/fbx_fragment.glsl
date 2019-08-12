@@ -54,6 +54,7 @@ if (is_GAmap == 0 )
         bump = bumpMap.xyz * 2.0 - 1.0;
         bump       = normalize(bump);
         bump.y *= - 1.0;
+        a=bumpMap.a;//alpha is in alpha channel of converted normal maps.
     } else {
         a=bumpMap.r;
         bumpMap.ag = bumpMap.ag *2.0 - 1.0;

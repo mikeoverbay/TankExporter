@@ -162,11 +162,11 @@ Module modFBX
         Dim p As FbxProperty = rootnode.GetFirstProperty
 
         Dim sc = rootnode.Scaling.GetValueAsDouble3
-        While 1
-            'Debug.WriteLine(p.Name)
-            p = rootnode.GetNextProperty(p)
-            If Not p.IsValid Then Exit While
-        End While
+        'While 1
+        '    'Debug.WriteLine(p.Name)
+        '    p = rootnode.GetNextProperty(p)
+        '    If Not p.IsValid Then Exit While
+        'End While
 
         Dim tankComponentCount As Int32 = 0
         Dim TboneCount As Int32 = 0
@@ -660,7 +660,8 @@ NO_PINS:
             model_name = _group(id).name.Replace("/", "\")
             model_name = model_name.Replace(":", "~")
             model_name = model_name.Replace("vehicles\", "")
-            model_name = model_name.Replace("primitives_processed", "primitives")
+            model_name = model_name.Replace("primitives_processed", "pri")
+            model_name = model_name.Replace("\lod0\", "\l\")
             node_list(id) = FbxNode.Create(pManager, model_name)
 
             'create mesh node
@@ -1043,9 +1044,10 @@ outahere:
         ReDim Preserve fbxgrp(i)
 
         fbxgrp(i).name = childnode.NameOnly
-        If Not fbxgrp(i).name.Contains("vehicles\") And fbxgrp(i).name.Contains("lod0\") Then
+        If Not fbxgrp(i).name.Contains("vehicles\") And fbxgrp(i).name.Contains("\l\") Then
             fbxgrp(i).name = "vehicles\" + childnode.NameOnly
-            fbxgrp(i).name = fbxgrp(i).name.Replace("primitives", "primitives_processed")
+            fbxgrp(i).name = fbxgrp(i).name.Replace("pri", "primitives_processed")
+            fbxgrp(i).name = fbxgrp(i).name.Replace("\l\", "\lod0\")
         End If
         'get transform information -------------------------------------
         Dim fbx_matrix As New FbxXMatrix
@@ -1737,11 +1739,11 @@ outahere:
             End If
             frmMain.info_Label.Text = "Loading Tank Component: " + file_name
             Application.DoEvents()
-
             file_name = file_name.Replace(".primitives", ".model")
             Dim ta = file_name.Split("\normal")
             current_tank_package = m_groups(i).package_id(kk)
             TANK_NAME = ta(0) + ":" + current_tank_package.ToString
+            frmMain.Text = "File: " + ta(0)
             Dim success = build_primitive_data(True)
         Next
         '---------------------------------------------------------------------------------------------------
@@ -2164,7 +2166,7 @@ whichone:
         Return v
     End Function
 
-    Private Sub ComputeTangentBasis( _
+    Public Sub ComputeTangentBasis( _
       ByVal p1 As vect3, ByVal p2 As vect3, ByVal p3 As vect3, _
       ByVal UV1 As vect3, ByVal UV2 As vect3, ByVal UV3 As vect3, _
       ByRef tangent As vect3, ByRef bitangent As vect3)
@@ -2187,7 +2189,7 @@ whichone:
 
     End Sub
 
-    Private Function normalize(ByVal normal As vect3) As vect3
+    Public Function normalize(ByVal normal As vect3) As vect3
         Dim len As Single = Sqrt((normal.x * normal.x) + (normal.y * normal.y) + (normal.z * normal.z))
 
         ' avoid division by 0
@@ -2200,25 +2202,25 @@ whichone:
 
         Return v
     End Function
-    Private Function mulvect3(ByVal v1 As vect3, ByVal v As Single) As vect3
+    Public Function mulvect3(ByVal v1 As vect3, ByVal v As Single) As vect3
         v1.x *= v
         v1.y *= v
         v1.z *= v
         Return v1
     End Function
-    Private Function addvect3(ByVal v1 As vect3, ByVal v2 As vect3) As vect3
+    Public Function addvect3(ByVal v1 As vect3, ByVal v2 As vect3) As vect3
         v1.x += v2.x
         v1.y += v2.y
         v1.z += v2.z
         Return v1
     End Function
-    Private Function subvect3(ByVal v1 As vect3, ByVal v2 As vect3) As vect3
+    Public Function subvect3(ByVal v1 As vect3, ByVal v2 As vect3) As vect3
         v1.x -= v2.x
         v1.y -= v2.y
         v1.z -= v2.z
         Return v1
     End Function
-    Private Function subvect2(ByVal v1 As vect3, ByVal v2 As vect3) As vect3
+    Public Function subvect2(ByVal v1 As vect3, ByVal v2 As vect3) As vect3
         v1.x -= v2.x
         v1.y -= v2.y
         Return v1

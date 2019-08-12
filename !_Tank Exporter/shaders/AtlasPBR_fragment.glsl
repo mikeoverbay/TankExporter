@@ -375,7 +375,8 @@ void main(void) {
         {
             colorAM.rgb = basic_color.rgb*0.65;
             color = colorAM;
-            if (use_UV2 == 1) colorAM.rgb = basic_color.rgb * basic_color2.rgb;
+			//UV2 textures are not used on most models other tank the blend mapping.
+            //if (use_UV2 == 1) color.rgb = basic_color.rgb * basic_color2.rgb;
         }
 
     spec_from_color_alpha = colorAM.a;//spec is in color alpha channel
