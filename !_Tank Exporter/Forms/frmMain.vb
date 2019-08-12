@@ -8440,6 +8440,7 @@ n_turret:
         remove_loaded_fbx()
         clean_house()
         PRIMITIVES_MODE = True
+        CRASH_MODE = False
         frmReverseVertexWinding.Panel1.Controls.Clear()
         frmComponentView.splitter.Panel1.Controls.Clear()
         frmComponentView.splitter.Panel2.Controls.Clear()
