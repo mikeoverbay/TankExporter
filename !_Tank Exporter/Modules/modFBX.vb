@@ -1044,9 +1044,10 @@ outahere:
         ReDim Preserve fbxgrp(i)
 
         fbxgrp(i).name = childnode.NameOnly
-        If Not fbxgrp(i).name.Contains("vehicles\") And fbxgrp(i).name.Contains("\l\") Then
+        If Not fbxgrp(i).name.Contains("vehicles\") And (fbxgrp(i).name.Contains("\l\") Or fbxgrp(i).name.Contains("\lod0\")) Then
             fbxgrp(i).name = "vehicles\" + childnode.NameOnly
-            fbxgrp(i).name = fbxgrp(i).name.Replace("pri", "primitives_processed")
+            fbxgrp(i).name = fbxgrp(i).name.Replace("pri~", "primitives_processed~")
+            fbxgrp(i).name = fbxgrp(i).name.Replace("primitives~", "primitives_processed~")
             fbxgrp(i).name = fbxgrp(i).name.Replace("\l\", "\lod0\")
         End If
         'get transform information -------------------------------------
