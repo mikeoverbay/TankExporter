@@ -1,6 +1,6 @@
 ﻿//atlasPBR_fragment.glsl
 //Used to light primitive models
-#version 430 compatibility
+#version 330 compatibility
 
 layout (location = 0) out vec4 gColor;
 layout (location = 1) out vec4 blmColor;
@@ -33,7 +33,7 @@ uniform vec4 dirt_params;
 uniform vec3 camPosition;
 
 uniform int IS_ATLAS; // set if this uses atlas textures
-uniform int use_UV2; // set if this model has a UV2 channel
+uniform int use_UV2; // set if this model has a UV2 texture
 uniform int use_normapMAP; // normalMap in visual
 uniform int is_ANM_Map; // _ANN normapMap in visual
 
@@ -59,12 +59,15 @@ in vec2 TC1;// UV coords
 in vec2 TC2;// UV2 coords
 
 in vec3 vVertex;
-in vec3 vNormal;
-in vec4 vColor;
 
-in mat3 TBN;
+//in mat3 TBN;
+in vec3 Normal;
+float mininput = 0.0;
+float maxinput = 1.0;
+float minoutput = 0.0;
+float maxoutput = 0.9;
 
-
+const float PI = 3.14159265359;
 
 float mip_map_level(in vec2 texture_coordinate)
 {
@@ -84,115 +87,71 @@ vec4 correct(in vec4 hdrColor, in float exposure, in float gamma_level){
     return vec4 (mapped, hdrColor.a);
 }
 
+vec3 getNormalFromMap(in vec3 tangentNormal, in vec2 TexCoords)
+    {
+
+    vec3 Q1 = dFdx(vVertex);
+    vec3 Q2 = dFdy(vVertex);
+    vec2 st1 = dFdx(TexCoords);
+    vec2 st2 = dFdy(TexCoords);
+
+    vec3 N = normalize(Normal);
+    vec3 T = normalize(Q1*st2.t - Q2*st1.t);
+    vec3 B = -normalize(cross(N, T));
+    mat3 TBN = mat3(T, B, N);
+
+    return normalize(TBN * tangentNormal);
+    }
 // PBR Functions ======================================================
-// Encapsulate the various inputs used by the various functions in the shading equation
-// We store values in this struct to simplify the integration of alternative implementations
-// of the shading terms, outlined in the Readme.MD Appendix.
-// See the Tank Fragment shader for more info about this PBS implementation.
-
-struct PBRInfo
+vec3 fresnelSchlick(float cosTheta, vec3 F0)
 {
-    float NdotL;
-    // cos angle between normal and light direction
-    float NdotV;
-    // cos angle between normal and view direction
-    float NdotH;
-    // cos angle between normal and half vector
-    float LdotH;
-    // cos angle between light direction and half vector
-    float VdotH;
-    // cos angle between view direction and half vector
-    float perceptualRoughness;
-    // roughness value, as authored by the model creator (input to shader)
-    float metalness;
-    // metallic value at the surface
-    vec3 reflectance0;
-    // full reflectance color (normal incidence angle)
-    vec3 reflectance90;
-    // reflectance color at grazing angle
-    float alphaRoughness;
-    // roughness mapped to a more linear change in the roughness (proposed by [2])
-    vec3 diffuseColor;
-    // color contribution from diffuse lighting
-    vec3 specularColor;
-    // color contribution from specular lighting
-};
-const float M_PI = 3.141592653589793;
-const float c_MinRoughness = 0.13;
-// used for debug.. shows different parts of the lighting
-
-#define MANUAL_SRGB;
-#define SRGB_FAST_APPROXIMATION;
-vec4 SRGBtoLINEAR(vec4 srgbIn)
-{
-    #ifdef MANUAL_SRGB
-    #ifdef SRGB_FAST_APPROXIMATION
-    vec3 linOut = pow(srgbIn.xyz,vec3(2.2));
-    #else //SRGB_FAST_APPROXIMATION
-    vec3 bLess = step(vec3(0.04045),srgbIn.xyz);
-    vec3 linOut = mix( srgbIn.xyz/vec3(12.92), pow((srgbIn.xyz+vec3(0.055))/vec3(1.055),vec3(2.4)), bLess );
-    #endif //SRGB_FAST_APPROXIMATION
-    return vec4(linOut,srgbIn.w);
-    ;
-    #else //MANUAL_SRGB
-    return srgbIn;
-    #endif //MANUAL_SRGB
+    return max(F0 + (1.0 - F0) * pow(1.0 - min(cosTheta,1.0), 5.0), 0.0);
 }
-
-vec3 getIBLContribution(PBRInfo pbrInputs, vec3 n, vec3 reflection)
+// ----------------------------------------------------------------------------
+vec3 fresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness)
 {
-    float mipCount = 9.0;
-    // resolution of 512x512
-    float lod = ((1.0-pbrInputs.perceptualRoughness) * mipCount);
-    // retrieve a scale and bias to F0. See [1], Figure 3
-    vec3 brdf = SRGBtoLINEAR(texture2D(u_brdfLUT, vec2(pbrInputs.NdotV*0.1, (1.0 - pbrInputs.perceptualRoughness)*0.1))).rgb;
-    vec3 diffuseLight = SRGBtoLINEAR(textureCubeLod(cubeMap, n, 7)).rgb;
-    reflection.xz *= -1.0;
-    // like so many other things, DirectX to OpenDL causes axis issues.
-    vec3 specularLight = SRGBtoLINEAR(textureCubeLod(cubeMap, reflection, lod)).rgb;
-    vec3 diffuse = diffuseLight * pbrInputs.diffuseColor;
-    vec3 specular = specularLight * (pbrInputs.specularColor * brdf.x + brdf.y) * S_level;
-    // For presentation, this allows us to disable IBL terms
-    return diffuse + specular;
-}
-
-vec3 diffuse(PBRInfo pbrInputs)
+    return F0 + (max(vec3(1.0 - roughness), F0) - F0) * pow(1.0 - cosTheta, 5.0);
+}   
+// ----------------------------------------------------------------------------
+float DistributionGGX(vec3 N, vec3 H, float roughness)
 {
-    return pbrInputs.diffuseColor /M_PI;
+    float a      = roughness*roughness;
+    float a2     = a*a;
+    float NdotH  = max(dot(N, H), 0.0);
+    float NdotH2 = NdotH*NdotH;
+    
+    float num   = a2;
+    float denom = (NdotH2 * (a2 - 1.0) + 1.0);
+    denom = PI * denom * denom;
+    
+    return num / denom;
 }
-
-vec3 specularReflection(PBRInfo pbrInputs)
+// ----------------------------------------------------------------------------
+float GeometrySchlickGGX(float NdotV, float roughness)
 {
-    return pbrInputs.reflectance0 + (pbrInputs.reflectance90 - pbrInputs.reflectance0) * pow(clamp(1.0 - pbrInputs.VdotH, 0.0, 1.0), 1.5);
-}
+    float r = (roughness + 1.0);
+    float k = (r*r) / 8.0;
 
-float geometricOcclusion(PBRInfo pbrInputs)
+    float num   = NdotV;
+    float denom = NdotV * (1.0 - k) + k;
+    
+    return num / denom;
+}
+// ----------------------------------------------------------------------------
+float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
 {
-    float NdotL = pbrInputs.NdotL;
-    float NdotV = pbrInputs.NdotV;
-    float r = 0.3;
-    //pbrInputs.alphaRoughness;
-    float attenuationL = 2.0 * NdotL / (NdotL + sqrt(r * r + (1.0 - r * r) * (NdotL * NdotL)));
-    float attenuationV = 2.0 * NdotV / (NdotV + sqrt(r * r + (1.0 - r * r) * (NdotV * NdotV)));
-    return attenuationL * attenuationV;
+    float NdotV = max(dot(N, V), 0.0);
+    float NdotL = max(dot(N, L), 0.0);
+    float ggx2  = GeometrySchlickGGX(NdotV, roughness);
+    float ggx1  = GeometrySchlickGGX(NdotL, roughness);
+    
+    return ggx1 * ggx2;
 }
-
-
-float microfacetDistribution(PBRInfo pbrInputs)
-{
-    float roughnessSq = 0.05;
-    //pbrInputs.alphaRoughness * pbrInputs.alphaRoughness;
-    float f = (pbrInputs.NdotH * roughnessSq - pbrInputs.NdotH) * pbrInputs.NdotH + 1.0;
-    return roughnessSq / (M_PI * f * f);
-}
-// end PBR functions ===============================================================
-
-
+// ----------------------------------------------------------------------------
 void main(void) {
     float specPower = 10.0;
-    //float specular = 0.5;
-    float metal;
-    float gloss;
+    float metallic;
+    float roughness;
     float a;
     vec4 Ispec1 = vec4(0.0);
     vec4 Idiff1 = vec4(0.0);
@@ -205,8 +164,7 @@ void main(void) {
     vec2 UV4;
     vec2 UV4_T;
     vec2 tile;
-    float spec_from_color_alpha;
-    //============================================
+    const float MAX_REFLECTION_LOD = 9.0;
     //============================================
     // Calculate UVs based on indexes ============
     // dont touch these!!!!
@@ -275,7 +233,6 @@ void main(void) {
     UV4_T.y = (fract(tc.y)*scaleX)+tile.y;
     //============================================
     //============================================
-
     vec2 dirt_scale = vec2(dirt_params.y,dirt_params.z);
     float dirt_blend = dirt_params.x;
     vec4 BLEND;
@@ -309,189 +266,148 @@ void main(void) {
     vec4 basic_color =  texture2D(colorMap,TC1);
     vec4 basic_color2 = texture2D(colorMap2,TC2);
     vec4 bumpMap =      texture2D(normalMap,TC1);
-    vec4 GMM =          texture2D(GMM_map,UV1);
-    if (alpha_enable == 1)
-    {
-    float aRef = float(alpha_value)/255.0;
-    if (aRef > bumpMap.r) {
-        discard;
-    }
-    }
+    vec4 GMM =          texture2D(GMM_map,TC1);
     //============================================
     // Some 40 plus hours of trial and error to get this working.
-	// The mix texture has to be compressed down/squished.
+    // The mix texture has to be compressed down/squished.
     BLEND.r = smoothstep(BLEND.r*colorAM_1.a,0.00,0.09);
     BLEND.g = smoothstep(BLEND.g*colorAM_2.a,0.00,0.25);
     BLEND.b = smoothstep(BLEND.b,0.00,0.6);// uncertain still... but this value seems to work well
     BLEND = correct(BLEND,4.0,0.8);
-
     //============================================
      vec4 colorAM = colorAM_3; //colorAM_1;// - (colorAM_1 * BLEND.r);
           colorAM = mix(colorAM,colorAM_1, BLEND.r);
           colorAM = mix(colorAM,colorAM_2, BLEND.g);
           
           colorAM = mix(colorAM,DIRT, BLEND.b);
-        
           colorAM *= BLEND.a;
 
     vec4 GBMT = GBMT_3;
-         //GBMT = mix(GBMT_3, GBMT, BLEND.b);
          GBMT = mix(GBMT, GBMT_1, BLEND.r);
          GBMT = mix(GBMT, GBMT_2, BLEND.g);
   
     vec4 MAO = MAO_3;
-         //MAO = mix(MAO_3, MAO,BLEND.b);
          MAO = mix(MAO, MAO_1, BLEND.r);
          MAO = mix(MAO, MAO_2, BLEND.g);
-
     //============================================
-
     if (use_normapMAP == 0)
     {
         bumpMap = GBMT;
-        gloss = GBMT.r;
-        metal = MAO.r;
+        roughness = 1.1-GBMT.r;
+        if (GBMT.b > 0.03 ) roughness = 1.0-GBMT.b;
+        
+        metallic = MAO.r;
     }
     else
-    {
-        metal = GMM.g;
-        gloss = GMM.r;
+    {   //these are backwards and blue is a mask!
+        roughness = 1.0-GMM.r;
+        if (GMM.b > 0.03 ) roughness = 1.0-GMM.b;
+        metallic = GMM.g;
     }
-
-    a=bumpMap.r;
     vec2 tb = vec2(bumpMap.ga * 2.0 - 1.0);
     bump.xy    = tb.xy;
-    bump.z     = clamp(sqrt(1.0 - dot(tb.xy, bumpMap.xy)),-1.0,1.0);
+    bump.z     = clamp(sqrt(1.0 - ((tb.x*tb.x)+(tb.y*tb.y))),-1.0,1.0);
     bump       = normalize(bump);
     //============================================
-
-    
     if (IS_ATLAS == 1)
         {        
             color = colorAM * MAO.g;
-            spec_from_color_alpha = colorAM.a;
-        }
+            bump = getNormalFromMap(bump,-TC1);
+       }
         else
         {
             colorAM.rgb = basic_color.rgb*0.65;
             color = colorAM;
-			//UV2 textures are not used on most models other tank the blend mapping.
-            //if (use_UV2 == 1) color.rgb = basic_color.rgb * basic_color2.rgb;
+            //UV2 textures are not used on most models other than the blend mapping.
+            //Some do have a 2nd texture that needs to be used.
+            if (use_UV2 == 1) {
+                color.rgb = basic_color.rgb * basic_color2.rgb;
+                bump = getNormalFromMap(bump,-TC2);
+                }else{
+                bump = getNormalFromMap(bump,-TC1);
+                }
         }
-
-    spec_from_color_alpha = colorAM.a;//spec is in color alpha channel
-    vec4 color_out = color;
-    vec4 base = color;
+    a=bumpMap.r;
+    if (alpha_enable == 1)
+        {
+        colorAM *= a; // reduces black out lines
+        float aRef = float(alpha_value)/255.0;
+        if (aRef > a) {
+            discard;
+            }
+        }
+//metallic *= a;
+//roughness *= 1.0*a;
     //============================================
-    float perceptualRoughness = 0.3;
-    float metallic = 0.25;
-    // Roughness is stored in the 'g' channel, metallic is stored in the 'b' channel.
-    // This layout intentionally reserves the 'r' channel for (optional) occlusion map data
- 
-    vec4 mrSample = vec4(1.0 ,gloss, metal ,1.0);
+    // Lighting calculations...
+    vec3 albedo = pow(colorAM.rgb,vec3(2.2));
+    vec3 N = bump;
+    vec3 V = normalize(-vVertex);
 
-    perceptualRoughness = mrSample.g;
-    metallic = max(mrSample.b,0.2) * metallic;
+    vec3 F0 = vec3(0.04); // metal mateials are darkened.
+    F0 = mix(F0, albedo, metallic);
 
 
-    perceptualRoughness = clamp(perceptualRoughness, c_MinRoughness, 1.0);
-    metallic = clamp(metallic, 0.0, 1.0);
-    // Roughness is authored as perceptual roughness; as is convention,
-    // convert to material roughness by squaring the perceptual roughness [2].
-    float alphaRoughness = perceptualRoughness * perceptualRoughness;
-    // The albedo may be defined from a base texture or a flat color
-    color = SRGBtoLINEAR(color);
-    vec4 baseColor = color;
+    vec3 LightColor = vec3(2.0*T_level);
+    vec3 Lo = vec3(0.0);
+    vec3 specular;
+    vec3 F;
+    float G;
+    vec3 R;
+    vec3 diffuse;
+    float NdotL;
+for(int i = 0; i < 3; ++i) 
+    {
+    vec3 L = normalize(gl_LightSource[i].position.xyz - vVertex);
+    vec3 H = normalize(V + L);
+  
+    float distance    = length(gl_LightSource[i].position.xyz - vVertex);
+    float attenuation = 1500.0 / (distance * distance); //Shutting atenuation off
+    vec3 radiance     = LightColor * attenuation;
 
-    vec3 f0 = vec3(0.04);
-    vec3 diffuseColor = baseColor.rgb * (vec3(1.0) - f0);
-    //diffuseColor *= 1.0 - metallic;
-    vec3 specularColor = mix(f0, baseColor.rgb, metallic);
-    // Compute reflectance.
-    float reflectance = 0.1;//max(max(specularColor.r, specularColor.g), specularColor.b);
-    if (gl_FrontFacing) reflectance =0.0;
+    float NDF = DistributionGGX(N, H, roughness);
+    G  = GeometrySmith(N, V, L, roughness);
+
+    F  = fresnelSchlick(max(dot(H, V), 0.0), F0);
+
+    vec3 kS = F;
+    vec3 kD = vec3(1.0) - kS;
+    kD *= 1.0 - metallic;
+
+    vec3 numerator    = NDF * G * F;
+    float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0);
+    NdotL = max(dot(N, L), 0.0);
+
+
+    specular = numerator / max(denominator, 0.001)* S_level * 2.0;
+    blmColor = vec4(specular,1.0)*1.0;
+    diffuse += NdotL * albedo+albedo*0.05;
+  
+    Lo += ((kD * albedo / PI) + specular) * radiance * NdotL;
+    }
+
+    F  = fresnelSchlickRoughness(max(dot(N, V), 0.0), F0, roughness);
     
-    // For typical incident reflectance range (between 4% to 100%)
-    // set the grazing reflectance to 100% for typical fresnel effect.
-    // For very low reflectance range on highly diffuse objects (below 4%),
-    // incrementally reduce grazing reflecance to 0%.
-    float reflectance90 = clamp(reflectance * 25.0, 0.0, 1.0);
-    vec3 specularEnvironmentR0 = specularColor.rgb;
-    vec3 specularEnvironmentR90 = vec3(1.0, 1.0, 1.0) * reflectance90;
+    vec3 kS = F;
+    vec3 kD = 1.0 - kS;
+    kD *= 1.0 - metallic;
 
-    vec3 PN = normalize(TBN * bump); // Get the perturbed normal
-    vec3 norm = normalize(vNormal);
-    vec3 sSpec;
-    //============================================
-    //vec3 u_LightColor = vec3(0.6,0.35,0.35);
-    vec3 u_LightColor = vec3(0.75,0.75,0.75);
-    //============================================
-    for (int i = 0; i < 3; i++){
-        vec3 ll = gl_LightSource[i].position.xyz;
 
-        vec3 n = PN;// normal at surface point
-
-        vec3 v = normalize(camPosition-vVertex);// Vector from surface point to camera
-        vec3 l = normalize(ll - vVertex);// Vector from surface point to light
-        vec3 h = normalize(l+v);// Half vector between both l and v
-        vec3 reflection = normalize(reflect(-v, n));
-        vec3 R = normalize(reflect(-v,n));
-
-        float NdotL = clamp(dot(n, l), 0.001, 1.0);
-        float NdotV = abs(dot(n, v)) + 0.001;
-        float NdotH = clamp(dot(n, h), 0.0, 1.0);
-        float LdotH = clamp(dot(l, h), 0.0, 1.0);
-        float VdotH = clamp(dot(v, h), 0.0, 1.0);
-
-        PBRInfo pbrInputs = PBRInfo(
-            NdotL,
-            NdotV,
-            NdotH,
-            LdotH,
-            VdotH,
-            perceptualRoughness,
-            metallic,
-            specularEnvironmentR0,
-            specularEnvironmentR90,
-            alphaRoughness,
-            diffuseColor,
-            specularColor
-        );
-    // Calculate the shading terms for the microfacet specular shading model
-    vec3 F = specularReflection(pbrInputs);
-    float G = geometricOcclusion(pbrInputs);
-    float D = microfacetDistribution(pbrInputs);
-    // Calculation of analytical lighting contribution
-    vec3 diffuseContrib = (1.0 - F) * diffuse(pbrInputs);
-    vec3 specContrib = F * G * D / (4.0 * NdotL * NdotV)* S_level;
-    vec3 sSpec = vec3(1.0) * pow(max(dot(reflection,l),0.0),10.0) * S_level;
-    // Obtain final intensity as reflectance (BRDF) scaled by the energy of the light (cosine law)
-    vec3 colorMix =  (NdotL * u_LightColor *  (diffuseContrib*15.0)
-                     + (((sSpec + specContrib)*spec_from_color_alpha) * S_level * mrSample.g)*3.0);
-
-    blmColor.rgb +=  NdotL *(specContrib*S_level*mrSample.g)*colorMix.rgb*base.rgb*5.0*gloss;
-
-    colorMix += NdotV * getIBLContribution(pbrInputs, n, R) * perceptualRoughness*5.0;
-    //ambient
-    vec3 ambient = diffuseContrib.rgb * A_level*1.5;
-
-    colorMix += (ambient + (ambient*NdotL* S_level))*2.0;
-
-    // This section uses mix to override final color for reference app visualization
-    // of various parameters in the lighting equation. Great for Debuging!
-    colorMix = mix(colorMix, F, u_ScaleFGDSpec.x);
-    colorMix = mix(colorMix, vec3(G), u_ScaleFGDSpec.y);
-    colorMix = mix(colorMix, vec3(D), u_ScaleFGDSpec.z);
-    colorMix = mix(colorMix, specContrib, u_ScaleFGDSpec.w);
-
-    colorMix = mix(colorMix, diffuseContrib, u_ScaleDiffBaseMR.x);
-    colorMix = mix(colorMix, baseColor.rgb, u_ScaleDiffBaseMR.y);
-    colorMix = mix(colorMix, vec3(metallic), u_ScaleDiffBaseMR.z);
-    colorMix = mix(colorMix, vec3(perceptualRoughness), u_ScaleDiffBaseMR.w);
-
-    sum.rgb += colorMix.rgb;
+    R = reflect(-V,N);
+    R.xz *= -1.0;
+    vec3 prefilteredColor = pow(textureLod(cubeMap, R,  roughness * MAX_REFLECTION_LOD).rgb,vec3(2.2));    
+    vec2 brdf  = texture(u_brdfLUT, vec2(max(dot(N, V), 0.0), roughness)).rg;
+    specular = prefilteredColor * (F * brdf.x + brdf.y)*0.5;
+  
+    vec3 ambient = (kD * diffuse + specular) * A_level*0.75;
+    vec3 col = ambient + Lo;
     
-}// i loop
-    gColor = correct(sum*T_level,1.4,1.5)*1.0;   // write mixed Color:  
-    //gColor.rgb = (BLEND.rgb * vec3(0.999 * T_level)) + ( colorAM.rgb * vec3(1.0)*(1.0- T_level)) ;
+    col= col / (col + vec3(1.0));
+    col = pow(col, vec3(1.0/2.2)) * 3.0;  
+   
+    gColor = vec4(col, 1.0);
+    vec3 acolor = min(max(gColor.rgb - vec3(mininput), vec3(0.0)) / (vec3(maxinput) - vec3(mininput)), vec3(1.0));
+    gColor.rgb = mix(vec3(minoutput), vec3(maxoutput), acolor);
+
+    //gColor.rgb = (vec3(prefilteredColor) * vec3(0.999 * T_level)) + ( (ambient + Lo)*4.0* vec3(1.0)*(1.0- T_level)) ;
 }//main

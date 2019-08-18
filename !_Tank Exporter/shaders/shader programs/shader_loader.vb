@@ -587,8 +587,8 @@ Module shader_loader
         atlasPBR_normalMap = Gl.glGetUniformLocation(shader_list.AtlasPBR_shader, "normalMap")
         atlasPBR_GMM_Map = Gl.glGetUniformLocation(shader_list.AtlasPBR_shader, "GMM_map")
 
-        atlasPBR_cube = Gl.glGetUniformLocation(shader_list.decalsCpass_shader, "cubeMap")
-        atlasPBR_brdf = Gl.glGetUniformLocation(shader_list.decalsCpass_shader, "u_brdfLUT")
+        atlasPBR_cube = Gl.glGetUniformLocation(shader_list.AtlasPBR_shader, "cubeMap")
+        atlasPBR_brdf = Gl.glGetUniformLocation(shader_list.AtlasPBR_shader, "u_brdfLUT")
 
         atlasPBR_atlas_TILE = Gl.glGetUniformLocation(shader_list.AtlasPBR_shader, "atlas_TILE")
         atlasPBR_sizes = Gl.glGetUniformLocation(shader_list.AtlasPBR_shader, "atlas_sizes")
@@ -623,7 +623,7 @@ Module shader_loader
     Public gDetail_colorMap, gDetail_normalMap, gDetail_GMM_Map, gDetail_detailMap, gDetail_inf, g_Detail_reject_tiling As Integer
     Public gDetail_A_level, gDetail_S_level, gDetail_T_level, gDetail_cubeMap, gDetail_has_Detail As Integer
     Public gDetail_alpha_enabled, gDetail_alpha_value, gDetail_dirtParams, gDetail_is_glass As Integer
-    Public gDetail_a_group, gDetail_b_group, gDetail_brdf As Integer
+    Public gDetail_a_group, gDetail_b_group, gDetail_brdf, gDetail_camPos As Integer
     '==============================================================================================================
     Public Sub set_gDetail_shader_variables()
         gDetail_colorMap = Gl.glGetUniformLocation(shader_list.gDetail_shader, "colorMap")
@@ -632,6 +632,8 @@ Module shader_loader
         gDetail_detailMap = Gl.glGetUniformLocation(shader_list.gDetail_shader, "detailMap")
         gDetail_cubeMap = Gl.glGetUniformLocation(shader_list.gDetail_shader, "cubeMap")
         gDetail_brdf = Gl.glGetUniformLocation(shader_list.decalsCpass_shader, "u_brdfLUT")
+
+        gDetail_camPos = Gl.glGetUniformLocation(shader_list.decalsCpass_shader, "camPosition")
 
         g_Detail_reject_tiling = Gl.glGetUniformLocation(shader_list.gDetail_shader, "g_detailRejectTiling")
         gDetail_inf = Gl.glGetUniformLocation(shader_list.gDetail_shader, "g_detailInfluences")

@@ -10,6 +10,12 @@
 You can download it here: https://www.autodesk.com/developer-network/platform-technologies/fbx-converter-archives
 Or if you can not down load it from there... the 64 and 32 bit versions are located here: http://tnmshouse.com/converter/
 
+# Version 99:
+This adds much better lighting to the stand alone primitives.<br/>
+Fixed a few minor bugs.<br/>
+TE no longer extracts tanks with nearly identical names.<br/>
+TE also will find and extract every texture associated with a tank. Note that this texture could be from a different nation!<br/>
+
 # Version 98:
 This update shortens the names even more in the FBX files.<br/>
 Blender can not use names over 63 characters in length.<br/>

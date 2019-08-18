@@ -29,12 +29,12 @@ Module modOpenGL
     Public pb3_hDC As System.IntPtr
     Public pb3_hRC As System.IntPtr
     Public position0() As Single = {2.843F, 10.0F, 9.596F, 1.0F}
-    Public position1() As Single = {5.0F, 8.0F, -5.0F, 1.0F}
+    Public position1() As Single = {-5.0F, 8.0F, -5.0F, 1.0F}
     Public position2() As Single = {0.0F, 10.0F, 0.0F, 1.0F}
 
     Public W_position0() As Single = {2.843F, 10.0F, 9.596F, 1.0F}
-    Public W_position1() As Single = {5.0F, 8.0F, -5.0F, 1.0F}
-    Public W_position2() As Single = {0.0F, 10.0F, 0.0F, 1.0F}
+    Public W_position1() As Single = {-5.0F, 8.0F, -5.0F, 1.0F}
+    Public W_position2() As Single = {0.0F, 12.0F, 0.0F, 1.0F}
 
     Public Sub EnableOpenGL()
 

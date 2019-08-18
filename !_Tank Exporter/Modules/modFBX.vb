@@ -1127,9 +1127,10 @@ outahere:
                 uv_scaling.X = texture.ScaleU
                 uv_scaling.Y = texture.ScaleV
 
-                fbxgrp(i).color_name = fix_texture_path(texture.FileName)
+                Dim fp = Path.GetDirectoryName(frmMain.OpenFileDialog1.FileName) + "\" + texture.RelativeFileName
+                fbxgrp(i).color_name = fix_texture_path(fp)
                 fbxgrp(i).color_Id = -1
-                frmMain.info_Label.Text = "Loading Texture: " + fix_texture_path(texture.FileName)
+                frmMain.info_Label.Text = "Loading Texture: " + fbxgrp(i).color_name
                 Application.DoEvents()
                 fbxgrp(i).color_Id = get_fbx_texture(fbxgrp(i).color_name)
             Else
@@ -1148,8 +1149,9 @@ outahere:
             property_ = material.FindProperty(FbxSurfaceMaterial.SBump)
             texture = property_.GetSrcObject(FbxTexture.ClassId, 0)
             If texture IsNot Nothing Then
-                fbxgrp(i).normal_name = fix_texture_path(texture.FileName)
-                frmMain.info_Label.Text = "Loading Texture: " + fix_texture_path(texture.FileName)
+                Dim fp = Path.GetDirectoryName(frmMain.OpenFileDialog1.FileName) + "\" + texture.RelativeFileName
+                fbxgrp(i).normal_name = fix_texture_path(fp)
+                frmMain.info_Label.Text = "Loading Texture: " + fbxgrp(i).normal_name
                 Application.DoEvents()
                 fbxgrp(i).normal_Id = -1
                 fbxgrp(i).normal_Id = get_fbx_texture(fbxgrp(i).normal_name)
@@ -1159,8 +1161,9 @@ outahere:
                 property_ = material.FindProperty(FbxSurfaceMaterial.SNormalMap)
                 texture = property_.GetSrcObject(FbxTexture.ClassId, 0)
                 If texture IsNot Nothing Then
-                    fbxgrp(i).normal_name = fix_texture_path(texture.FileName)
-                    frmMain.info_Label.Text = "Loading Texture: " + fix_texture_path(texture.FileName)
+                    Dim fp = Path.GetDirectoryName(frmMain.OpenFileDialog1.FileName) + "\" + texture.RelativeFileName
+                    fbxgrp(i).normal_name = fix_texture_path(fp)
+                    frmMain.info_Label.Text = "Loading Texture: " + fbxgrp(i).normal_name
                     Application.DoEvents()
                     fbxgrp(i).normal_Id = -1
                     fbxgrp(i).normal_Id = get_fbx_texture(fbxgrp(i).normal_name)
@@ -1195,8 +1198,9 @@ outahere:
             property_ = material.FindProperty(FbxSurfaceMaterial.SSpecularFactor)
             texture = property_.GetSrcObject(FbxTexture.ClassId, 0)
             If texture IsNot Nothing Then
-                fbxgrp(i).specular_name = fix_texture_path(texture.FileName)
-                frmMain.info_Label.Text = "Loading Texture: " + fix_texture_path(texture.FileName)
+                Dim fp = Path.GetDirectoryName(frmMain.OpenFileDialog1.FileName) + "\" + texture.RelativeFileName
+                fbxgrp(i).specular_name = fix_texture_path(fp)
+                frmMain.info_Label.Text = "Loading Texture: " + fbxgrp(i).specular_name
                 Application.DoEvents()
                 fbxgrp(i).specular_id = -1
                 fbxgrp(i).specular_id = get_fbx_texture(fbxgrp(i).specular_name)
