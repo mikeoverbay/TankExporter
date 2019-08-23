@@ -14,7 +14,7 @@ Or if you can not down load it from there... the 64 and 32 bit versions are loca
 Fixed issues TE not finding the tracks on some tanks when exporting the tank to res_mods.<br/>
 Fixed TE not loading tracks that are from a different nation.<br/>
 Improved shadow mapping and its speed.<br/>
-Fixed a few issues with rendering the stand along primtives.<br/>
+Fixed a few issues with rendering the stand along primitives.<br/>
 
 
 # Version 99:
