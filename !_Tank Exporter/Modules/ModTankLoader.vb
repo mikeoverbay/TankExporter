@@ -217,7 +217,7 @@ Module ModTankLoader
         Public rot_x As New Single
         Public rot_y As New Single
         Public rot_z As New Single
-        Public x_min, x_max, y_min, y_max, z_min, z_max As New Single
+        Public ix_min, ix_max, iy_min, iy_max, iz_min, iz_max As New Single
         Public m_x, m_y, m_z As New Single
         Public loc_x, loc_y, loc_z As New Single
         Public modified As New Boolean
@@ -229,37 +229,45 @@ Module ModTankLoader
 
         Public Sub find_center()
             If Me.count = 0 Then Return
-            Me.x_max = -10000 : Me.x_min = 10000
-            Me.y_max = -10000 : Me.y_min = 10000
-            Me.z_max = -10000 : Me.z_min = 10000
+            Me.ix_max = -10000 : Me.ix_min = 10000
+            Me.iy_max = -10000 : Me.iy_min = 10000
+            Me.iz_max = -10000 : Me.iz_min = 10000
 
-            For l As UInteger = 1 To count
+            For l As UInteger = 1 To count - 1
                 'find x_max and x_min
-                If Me.tris(l).v1.x > Me.x_max Then Me.x_max = Me.tris(l).v1.x
-                If Me.tris(l).v2.x > Me.x_max Then Me.x_max = Me.tris(l).v2.x
-                If Me.tris(l).v3.x > Me.x_max Then Me.x_max = Me.tris(l).v3.x
-                If Me.tris(l).v1.x < Me.x_min Then Me.x_min = Me.tris(l).v1.x
-                If Me.tris(l).v2.x < Me.x_min Then Me.x_min = Me.tris(l).v2.x
-                If Me.tris(l).v3.x < Me.x_min Then Me.x_min = Me.tris(l).v3.x
+                If Me.tris(l).v1.x > Me.ix_max Then Me.ix_max = Me.tris(l).v1.x
+                If Me.tris(l).v2.x > Me.ix_max Then Me.ix_max = Me.tris(l).v2.x
+                If Me.tris(l).v3.x > Me.ix_max Then Me.ix_max = Me.tris(l).v3.x
+                If Me.tris(l).v1.x < Me.ix_min Then Me.ix_min = Me.tris(l).v1.x
+                If Me.tris(l).v2.x < Me.ix_min Then Me.ix_min = Me.tris(l).v2.x
+                If Me.tris(l).v3.x < Me.ix_min Then Me.ix_min = Me.tris(l).v3.x
                 'find y_max and y_min
-                If Me.tris(l).v1.y > Me.y_max Then Me.y_max = Me.tris(l).v1.y
-                If Me.tris(l).v2.y > Me.y_max Then Me.y_max = Me.tris(l).v2.y
-                If Me.tris(l).v3.y > Me.y_max Then Me.y_max = Me.tris(l).v3.y
-                If Me.tris(l).v1.y < Me.y_min Then Me.y_min = Me.tris(l).v1.y
-                If Me.tris(l).v2.y < Me.y_min Then Me.y_min = Me.tris(l).v2.y
-                If Me.tris(l).v3.y < Me.y_min Then Me.y_min = Me.tris(l).v3.y
+                If Me.tris(l).v1.y > Me.iy_max Then Me.iy_max = Me.tris(l).v1.y
+                If Me.tris(l).v2.y > Me.iy_max Then Me.iy_max = Me.tris(l).v2.y
+                If Me.tris(l).v3.y > Me.iy_max Then Me.iy_max = Me.tris(l).v3.y
+                If Me.tris(l).v1.y < Me.iy_min Then Me.iy_min = Me.tris(l).v1.y
+                If Me.tris(l).v2.y < Me.iy_min Then Me.iy_min = Me.tris(l).v2.y
+                If Me.tris(l).v3.y < Me.iy_min Then Me.iy_min = Me.tris(l).v3.y
                 'find z_maz and z_min
-                If Me.tris(l).v1.z > Me.z_max Then Me.z_max = Me.tris(l).v1.z
-                If Me.tris(l).v2.z > Me.z_max Then Me.z_max = Me.tris(l).v2.z
-                If Me.tris(l).v3.z > Me.z_max Then Me.z_max = Me.tris(l).v3.z
-                If Me.tris(l).v1.z < Me.z_min Then Me.z_min = Me.tris(l).v1.z
-                If Me.tris(l).v2.z < Me.z_min Then Me.z_min = Me.tris(l).v2.z
-                If Me.tris(l).v3.z < Me.z_min Then Me.z_min = Me.tris(l).v3.z
+                If Me.tris(l).v1.z > Me.iz_max Then Me.iz_max = Me.tris(l).v1.z
+                If Me.tris(l).v2.z > Me.iz_max Then Me.iz_max = Me.tris(l).v2.z
+                If Me.tris(l).v3.z > Me.iz_max Then Me.iz_max = Me.tris(l).v3.z
+                If Me.tris(l).v1.z < Me.iz_min Then Me.iz_min = Me.tris(l).v1.z
+                If Me.tris(l).v2.z < Me.iz_min Then Me.iz_min = Me.tris(l).v2.z
+                If Me.tris(l).v3.z < Me.iz_min Then Me.iz_min = Me.tris(l).v3.z
 
             Next
-            Me.center_x = (Me.x_max + Me.x_min) / 2
-            Me.center_y = (Me.y_max + Me.y_min) / 2
-            Me.center_z = (Me.z_max + Me.z_min) / 2
+            If Me.ix_max > x_max Then x_max = Me.ix_max
+            If Me.iy_max > y_max Then y_max = Me.iy_max
+            If Me.iz_max > z_max Then z_max = Me.iz_max
+
+            If Me.ix_min < x_min Then x_min = Me.ix_min
+            If Me.iy_min < y_min Then y_min = Me.iy_min
+            If Me.iz_min < z_min Then z_min = Me.iz_min
+
+            Me.center_x = (Me.ix_max + Me.ix_min) / 2
+            Me.center_y = (Me.iy_max + Me.iy_min) / 2
+            Me.center_z = (Me.iz_max + Me.iz_min) / 2
             Me.loc_x = Me.center_x
             Me.loc_y = Me.center_y
             Me.loc_z = Me.center_z
@@ -462,12 +470,6 @@ Module ModTankLoader
         '----------------------------- add or new?
         If Not _add Then
 
-            x_max = -10000
-            x_min = 10000
-            y_max = -10000
-            y_min = 10000
-            z_max = -10000
-            z_min = 10000
             master_cnt = 0
             object_start = 1
         Else
@@ -575,8 +577,14 @@ Module ModTankLoader
                     If entry IsNot Nothing Then
                         entry.Extract(r)
                     Else
-                        log_text.Append("File Not Found in package.." + file_name + vbCrLf)
-                        Return False
+                        'last ditch try searching all packages for the model
+                        entry = find_tank_and_return_entry_in_pkgs(file_name)
+                        If entry Is Nothing Then
+                            log_text.Append("File Not Found in package.." + file_name + vbCrLf)
+                            Return False
+                        Else
+                            entry.Extract(r)
+                        End If
                     End If
                 End If
             End If
@@ -842,7 +850,6 @@ next_m:
                 If cr > 64 And cr <= 123 Then
                     If Not dr Then
                         na = na & Chr(cr)
-
                     End If
                 End If
             Next
@@ -1110,9 +1117,12 @@ next_m:
                             If _group(jj).color_name.ToLower.Contains("chass") Then
                                 _group(jj).tank_part = "chassis"
                                 _object(jj).is_track = 0
+                                _group(jj).is_carraige = True
+
                             Else
                                 _group(jj).tank_part = "track"
                                 _object(jj).is_track = 1
+                                _group(jj).is_carraige = False
                             End If
                             If XML_Strings(1).Length = 0 Then
                                 XML_Strings(1) = TheXML_String
@@ -1219,7 +1229,7 @@ next_m:
                     End If
                     'save the vertex pointers
                     _group(jj).indicies(i) = New uvect3
-                    _group(jj).is_carraige = False
+                    '_group(jj).is_carraige = False
 
                     'this needs to be sorted out for primitives
                     Dim i1, i2, i3 As Integer
@@ -1389,8 +1399,8 @@ next_m:
                 End If
                 Application.DoEvents()
                 make_lists(jj)
+                _object(jj).find_center() 'must be after pre transform!
 
-                _object(jj).find_center()
                 _object(jj).modified = False
                 GC.Collect()
                 _group(jj).table_entry_name = ordered_names(sg - sub_groups).indi_name
@@ -1426,6 +1436,9 @@ all_done:
         'Catch ex As Exception
         _add = add_flag
         log_text.Append("")
+        tank_center_X = (x_max + x_min) / 2.0
+        tank_center_Y = (y_max + y_min) / 2.0
+        tank_center_Z = (z_max + z_min) / 2.0
 
         Dim os As String = ""
         'frmMain.Text = "File: " + file_name.Replace(".visual", ".primitives")
@@ -2062,34 +2075,6 @@ get_visual:
     End Function
 
     '=======================================
-    Private Sub find_swizzle(ByVal id As Integer, ByVal thestring As String)
-        ReDim _group(id).swizzle(3)
-        _group(id).swizzle(0) = 2
-        _group(id).swizzle(1) = 1
-        _group(id).swizzle(2) = 0
-        Dim pos As Integer = 1
-        Dim hit_cnt As Integer = 0
-        For i = 0 To 2
-            If pos > 0 Then
-
-                pos = InStr(pos, thestring, "g_tile")
-                If pos > 0 Then
-                    Dim tex1_pos = pos
-                    Dim tex1_Epos = InStr(tex1_pos, thestring, "<Vector4>")
-                    Dim midS = Mid(thestring, tex1_pos, tex1_Epos - tex1_pos).Replace("g_tile", "")
-                    midS = midS.Replace("Tint", "")
-                    Try
-                        _group(id).swizzle(i) = CInt(midS)
-
-                    Catch ex As Exception
-
-                    End Try
-                    pos = tex1_Epos
-                End If
-            End If
-        Next
-    End Sub
-    '=======================================
 
     Public Function get_textures_and_names(ByVal id As Integer, ByVal thestring As String) As Boolean
         'the old method sucks so.. im redoing it.. for the 3rd time!
@@ -2128,7 +2113,6 @@ get_visual:
         _group(id).g_atlas_indexs.z = 0
         _group(id).g_atlas_indexs.w = 0
 
-        find_swizzle(id, thestring)
         'so we dont use the diffusedmap2 as diffused in search
         thestring = thestring.Replace("diffuseMap2", "difffuseMap2")
         If thestring.ToLower.Contains("texture=") Then

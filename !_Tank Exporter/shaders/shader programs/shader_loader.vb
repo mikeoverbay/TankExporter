@@ -11,6 +11,7 @@ Module shader_loader
         Public basic_shader As Integer
         Public bloom_shader As Integer
         Public blurBchannel_shader As Integer
+        Public blurR_shader As Integer
         Public camoExporter_shader As Integer
         Public channelMute_shader As Integer
         Public colorMult_shader As Integer
@@ -411,14 +412,21 @@ Module shader_loader
 
     '==============================================================================================================
     Public gaus_image, gaus_switch As Integer
-    Public Sub set_blurbchannel_variables()
+    Public Sub set_gaussian_variables()
         gaus_image = Gl.glGetUniformLocation(shader_list.gaussian_shader, "image")
         gaus_switch = Gl.glGetUniformLocation(shader_list.gaussian_shader, "horizontal")
     End Sub
 
     '==============================================================================================================
+    Public blurR_image, blurR_switch As Integer
+    Public Sub set_blurR_variables()
+        blurR_image = Gl.glGetUniformLocation(shader_list.blurR_shader, "image")
+        blurR_switch = Gl.glGetUniformLocation(shader_list.blurR_shader, "horizontal")
+    End Sub
+
+    '==============================================================================================================
     Public blurB_image, blurB_switch As Integer
-    Public Sub set_gaussian_variables()
+    Public Sub set_blurbchannel_variables()
         blurB_image = Gl.glGetUniformLocation(shader_list.blurBchannel_shader, "image")
         blurB_switch = Gl.glGetUniformLocation(shader_list.blurBchannel_shader, "horizontal")
     End Sub
@@ -446,14 +454,15 @@ Module shader_loader
 
     End Sub
 
-    Public shadowTest_depthMap As Integer
-    Public shadowTest_shadowProjection As Integer
-    Public shadowTest_textureMap As Integer
+    Public shadowTest_depthMap, shadowTest_normalMap, shadowTest_shadowProjection As Integer
+    Public shadowTest_light_pos, shadowTest_alphaTest, shadowTest_alphaRef As Integer
     '==============================================================================================================
     Public Sub set_shadowTest_variables()
-        shadowTest_textureMap = Gl.glGetUniformLocation(shader_list.shadowTest_shader, "colorMap")
         shadowTest_depthMap = Gl.glGetUniformLocation(shader_list.shadowTest_shader, "shadowMap")
+        shadowTest_normalMap = Gl.glGetUniformLocation(shader_list.shadowTest_shader, "normalMap")
         shadowTest_shadowProjection = Gl.glGetUniformLocation(shader_list.shadowTest_shader, "shadowProjection")
+        shadowTest_alphaRef = Gl.glGetUniformLocation(shader_list.shadowTest_shader, "alphaRef")
+        shadowTest_alphaTest = Gl.glGetUniformLocation(shader_list.shadowTest_shader, "alphaTest")
     End Sub
 
     Public terrain_depthMap, terrain_shadowProjection, terrain_textureMap, _
@@ -493,7 +502,7 @@ Module shader_loader
         r2mono_shadow = Gl.glGetUniformLocation(shader_list.r2mono_shader, "shadow")
     End Sub
 
-    Public decalC_colorMap, decalC_normalMap, decalC_shadowMap, decalC_decal_matrix As Integer
+    Public decalC_colorMap, decalC_normalMap, decalC_surfaceNormalMap, decalC_shadowMap, decalC_decal_matrix As Integer
     Public decalC_depthMap, decalC_alpha, decalC_level, decalC_UVwrap, decalC_uv_rotate As Integer
     Public decalC_shadowProj, decalC_use_shadow, decalC_fog, decalC_gNormalMap As Integer
     Public decalC_camLocation, decalC_lightPosition, decalC_GMM, decalC_cube, decalC_brdf As Integer
@@ -504,6 +513,8 @@ Module shader_loader
         decalC_colorMap = Gl.glGetUniformLocation(shader_list.decalsCpass_shader, "colorMap")
         decalC_shadowMap = Gl.glGetUniformLocation(shader_list.decalsCpass_shader, "shadowMap")
         decalC_normalMap = Gl.glGetUniformLocation(shader_list.decalsCpass_shader, "normalMap")
+        decalC_surfaceNormalMap = Gl.glGetUniformLocation(shader_list.decalsCpass_shader, "surfaceNormalMap")
+
         decalC_gNormalMap = Gl.glGetUniformLocation(shader_list.decalsCpass_shader, "gNormalMap")
         decalC_GMM = Gl.glGetUniformLocation(shader_list.decalsCpass_shader, "gmmMap")
         decalC_cube = Gl.glGetUniformLocation(shader_list.decalsCpass_shader, "cubeMap")
@@ -696,6 +707,7 @@ Module shader_loader
         convertMap_flip_y = Gl.glGetUniformLocation(shader_list.convertNormalMap_shader, "flip_y")
 
     End Sub
+
     Public Sub set_shader_variables()
 
         set_textureBuilder_variables()
@@ -723,6 +735,7 @@ Module shader_loader
         set_channelMute_variables()
         set_camoExporter_variables()
         set_blurbchannel_variables()
+        set_blurR_variables()
         Return
     End Sub
     '==============================================================================================================

@@ -33,7 +33,6 @@ Imports System.Runtime.Serialization.Formatters.Binary
 Module modDecals
     Public current_decal As Integer = -1
     Public picked_decal As Integer = 0
-
     Public decal_order() As Integer
 
     Public decal_textures() As decal_texture_

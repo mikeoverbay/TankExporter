@@ -25,7 +25,6 @@ Module modBloom
 
             If blm_fbo > 0 Then
                 Gl.glDeleteFramebuffersEXT(1, blm_fbo)
-                Dim e = Gl.glGetError
             End If
 
         End Sub

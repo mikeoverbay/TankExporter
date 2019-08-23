@@ -18,12 +18,14 @@ Module modGlobals
     Public tank_center_X As Single
     Public tank_center_Y As Single
     Public tank_center_Z As Single
-
+    Public l_rot As Single
+    Public paused As Boolean
     '##################################
     Public S_level, A_level, T_level As Single
     Public selected_light As Integer = 0
     '##################################
     Public pkg_search_list() As String
+    Public tank_pkg_search_list() As String
 
     Public atlas_images_coords() As atlas_image_data_
     'Public atlas_textures_ids As atlas_texture_ids_
@@ -225,8 +227,6 @@ Module modGlobals
     Public cam_x, cam_y, cam_z As Single
     Public eyeX, eyeY, eyeZ As Single
     Public screen_avg_counter, screen_avg_draw_time, screen_draw_time, screen_totaled_draw_time As Double
-    Public pause As Boolean = False
-    Public track_mars As Boolean
     Public frmState As Integer
     Public gl_busy As Boolean = False
     Public current_png_path As String = ""

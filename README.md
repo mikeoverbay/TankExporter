@@ -10,6 +10,13 @@
 You can download it here: https://www.autodesk.com/developer-network/platform-technologies/fbx-converter-archives
 Or if you can not down load it from there... the 64 and 32 bit versions are located here: http://tnmshouse.com/converter/
 
+# Version 100:
+Fixed issues TE not finding the tracks on some tanks when exporting the tank to res_mods.<br/>
+Fixed TE not loading tracks that are from a different nation.<br/>
+Improved shadow mapping and its speed.<br/>
+Fixed a few issues with rendering the stand along primtives.<br/>
+
+
 # Version 99:
 This adds much better lighting to the stand alone primitives.<br/>
 Fixed a few minor bugs.<br/>

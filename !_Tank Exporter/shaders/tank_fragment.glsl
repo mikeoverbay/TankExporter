@@ -53,31 +53,8 @@ in vec3 t;
 in vec3 b;
 in vec3 v_Normal;
 in vec3 cubeTC;
-in vec4 ShadowCoord;
 in vec3 vertexColor;
 
-vec4 ShadowCoordPostW;
-vec2 moments ;
-float chebyshevUpperBound( float distance)
-{
-    moments = texture2D(shadowMap,ShadowCoordPostW.xy).rg;
-
-    // Surface is fully lit. as the current fragment is before the light occluder
-    if (distance <= moments.x)
-        return 1.0 ;
-
-    // The fragment is either in shadow or penumbra.
-    // We now use chebyshev's upperBound to check
-    // How likely this pixel is to be lit (p_max)
-    float variance = moments.y - (moments.x*moments.x);
-    variance = max(variance,0.5);
-
-    float d = distance - moments.x;
-    float p_max =  smoothstep(0.1, 0.18, variance / (variance + d*d));
-    //float p_max =   variance / (variance + d*d);
-    p_max = max(p_max,0.15);
-    return p_max ;
-}
 
 // ========================================================
 // rextimmy gets full credit for figuring out how mixing works!
@@ -258,7 +235,7 @@ void main(void) {
     // orbiting light
     lightColors[0] = vec3(1.0);
     // Sun direction light
-    lightColors[1] = vec3(1.0, 1.0, 0.5);
+    lightColors[1] = vec3(1.0, 1.0, 1.0);
     //top light
     lightColors[2] = vec3(1.0);
 
@@ -293,15 +270,8 @@ vec4   cc = vec4(0.0);
     vec4 bumpMap     = texture2D(normalMap, TC1.st);
     vec3 GMM         = texture2D(gmmMap,    TC1.st).rgb;
     if (use_GMM_Toy ==1){ 
-		GMM.rg = GMM_Toy.xy;
-		}
-    float shadow = 1.0;
-    if (use_shadow == 1){
-    ShadowCoordPostW = ShadowCoord / ShadowCoord.w;
-    // Depth was scaled up in the depth writer so we scale it up here too.
-    // This fixes precision issues.
-    shadow = chebyshevUpperBound(ShadowCoordPostW.z*5000.0);
-    }
+        GMM.rg = GMM_Toy.xy;
+        }
     //--------------------------------
     color.rgb  = base.rgb;
     a = base.a;
@@ -364,8 +334,6 @@ vec4   cc = vec4(0.0);
     // or from a metallic-roughness map
     float perceptualRoughness = 0.2;
     float metallic = 1.5;
-    #define HAS_METALROUGHNESSMAP;
-    #ifdef HAS_METALROUGHNESSMAP
     // Roughness is stored in the 'g' channel, metallic is stored in the 'b' channel.
     // This layout intentionally reserves the 'r' channel for (optional) occlusion map data
     vec4 mrSample = vec4(1.0 , GMM.r, GMM.g ,1.0);
@@ -374,19 +342,13 @@ vec4   cc = vec4(0.0);
     // setup correct loctaions
     perceptualRoughness = mrSample.g;
     metallic = mrSample.b * metallic;
-    #endif
     perceptualRoughness = clamp(perceptualRoughness, c_MinRoughness, 1.0);
     metallic = clamp(metallic, 0.0, 1.0);
     // Roughness is authored as perceptual roughness; as is convention,
     // convert to material roughness by squaring the perceptual roughness [2].
     float alphaRoughness = perceptualRoughness * perceptualRoughness;
     // The albedo may be defined from a base texture or a flat color
-    #define HAS_BASECOLORMAP;
-    #ifdef HAS_BASECOLORMAP
     vec4 baseColor = color;
-    #else
-    vec4 baseColor = vec4(vec3(0.5),1.0);
-    #endif
 
     vec3 f0 = vec3(0.04);
     vec3 diffuseColor = baseColor.rgb * (vec3(1.0) - f0);
@@ -399,7 +361,10 @@ vec4   cc = vec4(0.0);
     float reflectance90 = clamp(reflectance * 25.0, 0.0, 1.0);
     vec3 specularEnvironmentR0 = specularColor.rgb;
     vec3 specularEnvironmentR90 = vec3(1.0, 1.0, 1.0) * reflectance90;
-
+    float shadow =1.0;
+    if (use_shadow == 1) shadow = texelFetch(shadowMap, ivec2(gl_FragCoord.xy), 0).r;
+    base.rgb *= shadow;
+    diffuseColor.rgb *= shadow;
 
     vec3 sum = vec3(0.0);
     float scrach = pow((detail.r * detail.g )/0.4,2.0)* metallic;
@@ -440,15 +405,14 @@ for (int i = 0; i < 3; i++){
         // Calculation of analytical lighting contribution
     vec3 diffuseContrib = (1.0 - F) * diffuse(pbrInputs);
     vec3 specContrib = F * G * D / (4.0 * NdotL * NdotV);
-    vec3 sSpec = vec3(1.0) * pow(max(dot(reflection,l),0.0),10.0) * S_level * scrach* 2.0;
+    vec3 sSpec = vec3(1.0) * pow(max(dot(reflection,l),0.0),10.0) * S_level * scrach * shadow;
         // Obtain final intensity as reflectance (BRDF) scaled by the energy of the light (cosine law)
-    vec3 colorMix =  NdotL * u_LightColor *  ((sSpec + diffuseContrib) + (specContrib*S_level*mrSample.g*6.0))*5.0;
+    vec3 colorMix =  NdotL * u_LightColor *  ((sSpec + diffuseContrib* shadow) + (specContrib*S_level*mrSample.g*6.0))*5.0;
 
     blmColor.rgb +=  NdotL *(specContrib*S_level*mrSample.g)*colorMix.rgb*base.rgb*6.0*GMM.r;
     colorMix += NdotV * getIBLContribution(pbrInputs, n, R)
                 *perceptualRoughness * float(is_GAmap);
     vec3 ambient = diffuseContrib.rgb * A_level*0.25;
-    colorMix *= vec3(shadow);
     colorMix += (ambient + (ambient*NdotL));
 
     // This section uses mix to override final color for reference app visualization
@@ -464,11 +428,12 @@ for (int i = 0; i < 3; i++){
     colorMix = mix(colorMix, vec3(perceptualRoughness), u_ScaleDiffBaseMR.w);
 
     gColor += vec4(pow(colorMix,vec3(1.0/2.2)), 1.0) * T_level;
+
+
     if (enableVertexColor == 1)
         {
         gColor.rgb = (gColor.rgb *0.0) + clamp((vertexColor*2.0),0.0,1.0);
         }
-    //gColor.rgb = (gColor.rgb*vec3(0.001)) + vec3(shadow) * T_level * 2.0;
     
 }// i loop
     blmColor.a = 1.0;

@@ -1422,15 +1422,91 @@ save_it:
         'End If
         Return 0
     End Function
+    Public Function find_tank_and_extract_file_in_pkgs(ByVal p As String) As Boolean
+        'Searched and extracts file p to res_mods.
+        'This does NOT overwrite existing files.
+        Dim pp = p.Replace(My.Settings.res_mods_path + "\", "") ' strip res_mods path off head of file name
+        Dim ss = pp.ToLower.Replace("\", "/")
+        'Check if this texture is to be extracted by tank component setting.
+        If Not frmExtract.ext_chassis.Checked And ss.Contains("track") Then
+            Return True
+        End If
+        If Not frmExtract.ext_chassis.Checked And ss.Contains("chassis") Then
+            Return True
+        End If
+        If Not frmExtract.ext_hull.Checked And ss.Contains("hull") Then
+            Return True
+        End If
+        If Not frmExtract.ext_turret.Checked And ss.Contains("turret") Then
+            Return True
+        End If
+        If Not frmExtract.ext_gun.Checked And ss.Contains("gun") Then
+            Return True
+        End If
+
+        For Each f In tank_pkg_search_list
+            Using zipf As New ZipFile(f)
+                For Each entry In zipf
+                    If Not entry.IsDirectory Then
+                        If entry.FileName.ToLower = ss Then
+                            entry.Extract(My.Settings.res_mods_path + "\", ExtractExistingFileAction.DoNotOverwrite)
+                            zipf.Dispose()
+                            GC.Collect()
+                            Return True
+                        End If
+                    End If
+                Next
+            End Using
+        Next
+        Return False
+    End Function
+    Public Function find_tank_and_return_entry_in_pkgs(ByVal p As String) As ZipEntry
+        'Searched and extracts file p to res_mods.
+        'This does NOT overwrite existing files.
+        Dim pp = p.Replace(My.Settings.res_mods_path + "\", "") ' strip res_mods path off head of file name
+        Dim ss = pp.ToLower.Replace("\", "/")
+        'Check if this texture is to be extracted by tank component setting.
+        If Not frmExtract.ext_chassis.Checked And ss.Contains("track") Then
+            Return Nothing
+        End If
+        If Not frmExtract.ext_chassis.Checked And ss.Contains("chassis") Then
+            Return Nothing
+        End If
+        If Not frmExtract.ext_hull.Checked And ss.Contains("hull") Then
+            Return Nothing
+        End If
+        If Not frmExtract.ext_turret.Checked And ss.Contains("turret") Then
+            Return Nothing
+        End If
+        If Not frmExtract.ext_gun.Checked And ss.Contains("gun") Then
+            Return Nothing
+        End If
+
+        For Each f In tank_pkg_search_list
+            Using zipf As New ZipFile(f)
+                For Each entry In zipf
+                    If Not entry.IsDirectory Then
+                        If entry.FileName.ToLower = ss Then
+                            zipf.Dispose()
+                            GC.Collect()
+                            Return entry
+                        End If
+                    End If
+                Next
+            End Using
+        Next
+        Return Nothing
+    End Function
     Public Function find_and_extract_file_in_pkgs(ByVal p As String) As Boolean
         'Searched and extracts file p to res_mods.
         'This does NOT overwrite existing files.
         Dim pp = p.Replace(My.Settings.res_mods_path + "\", "") ' strip res_mods path off head of file name
+        Dim ss = pp.ToLower.Replace("\", "/")
         For Each f In pkg_search_list
             Using zipf As New ZipFile(f)
                 For Each entry In zipf
                     If Not entry.IsDirectory Then
-                        If entry.FileName.ToLower = pp.ToLower.Replace("\", "/") Then
+                        If entry.FileName.ToLower = ss Then
                             entry.Extract(My.Settings.res_mods_path + "\", ExtractExistingFileAction.DoNotOverwrite)
                             zipf.Dispose()
                             GC.Collect()
@@ -1482,6 +1558,21 @@ save_it:
         If ent Is Nothing Then ' look in shared content
             ent = frmMain.packages(11)(name.Replace(".dds", "_hd.dds")) ' look in tank package
         End If
+        If PRIMITIVES_MODE Then
+            id = get_DDS_search_option(name.Replace(".dds", "_hd.dds"))
+            If id > 0 Then
+                log_text.AppendLine("loaded HD from PKG : " + Path.GetFileName(name))
+                Return id
+            End If
+            id = get_DDS_search_option(name)
+            If id > 0 Then
+                log_text.AppendLine("loaded SD from PKG : " + Path.GetFileName(name))
+                Return id
+            End If
+        End If
+        If ent Is Nothing Then
+            ent = find_tank_and_return_entry_in_pkgs(name.Replace(".dds", "_hd.dds"))
+        End If
         If ent IsNot Nothing Then
             'it was found as HD abouve
             log_text.AppendLine("loaded HD from PKG : " + Path.GetFileName(name))
@@ -1491,9 +1582,6 @@ save_it:
             Return id
         Else
             'look in current pkg for SD texture
-            If PRIMITIVES_MODE Then
-                Return get_DDS_search_option(name)
-            End If
 
             ent = frmMain.packages(current_tank_package)(name) ' look in tank package
             If ent Is Nothing Then 'if not found in current pkg than look in shared
@@ -1508,17 +1596,22 @@ save_it:
 
             End If
 
+            If ent Is Nothing Then
+                ent = find_tank_and_return_entry_in_pkgs(name)
+            End If
+
             If ent IsNot Nothing Then ' found SD above
                 log_text.AppendLine("loaded SD from PKG : " + Path.GetFileName(name))
                 mStream = New MemoryStream
                 ent.Extract(mStream)
                 id = get_texture(mStream, name) ' get SD texture ID
                 Return id
-            Else
-                'never found the texture period! Log it!
-                log_text.AppendLine("Cant find:" + name)
             End If
         End If
+
+        'never found the texture period! Log it!
+        log_text.AppendLine("Cant find:" + name)
+
         Return 0
     End Function
 

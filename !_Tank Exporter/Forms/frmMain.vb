@@ -167,6 +167,12 @@ Public Class frmMain
         '============================================================================================
         'UI short cut keys
         Select Case e.KeyValue
+            Case Keys.Space
+                If paused Then
+                    paused = False
+                Else
+                    paused = True
+                End If
 
             Case Keys.F1
                 m_help.PerformClick()
@@ -219,6 +225,14 @@ Public Class frmMain
                 Else
                     gun_cb.Checked = True
                 End If
+            Case Keys.F9
+                m_edit_shaders.PerformClick()
+
+            Case Keys.F10
+                m_shadows.PerformClick()
+
+            Case Keys.F11
+                frmDebug.Show()
 
             Case Keys.F12
                 If MODEL_LOADED Then
@@ -487,7 +501,7 @@ done:
         Ilu.iluInit()
         Ilut.ilutInit()
         EnableOpenGL()
-        make_shadow_fbo()
+        shadow_fbo.make_shadow_fbo()
         pb1.Visible = False
         '---------------------------------------------------------------------------------------------------------------------
         m_export_tank_list.Visible = False
@@ -1277,7 +1291,9 @@ done:
         Dim p = My.Settings.game_path + "\res\packages\"
         Dim di = Directory.GetFiles(p)
         Dim cnt As Integer = 0
+        Dim cnt2 As Integer = 0
         ReDim pkg_search_list(200)
+        ReDim tank_pkg_search_list(200)
         For Each f In di
             Dim ts = Path.GetFileName(f)
             Dim ar = ts.Split("_")
@@ -1288,17 +1304,23 @@ done:
             If ar(0) = "shared" Then
                 pkg_search_list(cnt) = f
                 cnt += 1
+                tank_pkg_search_list(cnt2) = f
+                cnt2 += 1
             End If
             If ar(0) = "hangar" Then
                 pkg_search_list(cnt) = f
                 cnt += 1
             End If
             If ar(0).Contains("vehicles") Then
-                pkg_search_list(cnt) = f
-                cnt += 1
+                tank_pkg_search_list(cnt2) = f
+                cnt2 += 1
             End If
         Next
         ReDim Preserve pkg_search_list(cnt - 1)
+        ReDim Preserve tank_pkg_search_list(cnt2 - 1)
+
+
+
     End Sub
     Private Sub load_resources()
         Dim t As New Stopwatch
@@ -2720,7 +2742,7 @@ tryagain:
         Gl.glBindTexture(Gl.GL_TEXTURE_2D, 0) '0
         '############################################
         'Terrain
-        G_Buffer.attachColor_And_Normal_FOG_Texture()
+        G_Buffer.attach_CNFN()
         Gl.glPushMatrix()
         'Gl.glTranslatef(0.0, -0.06, 0.0)
         'Gl.glRotatef(0.25, -1.0, 0.0, 1.0)
@@ -2748,7 +2770,7 @@ tryagain:
         Gl.glBindTexture(Gl.GL_TEXTURE_2D, terrain_textureId)
         'Gl.glBindTexture(Gl.GL_TEXTURE_2D, decal_textures(5).colorMap_Id)
         Gl.glActiveTexture(Gl.GL_TEXTURE0 + 1)
-        Gl.glBindTexture(Gl.GL_TEXTURE_2D, depthBuffer)
+        Gl.glBindTexture(Gl.GL_TEXTURE_2D, rendered_shadow_texture)
         Gl.glActiveTexture(Gl.GL_TEXTURE0 + 2)
         Gl.glBindTexture(Gl.GL_TEXTURE_2D, terrain_textureNormalId)
         Gl.glActiveTexture(Gl.GL_TEXTURE0 + 3)
@@ -2845,6 +2867,7 @@ tryagain:
         If frmScreenCap.RENDER_OUT And Not frmScreenCap.r_terrain Then
             Return
         End If
+
         Dim w, h As Integer
         Dim l_array(8) As Single
 
@@ -2860,7 +2883,7 @@ tryagain:
         l_array(7) = position2(1)
         l_array(8) = position2(2)
 
-
+        G_Buffer.attachColorTexture()
         G_Buffer.getsize(w, h)
         If current_decal > -1 Then
             G_Buffer.get_depth_buffer(w, h) ' get depth in to gDepth
@@ -2894,13 +2917,14 @@ tryagain:
             Gl.glUniform1i(decalC_depthMap, 0)
             Gl.glUniform1i(decalC_shadowMap, 1)
             Gl.glUniform1i(decalC_gNormalMap, 2)
-            Gl.glUniform1i(decalC_fog, 3)
-            Gl.glUniform1i(decalC_cube, 4)
-            Gl.glUniform1i(decalC_brdf, 5)
+            Gl.glUniform1i(decalC_surfaceNormalMap, 3)
+            Gl.glUniform1i(decalC_fog, 4)
+            Gl.glUniform1i(decalC_cube, 5)
+            Gl.glUniform1i(decalC_brdf, 6)
 
-            Gl.glUniform1i(decalC_colorMap, 6)
-            Gl.glUniform1i(decalC_normalMap, 7)
-            Gl.glUniform1i(decalC_GMM, 8)
+            Gl.glUniform1i(decalC_colorMap, 7)
+            Gl.glUniform1i(decalC_normalMap, 8)
+            Gl.glUniform1i(decalC_GMM, 9)
 
             Gl.glUniform3f(decalC_camLocation, eyeX, eyeY, eyeZ)
             Gl.glUniform3fv(decalC_lightPosition, 3, l_array)
@@ -2916,15 +2940,17 @@ tryagain:
             Gl.glActiveTexture(Gl.GL_TEXTURE0)
             Gl.glBindTexture(Gl.GL_TEXTURE_2D, gDepth)
             Gl.glActiveTexture(Gl.GL_TEXTURE0 + 1)
-            Gl.glBindTexture(Gl.GL_TEXTURE_2D, depthBuffer) 'shadow depth map
+            Gl.glBindTexture(Gl.GL_TEXTURE_2D, rendered_shadow_texture) 'shadow depth map
             Gl.glActiveTexture(Gl.GL_TEXTURE0 + 2)
             Gl.glBindTexture(Gl.GL_TEXTURE_2D, gNormal)
             Gl.glActiveTexture(Gl.GL_TEXTURE0 + 3)
-            Gl.glBindTexture(Gl.GL_TEXTURE_2D, gFXAA) 'animated ground fog from terrain shader
+            Gl.glBindTexture(Gl.GL_TEXTURE_2D, gNormal2)
             Gl.glActiveTexture(Gl.GL_TEXTURE0 + 4)
+            Gl.glBindTexture(Gl.GL_TEXTURE_2D, gFXAA) 'animated ground fog from terrain shader
+            Gl.glActiveTexture(Gl.GL_TEXTURE0 + 5)
             Gl.glBindTexture(Gl.GL_TEXTURE_CUBE_MAP, cube_texture_id)
             Gl.glBindTexture(Gl.GL_TEXTURE_2D, 0)
-            Gl.glActiveTexture(Gl.GL_TEXTURE0 + 5)
+            Gl.glActiveTexture(Gl.GL_TEXTURE0 + 6)
             Gl.glBindTexture(Gl.GL_TEXTURE_2D, u_brdfLUT)
 
 
@@ -2937,11 +2963,11 @@ tryagain:
                     Gl.glUniform1f(decalC_uv_rotate, .uv_rot)
                     Gl.glUniform1f(decalC_alpha, .alpha)
                     Gl.glUniform1f(decalC_level, .level)
-                    Gl.glActiveTexture(Gl.GL_TEXTURE0 + 6)
-                    Gl.glBindTexture(Gl.GL_TEXTURE_2D, decal_matrix_list(j).texture_id)
                     Gl.glActiveTexture(Gl.GL_TEXTURE0 + 7)
-                    Gl.glBindTexture(Gl.GL_TEXTURE_2D, decal_matrix_list(j).normal_id)
+                    Gl.glBindTexture(Gl.GL_TEXTURE_2D, decal_matrix_list(j).texture_id)
                     Gl.glActiveTexture(Gl.GL_TEXTURE0 + 8)
+                    Gl.glBindTexture(Gl.GL_TEXTURE_2D, decal_matrix_list(j).normal_id)
+                    Gl.glActiveTexture(Gl.GL_TEXTURE0 + 9)
                     Gl.glBindTexture(Gl.GL_TEXTURE_2D, decal_matrix_list(j).gmm_id)
 
                     Gl.glCallList(decal_draw_box)
@@ -3352,15 +3378,18 @@ tryagain:
 
         Dim l_color() = {0.3!, 0.3!, 0.3!}
         Gl.glEnable(Gl.GL_LIGHTING)
-
+        view_status_string = ""
+        If paused Then
+            view_status_string += "*** PAUSED *** "
+        End If
         If MODEL_LOADED Then
             If m_show_fbx.Checked Then
-                view_status_string = ": FBX View "
+                view_status_string += ": FBX View "
             Else
-                view_status_string = ": Model View "
+                view_status_string += ": Model View "
             End If
         Else
-            view_status_string = ": Nothing Loaded "
+            view_status_string += ": Nothing Loaded "
         End If
         If Not wire_cb.Checked Then
             view_status_string += ": Solid : "
@@ -3629,6 +3658,7 @@ tryagain:
         'Draw fully rendered?
         Dim id As Integer = SELECTED_CAMO_BUTTON
         If MODEL_LOADED And m_load_textures.Checked And Not m_show_fbx.Checked And Not m_simple_lighting.Checked And Not PRIMITIVES_MODE Then
+            'Gl.glDisable(Gl.GL_BLEND)
             view_status_string += "Textured : "
 
             G_Buffer.attachColor_And_blm_tex1()
@@ -3674,7 +3704,7 @@ tryagain:
             End If
 
             Gl.glActiveTexture(Gl.GL_TEXTURE0 + 8)
-            Gl.glBindTexture(Gl.GL_TEXTURE_2D, depthBuffer)
+            Gl.glBindTexture(Gl.GL_TEXTURE_2D, rendered_shadow_texture)
 
             For jj = 1 To object_count - track_info.segment_count
                 Gl.glUniform1i(tank_is_Track, _object(jj).is_track)
@@ -3876,6 +3906,53 @@ tryagain:
         End If
 nothing_else:
         '==========================================
+        'draw test bp points
+        If False Then
+            'shadow debug shit
+            Gl.glColor3f(1.0, 1.0, 0.0) 'red
+            Dim phs As Single = 0.1
+            For i = 1 To 8
+                Gl.glPushMatrix()
+                Gl.glTranslatef(bbs(i).x, bbs(i).y, bbs(i).z)
+                glutSolidSphere(phs, 5, 5)
+                Gl.glPopMatrix()
+            Next
+
+            Gl.glBegin(Gl.GL_LINE_LOOP)
+            Gl.glVertex3f(x_max, y_max, z_max)
+            Gl.glVertex3f(x_min, y_max, z_max)
+            Gl.glVertex3f(x_min, y_max, z_min)
+            Gl.glVertex3f(x_max, y_max, z_min)
+            Gl.glVertex3f(x_max, y_max, z_max)
+            Gl.glEnd()
+            Gl.glBegin(Gl.GL_LINE_LOOP)
+            Gl.glVertex3f(x_max, y_min, z_max)
+            Gl.glVertex3f(x_min, y_min, z_max)
+            Gl.glVertex3f(x_min, y_min, z_min)
+            Gl.glVertex3f(x_max, y_min, z_min)
+            Gl.glVertex3f(x_max, y_min, z_max)
+            Gl.glEnd()
+
+            Dim c = bbs(1).y
+            Gl.glBegin(Gl.GL_LINE_LOOP)
+            Gl.glVertex3f(w_max, c, h_max)
+            Gl.glVertex3f(w_min, c, h_max)
+            Gl.glVertex3f(w_min, c, h_min)
+            Gl.glVertex3f(w_max, c, h_min)
+            Gl.glVertex3f(w_max, c, h_max)
+            Gl.glEnd()
+            c = bbs(7).y
+            Gl.glBegin(Gl.GL_LINE_LOOP)
+            Gl.glVertex3f(w_max, c, h_max)
+            Gl.glVertex3f(w_min, c, h_max)
+            Gl.glVertex3f(w_min, c, h_min)
+            Gl.glVertex3f(w_max, c, h_min)
+            Gl.glVertex3f(w_max, c, h_max)
+            Gl.glEnd()
+
+        End If
+
+        '==========================================
         ' draw selected poly if set to do so.
         'Gl.glDisable(Gl.GL_CULL_FACE)
         Gl.glDisable(Gl.GL_LIGHTING)
@@ -3951,6 +4028,15 @@ nothing_else:
             End If
         End If
         '=================================================================================
+        'Gl.glColor3f(0.0, 1.0, 0.0) 'red
+        'Gl.glDisable(Gl.GL_DEPTH_TEST)
+        'Gl.glPointSize(8)
+        'Gl.glBegin(Gl.GL_POINTS)
+        'Gl.glVertex3f(tank_center_X, tank_center_Y, tank_center_Z)
+        'Gl.glEnd()
+        'Gl.glEnable(Gl.GL_DEPTH_TEST)
+        '=================================================================================
+
 
         If move_mod Or z_move Then    'draw reference lines to eye center
             Gl.glColor3f(1.0, 1.0, 1.0)
@@ -5328,7 +5414,6 @@ fuckit:
 
         Return update
     End Function
-    Dim l_rot As Single
     Dim l_timer As New Stopwatch
     Dim refresh_counter As Integer = 0
     Private Sub mouse_movement()
@@ -5347,14 +5432,16 @@ fuckit:
         Dim s As Single = 2.0
         l_timer.Restart()
         Dim l_scaler As Single = 1.0!
+        Dim y_scaler As Single = 1.0!
         Dim l_radius As Single = 0.0!
         While _Started
             need_update()
-            angle_offset = 0
             'scale light based on mode
             If PRIMITIVES_MODE Then
-                l_scaler = 5.0!
+                l_scaler = 10.0!
+                y_scaler = 3.0!
             Else
+                l_scaler = 1.0!
                 l_scaler = 1.0!
             End If
             Application.DoEvents()
@@ -5362,23 +5449,25 @@ fuckit:
                 'scale light based on mode
                 If Not spin_light Then
                     position0(0) = W_position0(0) * l_scaler
-                    position0(1) = W_position0(1) * l_scaler
+                    position0(1) = W_position0(1) * y_scaler
                     position0(2) = W_position0(2) * l_scaler
                 End If
 
                 position1(0) = W_position1(0) * l_scaler
-                position1(1) = W_position1(1) * l_scaler
+                position1(1) = W_position1(1) * y_scaler
                 position1(2) = W_position1(2) * l_scaler
 
                 position2(0) = W_position2(0) * l_scaler
-                position2(1) = W_position2(1) * l_scaler
+                position2(1) = W_position2(1) * y_scaler
                 position2(2) = W_position2(2) * l_scaler
 
                 If Not w_changing And Not stop_updating Then
                     If spin_light And l_timer.ElapsedMilliseconds > 32 Then
                         l_radius = Sqrt(position0(0) ^ 2 + position0(2) ^ 2)
                         l_timer.Restart()
-                        l_rot += 0.03
+                        If Not paused Then
+                            l_rot += 0.02
+                        End If
                         If l_rot > 2 * PI Then
                             l_rot -= (2 * PI)
                         End If
@@ -5387,14 +5476,16 @@ fuckit:
                         z = Sin(l_rot) * l_radius
 
                         position0(0) = x
-                        position0(1) = 10.0
+                        'position0(1) = 14.0
                         position0(2) = z
 
                     End If
 
                     If spin_camera And l_timer.ElapsedMilliseconds > 10 Then
                         l_timer.Restart()
-                        cam_angle += 0.002
+                        If Not paused Then
+                            cam_angle += 0.002
+                        End If
                         If cam_angle > 2 * PI Then
                             cam_angle -= (2 * PI)
                         End If
@@ -5458,6 +5549,13 @@ fuckit:
         look_point_x = 0
         look_point_y = 0
         look_point_z = 0
+        'reset models bounding box
+        x_max = -10000
+        x_min = 10000
+        y_max = -10000
+        y_min = 10000
+        z_max = -10000
+        z_min = 10000
 
         'reset data params
         MODEL_LOADED = False
@@ -6259,14 +6357,14 @@ n_turret:
             Gl.glEndList()
         Next
         log_text.Append(" ======== Model Load Complete =========" + vbCrLf)
-        For i = 1 To object_count - 1
-            tank_center_X += _object(i).center_x
-            tank_center_Y += _object(i).center_y
-            tank_center_Z += _object(i).center_z
-        Next
-        tank_center_X /= object_count
-        tank_center_Y /= object_count
-        tank_center_Z /= object_count
+        'For i = 1 To object_count - 1
+        '    tank_center_X += _object(i).center_x
+        '    tank_center_Y += _object(i).center_y
+        '    tank_center_Z += _object(i).center_z
+        'Next
+        'tank_center_X /= object_count
+        'tank_center_Y /= object_count
+        'tank_center_Z /= object_count
         look_point_x = tank_center_X
         look_point_y = tank_center_Y
         look_point_z = tank_center_Z
@@ -7174,34 +7272,39 @@ n_turret:
                     detail = _group(i).detail_name
                     If am IsNot Nothing Then
                         If Not File.Exists(rm + am) Then
-                            find_and_extract_file_in_pkgs(am)
-                            find_and_extract_file_in_pkgs(am.Replace(".dds", "_hd.dds"))
+                            If Not find_tank_and_extract_file_in_pkgs(am.Replace(".dds", "_hd.dds")) Then
+                                find_tank_and_extract_file_in_pkgs(am)
+                            End If
                         End If
                     End If
                     If anm IsNot Nothing Then
                         If Not File.Exists(rm + anm) Then
-                            find_and_extract_file_in_pkgs(anm)
-                            find_and_extract_file_in_pkgs(anm.Replace(".dds", "_hd.dds"))
+                            If Not find_tank_and_extract_file_in_pkgs(anm.Replace(".dds", "_hd.dds")) Then
+                                find_tank_and_extract_file_in_pkgs(anm)
+                            End If
                         End If
                     End If
                     If gmm IsNot Nothing Then
                         If Not File.Exists(rm + gmm) Then
-                            find_and_extract_file_in_pkgs(gmm)
-                            find_and_extract_file_in_pkgs(gmm.Replace(".dds", "_hd.dds"))
+                            If Not find_tank_and_extract_file_in_pkgs(gmm.Replace(".dds", "_hd.dds")) Then
+                                find_tank_and_extract_file_in_pkgs(gmm)
+                            End If
                         End If
 
                     End If
                     If ao IsNot Nothing Then
                         If Not File.Exists(rm + ao) Then
-                            find_and_extract_file_in_pkgs(ao)
-                            find_and_extract_file_in_pkgs(ao.Replace(".dds", "_hd.dds"))
+                            If Not find_tank_and_extract_file_in_pkgs(ao.Replace(".dds", "_hd.dds")) Then
+                                find_tank_and_extract_file_in_pkgs(ao)
+                            End If
                         End If
 
                     End If
                     If detail IsNot Nothing Then
                         If Not File.Exists(rm + detail) Then
-                            find_and_extract_file_in_pkgs(detail)
-                            find_and_extract_file_in_pkgs(detail.Replace(".dds", "_hd.dds"))
+                            If Not find_tank_and_extract_file_in_pkgs(detail.Replace(".dds", "_hd.dds")) Then
+                                find_tank_and_extract_file_in_pkgs(detail)
+                            End If
                         End If
                     End If
                 Next

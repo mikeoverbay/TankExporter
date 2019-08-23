@@ -2,9 +2,6 @@
 //tank_vertex.glsl
 //Used to light all models
 
-uniform mat4 shadowProjection;
-
-out vec4 ShadowCoord;
 out vec3 vVertex;
 
 out vec3 v_Position;
@@ -20,8 +17,6 @@ out vec3 vertexColor;
 void main(void) {
 
     TC1 = gl_MultiTexCoord0.xy;
-
-    ShadowCoord= shadowProjection * gl_Vertex;
 
     vec3 n = normalize(gl_NormalMatrix * gl_Normal);
     vec3 t = normalize(gl_NormalMatrix * gl_MultiTexCoord1.xyz);

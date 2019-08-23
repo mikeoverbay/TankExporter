@@ -1,4 +1,4 @@
-﻿//atlasPBR_fragment.glsl
+﻿//gDetail_fragment.glsl
 //Used to light detail models
 #version 430 compatibility
 
@@ -31,7 +31,7 @@ uniform vec4 u_ScaleDiffBaseMR; // display switches
 
 in vec2 TC1;// UV coords
 in vec2 TC2;// UV2 coords
-
+in mat3 TBN;
 in vec3 vVertex;
 in vec3 Normal;
 
@@ -40,7 +40,7 @@ out vec4 color_out;
 float mininput = 0.0;
 float maxinput = 1.0;
 float minoutput = 0.0;
-float maxoutput = 0.95;
+float maxoutput = 0.9;
 
 const float PI = 3.14159265359;
 
@@ -49,24 +49,9 @@ vec4 correct(in vec4 hdrColor, in float exposure, in float gamma_level){
     vec3 mapped = vec3(1.0) - exp(-hdrColor.rgb * exposure);
     // Gamma correction 
     mapped.rgb = pow(mapped.rgb, vec3(1.0 / gamma_level));  
-    return vec4 (mapped, 1.0);
+    return vec4 (mapped, hdrColor.a);
 }
 
-vec3 getNormalFromMap(in vec3 tangentNormal, in vec2 TexCoords)
-    {
-
-    vec3 Q1 = dFdx(vVertex);
-    vec3 Q2 = dFdy(vVertex);
-    vec2 st1 = dFdx(TexCoords);
-    vec2 st2 = dFdy(TexCoords);
-
-    vec3 N = normalize(Normal);
-    vec3 T = normalize(Q1*st2.t - Q2*st1.t);
-    vec3 B = -normalize(cross(N, T));
-    mat3 TBN = mat3(T, B, N);
-
-    return normalize(TBN * tangentNormal);
-    }
 // PBR Functions ======================================================
 vec3 fresnelSchlick(float cosTheta, vec3 F0)
 {
@@ -123,8 +108,9 @@ void main(void) {
     vec4 detail = texture2D(detailMap,TC1);
     vec4 detail_mix;
 
-    float roughness = 1.0-GMM.r*GMM.b;
-    float metallic = GMM.g*GMM.b;
+    float roughness = 1.1-GMM.r;
+    if (GMM.b > 0.03 ) roughness = 1.0-GMM.b;
+    float metallic = GMM.g;
     if (is_glass == 1)
     {
         //gColor += spec_sum * vec4(1.0);
@@ -155,12 +141,11 @@ void main(void) {
     bump.xy    = tb.xy;
     bump.z     = clamp(sqrt(1.0 - ((tb.x*tb.x)+(tb.y*tb.y))),-1.0,1.0);
     bump       = normalize(bump);
-    bump = getNormalFromMap(bump,TC1);
 
    //============================================
    // Lighting calculations...
     vec3 albedo = pow(color.rgb,vec3(2.2));
-    vec3 N = bump;
+    vec3 N = normalize(TBN * bump);
     vec3 V = normalize(-vVertex);
 
     vec3 F0 = vec3(0.04); // metal mateials are darkened.
@@ -196,9 +181,9 @@ for(int i = 0; i < 3; ++i)
         float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0);
         NdotL = max(dot(N, L), 0.0);
 
-    diffuse = NdotL * albedo;
+        diffuse += NdotL * albedo+albedo*0.05;
 
-        specular = numerator / max(denominator, 0.001)* S_level*0.75;
+        specular = numerator / max(denominator, 0.001)* S_level*1.0;
         blmColor = vec4(specular,1.0)*1.0;
   
         Lo += ((kD * albedo / PI) + specular) * radiance * NdotL;
@@ -213,24 +198,25 @@ for(int i = 0; i < 3; ++i)
 
     R = reflect(-V,N);
     R.xz *= -1.0;
-    vec3 prefilteredColor = pow(textureLod(cubeMap, R,  roughness * MAX_REFLECTION_LOD).rgb,vec3(2.2));    
+    vec3 prefilteredColor = pow(textureCubeLod(cubeMap, R,  roughness * MAX_REFLECTION_LOD).rgb,vec3(2.2));    
     vec2 brdf  = texture(u_brdfLUT, vec2(max(dot(N, V), 0.0), roughness)).rg;
-    specular = prefilteredColor * (F * brdf.x + brdf.y)*0.5;
+    specular = prefilteredColor * (F * brdf.x + brdf.y)*(1.0-roughness);
   
-    vec3 ambient = (kD * diffuse + specular) * A_level*0.20;
+    vec3 ambient = (kD * diffuse + specular) * A_level*1.0;
     vec3 col = ambient + Lo;
     
     col= col / (col + vec3(1.0));
-    col = pow(col, vec3(1.0/2.2)) * 2.5;  
+    col = pow(col, vec3(1.0/2.2)) * 1.1;  
    
     gColor = vec4(col, 0.0);
     vec3 acolor = min(max(gColor.rgb - vec3(mininput), vec3(0.0)) / (vec3(maxinput) - vec3(mininput)), vec3(1.0));
     gColor.rgb = mix(vec3(minoutput), vec3(maxoutput), acolor);
-
+    //gColor.rgb = color.rgb *0.001 + vec3(roughness);
     if (is_glass == 1)
     {
-        gColor += vec4(0.0,0.05,0.0,0.0);
+        gColor += vec4(0.0,0.01,0.0,0.0);
         gColor.a = (1.0-GMM.g*0.825);
     } 
+    gColor = correct(gColor,1.8,0.9)*1.25;
 
 } //main

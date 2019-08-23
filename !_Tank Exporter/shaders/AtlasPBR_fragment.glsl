@@ -58,6 +58,7 @@ uniform int alpha_value;
 in vec2 TC1;// UV coords
 in vec2 TC2;// UV2 coords
 
+in mat3 TBN;
 in vec3 vVertex;
 
 //in mat3 TBN;
@@ -87,21 +88,11 @@ vec4 correct(in vec4 hdrColor, in float exposure, in float gamma_level){
     return vec4 (mapped, hdrColor.a);
 }
 
-vec3 getNormalFromMap(in vec3 tangentNormal, in vec2 TexCoords)
+vec3 getNormalFromMap(in vec3 tangentNormal)
     {
-
-    vec3 Q1 = dFdx(vVertex);
-    vec3 Q2 = dFdy(vVertex);
-    vec2 st1 = dFdx(TexCoords);
-    vec2 st2 = dFdy(TexCoords);
-
-    vec3 N = normalize(Normal);
-    vec3 T = normalize(Q1*st2.t - Q2*st1.t);
-    vec3 B = -normalize(cross(N, T));
-    mat3 TBN = mat3(T, B, N);
-
     return normalize(TBN * tangentNormal);
     }
+
 // PBR Functions ======================================================
 vec3 fresnelSchlick(float cosTheta, vec3 F0)
 {
@@ -309,23 +300,18 @@ void main(void) {
     bump.z     = clamp(sqrt(1.0 - ((tb.x*tb.x)+(tb.y*tb.y))),-1.0,1.0);
     bump       = normalize(bump);
     //============================================
-    if (IS_ATLAS == 1)
-        {        
+    if (IS_ATLAS == 1){        
             color = colorAM * MAO.g;
-            bump = getNormalFromMap(bump,-TC1);
-       }
+        }
         else
         {
-            colorAM.rgb = basic_color.rgb*0.65;
-            color = colorAM;
-            //UV2 textures are not used on most models other than the blend mapping.
-            //Some do have a 2nd texture that needs to be used.
-            if (use_UV2 == 1) {
-                color.rgb = basic_color.rgb * basic_color2.rgb;
-                bump = getNormalFromMap(bump,-TC2);
-                }else{
-                bump = getNormalFromMap(bump,-TC1);
-                }
+        colorAM.rgb = basic_color.rgb*0.65;
+        color = colorAM;
+        //UV2 textures are not used on most models other than the blend mapping.
+        //Some do have a 2nd texture that needs to be used.
+        if (use_UV2 == 1) {
+            color.rgb = basic_color.rgb * basic_color2.rgb;
+            }
         }
     a=bumpMap.r;
     if (alpha_enable == 1)
@@ -341,7 +327,7 @@ void main(void) {
     //============================================
     // Lighting calculations...
     vec3 albedo = pow(colorAM.rgb,vec3(2.2));
-    vec3 N = bump;
+    vec3 N = normalize(TBN * bump);
     vec3 V = normalize(-vVertex);
 
     vec3 F0 = vec3(0.04); // metal mateials are darkened.
@@ -358,10 +344,11 @@ void main(void) {
     float NdotL;
 for(int i = 0; i < 3; ++i) 
     {
-    vec3 L = normalize(gl_LightSource[i].position.xyz - vVertex);
+    vec3 LP = gl_LightSource[i].position.xyz * vec3(1.0,0.5,1.0);
+    vec3 L = normalize(LP - vVertex);
     vec3 H = normalize(V + L);
   
-    float distance    = length(gl_LightSource[i].position.xyz - vVertex);
+    float distance    = length(LP - vVertex);
     float attenuation = 1500.0 / (distance * distance); //Shutting atenuation off
     vec3 radiance     = LightColor * attenuation;
 
@@ -379,8 +366,8 @@ for(int i = 0; i < 3; ++i)
     NdotL = max(dot(N, L), 0.0);
 
 
-    specular = numerator / max(denominator, 0.001)* S_level * 2.0;
-    blmColor = vec4(specular,1.0)*1.0;
+    specular = numerator / max(denominator, 0.001)* S_level * 1.0;
+    blmColor = vec4(specular,1.0)*(1.0-roughness);
     diffuse += NdotL * albedo+albedo*0.05;
   
     Lo += ((kD * albedo / PI) + specular) * radiance * NdotL;
@@ -397,17 +384,17 @@ for(int i = 0; i < 3; ++i)
     R.xz *= -1.0;
     vec3 prefilteredColor = pow(textureLod(cubeMap, R,  roughness * MAX_REFLECTION_LOD).rgb,vec3(2.2));    
     vec2 brdf  = texture(u_brdfLUT, vec2(max(dot(N, V), 0.0), roughness)).rg;
-    specular = prefilteredColor * (F * brdf.x + brdf.y)*0.5;
+    specular = prefilteredColor * (F * brdf.x + brdf.y)*(1.0-roughness);
   
-    vec3 ambient = (kD * diffuse + specular) * A_level*0.75;
+    vec3 ambient = (kD * diffuse + specular) * A_level*1.0;
     vec3 col = ambient + Lo;
     
     col= col / (col + vec3(1.0));
-    col = pow(col, vec3(1.0/2.2)) * 3.0;  
+    col = pow(col, vec3(1.0/2.2)) * 1.1;  
    
     gColor = vec4(col, 1.0);
     vec3 acolor = min(max(gColor.rgb - vec3(mininput), vec3(0.0)) / (vec3(maxinput) - vec3(mininput)), vec3(1.0));
     gColor.rgb = mix(vec3(minoutput), vec3(maxoutput), acolor);
-
-    //gColor.rgb = (vec3(prefilteredColor) * vec3(0.999 * T_level)) + ( (ambient + Lo)*4.0* vec3(1.0)*(1.0- T_level)) ;
+    gColor = correct(gColor,1.8,0.9);
+    //gColor.rgb = gColor.rgb * 0.001 + bump;
 }//main

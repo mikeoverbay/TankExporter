@@ -13,7 +13,7 @@ out vec4 fColor;
 
 void main()
     {
-
+    float scale = 500.0;
     float d = v_position.z / v_position.w ;
 
     // figure out if we need to discard this.
@@ -21,6 +21,7 @@ void main()
         float a = texture2D(normalMap, TC1.st).r;
         float aRef = float(alphaRef)/255.0;
         if (aRef > a) {
+            fColor = vec4( scale,scale, 0.0, 1.0 );
             discard;
         }
     }
@@ -33,5 +34,5 @@ void main()
     float dx = dFdx(d);
     float dy = dFdy(d);
     d2 += 0.25*(dx*dx+dy*dy) ;  
-    fColor = vec4( d * 5000.0, d2 * 5000.0, 0.0, 1.0 );
+    fColor = vec4( d * scale, d2 * scale, 0.0, 1.0 );
     }

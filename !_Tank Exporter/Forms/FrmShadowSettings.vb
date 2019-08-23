@@ -40,7 +40,7 @@
                 shadowMapSize = 512
         End Select
         My.Settings.shadow_quality = shadowMapSize.ToString
-        reset_shadowFbo()
+        shadow_fbo.reset_shadowFbo()
     End Sub
 
 End Class

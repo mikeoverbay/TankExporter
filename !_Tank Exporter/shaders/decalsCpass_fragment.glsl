@@ -4,10 +4,10 @@
 #extension GL_EXT_gpu_shader4 : enable
 
 layout (location = 0) out vec4 gColor;
-//layout (location = 1) out vec4 gNormal;
-//layout (location = 2) out vec4 gPosition;
+
 uniform sampler2D colorMap;
 uniform sampler2D normalMap;
+uniform sampler2D surfaceNormalMap;
 uniform sampler2D gmmMap;
 
 uniform sampler2D shadowMap;// produced in depth_fragment
@@ -65,34 +65,9 @@ vec2 postProjToScreen(vec4 position)
     return 0.5 * (vec2(screenPos.x, screenPos.y) + 1);
 }
 
-vec4 ShadowCoordPostW;
-vec2 moments ;
-vec4 ShadowCoord;
 float alphaGMM;
-float chebyshevUpperBound( float distance)
-{
-    // make sure we are actually on the depth texture!
-    if (ShadowCoordPostW.x >1.0) return 1.0;
-    if (ShadowCoordPostW.x <0.0) return 1.0;
-    if (ShadowCoordPostW.y >0.7) return 1.0;
-    if (ShadowCoordPostW.y <0.1) return 1.0;
-    moments = texture2D(shadowMap,ShadowCoordPostW.xy).rg;
-    // Surface is fully lit. as the current fragment is before the light occluder
-    if (distance <= moments.x)
-        return 1.0 ;
-    // The fragment is either in shadow or penumbra.
-    // We now use chebyshev's upperBound to check
-    // How likely this pixel is to be lit (p_max)
-    float variance = moments.y - (moments.x*moments.x);
-    variance = max(variance,0.5);
-    float d = distance - moments.x;
-    float p_max =  smoothstep(0.1, 0.18, variance / (variance + d*d));
-    //float p_max =   variance / (variance + d*d);
-    p_max = max(p_max,0.55);
-    return p_max ;
-}
 
-vec3 getNormal(in vec2 iUV,in vec2 UVn,in vec3 pos)
+vec3 getNormal(in vec2 iUV,in vec2 UVn,in vec3 pos,  in float alpha)
 {
     // compute derivations of the world position
     vec3 p_dx = dFdx(pos);
@@ -101,14 +76,16 @@ vec3 getNormal(in vec2 iUV,in vec2 UVn,in vec3 pos)
     vec2 tc_dx = dFdx(iUV);
     vec2 tc_dy = dFdy(iUV);
     // compute initial tangent and bi-tangent
+     // get new tangent from a given mesh normal
     vec3 t = normalize( tc_dy.y * p_dx - tc_dx.y * p_dy );
     vec3 b = normalize( tc_dy.x * p_dx - tc_dx.x * p_dy );
-    // get new tangent from a given mesh normal
-    vec3 ng = normalize((texture2D(gNormalMap, UVn).rgb*2.0-1.0));
-    //vec3 ng = normalize(cross(p_dx,p_dy));
-	t = t - ng * dot( t, ng ); // orthonormalization of the tangent vectors
-	b = b - ng * dot( b, ng ); // orthonormalization of the binormal vectors to the normal vector 
-	b = b - t * dot( b, t ); // orthonormalization of the binormal vectors to the tangent vector
+    vec3 ng = normalize((texture2D(gNormalMap, UVn).rgb));
+    vec3 sng = normalize((texture2D(gNormalMap, UVn).rgb));
+
+    ng = mix(normalize(sng), ng, alpha);
+    t = t - ng * dot( t, ng ); // orthonormalization of the tangent vectors
+    b = b - ng * dot( b, ng ); // orthonormalization of the binormal vectors to the normal vector 
+    b = b - t * dot( b, t ); // orthonormalization of the binormal vectors to the tangent vector
     mat3 tbn = mat3(t, b, ng);
     vec2 tn = texture2D(normalMap, iUV*uv_wrap).ag*2.0-1.0 ;
     vec3 co;
@@ -226,7 +203,7 @@ float microfacetDistribution(PBRInfo pbrInputs)
 
 void main(){
     float shadow = 1.0;
-    float falloff = 1.0;
+    float falloff = 0.0;
 vec3 lightColor[3];
     lightColor[0] = vec3 (0.6,0.0,0.0);
     lightColor[1] = vec3 (0.0,0.6,0.0);
@@ -250,8 +227,10 @@ vec3 lightColor[3];
     WorldPosition.xyz /= WorldPosition.w;
     WorldPosition.w = 1.0f;
     // transform to decal original and size.
-    ShadowCoord = shadowProjection * WorldPosition;
     vec3 world = vec3(WorldPosition); // this is world space!
+
+    float l_dist = sqrt(world.x*world.x + world.z*world.z);//used to clip the shadow map
+
     WorldPosition = invDecal_mat * WorldPosition;
     clip (WorldPosition.xyz);
     /*==================================================*/
@@ -262,14 +241,6 @@ vec3 lightColor[3];
     vec2 UV_ = (WorldPosition.xy );
    
     UV_ = uv_matrix * clamp(UV_, -1.0 , 0.0);
-    //=========================================================
-    if (use_shadow == 1){
-        ShadowCoordPostW = ShadowCoord / ShadowCoord.w;
-        // Depth was scaled up in the depth writer so we scale it up here too.
-        // This fixes precision issues.
-        shadow = chebyshevUpperBound(ShadowCoordPostW.z*5000.0);
-    }
-
     //=========================================================
     vec4 color = texture2D(colorMap,  UV_.st*uv_wrap);
     color.rgb *= color_level;
@@ -297,7 +268,8 @@ vec3 lightColor[3];
     // convert to material roughness by squaring the perceptual roughness [2].
     float alphaRoughness = perceptualRoughness * perceptualRoughness;
     // The albedo may be defined from a base texture or a flat color
-    vec4 baseColor = color;
+    if (use_shadow == 1 && l_dist < 12.0) shadow = texelFetch(shadowMap, ivec2(gl_FragCoord.xy), 0).r;
+    vec4 baseColor = color*shadow;
 
     vec3 f0 = vec3(0.04);
     vec3 diffuseColor = baseColor.rgb * (vec3(1.0) - f0);
@@ -311,13 +283,20 @@ vec3 lightColor[3];
     vec3 specularEnvironmentR0 = specularColor.rgb;
     vec3 specularEnvironmentR90 = vec3(1.0, 1.0, 1.0) * reflectance90;
 
-vec4 sum = vec4(0.0);
-vec3 sSpec;
-for (int i = 0; i < 3; i++){
-        vec3 ll = LightPos[i].xyz*5.0;
 
-        vec3 n = getNormal(UV_, UV, world);// normal at surface point
-        vec3 v = normalize(viewPos - world);// Vector from surface point to camera
+    vec4 sum = vec4(0.0);
+    vec3 sSpec;
+	// color.a controls mix of terrain face normal and decals texture normal;
+    vec3 n = getNormal(UV_, UV, world, color.a);
+    vec3 v = normalize(viewPos - world);// Vector from surface point to camera
+
+for (int i = 0; i < 2; i++){
+        vec3 ll = LightPos[0].xyz + vec3(0.0,i*25.0,0.0)*5.0;
+
+        float len = length(world - ll);
+        float d = 120;
+        if (len < d) { falloff = 1.0-(len/d); }
+
         vec3 l = normalize(ll - world);// Vector from surface point to light
         vec3 h = normalize(l+v);// Half vector between both l and v
         vec3 reflection = normalize(reflect(-v, n));
@@ -355,11 +334,10 @@ for (int i = 0; i < 3; i++){
     sSpec = u_LightColor * pow(max(dot(R,l),0.0),20.0) * 0.000;
 
         // Obtain final intensity as reflectance (BRDF) scaled by the energy of the light (cosine law)
-    vec3 colorMix =  NdotL * u_LightColor * ((sSpec + diffuseContrib) + (specContrib * mrSample.g*1.0))*6.0;
-    colorMix += NdotV * getIBLContribution(pbrInputs, n, R) * perceptualRoughness ;
-    vec3 ambient = diffuseContrib.rgb *0.5;
+    vec3 colorMix =  NdotL * u_LightColor * ((sSpec + diffuseContrib) + (specContrib * mrSample.g*1.0))*5.0*falloff;
+    colorMix += NdotV * getIBLContribution(pbrInputs, n, R) * perceptualRoughness *falloff;
+    vec3 ambient = diffuseContrib.rgb *0.25;
     colorMix += (ambient + (ambient*NdotL));
-    colorMix *= vec3(shadow);
        // Calculate lighting contribution from image based lighting source (IBL)
     #define USE_IBL;
     #ifdef USE_IBL
@@ -377,7 +355,7 @@ for (int i = 0; i < 3; i++){
     colorMix = mix(colorMix, vec3(metallic), u_ScaleDiffBaseMR.z);
     colorMix = mix(colorMix, vec3(perceptualRoughness), u_ScaleDiffBaseMR.w);
 
-    sum.rgb += colorMix.rgb *0.5 ;
+    sum.rgb += colorMix.rgb *1.0;
     //sum.rgb += vec3(sSpec) * lightColor[i] + colorMix.rgb *0.0001;
     //sum.rgb += (gColor.rgb*vec3(0.00001)) + vec3(sSpec) * 1.0;
     //sum.rgb += (gColor.rgb*vec3(0.00001)) + n + nn  * 0.1;
@@ -399,6 +377,7 @@ for (int i = 0; i < 3; i++){
     fogFactor = clamp(fogFactor, 0.0, 1.0);
     gColor.rgb = sum.rgb+groundFog.xyz;
     gColor.rgb = mix(fog_color.rgb, gColor.rgb, fogFactor );
+    
     gColor.a = color.a * alpha_value;
     //gColor.rgb = (gColor.rgb * vec3(0.0000001)) + vec3(vec2(1.0-UV_.x,1.0-UV_.y),0.0);
     

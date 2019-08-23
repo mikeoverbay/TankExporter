@@ -30,11 +30,11 @@ Module modOpenGL
     Public pb3_hRC As System.IntPtr
     Public position0() As Single = {2.843F, 10.0F, 9.596F, 1.0F}
     Public position1() As Single = {-5.0F, 8.0F, -5.0F, 1.0F}
-    Public position2() As Single = {0.0F, 10.0F, 0.0F, 1.0F}
+    Public position2() As Single = {5.0F, 12.0F, 0.0F, -5.0F}
 
-    Public W_position0() As Single = {2.843F, 10.0F, 9.596F, 1.0F}
+    Public W_position0() As Single = {5.0F, 10.0F, 5.0F, 1.0F}
     Public W_position1() As Single = {-5.0F, 8.0F, -5.0F, 1.0F}
-    Public W_position2() As Single = {0.0F, 12.0F, 0.0F, 1.0F}
+    Public W_position2() As Single = {5.0F, 10.0F, -5.0F, 1.0F}
 
     Public Sub EnableOpenGL()
 
@@ -162,6 +162,10 @@ Module modOpenGL
 
     Public Sub DisableOpenGL()
         G_Buffer.shut_down()
+        'BlurShadowFBO.shut_down()
+        shadow_fbo.shadow_fbo_shut_down()
+        worker_fbo.shutdown_worker_fbo()
+
         Wgl.wglMakeCurrent(IntPtr.Zero, IntPtr.Zero)
         Wgl.wglDeleteContext(pb1_hRC)
 

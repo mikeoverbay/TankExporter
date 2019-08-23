@@ -4,6 +4,7 @@
 layout (location = 0) out vec4 gColor;
 layout (location = 1) out vec4 gNormal;
 layout (location = 2) out vec4 gFog;
+layout (location = 3) out vec4 surface_normal;
 
 uniform sampler2D colorMap;
 uniform sampler2D shadowMap;
@@ -22,9 +23,7 @@ in vec3 w_Normal;
 in vec2 TC1;
 in vec4 ShadowCoord;
 in vec3 vertex;
-
-vec4 ShadowCoordPostW;
-vec2 moments ;
+in float l_dist; // used to clip the shadow map
 const vec2 uv_Scale = vec2(20.0);
 const float PI = 3.1415927;
 
@@ -34,32 +33,6 @@ vec3 correction(vec3 color_in){
     return mapped;
     }
 
-float chebyshevUpperBound( float distance)
-{
-    // make sure we are actually on the depth texture!
-    if (ShadowCoordPostW.x >0.95) return 1.0;
-    if (ShadowCoordPostW.x <0.0) return 1.0;
-    if (ShadowCoordPostW.y >0.85) return 1.0;
-    if (ShadowCoordPostW.y <0.1) return 1.0;
-
-    moments = texture2D(shadowMap,ShadowCoordPostW.xy).rg;
-   
-    // Surface is fully lit. as the current fragment is before the light occluder
-    if (distance <= moments.x)
-        return 1.0 ;
-
-    // The fragment is either in shadow or penumbra.
-    // We now use chebyshev's upperBound to check
-    // How likely this pixel is to be lit (p_max)
-    float variance = moments.y - (moments.x*moments.x);
-    variance = max(variance,0.5);
-
-    float d = distance - moments.x;
-    float p_max =  smoothstep(0.1, 0.18, variance / (variance + d*d));
-    //float p_max =   variance / (variance + d*d);
-    p_max = max(p_max,0.2);
-    return p_max ;
-}
 
 
 vec3 getNormal()
@@ -86,8 +59,7 @@ vec3 getNormal()
 void main(void){
 vec2 time = vec2(float(shift));
     vec3 ambient;
-    float falloff = 1.0;
-    float shadow = 1.0;
+    float falloff = 0.0;
     float zone = 120.0;
     float z_start = 60.0;
     float curve = 0.0;
@@ -117,14 +89,10 @@ if (dist > 150.0) {
     y_fog = clamp(y_fog+y_fog2,0.0 , 1.0)*0.9;
     
     //=========================================================
+    float shadow=1.0;
+     if (use_shadow == 1 && l_dist < 12.0) shadow = texelFetch(shadowMap, ivec2(gl_FragCoord.xy), 0).r;
 
-   if (use_shadow == 1){
-    ShadowCoordPostW = ShadowCoord / ShadowCoord.w;
-    // Depth was scaled up in the depth writer so we scale it up here too.
-    // This fixes precision issues.
-    shadow = chebyshevUpperBound(ShadowCoordPostW.z*5000.0);
-    }
-    vec3 color = texture2D(colorMap,TC1*uv_Scale).rgb;
+   vec3 color = texture2D(colorMap,TC1*uv_Scale).rgb*shadow;
     vec3 n = getNormal();// normal at surface point
     vec3 v = normalize(camPosition-v_Position);// Vector from surface point to camera
     vec3 r = normalize(reflect(-v,n));
@@ -132,21 +100,22 @@ if (dist > 150.0) {
     vec3 sum = vec3(0.0);
     float NdotL;
 vec3 spec;
-    for (int i = 0; i<1; i++){
-        vec3 u_LightDirection = gl_LightSource[i].position.xyz;
+    for (int i = 0; i<2; i++){
+        vec3 u_LightDirection = gl_LightSource[0].position.xyz+ vec3(0.0 , i*25.0,0.0);
         vec3 l = normalize(u_LightDirection - v_Position);// Vector from surface point to light
         
-        spec = vec3(1.0) * pow(max(dot(r,l),0.0),4.0) * falloff * 0.030;
         float len = length(v_Position - u_LightDirection);
-        float d = 220;
+        float d = 300;
         if (len < d) { falloff = 1.0-(len/d); }
+
+        spec = vec3(1.0) * pow(max(dot(r,l),0.0),4.0) * falloff * 0.030;
         NdotL = clamp(dot(n, l), 0.0, 1.0);
-        ambient = (color.rgb - (color.rgb * vec3(NdotL))) * falloff * 0.45;//adjust ambient with distance
-        sum +=  (color.rgb* shadow) * NdotL * 1.1;
+        ambient = (color.rgb - (color.rgb * vec3(NdotL))) * falloff * 0.045;//adjust ambient with distance
+        sum +=  (color.rgb) * NdotL ;
         sum += spec;
     }
     ;//sum *= vec3(shadow);
-    gColor.rgb = correction(sum + ambient + ( vec3(y_fog) * vec3(0.5,0.5,0.45) ) );
+    gColor.rgb = correction(sum + ambient + ( vec3(y_fog) * vec3(0.5,0.5,0.45) ) )*0.8;
    
     gColor.rgb *= (vec3(1.0-curve));
     //==========================================================================
@@ -169,11 +138,15 @@ vec3 spec;
 
     //gFog.rgb = mix(fog_color.rgb, gFog.rgb, fogFactor );
     gFog.a = 1.0;
-    gColor = mix(fog_color, gColor, fogFactor );
+    gColor = mix(fog_color * falloff , gColor, fogFactor );
+
+
     gColor.a = alpha;
 
-    gNormal.rgb = (w_Normal *0.5)+0.5;// we need this for the decal shader!!
-    gNormal.a = 1.0;    
-    //gColor.rgb = (gColor.rgb * vec3(0.0025)) + vec3(gFog);
+    gNormal.xyz = w_Normal;// we need this for the decal shader!!
+    gNormal.a = 1.0;
+	surface_normal.xyz = v_Normal;
+     gNormal.a = 1.0;
+   //gColor.rgb = (gColor.rgb * vec3(0.0025)) + vec3(gFog);
 
     }

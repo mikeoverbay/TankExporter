@@ -1155,6 +1155,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_C724A820FAF64C82AFAE8B5301CCE267"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_C8E261A1570246DEAFE33A14281A1594"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -1270,6 +1276,12 @@
         "Entry"
         {
         "MsmKey" = "8:_DC3C3A3D50464FA0B08965039A5E05E5"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_E01B0EA9481F4D46AEDD9D9DCBEBA620"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1576,7 +1588,7 @@
         "DisplayName" = "8:Release"
         "IsDebugOnly" = "11:FALSE"
         "IsReleaseOnly" = "11:TRUE"
-        "OutputFilename" = "8:..\\TankExporter_099.msi"
+        "OutputFilename" = "8:..\\TankExporter_100.msi"
         "PackageFilesAs" = "3:2"
         "PackageFileSize" = "3:-2147483648"
         "CabType" = "3:1"
@@ -5481,6 +5493,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C724A820FAF64C82AFAE8B5301CCE267"
+            {
+            "SourcePath" = "8:..\\!_Tank Exporter\\shaders\\blurR_fragment.glsl"
+            "TargetName" = "8:blurR_fragment.glsl"
+            "Tag" = "8:"
+            "Folder" = "8:_1B07A285BAA74365A2EBEF572AC0A089"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C8E261A1570246DEAFE33A14281A1594"
             {
             "SourcePath" = "8:..\\!_Tank Exporter\\html\\Images\\JLD_8.jpg"
@@ -5880,6 +5912,26 @@
             "TargetName" = "8:carriage_1.jpg"
             "Tag" = "8:"
             "Folder" = "8:_589FDE83079A4FB68CA57637595D2D5A"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_E01B0EA9481F4D46AEDD9D9DCBEBA620"
+            {
+            "SourcePath" = "8:..\\!_Tank Exporter\\shaders\\blurR_vertex.glsl"
+            "TargetName" = "8:blurR_vertex.glsl"
+            "Tag" = "8:"
+            "Folder" = "8:_1B07A285BAA74365A2EBEF572AC0A089"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -6764,15 +6816,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Tank Exporter"
-        "ProductCode" = "8:{4609E65A-3B6F-43EE-8A86-529E364B2D3C}"
-        "PackageCode" = "8:{74B63B93-6CED-43B7-95C3-38EB70328DCE}"
+        "ProductCode" = "8:{A27FFBD1-561F-43A6-A683-B8D2357E05B0}"
+        "PackageCode" = "8:{C18D85E0-2E04-4A45-9EF1-DECBE2CDFEFD}"
         "UpgradeCode" = "8:{6ABAF23A-CB3D-4411-B78A-4855B5B5A0CD}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:1.0.99"
+        "ProductVersion" = "8:1.0.100"
         "Manufacturer" = "8:Coffee_"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"

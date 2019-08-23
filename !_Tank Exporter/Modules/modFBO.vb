@@ -7,12 +7,14 @@ Imports Tao.FreeGlut
 Module modFBO
     Public G_Buffer As New GBuffer_
     Public gBufferFBO As Integer
-    Public gColor, gDepth, gPosition, gNormal, gFXAA As Integer
+    Public gColor, gDepth, gPosition, gNormal, gNormal2, gFXAA As Integer
     Public grDepth As Integer
     Public rendered_shadow_texture As Integer
+    Public rendered_shadow_temp As Integer
     Public Class GBuffer_
         Private attachments() As Integer = {Gl.GL_COLOR_ATTACHMENT0_EXT}
         Private attachments_cn() As Integer = {Gl.GL_COLOR_ATTACHMENT0_EXT, Gl.GL_COLOR_ATTACHMENT1_EXT}
+        Private attachments_cnfn() As Integer = {Gl.GL_COLOR_ATTACHMENT0_EXT, Gl.GL_COLOR_ATTACHMENT1_EXT, Gl.GL_COLOR_ATTACHMENT2_EXT, Gl.GL_COLOR_ATTACHMENT3_EXT}
 
         Public Sub shut_down()
             delete_textures_and_fob_objects()
@@ -22,6 +24,10 @@ Module modFBO
             Dim e As Integer
             If rendered_shadow_texture > 0 Then
                 Gl.glDeleteTextures(1, rendered_shadow_texture)
+                e = Gl.glGetError
+            End If
+            If rendered_shadow_temp > 0 Then
+                Gl.glDeleteTextures(1, rendered_shadow_temp)
                 e = Gl.glGetError
             End If
             If gColor > 0 Then
@@ -38,6 +44,10 @@ Module modFBO
             'End If
             If gNormal > 0 Then
                 Gl.glDeleteTextures(1, gNormal)
+                e = Gl.glGetError
+            End If
+            If gNormal2 > 0 Then
+                Gl.glDeleteTextures(1, gNormal2)
                 e = Gl.glGetError
             End If
             If grDepth > 0 Then
@@ -65,7 +75,16 @@ Module modFBO
             ' - Normal buffer
             Gl.glGenTextures(1, gNormal)
             Gl.glBindTexture(Gl.GL_TEXTURE_2D, gNormal)
-            Gl.glTexImage2D(Gl.GL_TEXTURE_2D, 0, Gl.GL_RGBA16F_ARB, SCR_WIDTH, SCR_HEIGHT, 0, Gl.GL_RGBA, Gl.GL_FLOAT, Nothing)
+            Gl.glTexImage2D(Gl.GL_TEXTURE_2D, 0, Gl.GL_RGB16F_ARB, SCR_WIDTH, SCR_HEIGHT, 0, Gl.GL_RGB, Gl.GL_FLOAT, Nothing)
+            Gl.glTexParameteri(Gl.GL_TEXTURE_2D, Gl.GL_GENERATE_MIPMAP, Gl.GL_FALSE)
+            Gl.glTexParameteri(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_MIN_FILTER, Gl.GL_NEAREST)
+            Gl.glTexParameteri(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_MAG_FILTER, Gl.GL_NEAREST)
+            Gl.glTexParameterf(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_WRAP_S, Gl.GL_REPEAT)
+            Gl.glTexParameterf(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_WRAP_T, Gl.GL_REPEAT)
+            ' - Normal2 buffer
+            Gl.glGenTextures(1, gNormal2)
+            Gl.glBindTexture(Gl.GL_TEXTURE_2D, gNormal2)
+            Gl.glTexImage2D(Gl.GL_TEXTURE_2D, 0, Gl.GL_RGB16F_ARB, SCR_WIDTH, SCR_HEIGHT, 0, Gl.GL_RGB, Gl.GL_FLOAT, Nothing)
             Gl.glTexParameteri(Gl.GL_TEXTURE_2D, Gl.GL_GENERATE_MIPMAP, Gl.GL_FALSE)
             Gl.glTexParameteri(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_MIN_FILTER, Gl.GL_NEAREST)
             Gl.glTexParameteri(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_MAG_FILTER, Gl.GL_NEAREST)
@@ -83,7 +102,16 @@ Module modFBO
             ' - rendered shadow texture
             Gl.glGenTextures(1, rendered_shadow_texture)
             Gl.glBindTexture(Gl.GL_TEXTURE_2D, rendered_shadow_texture)
-            Gl.glTexImage2D(Gl.GL_TEXTURE_2D, 0, Gl.GL_R, SCR_WIDTH, SCR_HEIGHT, 0, Gl.GL_R, Gl.GL_UNSIGNED_BYTE, Nothing)
+            Gl.glTexImage2D(Gl.GL_TEXTURE_2D, 0, Gl.GL_RGBA8, SCR_WIDTH, SCR_HEIGHT, 0, Gl.GL_RGBA, Gl.GL_UNSIGNED_BYTE, Nothing)
+            Gl.glTexParameteri(Gl.GL_TEXTURE_2D, Gl.GL_GENERATE_MIPMAP, Gl.GL_FALSE)
+            Gl.glTexParameteri(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_MIN_FILTER, Gl.GL_NEAREST)
+            Gl.glTexParameteri(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_MAG_FILTER, Gl.GL_NEAREST)
+            Gl.glTexParameterf(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_WRAP_S, Gl.GL_REPEAT)
+            Gl.glTexParameterf(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_WRAP_T, Gl.GL_REPEAT)
+            ' - rendered shadow texture
+            Gl.glGenTextures(1, rendered_shadow_temp)
+            Gl.glBindTexture(Gl.GL_TEXTURE_2D, rendered_shadow_temp)
+            Gl.glTexImage2D(Gl.GL_TEXTURE_2D, 0, Gl.GL_RGBA8, SCR_WIDTH, SCR_HEIGHT, 0, Gl.GL_RGBA, Gl.GL_UNSIGNED_BYTE, Nothing)
             Gl.glTexParameteri(Gl.GL_TEXTURE_2D, Gl.GL_GENERATE_MIPMAP, Gl.GL_FALSE)
             Gl.glTexParameteri(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_MIN_FILTER, Gl.GL_NEAREST)
             Gl.glTexParameteri(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_MAG_FILTER, Gl.GL_NEAREST)
@@ -112,6 +140,16 @@ Module modFBO
 
             Gl.glBindTexture(Gl.GL_TEXTURE_2D, 0)
 
+        End Sub
+        Public Sub attach_CNFN()
+            ' detachFBOtextures()
+            'Gl.glBindTexture(Gl.GL_TEXTURE_2D, gColor)
+            Gl.glFramebufferTexture2DEXT(Gl.GL_FRAMEBUFFER_EXT, Gl.GL_COLOR_ATTACHMENT0_EXT, Gl.GL_TEXTURE_2D, gColor, 0)
+            Gl.glFramebufferTexture2DEXT(Gl.GL_FRAMEBUFFER_EXT, Gl.GL_COLOR_ATTACHMENT1_EXT, Gl.GL_TEXTURE_2D, gNormal, 0)
+            Gl.glFramebufferTexture2DEXT(Gl.GL_FRAMEBUFFER_EXT, Gl.GL_COLOR_ATTACHMENT2_EXT, Gl.GL_TEXTURE_2D, gFXAA, 0)
+            Gl.glFramebufferTexture2DEXT(Gl.GL_FRAMEBUFFER_EXT, Gl.GL_COLOR_ATTACHMENT3_EXT, Gl.GL_TEXTURE_2D, gNormal2, 0)
+            Gl.glDrawBuffers(4, attachments_cnfn)
+            'Dim er = Gl.glGetError
         End Sub
         Public Sub attachColor_And_NormalTexture()
             ' detachFBOtextures()
@@ -142,12 +180,12 @@ Module modFBO
         End Sub
 
         Public Sub attach_Shadow_render_texture()
-            'detachFBOtextures()
-            'Gl.glBindTexture(Gl.GL_TEXTURE_2D, gColor)
             Gl.glFramebufferTexture2DEXT(Gl.GL_FRAMEBUFFER_EXT, Gl.GL_COLOR_ATTACHMENT0_EXT, Gl.GL_TEXTURE_2D, rendered_shadow_texture, 0)
             Gl.glDrawBuffers(1, attachments)
-            'Gl.glBindTexture(Gl.GL_TEXTURE_2D, 0)
-            'Dim er = Gl.glGetError
+        End Sub
+        Public Sub attach_Shadow_render_temp()
+            Gl.glFramebufferTexture2DEXT(Gl.GL_FRAMEBUFFER_EXT, Gl.GL_COLOR_ATTACHMENT0_EXT, Gl.GL_TEXTURE_2D, rendered_shadow_temp, 0)
+            Gl.glDrawBuffers(1, attachments)
         End Sub
         Public Sub attachColorTexture()
             'detachFBOtextures()
