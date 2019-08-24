@@ -33,10 +33,10 @@ float chebyshevUpperBound( float distance)
     // We now use chebyshev's upperBound to check
     // How likely this pixel is to be lit (p_max)
     float variance = moments.y - (moments.x*moments.x);
-    variance = max(variance,0.5);
+    variance = max(variance,0.005);
 
     float d = distance - moments.x;
-    float p_max =  smoothstep(0.08, 0.18    , variance / (variance + d*d));
+    float p_max =  smoothstep(0.05, 0.1    , variance / (variance + d*d));
     //float p_max =   variance / (variance + d*d);
     p_max = max(p_max,0.1);
     return p_max ;
@@ -49,7 +49,7 @@ void main()
         float a = texture2D(normalMap, TC1.st).r;
         float aRef = float(alphaRef)/255.0;
         if (aRef > a) {
-		    gl_FragColor.r = 1.0;
+            gl_FragColor.r = 1.0;
             discard;
         }
     }
@@ -57,7 +57,7 @@ void main()
     ShadowCoordPostW = ShadowCoord / ShadowCoord.w;
     // Depth was scaled up in the depth writer so we scale it up here too.
     // This fixes precision issues.
-    float shadow = chebyshevUpperBound(ShadowCoordPostW.z*500.0);
+    float shadow = chebyshevUpperBound(ShadowCoordPostW.z*250.0);
     vec3 N = normalize(norm);
     vec3 L = normalize(light_pos-ShadowCoordPostW.xyz);
     float cosTheta = dot(N,L);

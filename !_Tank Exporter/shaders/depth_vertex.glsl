@@ -1,4 +1,4 @@
-﻿// depth_vertex.glsl
+// depth_vertex.glsl
 // writes to depth texture.
 //
 #version 130

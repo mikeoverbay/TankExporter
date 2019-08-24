@@ -270,7 +270,7 @@ Module modShadow
         Else
             h_max = w_max
         End If
-        Gl.glOrtho(w_min, w_max, h_min, h_max, 1.0!, 25.0!)
+        Gl.glOrtho(w_min, w_max, h_min, h_max, 7.0!, 20.0!)
         Glu.gluLookAt(cx, cy, cz, lx, ly, lz, 0.0, 1.0F, 0.0F)
         Gl.glMatrixMode(Gl.GL_MODELVIEW)    'Select Modelview
         Gl.glLoadIdentity() 'Reset The Matrix
@@ -385,7 +385,8 @@ Module modShadow
             'FIRST DRAW ONLY TO THE Z BUFFER. THIS SHOULD STOP SHADOWING THROUGH THE MODEL
             Gl.glFrontFace(Gl.GL_CCW)
             For jj = object_count To 1 Step -1
-                If Not _group(jj).is_carraige And Not _group(jj).doubleSided Then
+                Gl.glDisable(Gl.GL_CULL_FACE)
+                If Not _group(jj).is_carraige Then
 
 
                     Gl.glUniform1i(depth_alphaTest, _group(jj).alphaTest)
@@ -396,6 +397,7 @@ Module modShadow
                         Gl.glCallList(_object(jj).main_display_list)
                     End If
                 End If
+                Gl.glEnable(Gl.GL_CULL_FACE)
 
 
             Next

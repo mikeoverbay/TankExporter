@@ -1,4 +1,4 @@
-﻿// depth_fragment.glsl
+// depth_fragment.glsl
 // writes to depth texture.
 //
 #version 130
@@ -13,7 +13,7 @@ out vec4 fColor;
 
 void main()
     {
-    float scale = 500.0;
+    float scale = 250.0;
     float d = v_position.z / v_position.w ;
 
     // figure out if we need to discard this.

@@ -1,4 +1,4 @@
-﻿// ShadowTest_vertex
+// ShadowTest_vertex
 // Use to make the shaodw mask
 
 #version 130
@@ -10,7 +10,7 @@ out vec3 vVertex;
 out vec3 norm;
 void main()
 {
-	TC1 = gl_MultiTexCoord0.xy;
+    TC1 = gl_MultiTexCoord0.xy;
     ShadowCoord= shadowProjection * gl_Vertex;
     norm = gl_NormalMatrix * gl_Normal;
     vVertex = gl_Vertex.xyz;

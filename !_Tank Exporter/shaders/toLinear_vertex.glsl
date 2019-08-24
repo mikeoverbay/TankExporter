@@ -1,4 +1,4 @@
-﻿// toLinear_vertex.gsls
+// toLinear_vertex.gsls
 // used to linearize depth textures to linear colors.
 #version 330 compatibility
 
