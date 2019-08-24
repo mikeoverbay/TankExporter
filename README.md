@@ -16,7 +16,7 @@ Fixed TE not loading tracks that are from a different nation.<br/>
 Improved shadow mapping and its speed.<br/>
 Fixed a few issues with rendering the stand along primitives.<br/>
 Better PBR shading...<br/>
-<iframe width="640" height="360" src="https://www.youtube.com/embed/5OGLX1weSyU" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+https://www.youtube.com/embed/5OGLX1weSyU
 
 # Version 99:
 This adds much better lighting to the stand alone primitives.<br/>
