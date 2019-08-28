@@ -9,6 +9,7 @@ Module shader_loader
     Public Class shader_list_
         Public AtlasPBR_shader As Integer
         Public basic_shader As Integer
+        Public backDepth_shader As Integer
         Public bloom_shader As Integer
         Public blurBchannel_shader As Integer
         Public blurR_shader As Integer
@@ -486,6 +487,14 @@ Module shader_loader
         depth_alphaRef = Gl.glGetUniformLocation(shader_list.depth_shader, "alphaRef")
         depth_alphaTest = Gl.glGetUniformLocation(shader_list.depth_shader, "alphaTest")
         depth_normalMap = Gl.glGetUniformLocation(shader_list.depth_shader, "normalMap")
+    End Sub
+
+    Public Backdepth_alphaTest, Backdepth_alphaRef, Backdepth_normalMap As Integer
+    '==============================================================================================================
+    Public Sub set_Backdepth_variables()
+        Backdepth_alphaRef = Gl.glGetUniformLocation(shader_list.backDepth_shader, "alphaRef")
+        Backdepth_alphaTest = Gl.glGetUniformLocation(shader_list.backDepth_shader, "alphaTest")
+        Backdepth_normalMap = Gl.glGetUniformLocation(shader_list.backDepth_shader, "normalMap")
     End Sub
 
     Public basic_alphaTest, basic_alphaRef, basic_normalMap As Integer

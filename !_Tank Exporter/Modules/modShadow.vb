@@ -90,12 +90,12 @@ Module modShadow
             er = Gl.glGetError
             Gl.glBindTexture(Gl.GL_TEXTURE_2D, depthBuffer)
             Gl.glTexParameteri(Gl.GL_TEXTURE_2D, Gl.GL_GENERATE_MIPMAP, Gl.GL_FALSE)
-            Gl.glTexParameteri(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_MIN_FILTER, Gl.GL_NEAREST)
-            Gl.glTexParameteri(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_MAG_FILTER, Gl.GL_NEAREST)
+            Gl.glTexParameteri(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_MIN_FILTER, Gl.GL_LINEAR)
+            Gl.glTexParameteri(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_MAG_FILTER, Gl.GL_LINEAR)
             Gl.glTexParameterf(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_WRAP_S, Gl.GL_CLAMP)
             Gl.glTexParameterf(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_WRAP_T, Gl.GL_CLAMP)
 
-            Gl.glTexImage2D(Gl.GL_TEXTURE_2D, 0, Gl.GL_RGB16F_ARB, CInt(shadowMapSize), CInt(shadowMapSize), 0, Gl.GL_RGB, Gl.GL_FLOAT, Nothing)
+            Gl.glTexImage2D(Gl.GL_TEXTURE_2D, 0, Gl.GL_RGB32F_ARB, CInt(shadowMapSize), CInt(shadowMapSize), 0, Gl.GL_RGB, Gl.GL_FLOAT, Nothing)
             Gl.glBindTexture(Gl.GL_TEXTURE_2D, 0)
             er = Gl.glGetError
 
@@ -270,7 +270,7 @@ Module modShadow
         Else
             h_max = w_max
         End If
-        Gl.glOrtho(w_min, w_max, h_min, h_max, 7.0!, 20.0!)
+        Gl.glOrtho(w_min, w_max, h_min, h_max, 6.0!, 30.0!)
         Glu.gluLookAt(cx, cy, cz, lx, ly, lz, 0.0, 1.0F, 0.0F)
         Gl.glMatrixMode(Gl.GL_MODELVIEW)    'Select Modelview
         Gl.glLoadIdentity() 'Reset The Matrix
@@ -321,7 +321,7 @@ Module modShadow
 
         '==========================================
 
-        Gl.glEnable(Gl.GL_POLYGON_OFFSET_FILL)
+        'Gl.glEnable(Gl.GL_POLYGON_OFFSET_FILL)
         Gl.glPolygonOffset(2.0, 2.0)
         Gl.glUseProgram(shader_list.depth_shader) '<<<==================================== depth shader
         Gl.glUniform1i(depth_normalMap, 0)
@@ -751,28 +751,23 @@ nope:
     Public Sub inverse_rotate_only(ByVal v As vect3, ByRef m() As Single, ByRef idx As Integer)
 
         'This is being a total pain in the ass
-        Dim vo As vect3
         Dim x = (Abs(x_min) - x_max) / 2.0
         Dim y = (Abs(y_min) - y_max) / 2.0
-        Dim z = (Abs(z_min) - z_max) / 2.0
+        Dim z = (Abs(z_min) - z_max) / 4.0
+
         Dim agl = Asin(x_max / Sqrt(z_min ^ 2 + x_max ^ 2))
         v.x -= tank_center_X
-        v.y -= tank_center_Y
-        v.z -= tank_center_Z
+        'v.y -= tank_center_Y
+        v.z -= z
         Dim l = Sqrt(v.z ^ 2 + v.x ^ 2)
         Dim o_agl = Atan2(v.y, v.x)
         v.x = l * Cos(o_agl + agl)
         v.z = l * Sin(o_agl + agl)
         'Return vo
-        vo.x = -(m(0) * v.x) + (m(1) * v.y) + (m(2) * v.z)
-        vo.y = (m(4) * v.x) + (m(5) * v.y) + (m(6) * v.z)
-        vo.z = -(m(8) * v.x) + (m(9) * v.y) + (m(10) * v.z)
-        bbs(idx).x = vo.x
-        bbs(idx).y = vo.y
-        bbs(idx).z = vo.z
+
         bbs(idx).x = v.x
         bbs(idx).y = v.y
-        bbs(idx).z = v.z
+        bbs(idx).z = v.z * 1.0
         'd_sb.AppendLine(idx.ToString + ": " + vo.x.ToString("00.000") + " " + vo.y.ToString("00.000") + " " + vo.z.ToString("00.000"))
     End Sub
 

@@ -10,6 +10,12 @@
 You can download it here: https://www.autodesk.com/developer-network/platform-technologies/fbx-converter-archives
 Or if you can not down load it from there... the 64 and 32 bit versions are located here: http://tnmshouse.com/converter/
 
+# Version 101:
+I reverted back to a 32bit float Shadow map.</br>
+Fixed a small bug with creating WOTMOD files. I stopped it from searching in too many folders for items.</br>
+Fitting of the tank to the shadow mapping texture is much better.</br>
+I made a few changes to the terrain and decals.</br>
+
 # Version 100:
 Fixed issues TE not finding the tracks on some tanks when exporting the tank to res_mods.<br/>
 Fixed TE not loading tracks that are from a different nation.<br/>

@@ -1379,16 +1379,6 @@ next_m:
                         _object(jj).tris(i).uv2_id_3 = p3
                     End If
 
-                    'set min max to find center point of view
-                    If _object(jj).tris(i).v1.x < x_min Then x_min = _object(jj).tris(i).v1.x
-                    If _object(jj).tris(i).v1.x > x_max Then x_max = _object(jj).tris(i).v1.x
-
-                    If _object(jj).tris(i).v1.y < y_min Then y_min = _object(jj).tris(i).v1.y
-                    If _object(jj).tris(i).v1.y > y_max Then y_max = _object(jj).tris(i).v1.y
-
-                    If -_object(jj).tris(i).v1.z < z_min Then z_min = -_object(jj).tris(i).v1.z
-                    If -_object(jj).tris(i).v1.z > z_max Then z_max = -_object(jj).tris(i).v1.z
-
                 Next
 
                 ReDim _group(jj).matrix(16)
@@ -1454,7 +1444,7 @@ all_done:
         Dim uv1, uv2, uv3 As uv_
         Dim v1, v2, v3 As vect3
         For i As UInteger = 1 To _object(id).count
-         
+
             v1 = _object(id).tris(i).v1
             uv1 = _object(id).tris(i).uv1
             v2 = _object(id).tris(i).v2
@@ -2672,35 +2662,35 @@ get_visual:
             pre_transform(jj, i)
             '1
             Gl.glNormal3f(_object(jj).tris(i).n1.x, _object(jj).tris(i).n1.y, _object(jj).tris(i).n1.z) 'normal
+            Gl.glMultiTexCoord2f(0, _object(jj).tris(i).uv1.u, _object(jj).tris(i).uv1.v) 'uv1
             Gl.glMultiTexCoord3f(1, _object(jj).tris(i).t1.x, _object(jj).tris(i).t1.y, _object(jj).tris(i).t1.z) 'tangent
             Gl.glMultiTexCoord3f(2, _object(jj).tris(i).b1.x, _object(jj).tris(i).b1.y, _object(jj).tris(i).b1.z) ' bitangent
-            Gl.glMultiTexCoord2f(0, _object(jj).tris(i).uv1.u, _object(jj).tris(i).uv1.v) 'uv1
             Gl.glMultiTexCoord2f(4, _object(jj).tris(i).uv1_2.u, _object(jj).tris(i).uv1_2.v) 'uv2
-            Gl.glMultiTexCoord4f(5, _object(jj).tris(i).c1.x, _object(jj).tris(i).c1.y, _object(jj).tris(i).c1.z, _object(jj).tris(i).c1.w) 'color
+            'Gl.glMultiTexCoord4f(5, _object(jj).tris(i).c1.x, _object(jj).tris(i).c1.y, _object(jj).tris(i).c1.z, _object(jj).tris(i).c1.w) 'color
 
-            Gl.glMultiTexCoord3f(3, _object(jj).tris(i).color1.x, _object(jj).tris(i).color1.y, _object(jj).tris(i).color1.z) 'color
+            'Gl.glMultiTexCoord3f(3, _object(jj).tris(i).color1.x, _object(jj).tris(i).color1.y, _object(jj).tris(i).color1.z) 'color
 
             Gl.glVertex3f(_object(jj).tris(i).v1.x, _object(jj).tris(i).v1.y, _object(jj).tris(i).v1.z) 'vertex
             '2
             Gl.glNormal3f(_object(jj).tris(i).n2.x, _object(jj).tris(i).n2.y, _object(jj).tris(i).n2.z)
+            Gl.glMultiTexCoord2f(0, _object(jj).tris(i).uv2.u, _object(jj).tris(i).uv2.v) 'uv1
             Gl.glMultiTexCoord3f(1, _object(jj).tris(i).t2.x, _object(jj).tris(i).t2.y, _object(jj).tris(i).t2.z)
             Gl.glMultiTexCoord3f(2, _object(jj).tris(i).b2.x, _object(jj).tris(i).b2.y, _object(jj).tris(i).b2.z)
-            Gl.glMultiTexCoord2f(0, _object(jj).tris(i).uv2.u, _object(jj).tris(i).uv2.v) 'uv1
             Gl.glMultiTexCoord2f(4, _object(jj).tris(i).uv2_2.u, _object(jj).tris(i).uv2_2.v) 'uv2
-            Gl.glMultiTexCoord4f(5, _object(jj).tris(i).c2.x, _object(jj).tris(i).c2.y, _object(jj).tris(i).c2.z, _object(jj).tris(i).c2.w) 'color
+            'Gl.glMultiTexCoord4f(5, _object(jj).tris(i).c2.x, _object(jj).tris(i).c2.y, _object(jj).tris(i).c2.z, _object(jj).tris(i).c2.w) 'color
 
-            Gl.glMultiTexCoord3f(3, _object(jj).tris(i).color2.x, _object(jj).tris(i).color2.y, _object(jj).tris(i).color2.z) 'color
+            'Gl.glMultiTexCoord3f(3, _object(jj).tris(i).color2.x, _object(jj).tris(i).color2.y, _object(jj).tris(i).color2.z) 'color
 
             Gl.glVertex3f(_object(jj).tris(i).v2.x, _object(jj).tris(i).v2.y, _object(jj).tris(i).v2.z)
             '3
             Gl.glNormal3f(_object(jj).tris(i).n3.x, _object(jj).tris(i).n3.y, _object(jj).tris(i).n3.z)
+            Gl.glMultiTexCoord2f(0, _object(jj).tris(i).uv3.u, _object(jj).tris(i).uv3.v) 'uv1
             Gl.glMultiTexCoord3f(1, _object(jj).tris(i).t3.x, _object(jj).tris(i).t3.y, _object(jj).tris(i).t3.z)
             Gl.glMultiTexCoord3f(2, _object(jj).tris(i).b3.x, _object(jj).tris(i).b3.y, _object(jj).tris(i).b3.z)
-            Gl.glMultiTexCoord2f(0, _object(jj).tris(i).uv3.u, _object(jj).tris(i).uv3.v) 'uv1
             Gl.glMultiTexCoord2f(4, _object(jj).tris(i).uv3_2.u, _object(jj).tris(i).uv3_2.v) 'uv2
-            Gl.glMultiTexCoord4f(5, _object(jj).tris(i).c3.x, _object(jj).tris(i).c3.y, _object(jj).tris(i).c3.z, _object(jj).tris(i).c3.w) 'color
+            'Gl.glMultiTexCoord4f(5, _object(jj).tris(i).c3.x, _object(jj).tris(i).c3.y, _object(jj).tris(i).c3.z, _object(jj).tris(i).c3.w) 'color
 
-            Gl.glMultiTexCoord3f(3, _object(jj).tris(i).color3.x, _object(jj).tris(i).color3.y, _object(jj).tris(i).color3.z) 'color
+            'Gl.glMultiTexCoord3f(3, _object(jj).tris(i).color3.x, _object(jj).tris(i).color3.y, _object(jj).tris(i).color3.z) 'color
 
             Gl.glVertex3f(_object(jj).tris(i).v3.x, _object(jj).tris(i).v3.y, _object(jj).tris(i).v3.z)
             get_uv_repetes(jj, i)

@@ -6357,11 +6357,9 @@ n_turret:
             Gl.glEndList()
         Next
         log_text.Append(" ======== Model Load Complete =========" + vbCrLf)
-        'For i = 1 To object_count - 1
-        '    tank_center_X += _object(i).center_x
-        '    tank_center_Y += _object(i).center_y
-        '    tank_center_Z += _object(i).center_z
-        'Next
+        For i = 1 To object_count
+            _object(i).find_center()
+        Next
         'tank_center_X /= object_count
         'tank_center_Y /= object_count
         'tank_center_Z /= object_count
@@ -9677,25 +9675,27 @@ skip_old_way:
         Dim path() As String = {}
         'Loop through subfolders
         For Each subfolder As IO.DirectoryInfo In fi.GetDirectories()
-            'Add this folders name
-            Array.Resize(path, path.Length + 1)
-            path(path.Length - 1) = subfolder.FullName
-            'Recall function with each subdirectory
-            For Each s As String In getAllFolders(subfolder.FullName)
-                Dim di As New IO.DirectoryInfo(s)
-                Try
-                    For Each f In di.GetFiles
+            If Not subfolder.FullName.Contains("content") Then
+                'Add this folders name
+                Array.Resize(path, path.Length + 1)
+                path(path.Length - 1) = subfolder.FullName
+                'Recall function with each subdirectory
+                For Each s As String In getAllFolders(subfolder.FullName)
+                    Dim di As New IO.DirectoryInfo(s)
+                    Try
+                        For Each f In di.GetFiles
+                            Array.Resize(path, path.Length + 1)
+                            path(path.Length - 1) = f.DirectoryName + "\" + f.Name
+                            searched_files += 1
+                        Next
+                    Catch ex As Exception
                         Array.Resize(path, path.Length + 1)
-                        path(path.Length - 1) = f.DirectoryName + "\" + f.Name
+                        path(path.Length - 1) = di.FullName
                         searched_files += 1
-                    Next
-                Catch ex As Exception
-                    Array.Resize(path, path.Length + 1)
-                    path(path.Length - 1) = di.FullName
-                    searched_files += 1
-                End Try
+                    End Try
 
-            Next
+                Next
+            End If
         Next
         info_Label.Text = "Searching files for relevance: " + searched_files.ToString("0000")
         Application.DoEvents()
