@@ -1,22 +1,22 @@
-### Tank Exporter
+# Tank Exporter
 
 ## A tool to export Tanks from World of Tanks.
 <a><img src="https://i.imgur.com/OZTVPZr.png" title="source: imgur.com" /></a>
 
-#### This is an ongoing project by me.. Coffee_
+## This is an ongoing project by me.. Coffee_
 
-## If you need to convert the FBX exported from Tank Exporter to a later version, you can use Autodesk's free FBX converter.
+#### If you need to convert the FBX exported from Tank Exporter to a later version, you can use Autodesk's free FBX converter.
 
 You can download it here: https://www.autodesk.com/developer-network/platform-technologies/fbx-converter-archives
 Or if you can not down load it from there... the 64 and 32 bit versions are located here: http://tnmshouse.com/converter/
 
-# Version 101:
+### Version 101:
 I reverted back to a 32bit float Shadow map.</br>
 Fixed a small bug with creating WOTMOD files. I stopped it from searching in too many folders for items.</br>
 Fitting of the tank to the shadow mapping texture is much better.</br>
 I made a few changes to the terrain and decals.</br>
 
-# Version 100:
+### Version 100:
 Fixed issues TE not finding the tracks on some tanks when exporting the tank to res_mods.<br/>
 Fixed TE not loading tracks that are from a different nation.<br/>
 Improved shadow mapping and its speed.<br/>
@@ -24,13 +24,13 @@ Fixed a few issues with rendering the stand along primitives.<br/>
 Better PBR shading...<br/>
 https://www.youtube.com/embed/5OGLX1weSyU
 
-# Version 99:
+### Version 99:
 This adds much better lighting to the stand alone primitives.<br/>
 Fixed a few minor bugs.<br/>
 TE no longer extracts tanks with nearly identical names.<br/>
 TE also will find and extract every texture associated with a tank. Note that this texture could be from a different nation!<br/>
 
-# Version 98:
+### Version 98:
 This update shortens the names even more in the FBX files.<br/>
 Blender can not use names over 63 characters in length.<br/>
 This update adds a check box to the File/Settings menu to deal with normal maps that were exported as tangent (blue) maps.<br/>
@@ -38,7 +38,7 @@ This update adds a check box to the File/Settings menu to deal with normal maps 
 Also.. This adds a new vertex format BPVTxyznuviiiww<br/>
 This forced me to create the tangent and biTangent vectors used in bump mapping as they are not in the models vertex data.<br/>
 
-# Version 97:
+### Version 97:
 This updates the stand alone primitives FBX exporter.<br/>
 This fixes a bug loading a few tanks.<br/>
 Updates to Help HTML pages.<br/>
@@ -46,12 +46,12 @@ Updates to FBX Exporter Panel.<br/>
 You can now export tangent normal maps with the FBX.<br/>
 Read the Primitives section in the help files.<br/>
 
-# Version 96: EMERGENCY RELEASE
+### Version 96: EMERGENCY RELEASE
 This fixes a bug added with the last update by WarGaming. 1.5.1.1498.</br>
 There is a new entry in the list.xml tank tables that was causing parasing to fail.</br>
 Added more to the stand alone primitives loader. It's not finished and has more work to do.. You can export FBX but not with all textures. I'll add that in the next release. You can NOT write the primitives yet. It will crash on most models.
 
-# Version 95:
+### Version 95:
 Added the ability to load, export, import and write stand alone primitive_processed files.
 Tank Exporter will NOT load textures for these yet. Also, it does not export vertex colors yet.
 This is very beta and still under development.
@@ -62,7 +62,7 @@ I cleaned up the UI some and replaced the terrain mesh with a version that fixes
 I fixed a bug in reading decals from the packages. (Paths Changed I was not aware of) Its finding many more decals now.
 Windows 10 likes to removed them every month for some unknown reason.
 
-# Version 94:
+### Version 94:
 Fixed a few bugs in paths to crash textures when writing a WOTMOD file.
 Moved UI and Settings to there sub menu under file/settings.
 Added a PBR template for when visuals are updated for new added models.
@@ -73,7 +73,7 @@ Sometimes, even when it shows correctly in the 3D app and Tank Exporter, It stil
 
 Updated the help pages.
 
-# Version 93:
+### Version 93:
 This fixes a bug in selecting UV triangles while in FBX View mode.
 It was NOT centering on the selected triangle when the C key was pressed.
 
@@ -82,10 +82,10 @@ When a texture is selected for viewing, the color defaults to WHITE lines.
 You can now change these to Yellow, Red, Green, Blue or Black.
 These outline colors will be used when writing a UV mask for use in texture painting.
 
-# Version 92:
+### Version 92:
 The meta.xml was being packaged in the res folder in wotmod files. This is fixed with this version. Now its packaged in the root of the files directory where it should be.
 
-# Version 91:
+### Version 91:
 This updates the screen capturing. Now you have more choices and presets.
 
 <a><img src="http://www.tnmshouse.com/help/Images/screencapture.jpg" title="Sceen capture Panel" /></a>
@@ -95,12 +95,12 @@ This version also adds code to extract the 420x307 better quality tank image fro
 
 I also added code to change the paths in the .visual_processed files in side the tracks folder ONLY if the .DDS files exist in res_mods.
 
-# Version 90:
+### Version 90:
 This adds support for Blender.
 The FBX can not be loaded in to Blender directly. It will need to be converted to version 2013 using Autodesk's FBX Converter. Get it at the link above.
 Please read the "Exporting a Tank" section in the help file for more information.
 
-# Version 89:
+### Version 89:
 1. WOTMOD creating has been completely re-written. Now it creates creator paths in the wotmod and updates all paths in the bw xml files to the new location of the resources.
 This is all based on what files are in the res_mods such as textures, visuals and such. Paths to resources that are not in res_mods will not be changed.
 2. I added Mouse Speed and Field of View settings.
@@ -110,50 +110,50 @@ This is all based on what files are in the res_mods such as textures, visuals an
 6. Added code to allow testing WOTMOD or RES_MODS tanks by blocking the loading of mods or res_mods and than running the game from within Tank Exporter.
 7. Added code to show the python.log and clear it out. Nice for debugging wotmod files.
 
-# Version 88:
+### Version 88:
 This fixes a bug that flipped the mixed camouflage on Y when exporting an FBX. In order for a camo to be exported, one must be applied to the tank.
 
-# Version 87:
+### Version 87:
 I reworked how camouflages are loaded.
 There are now files created and stored in the wot_temp folder containing the information to create the camouflages.
 These files will be updated anytime you clean the wot_temp folder.
 
-# Version 86:
+### Version 86:
 This fixes a bug with the Foch B not exporting to the Foch 155 folder. The 155 and B Foch tanks share the chassis, hull and turret models. Only the Guns 01 and 02 are different between these two tanks.
 
-# Version 85:
+### Version 85:
 I fixed a bug with Tank Exporter not finding the German VK 100.01 (p).
 This is a bug in the Developer data I access from WG's Dev site.
 There are naming issues with the PGK file name and whats in the DEV data. I will be reporting this ASAP.
 
-# Version 84:
+### Version 84:
 Tank Exporter now can create mixed camouflaged textures.
 Just select a camo and export the FBX. TE will create PNG files with the camo mixed over them.
 
-## Version 83:
+### Version 83:
 This fixes a issue with the G19_sherman_firefly not loading.
 This version also should fix a rare error caused by dangling data.
 
-## Version 82:
+### Version 82:
 Fixed a bug with the Lynx 6X6 wheeled vehicle not loading.
 Fixed a few issues with the menu bar.
 Changed how the camouflage names are displayed. They were bleeding over the top of each other when the names where long.
 Updated the Help HTML files.
 
-## Version 81:
+### Version 81:
 This version adds the ability to load/export/write the wheeled vehicles.
 You can NOT write the chassis of the wheeled tanks however.
 If you have a serious need for this feature contact me.
 This is a lot of work I am not willing to do with out getting paid for the work.
 
-## Version 80:
+### Version 80:
 I Fixed yet another bug in the camouflage.
 
-## Version 79:
+### Version 79:
 Fixed a bug with TEs changes to the camuflages.
 TE finds many more camouflages now.
 
-## version 78:
+### version 78:
 Lots a new stuff!
 
 Added ability to scale exported UV map.
@@ -171,44 +171,44 @@ Added a control to change GMM map in real time while previewing the tank in TE. 
 
 Added a custom exported screen size. You can save a screen shot in any size you what. Use even size values for this!
 
-## Version 77:
+### Version 77:
 Fixed how TE deals with tanks that contain the _Skins folder.
 Added JLDragon's Texture Save Format information to the help HTML pages.
 
-## Version 76:
+### Version 76:
 This fixes an issue with tanks that contain "_skin" sub folders.
 In order to for SD tanks to work, you will need to copy all primitives and visuals to the _"skins" lod folders. This is untested and may not work with SD run mode.
 Fixed a bug with the game crashing when the window was moved if a data rebuild is in progress.
 
-## Version 75:
+### Version 75:
 This fixes a silly bug introduced when I fixed the FBX shared vertex UV coordinates.
 
-## Version 74:
+### Version 74:
 Fixed a few bugs wirh cleaning up visual files.
 
-## Version 73:
+### Version 73:
 This adds the ability to create and save WOTMOD files.
 Read the HELP files.
 Also, I fixed a small issue with saving current folder paths for later recall.
 There is new HELP file content and a new process page.
 
-## Version 72:
+### Version 72:
 This adds a check box to the extraction screen to extract the tanks item_Def file from the scripts.pkg.
 Also... It fixes a bug of items not being found in the shared_content_build file I create for searching for data.
 
-## Version 71:
+### Version 71:
 This fixes a long time issue with importing FBX files with UV vertice counts larger than geometry vertice counts. Texture seams cause problems when rendering or writing the primitive if the vertices are not split based on UV mapping.
 The down side to this new FBX reading method is it requires repacking the vertices and indices back in to indexed lists.
 This takes time and you will see it when you write out a primitive. The code is not horribly slow but is worth the fix to UV map seams.
 
-## Version 70:
+### Version 70:
 Fixed a bug with loading the Skorpion and other tanks.
 
-## Version 69:
+### Version 69:
 Fixed a issue with the a tanks item_def file messing up finding camouflage texture tile information.
 Replaced the season ICONS with edited versions from the game data.
 
-## Version 68:
+### Version 68:
 It would seem Windows 10 does not like having OpenGL render context windows with odd sizes.. This has never been a problem with Windows 7. I have always made the FBO an even size as the rendering textures MUST be powers of 2.
 This version resizes the window to a power of 2 after the user manually drags a border causing a resize.
 If you are seeing an odd tearing artifact in the center of the window this is because the render window size is not an even number.
@@ -219,30 +219,30 @@ Tank Exporter runs well under SLI (Not tested in crossfire).
 Use the NVIDIA control panel to turn SLI on. Add Tank Exporter to the list of programs and than set the SLI setting.
 It may take a few trials and error attempts to get the SLI running.
 
-## Version 67:
+### Version 67:
 Added a hack to load the GB93_Caernarvon_AX tank. For what ever reason, this tank has a folder named _skins that causes TE to not find it.. I'm deleting this part of the path so TE can find the primitive files. If you want the new custom textures, copy them over from the _skins folder after extracting the tank to res_mods. When you load the tank in TE, the custom paint should show up.
 
-## Version 66:
+### Version 66:
 This version adds screen capturing to Tank Exporter.
 Please read the Help Pages for more information.
 
-## Version 65:
+### Version 65:
 This version adds the ability to load and export crash models from the packages. Editing of the crash models is the same as the regular models. Tank Exporter handles all the paths so you do not need to worry about it. Just load the tank using Load Crashed... on the context menu. Tank Exporter will add _CRASH to the name when the FBX is exported.
 
-## Version 64:
+### Version 64:
 This version adds the ability to edit the Gun models!
 You can also add other models to the gun provided you set up the vertex colors correctly.
 I spent 2 days 20 + hours working on adding items to the chassis carriage. It can NOT be done.. Adding even one polygon that is not attached to the chassis models with out a matching vertex color causes the shader for the chassis to mess up. The Video driver crashes hard and the game locks up. You can add a ball and attach its vertices to a wheel and it works.. It crashes when there is a model that is not part of the carriage or tracks.
 
 I'm leaving version 63 on GitHub in case there are issues with 64.
 
-## Version 63:
+### Version 63:
 Tank Exporter will now copy and convert the textures of new models that have been added to the Turret or Tank components.
 The Visuals will automatically be edited so the paths are changed to match the folder and name of the new textures.
 
 Updated Help pages with this new information.
 
-## Version 62:
+### Version 62:
 After trying a few things to hide the tracks, I think I finally have the solution. In sniper mode, the tracks would show up again even with the ANM map cleared out.
 Now.... If you check the Hide Tracks box, Tank Exporter will replaced the primitive(s) for the 'REAL' track segments with a primitive that has only 8 vertices and all the data for each is zeroed out.
 Like wise, the rubber band phony tracks vertices are zerored out as well. The normal maps ANM is over written with a blank DDS and the visual is edited to make sure alpha is enabled and the references is at least set to 64. I tested this and I see no artifacts showing up anywhere.
@@ -252,34 +252,34 @@ I added code to automatically copy the visual and prmitives files from LOD0 to t
 I also updated the HTML help pages with the new changes.
 
 
-## Version 61:
+### Version 61:
 Created new and much better Help Pages for Tank Exporter.
 Added buttons to the Texture View window to hide/show the color channels on the texture. Cleaned up mousing between Texture View window and the rendering window.
 Added code to change the user name in texture paths when importing a FBX file. This helps with transporting FBX between friends and others working on the same FBX that is located in folder on a users desktop. The folder names must be exactly the same for this to work correctly.
 
-## Version 60:
+### Version 60:
 Added code to sort the tank list.
 Found a bug that was removing the last tank found in each tier while creating the tank list.
 
-## Version 59:
+### Version 59:
 I fixed a bug I managed to add in when I added bloom.
 I added "View in res_mods folder" to the Export/Extract menu that will open the tanks folder in Explore. If the folder does not exist, a popup will let you know you have not extracted the files.
 
-## Version 58:
+### Version 58:
 Fixed a issue when visuals and their matching models are scattered in different pkg files. TE should find every part for every tank now.
 Bloom now is affected by all 3 lights.
 I updated the install banner.
 
-## Version 57:
+### Version 57:
 Fixed a bug loading some of the Polish tanks.
 Added Bloom and a way to turn it on and off and a check box to view the texture used for rendering it.
 
-## Verion 56:
+### Verion 56:
 This fixes a bug in hiding parts of the tank when a FBX has not been imported.
 I also turned FXAA back on and added a check box to disable it.
 A few minor bug fixes.
 
-## Version 55:
+### Version 55:
 This changes the texture and other functions to work exactly the same while in fbx view mode. The texture viewer now shows the UVs for the FBX and all mouse over acts just like in model view mode.
 
 Hiding tank parts also works in FBX view now as does vertex colors.
@@ -294,7 +294,7 @@ I fixed a minor but annoying bug with mousing in and out of the texture view win
 I changed the terrain/grid to a tri-state button... now it cycles through Terrain - Blank - XY Grid displays.
 
 
-## Version 54:
+### Version 54:
 This adds the ablility to edit the chassis Carriage section.
 There are new markers that show where the locations of the wheels/rollers are located.. Moving these, moves the wheels/rollers. There is NO need to move the actual mesh that makes up the wheels. There will be tutorial vidoes on this process coming soon.
 
@@ -305,68 +305,68 @@ I also fixed a few bugs and added a few more features.
 4. I added a button under Export/Extract that will clean out the data for the current tank in the res_mods folder if any exists.
 
 
-## Version 53:
+### Version 53:
 Fixed a bug in reading the visual files. Spaces around string names was causing it to not find entries such as "vertices".
 
-## Version 52:
+### Version 52:
 This fixes a crash while extracting the tank data after FBX import.
 
-## Version 51:
+### Version 51:
 Fixed a silly bug that caused the first textures to be blank when exporting to FBX in PNG format.
 
-## Version 50:
+### Version 50:
 TE now exports the currently active camouflage texture when you export the FBX.
 Added a camouflage editing tool. Edit Before exporting if you want changes to the camo to be saved.
 Moved fbx export and extract functions from the context menu to the main menu.
 TE exports the customization.xml file if told to do so.
 There is no editing done to the customization.xml. You will need to do it manually if you want camo colors to be visiable in the game.
 
-## Version 49:
+### Version 49:
 The World of Tanks Developers API now requires an Application_Id.
 This ID is asscoitated with the Application and the developer of said application. This ID is embeded in Tank Exporters code and there is nothing on your part that is required other than setting up the paths to the game and the current res_mods folder for the current game version.
 
-## Version 48:
+### Version 48:
 Added "Reload Textures" to the context menu on the tier tabs.
 
-## Version 47:
+### Version 47:
 Updated to work with the last version 1.0.2.0 of the game.
 Removed version 43 from GitHub. Its unusable with 1.0.2.0.
 
-## Version 46:
+### Version 46:
 Fixed a bug with selection of a UV triangle in the texture view window.
 
-## Version 45:
+### Version 45:
 I added code to clean the shader files of any non-ascii characters. Hopefully, this will help AMD cards load the shaders with no issues.
 
-## Version 44:
+### Version 44:
 I changed how decals are loaded. They are only loaded if they are used. This is dynamic so adding a new decal with an unused texture will cause a slight delay while the decal is being loaded.
 This version might cause problems so I am leaving version 42 on GitHub and it should be used if this one fails.
 Cleaning out the wot_temp folder might help if the app crashes at startup. Cleaning this folder should be done every time WoT adds or changes tank models!
 
-## Version 43:
+### Version 43:
 Decals are now on the terrain. You can edit and save changes to them. The decals come from the game's pkg files and use PBR to shade them. I am leaving version 42 GitHub incase this version is unusable by anyone.
 
-## Version 42:
+### Version 42:
 Added Shadows and controls for it. You can set 1 of the 3 lights as the shadow light source. Added terrain and skydome. The shader editor now stops the rendering while active. Rendering can be turned back on, on the editors form.
 The hide show grid lines now toggels between terrain and grid.
 Added a preview of the shadow mapping texture and result. This is a debug tool only.
 
-## Version 41:
+### Version 41:
 Fixed PBR shading.. Added Cube environment map.
 Added menu items related to the new shading.
 
-## Version 40:
+### Version 40:
 Fixed a issue with writing the surface normals X flipped
 
-## Version 39:
+### Version 39:
 Added a FBO to use with FXAA.
 Implemented FXAA.
 Improved PBR and lighting in general.
 
-## Version 38:
+### Version 38:
 I Finally got a working PBR shader. Better lighting!
 
-## Version 37:
+### Version 37:
 Fixed an excpetion being thrown when mousing out of the Texture View window.
 
 ### Version 36:
