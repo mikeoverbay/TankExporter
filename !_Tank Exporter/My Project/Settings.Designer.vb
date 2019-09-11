@@ -317,6 +317,18 @@ Namespace My
                 Me("fbx_path") = value
             End Set
         End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("False")>  _
+        Public Property No_Markers() As Boolean
+            Get
+                Return CType(Me("No_Markers"),Boolean)
+            End Get
+            Set
+                Me("No_Markers") = value
+            End Set
+        End Property
     End Class
 End Namespace
 

@@ -10,6 +10,10 @@
 You can download it here: https://www.autodesk.com/developer-network/platform-technologies/fbx-converter-archives
 Or if you can not down load it from there... the 64 and 32 bit versions are located here: http://tnmshouse.com/converter/
 
+### Version 102:
+Added checkbox to disable exporting the bend bone markers.</br>
+You will need to check this if you do not want them exported.
+
 ### Version 101:
 I reverted back to a 32bit float Shadow map.</br>
 Fixed a small bug with creating WOTMOD files. I stopped it from searching in too many folders for items.</br>

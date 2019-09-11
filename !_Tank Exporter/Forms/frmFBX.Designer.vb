@@ -35,6 +35,7 @@ Partial Class frmFBX
         Me.Label2 = New System.Windows.Forms.Label()
         Me.convert_normal_maps_cb = New System.Windows.Forms.CheckBox()
         Me.flip_normal_cb = New System.Windows.Forms.CheckBox()
+        Me.no_markers_cb = New System.Windows.Forms.CheckBox()
         Me.SuspendLayout()
         '
         'flip_u
@@ -43,7 +44,7 @@ Partial Class frmFBX
         Me.flip_u.BackColor = System.Drawing.Color.Transparent
         Me.flip_u.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.flip_u.ForeColor = System.Drawing.Color.White
-        Me.flip_u.Location = New System.Drawing.Point(12, 74)
+        Me.flip_u.Location = New System.Drawing.Point(12, 56)
         Me.flip_u.Name = "flip_u"
         Me.flip_u.Size = New System.Drawing.Size(59, 17)
         Me.flip_u.TabIndex = 2
@@ -58,7 +59,7 @@ Partial Class frmFBX
         Me.export_textures.CheckState = System.Windows.Forms.CheckState.Checked
         Me.export_textures.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.export_textures.ForeColor = System.Drawing.Color.White
-        Me.export_textures.Location = New System.Drawing.Point(12, 166)
+        Me.export_textures.Location = New System.Drawing.Point(12, 148)
         Me.export_textures.Name = "export_textures"
         Me.export_textures.Size = New System.Drawing.Size(115, 17)
         Me.export_textures.TabIndex = 1
@@ -71,7 +72,7 @@ Partial Class frmFBX
         Me.flip_v.BackColor = System.Drawing.Color.Transparent
         Me.flip_v.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.flip_v.ForeColor = System.Drawing.Color.White
-        Me.flip_v.Location = New System.Drawing.Point(12, 97)
+        Me.flip_v.Location = New System.Drawing.Point(12, 79)
         Me.flip_v.Name = "flip_v"
         Me.flip_v.Size = New System.Drawing.Size(58, 17)
         Me.flip_v.TabIndex = 0
@@ -106,7 +107,7 @@ Partial Class frmFBX
         Me.export_as_binary_cb.CheckState = System.Windows.Forms.CheckState.Checked
         Me.export_as_binary_cb.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.export_as_binary_cb.ForeColor = System.Drawing.Color.White
-        Me.export_as_binary_cb.Location = New System.Drawing.Point(12, 189)
+        Me.export_as_binary_cb.Location = New System.Drawing.Point(12, 171)
         Me.export_as_binary_cb.Name = "export_as_binary_cb"
         Me.export_as_binary_cb.Size = New System.Drawing.Size(150, 17)
         Me.export_as_binary_cb.TabIndex = 4
@@ -134,7 +135,7 @@ Partial Class frmFBX
         Me.blender_cb.DataBindings.Add(New System.Windows.Forms.Binding("Checked", Global.Tank_Exporter.My.MySettings.Default, "blender_compatible", True, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged))
         Me.blender_cb.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.blender_cb.ForeColor = System.Drawing.Color.Yellow
-        Me.blender_cb.Location = New System.Drawing.Point(12, 212)
+        Me.blender_cb.Location = New System.Drawing.Point(12, 194)
         Me.blender_cb.Name = "blender_cb"
         Me.blender_cb.Size = New System.Drawing.Size(162, 17)
         Me.blender_cb.TabIndex = 6
@@ -149,7 +150,7 @@ Partial Class frmFBX
         Me.texture_per_model_cb.DataBindings.Add(New System.Windows.Forms.Binding("Checked", Global.Tank_Exporter.My.MySettings.Default, "blender_compatible", True, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged))
         Me.texture_per_model_cb.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.texture_per_model_cb.ForeColor = System.Drawing.Color.Yellow
-        Me.texture_per_model_cb.Location = New System.Drawing.Point(12, 235)
+        Me.texture_per_model_cb.Location = New System.Drawing.Point(12, 217)
         Me.texture_per_model_cb.Name = "texture_per_model_cb"
         Me.texture_per_model_cb.Size = New System.Drawing.Size(159, 17)
         Me.texture_per_model_cb.TabIndex = 7
@@ -177,7 +178,7 @@ Partial Class frmFBX
         Me.convert_normal_maps_cb.CheckState = System.Windows.Forms.CheckState.Checked
         Me.convert_normal_maps_cb.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.convert_normal_maps_cb.ForeColor = System.Drawing.Color.White
-        Me.convert_normal_maps_cb.Location = New System.Drawing.Point(12, 120)
+        Me.convert_normal_maps_cb.Location = New System.Drawing.Point(12, 102)
         Me.convert_normal_maps_cb.Name = "convert_normal_maps_cb"
         Me.convert_normal_maps_cb.Size = New System.Drawing.Size(147, 17)
         Me.convert_normal_maps_cb.TabIndex = 9
@@ -190,12 +191,27 @@ Partial Class frmFBX
         Me.flip_normal_cb.BackColor = System.Drawing.Color.Transparent
         Me.flip_normal_cb.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.flip_normal_cb.ForeColor = System.Drawing.Color.White
-        Me.flip_normal_cb.Location = New System.Drawing.Point(12, 143)
+        Me.flip_normal_cb.Location = New System.Drawing.Point(12, 125)
         Me.flip_normal_cb.Name = "flip_normal_cb"
         Me.flip_normal_cb.Size = New System.Drawing.Size(101, 17)
         Me.flip_normal_cb.TabIndex = 10
         Me.flip_normal_cb.Text = "Flip Y Normal"
         Me.flip_normal_cb.UseVisualStyleBackColor = False
+        '
+        'no_markers_cb
+        '
+        Me.no_markers_cb.AutoSize = True
+        Me.no_markers_cb.BackColor = System.Drawing.Color.Transparent
+        Me.no_markers_cb.Checked = Global.Tank_Exporter.My.MySettings.Default.No_Markers
+        Me.no_markers_cb.DataBindings.Add(New System.Windows.Forms.Binding("Checked", Global.Tank_Exporter.My.MySettings.Default, "No_Markers", True, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged))
+        Me.no_markers_cb.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.no_markers_cb.ForeColor = System.Drawing.Color.Yellow
+        Me.no_markers_cb.Location = New System.Drawing.Point(12, 240)
+        Me.no_markers_cb.Name = "no_markers_cb"
+        Me.no_markers_cb.Size = New System.Drawing.Size(155, 17)
+        Me.no_markers_cb.TabIndex = 11
+        Me.no_markers_cb.Text = "Do Not Export Markers"
+        Me.no_markers_cb.UseVisualStyleBackColor = False
         '
         'frmFBX
         '
@@ -205,6 +221,7 @@ Partial Class frmFBX
         Me.BackgroundImage = Global.Tank_Exporter.My.Resources.Resources.upton_BnW
         Me.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
         Me.ClientSize = New System.Drawing.Size(305, 381)
+        Me.Controls.Add(Me.no_markers_cb)
         Me.Controls.Add(Me.Label2)
         Me.Controls.Add(Me.Label1)
         Me.Controls.Add(Me.flip_normal_cb)
@@ -242,4 +259,5 @@ Partial Class frmFBX
     Friend WithEvents Label2 As System.Windows.Forms.Label
     Friend WithEvents convert_normal_maps_cb As System.Windows.Forms.CheckBox
     Friend WithEvents flip_normal_cb As System.Windows.Forms.CheckBox
+    Friend WithEvents no_markers_cb As System.Windows.Forms.CheckBox
 End Class

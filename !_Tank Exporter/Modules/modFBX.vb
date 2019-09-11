@@ -543,6 +543,7 @@ outofhere:
         rootNode.SetDefaultR(dfr)
         rootNode.SetDefaultS(dfs)
         rootNode.SetDefaultT(dft)
+        If frmFBX.no_markers_cb.Checked Then GoTo NO_PINS
         'add the markers to the root
         ' get total vNodes needed
         Dim cnt As Integer = 0
@@ -555,7 +556,6 @@ outofhere:
         Dim Vmesh2 = fbx_create_Vmesh("pin_2", pManager, v_marker2)
         Dim Vmesh3 = fbx_create_Vmesh("pin_3", pManager, v_marker3)
         Dim Vmesh4 = fbx_create_Vmesh("pin_4", pManager, v_marker4)
-        If PRIMITIVES_MODE Then GoTo NO_PINS
         For id = 0 To v_boneGroups.Length - 1
             Dim m_node = FbxNode.Create(pManager, v_boneGroups(id).groupName.ToLower.Replace(".vertices", ""))
             Dim NullNode As FbxNode
