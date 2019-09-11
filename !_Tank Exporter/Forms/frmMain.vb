@@ -6028,7 +6028,11 @@ n_turret:
             End Try
 
         End Try
-        turret_tiling = turret_tile(turrets.Length - 2)
+        Try
+            turret_tiling = turret_tile(turrets.Length - 3)
+        Catch ex As Exception
+            turret_tiling = turret_tile(turrets.Length - 2)
+        End Try
         Dim hull_name = hulls(hulls.Length - 2)
         hull_tiling = hull_tile(hulls.Length - 2)
         Dim chassis_name = chassis(chassis.Length - 2)
