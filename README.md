@@ -10,6 +10,9 @@
 You can download it here: https://www.autodesk.com/developer-network/platform-technologies/fbx-converter-archives
 Or if you can not down load it from there... the 64 and 32 bit versions are located here: http://tnmshouse.com/converter/
 
+### Version 103:
+Fixed a new bug created by Wargaming changing the tank xml files AGAIN!!!!
+
 ### Version 102:
 Added checkbox to disable exporting the bend bone markers.</br>
 You will need to check this if you do not want them exported.
