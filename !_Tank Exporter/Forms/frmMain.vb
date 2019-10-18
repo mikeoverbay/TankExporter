@@ -562,7 +562,7 @@ done:
                 M_Path.PerformClick()
             End If
         End If
-        If File.Exists(Temp_Storage + "\res_mods_path.txt") Then
+        If File.Exists(Temp_Storage + "\res_mods_Path.txt") Then
             My.Settings.res_mods_path = File.ReadAllText(Temp_Storage + "\res_mods_Path.txt")
         Else
             If My.Settings.game_path = "C:\" Then
@@ -575,8 +575,10 @@ done:
         Dim pathsxml = File.ReadAllText(My.Settings.game_path + "\paths.xml")
         Dim ar = pathsxml.Split(vbLf)
         pathsxml = ar(2).Replace(vbTab, "")
+        pathsxml = ar(2).Replace(vbCr, "")
         pathsxml = pathsxml.Replace(" ", "")
         pathsxml = pathsxml.Replace("""", "")
+        pathsxml = pathsxml.Replace("""", "'")
         pathsxml = pathsxml.Replace("<PathcacheSubdirs=true>./res_mods/", "")
         pathsxml = pathsxml.Replace("</Path>", "")
         Dim rp = Path.GetFileName(My.Settings.res_mods_path)
@@ -914,7 +916,7 @@ done:
         End If
 
         'build pkg list
-        make_pgk_searh_list()
+        make_pgk_search_list()
 
         TC1.SelectedIndex = 0
         Application.DoEvents()
@@ -1286,7 +1288,7 @@ done:
 
 
     End Sub
-    Private Sub make_pgk_searh_list()
+    Private Sub make_pgk_search_list()
         'build a list of package files to search for items
         Dim p = My.Settings.game_path + "\res\packages\"
         Dim di = Directory.GetFiles(p)
