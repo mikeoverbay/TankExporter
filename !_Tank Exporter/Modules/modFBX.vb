@@ -1193,25 +1193,29 @@ outahere:
             fbxgrp(i).normal_Id = white_id
 
         End Try
-        Try
-            'specular map... specular_name
-            property_ = material.FindProperty(FbxSurfaceMaterial.SSpecularFactor)
-            texture = property_.GetSrcObject(FbxTexture.ClassId, 0)
-            If texture IsNot Nothing Then
-                Dim fp = Path.GetDirectoryName(frmMain.OpenFileDialog1.FileName) + "\" + texture.RelativeFileName
-                fbxgrp(i).specular_name = fix_texture_path(fp)
-                frmMain.info_Label.Text = "Loading Texture: " + fbxgrp(i).specular_name
-                Application.DoEvents()
-                fbxgrp(i).specular_id = -1
-                fbxgrp(i).specular_id = get_fbx_texture(fbxgrp(i).specular_name)
-                fbxgrp(i).texture_count = 3
-                If fbxgrp(i).specular_id = 0 Then
-                    fbxgrp(i).specular_id = white_id
-                End If
-            End If
-        Catch ex As Exception
 
-        End Try
+        ' WG has made all simple shaders useless in the tanks visual files.
+        ' All shaders must now be PBS_Tank or PBS_Tank_Skinned
+        ' There is no use for specular textures in PBS shaders.
+        'Try
+        '    'specular map... specular_name
+        '    property_ = material.FindProperty(FbxSurfaceMaterial.SSpecularFactor)
+        '    texture = property_.GetSrcObject(FbxTexture.ClassId, 0)
+        '    If texture IsNot Nothing Then
+        '        Dim fp = Path.GetDirectoryName(frmMain.OpenFileDialog1.FileName) + "\" + texture.RelativeFileName
+        '        fbxgrp(i).specular_name = fix_texture_path(fp)
+        '        frmMain.info_Label.Text = "Loading Texture: " + fbxgrp(i).specular_name
+        '        Application.DoEvents()
+        '        fbxgrp(i).specular_id = -1
+        '        fbxgrp(i).specular_id = get_fbx_texture(fbxgrp(i).specular_name)
+        '        fbxgrp(i).texture_count = 3
+        '        If fbxgrp(i).specular_id = 0 Then
+        '            fbxgrp(i).specular_id = white_id
+        '        End If
+        '    End If
+        'Catch ex As Exception
+
+        'End Try
         Return get_mesh_geo(i, childnode, start_vertex, start_index, scene, rootnode, mesh)
     End Function
     Private Function readMeshdata_primitives(ByVal i As Integer, ByRef childnode As FbxNode, _
@@ -1909,7 +1913,7 @@ whichone:
         file_name = file_name.Replace("/", "\")
         ar = file_name.Split("\")
         Dim fn = ar(0) + "\" + ar(1) + "\" + ar(2)
-        current_tank_name = fn
+        current_tank_name = fn ' Path.GetDirectoryName(file_name)
         Dim dp = My.Settings.res_mods_path + "\" + fn
         frmWritePrimitive.SAVE_NAME = dp
         If Not Directory.Exists(dp) Then

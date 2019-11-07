@@ -34,7 +34,6 @@ Partial Class frmWritePrimitive
         Me.hide_tracks_cb = New System.Windows.Forms.CheckBox()
         Me.copy_lods_cb = New System.Windows.Forms.CheckBox()
         Me.m_write_crashed = New System.Windows.Forms.CheckBox()
-        Me.use_pbr_template_cb = New System.Windows.Forms.CheckBox()
         Me.SuspendLayout()
         '
         'Label1
@@ -118,7 +117,7 @@ Partial Class frmWritePrimitive
         Me.flipWindingOrder_cb.BackColor = System.Drawing.Color.Transparent
         Me.flipWindingOrder_cb.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.flipWindingOrder_cb.ForeColor = System.Drawing.Color.White
-        Me.flipWindingOrder_cb.Location = New System.Drawing.Point(15, 128)
+        Me.flipWindingOrder_cb.Location = New System.Drawing.Point(15, 175)
         Me.flipWindingOrder_cb.Name = "flipWindingOrder_cb"
         Me.flipWindingOrder_cb.Size = New System.Drawing.Size(131, 17)
         Me.flipWindingOrder_cb.TabIndex = 6
@@ -132,7 +131,7 @@ Partial Class frmWritePrimitive
         Me.hide_tracks_cb.BackColor = System.Drawing.Color.Transparent
         Me.hide_tracks_cb.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.hide_tracks_cb.ForeColor = System.Drawing.Color.White
-        Me.hide_tracks_cb.Location = New System.Drawing.Point(15, 178)
+        Me.hide_tracks_cb.Location = New System.Drawing.Point(15, 221)
         Me.hide_tracks_cb.Name = "hide_tracks_cb"
         Me.hide_tracks_cb.Size = New System.Drawing.Size(160, 17)
         Me.hide_tracks_cb.TabIndex = 7
@@ -146,7 +145,7 @@ Partial Class frmWritePrimitive
         Me.copy_lods_cb.BackColor = System.Drawing.Color.Transparent
         Me.copy_lods_cb.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.copy_lods_cb.ForeColor = System.Drawing.Color.White
-        Me.copy_lods_cb.Location = New System.Drawing.Point(15, 201)
+        Me.copy_lods_cb.Location = New System.Drawing.Point(15, 244)
         Me.copy_lods_cb.Name = "copy_lods_cb"
         Me.copy_lods_cb.Size = New System.Drawing.Size(126, 17)
         Me.copy_lods_cb.TabIndex = 8
@@ -160,25 +159,12 @@ Partial Class frmWritePrimitive
         Me.m_write_crashed.BackColor = System.Drawing.Color.Transparent
         Me.m_write_crashed.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.m_write_crashed.ForeColor = System.Drawing.Color.White
-        Me.m_write_crashed.Location = New System.Drawing.Point(15, 155)
+        Me.m_write_crashed.Location = New System.Drawing.Point(15, 198)
         Me.m_write_crashed.Name = "m_write_crashed"
         Me.m_write_crashed.Size = New System.Drawing.Size(122, 17)
         Me.m_write_crashed.TabIndex = 9
         Me.m_write_crashed.Text = "Save as Crashed"
         Me.m_write_crashed.UseVisualStyleBackColor = False
-        '
-        'use_pbr_template_cb
-        '
-        Me.use_pbr_template_cb.AutoSize = True
-        Me.use_pbr_template_cb.BackColor = System.Drawing.Color.Transparent
-        Me.use_pbr_template_cb.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.use_pbr_template_cb.ForeColor = System.Drawing.Color.White
-        Me.use_pbr_template_cb.Location = New System.Drawing.Point(15, 224)
-        Me.use_pbr_template_cb.Name = "use_pbr_template_cb"
-        Me.use_pbr_template_cb.Size = New System.Drawing.Size(216, 17)
-        Me.use_pbr_template_cb.TabIndex = 10
-        Me.use_pbr_template_cb.Text = "Use PBR Template for new items."
-        Me.use_pbr_template_cb.UseVisualStyleBackColor = False
         '
         'frmWritePrimitive
         '
@@ -188,7 +174,6 @@ Partial Class frmWritePrimitive
         Me.BackgroundImage = Global.Tank_Exporter.My.Resources.Resources.upton
         Me.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
         Me.ClientSize = New System.Drawing.Size(279, 272)
-        Me.Controls.Add(Me.use_pbr_template_cb)
         Me.Controls.Add(Me.m_write_crashed)
         Me.Controls.Add(Me.copy_lods_cb)
         Me.Controls.Add(Me.hide_tracks_cb)
@@ -220,5 +205,4 @@ Partial Class frmWritePrimitive
     Friend WithEvents hide_tracks_cb As System.Windows.Forms.CheckBox
     Friend WithEvents copy_lods_cb As System.Windows.Forms.CheckBox
     Friend WithEvents m_write_crashed As System.Windows.Forms.CheckBox
-    Friend WithEvents use_pbr_template_cb As System.Windows.Forms.CheckBox
 End Class

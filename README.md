@@ -10,6 +10,14 @@
 You can download it here: https://www.autodesk.com/developer-network/platform-technologies/fbx-converter-archives
 Or if you can not down load it from there... the 64 and 32 bit versions are located here: http://tnmshouse.com/converter/
 
+### Version 105:
+Once again WG has broken a major part of Tank Exporter.
+We are no longer allowed to use the simple coloronly, normalmap and normalmap_specmap fx shaders within the visual files.</br>
+Any model that is added to an existing model must now use the PBS_tank or PBS_tank_skinned fx shaders.</br>
+I added dummy GMM and AO texture maps that will be copied to the tanks root folder. Adding a new model to the turret for example is much the same as before. You will need to assign textures to the new models, add "turret" to the new models name and export them as FBX from 3DS or Blender.</br>
+I also fixed the bug with starting WOT from within Tank Exporter. It became broken when they added 32 and 64 bit versions of the game.</br>
+
+
 ### Version 104:
 Fix a bug with Tank Exporter asking to set the res_mods over and over.
 

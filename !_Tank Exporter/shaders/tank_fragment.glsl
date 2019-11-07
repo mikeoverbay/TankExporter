@@ -26,7 +26,7 @@ uniform vec4 tile_vec4;
 uniform float detailPower;
 uniform int use_camo;
 uniform int is_track;
-        // used for debuging
+// used for debuging
 uniform vec4 u_ScaleFGDSpec;
 uniform vec4 u_ScaleDiffBaseMR;
 uniform int use_shadow;
@@ -54,8 +54,6 @@ in vec3 b;
 in vec3 v_Normal;
 in vec3 cubeTC;
 in vec3 vertexColor;
-
-
 // ========================================================
 // rextimmy gets full credit for figuring out how mixing works!
 vec4 applyCamo(vec4 cc,vec4 camoTex){
@@ -67,6 +65,7 @@ vec4 applyCamo(vec4 cc,vec4 camoTex){
     cc   = mix(cc, c3 , camoTex.a * c3.a );
     return cc;
 }
+
 
 // PBR Functions ======================================================
 // Encapsulate the various inputs used by the various functions in the shading equation
@@ -100,7 +99,7 @@ struct PBRInfo
     // color contribution from specular lighting
 };
 const float M_PI = 3.141592653589793;
-const float c_MinRoughness = 0.01;
+const float c_MinRoughness = 0.02;
 // used for debug.. shows different parts of the lighting
 
 #define MANUAL_SRGB;
@@ -131,16 +130,13 @@ vec3 getNormal()
     vec3 tex_dx = dFdx(vec3(TC1, 0.0));
     vec3 tex_dy = dFdy(vec3(TC1, 0.0));
     vec3 t = (tex_dy.t * pos_dx - tex_dx.t * pos_dy) / (tex_dx.s * tex_dy.t - tex_dy.s * tex_dx.t);
-
     vec3 ng = normalize(v_Normal);
-
     t = normalize(t - ng * dot(ng, t));
     vec3 b = normalize(cross(ng, t));
     mat3 tbn = mat3(t, b, ng);
-
-#else // HAS_TANGENTS
+    #else // HAS_TANGENTS
     mat3 tbn = v_TBN;
-#endif
+    #endif
 
     vec3 n;
     vec4 tn = texture2D(normalMap, TC1).rgba;
@@ -151,31 +147,29 @@ vec3 getNormal()
         tn.x *= -1.0;
         n = tn.rgb;
     }
-
-    else
+	else
     {
         n = texture2D(normalMap, TC1).rgb*2.0-1.0;
     }
-
-    n = normalize(tbn * n);
-
-
+	n = normalize(tbn * n);
     return n;
 }
+
 
 // Calculation of the lighting contribution from an optional Image Based Light source.
 // Precomputed Environment Maps are required uniform inputs and are computed as outlined in [1].
 // See our README.md on Environment Maps [3] for additional discussion.
 vec3 getIBLContribution(PBRInfo pbrInputs, vec3 n, vec3 reflection)
 {
-    float mipCount = 9.0; // resolution of 512x512
+    float mipCount = 9.0;
+    // resolution of 512x512
     float lod = ((1.0-pbrInputs.perceptualRoughness) * mipCount);
     // retrieve a scale and bias to F0. See [1], Figure 3
     vec3 brdf = SRGBtoLINEAR(texture2D(u_brdfLUT, vec2(pbrInputs.NdotV*0.1, (1.0 - pbrInputs.perceptualRoughness)*0.1))).rgb;
     vec3 diffuseLight = SRGBtoLINEAR(textureCubeLod(cubeMap, n, 7)).rgb;
-     reflection.xyz *= -1.0;// like so many other things, DirectX to OpenGL causes axis issues.
+    reflection.xyz *= -1.0;
+    // like so many other things, DirectX to OpenGL causes axis issues.
     vec3 specularLight = SRGBtoLINEAR(textureCubeLod(cubeMap, reflection, lod)).rgb;
-
     vec3 diffuse = diffuseLight * pbrInputs.diffuseColor;
     vec3 specular = specularLight * (pbrInputs.specularColor * brdf.x + brdf.y);
     // For presentation, this allows us to disable IBL terms
@@ -183,6 +177,7 @@ vec3 getIBLContribution(PBRInfo pbrInputs, vec3 n, vec3 reflection)
     specular *= S_level;
     return diffuse + specular;
 }
+
 
 // Basic Lambertian diffuse
 // Implementation from Lambert's Photometria https://archive.org/details/lambertsphotome00lambgoog
@@ -192,12 +187,14 @@ vec3 diffuse(PBRInfo pbrInputs)
     return pbrInputs.diffuseColor / M_PI;
 }
 
+
 // The following equation models the Fresnel reflectance term of the spec equation (aka F())
 // Implementation of fresnel from [4], Equation 15
 vec3 specularReflection(PBRInfo pbrInputs)
 {
     return pbrInputs.reflectance0 + (pbrInputs.reflectance90 - pbrInputs.reflectance0) * pow(clamp(1.0 - pbrInputs.VdotH, 0.0, 1.0), 2.0);
 }
+
 
 // This calculates the specular geometric attenuation (aka G()),
 // where rougher material will reflect less light back to the viewer.
@@ -216,6 +213,7 @@ float geometricOcclusion(PBRInfo pbrInputs)
 }
 
 
+
 // The following equation(s) model the distribution of microfacet normals across the area being drawn (aka D())
 // Implementation from "Average Irregularity Representation of a Roughened Surface for Ray Reflection" by T. S. Trowbridge, and K. P. Reitz
 // Follows the distribution function recommended in the SIGGRAPH 2013 course notes from EPIC Games [1], Equation 3.
@@ -226,6 +224,7 @@ float microfacetDistribution(PBRInfo pbrInputs)
     float f = (pbrInputs.NdotH * roughnessSq - pbrInputs.NdotH) * pbrInputs.NdotH + 1.0;
     return roughnessSq / (M_PI * f * f);
 }
+
 
 // end PBR functions ===============================================================
 
@@ -238,8 +237,7 @@ void main(void) {
     lightColors[1] = vec3(1.0, 1.0, 1.0);
     //top light
     lightColors[2] = vec3(1.0);
-
-//--------------------------------
+    //--------------------------------
 vec4   cc = vec4(0.0);
     vec3   lightDirection;
     vec4   detailBump;
@@ -262,16 +260,18 @@ vec4   cc = vec4(0.0);
 
 // Load textures
     vec2 flipTC = TC1;
-    flipTC.y *= -1.0;;
+    flipTC.y *= -1.0;
+    ;
     vec4 camoTexture = texture2D(camoMap,   ctc.st );
     vec4 detail      = texture2D(detailMap, TC1.st * detailTiling);
     vec4 AO          = texture2D(aoMap,     TC1.st);
     vec4 base        = texture2D(colorMap,  TC1.st);
     vec4 bumpMap     = texture2D(normalMap, TC1.st);
     vec3 GMM         = texture2D(gmmMap,    TC1.st).rgb;
-    if (use_GMM_Toy ==1){ 
+    if (use_GMM_Toy ==1){
         GMM.rg = GMM_Toy.xy;
-        }
+    }
+
     //--------------------------------
     color.rgb  = base.rgb;
     a = base.a;
@@ -285,22 +285,27 @@ vec4   cc = vec4(0.0);
             if (use_camo > 0 )
             {
                 cc    = applyCamo(cc, camoTexture);
-                color.rgb = mix(color.rgb, cc.rgb,  AO.a*1.5); // big boost to camo mix
+                color.rgb = mix(color.rgb, cc.rgb,  AO.a*1.5);
+                // big boost to camo mix
             }
             color.rgb *= AO.g;
             base.rgb  = color.rgb;
-        }else{
+        }
+else{
             if (is_track == 1 ){
-            // If we are here, we are on the track treads
+                // If we are here, we are on the track treads
             // AO is stored in the tracks color channel's alpha!
             AO = vec4(base.a);
+                color.rgb *= AO.g;
+                base = color;
+            }
+else{
+                // If we land here, we are on chassis
             color.rgb *= AO.g;
-            base = color;
-            }else{
-            // If we land here, we are on chassis
-            color.rgb *= AO.g; // This makes the tracks look like crap!
+                // This makes the tracks look like crap!
             base.rgb  = color.rgb;
-            }// end AO.g
+            }
+// end AO.g
         }
 
     }else{
@@ -313,32 +318,29 @@ vec4   cc = vec4(0.0);
         if (use_camo > 0 && exclude_camo == 0)
         {
             cc    = applyCamo(cc, camoTexture);
-            color = mix(color, cc, AO.b * cc.a);
-        }            
+            color = mix(color, cc, AO.a * cc.a);
+        }
+            
         
         base.rgb  = color.rgb;
-        GMM.g     = 0.4;
-        GMM.r     = 0.5;
-    } //end is_GAmap
+    }
+ //end is_GAmap
     
     float aRef = float(alphaRef)/255.0;
     if (aRef > bumpMap.r) {
         discard;
     }
+
     color = SRGBtoLINEAR(color);
-   //=============================================================================================
+    //=============================================================================================
    // 3rd try at PBR lighting
 
-    // Metallic and Roughness material properties are packed together
-    // In glTF, these factors can be specified by fixed scalar values
-    // or from a metallic-roughness map
+    // GMM - Metallic and Roughness material properties are packed together
     float perceptualRoughness = 0.2;
     float metallic = 1.5;
     // Roughness is stored in the 'g' channel, metallic is stored in the 'b' channel.
     // This layout intentionally reserves the 'r' channel for (optional) occlusion map data
-    vec4 mrSample = vec4(1.0 , GMM.r, GMM.g ,1.0);
-    // setup correct loctaions
-    mrSample = vec4(AO.r , pow(GMM.r/0.8,7.0), pow(GMM.g/0.5,5.0) ,1.0);
+    vec4 mrSample = vec4(AO.r , pow(GMM.r/0.8,7.0), pow(GMM.g/0.5,5.0) ,1.0);
     // setup correct loctaions
     perceptualRoughness = mrSample.g;
     metallic = mrSample.b * metallic;
@@ -349,7 +351,6 @@ vec4   cc = vec4(0.0);
     float alphaRoughness = perceptualRoughness * perceptualRoughness;
     // The albedo may be defined from a base texture or a flat color
     vec4 baseColor = color;
-
     vec3 f0 = vec3(0.04);
     vec3 diffuseColor = baseColor.rgb * (vec3(1.0) - f0);
     diffuseColor *= 1.0 - metallic;
@@ -365,16 +366,18 @@ vec4   cc = vec4(0.0);
     if (use_shadow == 1) shadow = texelFetch(shadowMap, ivec2(gl_FragCoord.xy), 0).r;
     base.rgb *= shadow;
     diffuseColor.rgb *= shadow;
-
     vec3 sum = vec3(0.0);
     float scrach = pow((detail.r * detail.g )/0.4,2.0)* metallic;
-
+    vec3 n = getNormal();
+    // normal at surface point
 for (int i = 0; i < 3; i++){
         vec3 u_LightDirection = gl_LightSource[i].position.xyz;
-        vec3 n = getNormal();// normal at surface point
-        vec3 v = normalize(p_Camera - v_Position);// Vector from surface point to camera
-        vec3 l = normalize(u_LightDirection - v_Position);// Vector from surface point to light
-        vec3 h = normalize(l+v);// Half vector between both l and v
+        vec3 v = normalize(p_Camera - v_Position);
+        // Vector from surface point to camera
+        vec3 l = normalize(u_LightDirection - v_Position);
+        // Vector from surface point to light
+        vec3 h = normalize(l+v);
+        // Half vector between both l and v
         vec3 reflection = normalize(reflect(-v, n));
         vec3 R = normalize(reflect(v,-v_Normal));
         float NdotL = clamp(dot(n, l), 0.001, 1.0);
@@ -382,7 +385,6 @@ for (int i = 0; i < 3; i++){
         float NdotH = clamp(dot(n, h), 0.0, 1.0);
         float LdotH = clamp(dot(l, h), 0.0, 1.0);
         float VdotH = clamp(dot(v, h), 0.0, 1.0);
-
         PBRInfo pbrInputs = PBRInfo(
             NdotL,
             NdotV,
@@ -404,38 +406,40 @@ for (int i = 0; i < 3; i++){
         vec3 u_LightColor = lightColors[i];
         // Calculation of analytical lighting contribution
     vec3 diffuseContrib = (1.0 - F) * diffuse(pbrInputs);
-    vec3 specContrib = F * G * D / (4.0 * NdotL * NdotV);
-    vec3 sSpec = vec3(1.0) * pow(max(dot(reflection,l),0.0),10.0) * S_level * scrach * shadow;
+        vec3 specContrib = F * G * D / (4.0 * NdotL * NdotV);
+        vec3 sSpec = vec3(1.0) * pow(max(dot(reflection,l),0.0),10.0) * S_level * scrach * shadow;
         // Obtain final intensity as reflectance (BRDF) scaled by the energy of the light (cosine law)
     vec3 colorMix =  NdotL * u_LightColor *  ((sSpec + diffuseContrib* shadow) + (specContrib*S_level*mrSample.g*6.0))*5.0;
-
-    blmColor.rgb +=  NdotL *(specContrib*S_level*mrSample.g)*colorMix.rgb*base.rgb*6.0*GMM.r;
-    colorMix += NdotV * getIBLContribution(pbrInputs, n, R)
+        blmColor.rgb +=  NdotL *(specContrib*S_level*mrSample.g)*colorMix.rgb*base.rgb*6.0*GMM.r;
+        colorMix += NdotV * getIBLContribution(pbrInputs, n, R)
                 *perceptualRoughness * float(is_GAmap);
-    vec3 ambient = diffuseContrib.rgb * A_level*0.25;
-    colorMix += (ambient + (ambient*NdotL));
-
-    // This section uses mix to override final color for reference app visualization
+        vec3 ambient = diffuseContrib.rgb * A_level*0.25;
+        colorMix += (ambient + (ambient*NdotL));
+        // This section uses mix to override final color for reference app visualization
     // of various parameters in the lighting equation. Great for Debuging!
+
     colorMix = mix(colorMix, F, u_ScaleFGDSpec.x);
+        //specularReflection
     colorMix = mix(colorMix, vec3(G)*0.5, u_ScaleFGDSpec.y);
+        //geometricOcclusion
     colorMix = mix(colorMix, vec3(D), u_ScaleFGDSpec.z);
+        //microfacetDistribution
     colorMix = mix(colorMix, specContrib, u_ScaleFGDSpec.w);
+        //specContrib
 
     colorMix = mix(colorMix, diffuseContrib, u_ScaleDiffBaseMR.x);
-    colorMix = mix(colorMix, baseColor.rgb, u_ScaleDiffBaseMR.y);
-    colorMix = mix(colorMix, vec3(metallic), u_ScaleDiffBaseMR.z);
-    colorMix = mix(colorMix, vec3(perceptualRoughness), u_ScaleDiffBaseMR.w);
-
-    gColor += vec4(pow(colorMix,vec3(1.0/2.2)), 1.0) * T_level;
-
-
-    if (enableVertexColor == 1)
+        colorMix = mix(colorMix, baseColor.rgb, u_ScaleDiffBaseMR.y);
+        colorMix = mix(colorMix, vec3(metallic), u_ScaleDiffBaseMR.z);
+        colorMix = mix(colorMix, vec3(perceptualRoughness), u_ScaleDiffBaseMR.w);
+        gColor += vec4(pow(colorMix,vec3(1.0/2.2)), 1.0) * T_level;
+        if (enableVertexColor == 1)
         {
-        gColor.rgb = (gColor.rgb *0.0) + clamp((vertexColor*2.0),0.0,1.0);
+            gColor.rgb = (gColor.rgb *0.0) + clamp((vertexColor*2.0),0.0,1.0);
         }
+
     
 }// i loop
     blmColor.a = 1.0;
 }
+
 

@@ -1134,7 +1134,7 @@ found_section:
         Dim r As FileStream = Nothing
         uv2_total_count = 0
         ReDim fbx_uv2s(0)
-        ReDim fbx_uv2s(100000)
+        ReDim fbx_uv2s(1000000)
         obj_cnt = m_groups(ID).cnt
         Try
             r = New FileStream(My.Settings.res_mods_path + "\" + m_groups(ID).f_name(0), FileMode.Create, FileAccess.Write)
@@ -1274,47 +1274,29 @@ no_UV2EVER:
             Next
 
             pos = 0
-            Dim templateColorOnly As String
-            Dim templateNormal As String
-            Dim templateNormalSpec As String
-            Dim templatePBR As String = File.ReadAllText(Application.StartupPath + "\Templates\templatePBR.txt")
+            'Dim templateColorOnly As String
+            'Dim templateNormal As String
+            'Dim templateNormalSpec As String
+            Dim templatePBR As String = ""
             If ID = 4 Then
-                templateColorOnly = File.ReadAllText(Application.StartupPath + "\Templates\templateColorOnlyGUN.txt")
-                templateNormal = File.ReadAllText(Application.StartupPath + "\Templates\templateNormalGUN.txt")
-                templateNormalSpec = File.ReadAllText(Application.StartupPath + "\Templates\templateNormalSpecGUN.txt")
+                templatePBR = File.ReadAllText(Application.StartupPath + "\Templates\templatePBR_skinned.txt")
             Else
-                templateColorOnly = File.ReadAllText(Application.StartupPath + "\Templates\templateColorOnly.txt")
-                templateNormal = File.ReadAllText(Application.StartupPath + "\Templates\templateNormal.txt")
-                templateNormalSpec = File.ReadAllText(Application.StartupPath + "\Templates\templateNormalSpec.txt")
+                templatePBR = File.ReadAllText(Application.StartupPath + "\Templates\templatePBR.txt")
             End If
             Dim first, last As Integer
             first = m_groups(ID).existingCount
             last = m_groups(ID).cnt - first
             For item_num = first To last
-                Dim primObj As String = ""
                 Dim fbx_id As Integer = m_groups(ID).list(item_num) 'get id for this new item
                 Dim new_name = fbxgrp(fbx_id).name ' get objects name
+                Dim primObj As String = ""
 
-                'default.....
-                primObj = templateColorOnly
 
-                'normalMap.....
-                If fbxgrp(fbx_id).normal_name IsNot Nothing Then
-                    primObj = templateNormal ' bump shader
-                End If
-
-                'specular.....
-                If fbxgrp(fbx_id).normal_name IsNot Nothing And fbxgrp(fbx_id).specular_name IsNot Nothing Then
-                    primObj = templateNormalSpec  ' bump shader
-                End If
-
-                If frmWritePrimitive.use_pbr_template_cb.Checked Then
-                    primObj = templatePBR
-                End If
+                primObj = templatePBR
 
                 'check for legit texture assignments
-                If fbxgrp(fbx_id).normal_name Is Nothing And fbxgrp(fbx_id).specular_name IsNot Nothing Then
-                    MsgBox("You have a specularMap but no normalMap for " + new_name + "..." + vbCrLf + _
+                If fbxgrp(fbx_id).normal_name Is Nothing And fbxgrp(fbx_id).color_name IsNot Nothing Then
+                    MsgBox("You have a diffuseMap but no normalMap for " + new_name + "..." + vbCrLf + _
                             "Defaulting to colorOnly shader...", MsgBoxStyle.Exclamation, "Texture Mapping Issue...")
                 End If
                 primObj = primObj.Replace("<PG_ID>0</PG_ID>", "<PG_ID>" + pgrp.ToString + "</PG_ID>") ' update primitive grp id
@@ -1323,23 +1305,33 @@ no_UV2EVER:
 
                 Try ' this will change shortly
                     Dim new_s As String = fbxgrp(fbx_id).normal_name
-                    primObj = primObj.Replace("NORMAL_NAME", move_convert_new_textures(new_s, fbxgrp(fbx_id).name))
+                    primObj = primObj.Replace("NORMAL_NAME", move_convert_new_textures(new_s, fbxgrp(fbx_id).name)) ' update normal texture name
                 Catch ex As Exception
                 End Try
+
                 Try
                     Dim new_s As String = fbxgrp(fbx_id).color_name
                     primObj = primObj.Replace("COLOR_NAME", move_convert_new_textures(new_s, fbxgrp(fbx_id).name)) ' update diffuse texture name
                 Catch ex As Exception
                 End Try
-                Try
-                    Dim new_s As String = fbxgrp(fbx_id).specular_name
-                    primObj = primObj.Replace("SPECULAR_NAME", move_convert_new_textures(new_s, fbxgrp(fbx_id).name)) ' update diffuse texture name
-                Catch ex As Exception
-                End Try
-                Try
 
+                Try
+                    Dim new_s As String = Application.StartupPath + "\templates\dummy_GMM.png"
+                    primObj = primObj.Replace("GMM_NAME", move_convert_new_textures(new_s, fbxgrp(fbx_id).name)) ' update GMM texture name
                 Catch ex As Exception
                 End Try
+                Try
+                    Dim new_s As String = Application.StartupPath + "\templates\dummy_AO.png"
+                    primObj = primObj.Replace("AO_NAME", move_convert_new_textures(new_s, fbxgrp(fbx_id).name)) ' update AO texture name
+                Catch ex As Exception
+                End Try
+
+                Try
+                    Dim new_s As String = Application.StartupPath + "\templates\dummy_ID.png"
+                    primObj = primObj.Replace("COLOR_ID_NAME", move_convert_new_textures(new_s, fbxgrp(fbx_id).name)) ' update ID texture name
+                Catch ex As Exception
+                End Try
+
                 pos = f.IndexOf("<groupOrigin>", inst_start)
                 inst_start = pos
                 f = f.Insert(pos, primObj)
@@ -1400,19 +1392,26 @@ no_UV2EVER:
         Dim a = m_groups(1).f_name(0).Split(delim)
         Dim p = a(0)
         Dim status As Boolean
+        Dim pat As String
         Try
 
             new_path = IO.Path.GetFileNameWithoutExtension(path)
-            If File.Exists(res_path + p + "\" + new_path + ".DDS") Then Return new_path
+            If File.Exists(res_path + p + "\" + new_path + ".DDS") Then
+                pat = p + "\" + new_path + ".DDS"
+                Return pat.Replace("\", "/")
+            End If
             Dim id = Il.ilGenImage
             Il.ilBindImage(id)
             Il.ilLoadImage(path)
             Ilu.iluBuildMipmaps()
             If Not new_path.ToLower.Contains(t_type) Then
-                new_path = p + "\" + t_type + "_" + new_path + ".DDS"
+                pat = p + "\" + t_type + "_" + new_path + ".DDS"
+            Else
+                pat = p + "\" + new_path + ".DDS"
             End If
-            If File.Exists(res_path + new_path) Then Return new_path.Replace("\", "/")
-            status = Il.ilSave(Il.IL_DDS, res_path + new_path)
+            pat = pat.Replace("\", "/")
+            If File.Exists(res_path + pat) Then Return pat.Replace("\", "/")
+            status = Il.ilSave(Il.IL_DDS, res_path + pat)
             Il.ilBindImage(0)
             Il.ilDeleteImage(id)
             If Not status Then
@@ -1423,7 +1422,7 @@ no_UV2EVER:
             MsgBox("Could not write " + res_path + new_path, MsgBoxStyle.Exclamation, "Oh No!!")
             Return path
         End Try
-        Return new_path.Replace("\", "/")
+        Return pat.Replace("\", "/")
     End Function
 
     Private Sub write_vertex_data(ByVal id As Integer)

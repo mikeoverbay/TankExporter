@@ -66,7 +66,7 @@ a:active {
 </p>
   <table width="100%" border="0">
     <tr>
-      <td width="286" valign="middle" bordercolor="#999999"><img src="Images/writepriitive.jpg" alt="Write Primitives" width="288" height="312" /></td>
+      <td width="286" valign="middle" bordercolor="#999999"><img src="Images/writepriitive.jpg" alt="Write Primitives" width="294" height="310" /></td>
       <td width="100%" align="left" valign="top"><p>The girl is Kate Upton. One of the best looking super models there is.<br />
         You might know here from the <a href="https://www.google.com/url?sa=i&amp;rct=j&amp;q=&amp;esrc=s&amp;source=images&amp;cd=&amp;cad=rja&amp;uact=8&amp;ved=2ahUKEwj7zt-RpandAhXIm-AKHTlnCp0QjB16BAgBEAQ&amp;url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DuHskC7JRL9M&amp;psig=AOvVaw2ES0uMI35IMfxzVkIlivJQ&amp;ust=1536423350072885" target="_blank">Game Of War</a> adds on TV.</p>
         <p>If TE found a difference between the data in the FBX and the PKG files, the check box for that component will be checked.<br />
@@ -79,13 +79,14 @@ a:active {
         <span class="style2">Copy to LODs 1-4</span> will copy the prmitives and visuals from LOD0 to LODS 1-4. Leave this checked. </p>
         <p>Click the <span class="style2">Write File(s)</span> under Upton's lovely left breast once you are ready.<br />
         If you are offended by the image of Upton..  Stay away from children!</p>
-        <p>Use PBR Template.. This will cause the writer to use a PBR template for new items added to a tank part.<br />
-          You will need to manually edit this file to add the GMM, AO and any other missing or info that needs updated.<br />
+        <p>PBR is now the only shader template used. <br />
+          You may need to manually edit this file to chnage the GMM, AO and any other paths or info that needs updated.<br />
           BE AWARE.. Normal Maps used by the shader use a special format. Only G and A channels contain bump info.<br />
           The red channel is used for ALPHA!<br />
         There is a setting in the PBR entry that can be changed to use tangent normal maps..<br />
+        &lt;property&gt;g_useNormalPackDXT1&lt;Bool&gt;false&lt;/Bool&gt;&lt;/property&gt;<br />
         Set this Boolean value to &quot;true&quot; in the visual_processed file if you are using the purple normal maps.<br />
-        &lt;property&gt;g_useNormalPackDXT1&lt;Bool&gt;false&lt;/Bool&gt;&lt;/property&gt;        <br />
+          <br />
           <br /> 
         </p>        </td>
     </tr>

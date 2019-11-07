@@ -1984,9 +1984,12 @@ tryagain:
         '    tank = tank.Replace("czech", "czech")
         'End If
 
-
+        If tank.Contains(":") Then
+            Dim t = tank.Split(":")
+            tank = t(2)
+        End If
         Dim f = scripts_pkg("scripts\item_defs\" + tank)
-        itemDefPathString = "scripts \ item_defs \ " + tank
+        itemDefPathString = "scripts\item_defs\" + tank
         If f Is Nothing Then
             Return
         End If
@@ -2299,7 +2302,7 @@ tryagain:
 
             'tn.Visible = False
             info_Label.Text = "Sorting Nodes (" + i.ToString("00") + ")"
-            log_text.AppendLine("---- Teir : " + i.ToString("00") + " ----")
+            log_text.AppendLine("---- Tier : " + i.ToString("00") + " ----")
             For k = 0 To tn.Nodes.Count - 1
                 tn.Nodes(k).Text = num_3_places(tn.Nodes(k).Text)
                 icons(i).img(k).name = num_3_places(icons(i).img(k).name)
@@ -9518,7 +9521,7 @@ skip_old_way:
 
 
         Dim f_script = SaveFileDialog1.FileName.Replace(".wotmod", "_scripts.wotmod")
-        Dim f_model = SaveFileDialog1.FileName.Replace(".wotmod", "_models.wotmod")
+        Dim f_model = SaveFileDialog1.FileName.Replace(".wotmod", ".wotmod")
 
         If File.Exists(f_model) Then
             File.Delete(f_model)
@@ -9769,8 +9772,13 @@ skip_old_way:
             Me.WindowState = FormWindowState.Minimized
             Application.DoEvents()
             '====================================
-            Dim p = Process.Start(My.Settings.game_path + "\WorldOfTanks.exe")
-            p.WaitForExit()
+            If System.Environment.Is64BitOperatingSystem Then
+                Dim p = Process.Start(My.Settings.game_path + "\win64\WorldOfTanks.exe")
+                p.WaitForExit()
+            Else
+                Dim p = Process.Start(My.Settings.game_path + "\win32\WorldOfTanks.exe")
+                p.WaitForExit()
+            End If
             '====================================
             'restore paths.xml
             File.WriteAllText(My.Settings.game_path + "\paths.xml", original)
