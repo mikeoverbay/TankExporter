@@ -10,6 +10,9 @@
 You can download it here: https://www.autodesk.com/developer-network/platform-technologies/fbx-converter-archives
 Or if you can not down load it from there... the 64 and 32 bit versions are located here: http://tnmshouse.com/converter/
 
+### Version 106:
+This fixes an indexing issue when a tank has more guns than storage I had allocated in Tank Exporter. I upped this to 64 slots. More than should ever be needed.
+
 ### Version 105:
 Once again WG has broken a major part of Tank Exporter.
 We are no longer allowed to use the simple coloronly, normalmap and normalmap_specmap fx shaders within the visual files.</br>

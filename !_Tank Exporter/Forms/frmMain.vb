@@ -5829,11 +5829,11 @@ fuckit:
         'Return
         'get take part paths from table
         Dim turrets(10) As String
-        Dim guns(10) As String
+        Dim guns(64) As String
         Dim hulls(10) As String
         Dim chassis(10) As String
         ReDim hull_tile(10)
-        ReDim gun_tile(10)
+        ReDim gun_tile(64)
         ReDim turret_tile(10)
         Dim cnt As Integer = 0
 
