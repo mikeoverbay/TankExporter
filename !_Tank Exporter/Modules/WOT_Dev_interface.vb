@@ -28,6 +28,9 @@ Imports System.Drawing.Imaging
 
 
 Module WOT_Dev_interface
+    '================================================================
+    Dim application_id As String = "3e19101959e40173881a2f33e9bbe62c"
+    '================================================================
     Public in_tags As String
     Public in_tiers As String
     Public in_shortnames As String
@@ -42,6 +45,7 @@ Module WOT_Dev_interface
         Public short_name As String
         Public nation As String
         Public type As String
+        Public id As String
         'Public turrets As String
     End Structure
     Public Sub get_tank_info_from_temp_folder()
@@ -64,6 +68,7 @@ Module WOT_Dev_interface
         TankDataTable.Columns.Add("tier")
         TankDataTable.Columns.Add("nation")
         TankDataTable.Columns.Add("type")
+        TankDataTable.Columns.Add("id")
         For Each q In tank_list
             If q.type IsNot Nothing Then
                 If q.path.Contains("G115_Typ_205B") Then
@@ -81,26 +86,37 @@ Module WOT_Dev_interface
                 q.type = q.type.Replace("AT-SPG", "Destoryer")
                 q.type = q.type.Replace("SPG", "Artillary")
                 r("type") = q.type
+                r("id") = q.id
                 TankDataTable.Rows.Add(r)
                 Dim outs As String = q.nation + ";" + q.tier + ";" + q.path + ";" + q.short_name + ";" + q.type + vbCrLf
                 alltanks.Append(outs)
             End If
 
         Next
-        Dim tr1 As DataRow = TankDataTable.NewRow
-        tr1("tag") = "G114_Skorpian"
-        tr1("shortname") = "Skorpion"
-        tr1("tier") = "8"
-        tr1("nation") = "germany"
-        tr1("type") = "Destoryer"
-        TankDataTable.Rows.Add(tr1)
+        'Dim tr1 As DataRow = TankDataTable.NewRow
+        'tr1("tag") = "G114_Skorpian"
+        'tr1("shortname") = "Skorpion"
+        'tr1("tier") = "8"
+        'tr1("nation") = "germany"
+        'tr1("type") = "Destoryer"
+        'tr1("id") = "111"
+        'TankDataTable.Rows.Add(tr1)
         TankDataTable.AcceptChanges()
     End Sub
+    Public Function get_tank_info_from_api(ByRef id_num As String) As String
+        Dim id_s = "https://api.worldoftanks.com/wot/encyclopedia/vehicles/?application_id=" + application_id + "&tank_id=" + id_num + "&fields=description"
+        Dim client As New WebClient
+        Dim reader As New StreamReader(client.OpenRead(id_s))
+        Dim r_text = reader.ReadToEnd
+        Dim ar = r_text.Split("description")
+        Dim os = ar(1).Replace("""", "")
+        os = os.Replace(":", "")
+        os = os.Replace("}", "")
+        os = os.Replace(". ", "." + vbCrLf)
+        Return os
+    End Function
 
     Public Sub get_tank_names()
-        '================================================================
-        Dim application_id As String = "3e19101959e40173881a2f33e9bbe62c"
-        '================================================================
 
 
         frmMain.info_Label.Text = "Connecting to WoT Api Server"
@@ -177,6 +193,7 @@ Module WOT_Dev_interface
         TankDataTable.Columns.Add("tier")
         TankDataTable.Columns.Add("nation")
         TankDataTable.Columns.Add("type")
+        TankDataTable.Columns.Add("id")
         'TankDataTable.Columns.Add("turrets")
         For Each q In tank_list
             If q.type IsNot Nothing Then
@@ -191,6 +208,7 @@ Module WOT_Dev_interface
                 q.type = q.type.Replace("AT-SPG", "Destoryer")
                 q.type = q.type.Replace("SPG", "Artillary")
                 r("type") = q.type
+                r("id") = q.id
                 TankDataTable.Rows.Add(r)
                 Dim outs As String = q.nation + ";" + q.tier + ";" + q.path + ";" + q.short_name + ";" + q.type + vbCrLf
                 alltanks.Append(outs)
@@ -205,12 +223,15 @@ Module WOT_Dev_interface
         Dim shortnames() As String
         Dim nations() As String
         Dim types() As String
+        Dim ids() As String
         'Dim turrets() As String
         tags = clean_file(in_tags)
         tiers = clean_file(in_tiers)
         shortnames = clean_file(in_shortnames)
         nations = clean_file(in_nations)
         types = clean_file(in_types)
+        ReDim ids(types.Length)
+        ids = get_ids(in_types)
         'turrets = clean_file(in_turrets)
         ReDim tank_list(tags.Length)
         For i = 0 To tags.Length - 1
@@ -220,6 +241,7 @@ Module WOT_Dev_interface
             tank_list(i).short_name = shortnames(i)
             tank_list(i).nation = nations(i)
             tank_list(i).type = types(i)
+            tank_list(i).id = ids(i)
             'tank_list(i).turrets = turrets(i)
         Next
     End Sub
@@ -234,6 +256,23 @@ Module WOT_Dev_interface
         For Each a In ar
             Dim sa = a.Split(":")
             Dim s = sa(2).Replace("}", "")
+            s = s.Replace("""", "")
+            ar(cnt) = s
+            cnt += 1
+        Next
+        Return ar
+    End Function
+    Public Function get_ids(ByRef st As String) As Array
+        Dim ts As String = st.Replace("data" + """" + ":", "!")
+        ts = ts.Replace("8,8", "8.8") ' causes issues with spitting the data
+        ts = ts.Replace("}}", "")
+        Dim ar = ts.Split("!")
+        ts = ar(1)
+        ar = ts.Split(",")
+        Dim cnt As Integer = 0
+        For Each a In ar
+            Dim sa = a.Split(":")
+            Dim s = sa(0).Replace("{", "")
             s = s.Replace("""", "")
             ar(cnt) = s
             cnt += 1

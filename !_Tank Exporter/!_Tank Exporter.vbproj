@@ -24,7 +24,7 @@
     <UpdatePeriodically>false</UpdatePeriodically>
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
-    <ApplicationRevision>106</ApplicationRevision>
+    <ApplicationRevision>107</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
@@ -290,6 +290,12 @@
     <Compile Include="Forms\FrmShadowSettings.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Forms\frmTankInfo.Designer.vb">
+      <DependentUpon>frmTankInfo.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\frmTankInfo.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Forms\frmWrite_Primitives.Designer.vb">
       <DependentUpon>frmWrite_Primitives.vb</DependentUpon>
     </Compile>
@@ -442,6 +448,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\FrmShadowSettings.resx">
       <DependentUpon>FrmShadowSettings.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\frmTankInfo.resx">
+      <DependentUpon>frmTankInfo.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\frmWrite_Primitives.resx">
       <DependentUpon>frmWrite_Primitives.vb</DependentUpon>

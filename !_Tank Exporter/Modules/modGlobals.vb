@@ -37,6 +37,7 @@ Module modGlobals
     'Public GBMT_atlas_render_index_array() As single_coords_
     'Public GBMT_atlas_index_array() As int_coords_
 
+    Public tank_api_id As String
 
     Public FBX_NAME As String = ""
     Public decal_path As String

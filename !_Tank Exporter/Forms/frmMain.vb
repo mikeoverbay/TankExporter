@@ -2574,13 +2574,15 @@ tryagain:
                 Select _
                     un = row.Field(Of String)("shortname"), _
                     tier = row.Field(Of String)("tier"), _
-                    natiom = row.Field(Of String)("nation") _
-                    Order By tier Descending
+                    natiom = row.Field(Of String)("nation"), _
+                    Type = row.Field(Of String)("type"), _
+                    id = row.Field(Of String)("id")
+                   Order By tier Descending
 
             'Dim a = q(0).un.Split(":")
             If q(0) IsNot Nothing Then
                 Return q(0).un
-
+                tank_api_id = q(0).id
             End If
         Catch ex As Exception
             Return ""
@@ -2640,6 +2642,7 @@ tryagain:
 
     End Sub
     Dim old_backgound_icon As System.Drawing.Bitmap
+    Dim old_api_id As String
     Dim old_tank_name As String
     Private Sub tv_mouse_enter(ByVal sender As Object, ByVal e As TreeNodeMouseHoverEventArgs)
         Dim tn = DirectCast(sender, TreeView)
@@ -2649,6 +2652,7 @@ tryagain:
         iconbox.BackgroundImage = icons(tn.Tag).img(e.Node.Index).img
         If Not MODEL_LOADED Then
             old_backgound_icon = iconbox.BackgroundImage.Clone
+            old_api_id = tank_api_id
         End If
         Dim s = get_shortname(e.Node)
         Dim ar = s.Split(":")
@@ -2667,6 +2671,7 @@ tryagain:
         If MODEL_LOADED And old_backgound_icon IsNot Nothing Then
             iconbox.BackgroundImage = old_backgound_icon
             tank_label.Text = old_tank_name
+            tank_api_id = old_api_id
             tn.Parent.Focus()
             Return
         End If
@@ -2680,15 +2685,18 @@ tryagain:
 
         Dim q = From row In TankDataTable _
             Where row.Field(Of String)("tag") = n.Text _
-    Select _
-        un = row.Field(Of String)("shortname"), _
-        tier = row.Field(Of String)("tier"), _
-        natiom = row.Field(Of String)("nation")
+        Select _
+            un = row.Field(Of String)("shortname"), _
+            tier = row.Field(Of String)("tier"), _
+            natiom = row.Field(Of String)("nation"), _
+            Type = row.Field(Of String)("type"), _
+            id = row.Field(Of String)("id")
         Order By tier Descending
 
         'Dim a = q(0).un.Split(":")
         If q(0) IsNot Nothing Then
-            Return q(0).un
+            tank_api_id = q(0).id
+            Return q(0).un.Replace("\/", "/")
         End If
         Return ""
     End Function
@@ -6795,13 +6803,14 @@ n_turret:
         un = row.Field(Of String)("shortname"), _
         tier = row.Field(Of String)("tier"), _
         natiom = row.Field(Of String)("nation"), _
-        Type = row.Field(Of String)("type")
+        Type = row.Field(Of String)("type"), _
+        id = row.Field(Of String)("id")
         Order By tier Descending
 
         'Dim a = q(0).un.Split(":")
         If q(0) IsNot Nothing Then
             out_string.Append(n.Text + ":" + q(0).un + ":" + q(0).natiom + ":" + q(0).tier + ":" + q(0).Type + ":")
-
+            tank_api_id = q(0).id
 
         End If
 
@@ -7511,6 +7520,7 @@ skip_old_way:
 
 
 #Region "menu_button_functions"
+    'context menu
     Private Sub m_load_Click(sender As Object, e As EventArgs) Handles m_load.Click
         CRASH_MODE = False
         PRIMITIVES_MODE = False
@@ -7543,10 +7553,40 @@ skip_old_way:
         m_load_textures.Checked = True
 
     End Sub
-
-    Private Sub m_clear_temp_folder_data_Click(sender As Object, e As EventArgs) Handles m_clear_temp_folder_data.Click
-        clear_temp_folder()
+    Private Sub m_reload_textures_Click(sender As Object, e As EventArgs) Handles m_reload_textures.Click
+        If Not MODEL_LOADED Then
+            Return
+        End If
+        MODEL_LOADED = False ' stop drawing the tank
+        ' delete texture so we dont waste video memory!
+        For i = 0 To textures.Length - 1
+            Gl.glDeleteTextures(1, textures(i).c_id)
+            Gl.glDeleteTextures(1, textures(i).n_id)
+            If textures(i).ao_id > -1 Then
+                Gl.glDeleteTextures(1, textures(i).ao_id)
+            End If
+            Gl.glDeleteTextures(1, textures(i).gmm_id)
+            If textures(i).detail_id > -1 Then
+                Gl.glDeleteTextures(1, textures(i).detail_id)
+            End If
+        Next
+        ReDim textures(0) ' resize so it can be rebuild
+        For i = 1 To _group.Length - 1
+            build_textures(i) 'get the textures for this model. If its in the cache, use them.
+        Next
+        MODEL_LOADED = True ' enable drawing the tank
+        log_text.AppendLine("---- Reloading Textures -----")
     End Sub
+    Private Sub ToolStripMenuItem1_Click(sender As Object, e As EventArgs) Handles ToolStripMenuItem1.Click
+        Dim s_text = get_tank_info_from_api(tank_api_id)
+        frmTankInfo.Text = tank_label.Text
+        frmTankInfo.TextBox1.Text = s_text
+        frmTankInfo.TextBox1.SelectionStart = 0
+        frmTankInfo.TextBox1.SelectionLength = 0
+        frmTankInfo.ShowDialog(Me)
+
+    End Sub
+
 
     Private Sub m_reload_api_data_Click(sender As Object, e As EventArgs) Handles m_reload_api_data.Click
         info_Label.Visible = True
@@ -7558,63 +7598,6 @@ skip_old_way:
     Private Sub m_create_and_extract_Click(sender As Object, e As EventArgs)
         frmExtract.ShowDialog(Me)
     End Sub
-
-
-    Private Sub m_clear_selected_tanks_Click(sender As Object, e As EventArgs) Handles m_clear_selected_tanks.Click
-        If MsgBox("Are you sure?" + vbCrLf + "This can NOT be undone!", MsgBoxStyle.YesNo, "Warning!") = MsgBoxResult.No Then
-            Return
-        End If
-        tanklist.Text = ""
-        For Each n As TreeNode In TreeView1.Nodes
-            clear_node_selection(n)
-        Next
-        '2
-        For Each n As TreeNode In TreeView2.Nodes
-            clear_node_selection(n)
-        Next
-
-        '3
-        For Each n As TreeNode In TreeView3.Nodes
-            clear_node_selection(n)
-        Next
-
-        '4
-        For Each n As TreeNode In TreeView4.Nodes
-            clear_node_selection(n)
-        Next
-
-        '5
-        For Each n As TreeNode In TreeView5.Nodes
-            clear_node_selection(n)
-        Next
-
-        '6
-        For Each n As TreeNode In TreeView6.Nodes
-            clear_node_selection(n)
-        Next
-
-        '7
-        For Each n As TreeNode In TreeView7.Nodes
-            clear_node_selection(n)
-        Next
-
-        '8
-        For Each n As TreeNode In TreeView8.Nodes
-            clear_node_selection(n)
-        Next
-
-        '9
-        For Each n As TreeNode In TreeView9.Nodes
-            clear_node_selection(n)
-        Next
-
-        '10
-        For Each n As TreeNode In TreeView10.Nodes
-            clear_node_selection(n)
-        Next
-
-    End Sub
-
 
     Public Function find_icon_image(ByVal in_s As String) As Boolean
 
@@ -8450,30 +8433,6 @@ skip_old_way:
         End If
     End Sub
 
-    Private Sub m_reload_textures_Click(sender As Object, e As EventArgs) Handles m_reload_textures.Click
-        If Not MODEL_LOADED Then
-            Return
-        End If
-        MODEL_LOADED = False ' stop drawing the tank
-        ' delete texture so we dont waste video memory!
-        For i = 0 To textures.Length - 1
-            Gl.glDeleteTextures(1, textures(i).c_id)
-            Gl.glDeleteTextures(1, textures(i).n_id)
-            If textures(i).ao_id > -1 Then
-                Gl.glDeleteTextures(1, textures(i).ao_id)
-            End If
-            Gl.glDeleteTextures(1, textures(i).gmm_id)
-            If textures(i).detail_id > -1 Then
-                Gl.glDeleteTextures(1, textures(i).detail_id)
-            End If
-        Next
-        ReDim textures(0) ' resize so it can be rebuild
-        For i = 1 To _group.Length - 1
-            build_textures(i) 'get the textures for this model. If its in the cache, use them.
-        Next
-        MODEL_LOADED = True ' enable drawing the tank
-        log_text.AppendLine("---- Reloading Textures -----")
-    End Sub
 
     Private Sub m_extract_Click(sender As Object, e As EventArgs) Handles m_extract.Click
         file_name = current_tank_name
