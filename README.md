@@ -13,7 +13,7 @@ Or if you can not down load it from there... the 64 and 32 bit versions are loca
 ### Version 108:
 Fixed a issue with saving FBX files that have a "/" in their name.</br>
 Fixed an issue with the FBX not showing after importing it.</br>
-Tweeked the Shadows a little to fix the peter panning.</br>
+Tweaked the Shadows a little to fix the peter panning.</br>
 
 
 ### Version 107:
