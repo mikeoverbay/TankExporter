@@ -118,7 +118,7 @@ Module WOT_Dev_interface
         Dim os = ar(1).Replace("""", "")
         os = os.Replace(":", "")
         os = os.Replace("}", "")
-        'os = os.Replace(". ", "." + vbCrLf)
+        os = os.Replace("\/", "/")
         Return os
     End Function
 
