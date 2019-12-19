@@ -40,8 +40,8 @@ vec3 getNormal()
     // Retrieve the tangent space matrix
     vec3 pos_dx = dFdx(v_Position);
     vec3 pos_dy = dFdy(v_Position);
-    vec3 tex_dx = dFdx(vec3(TC1/20.0, 0.0));
-    vec3 tex_dy = dFdy(vec3(TC1/20.00, 0.0));
+    vec3 tex_dx = dFdx(vec3(TC1*uv_Scale, 0.0));
+    vec3 tex_dy = dFdy(vec3(TC1*uv_Scale, 0.0));
     vec3 t = (tex_dy.t * pos_dx - tex_dx.t * pos_dy) / (tex_dx.s * tex_dy.t - tex_dy.s * tex_dx.t);
     vec3 ng = normalize(v_Normal);
 

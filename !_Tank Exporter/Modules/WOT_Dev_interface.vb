@@ -106,13 +106,19 @@ Module WOT_Dev_interface
     Public Function get_tank_info_from_api(ByRef id_num As String) As String
         Dim id_s = "https://api.worldoftanks.com/wot/encyclopedia/vehicles/?application_id=" + application_id + "&tank_id=" + id_num + "&fields=description"
         Dim client As New WebClient
-        Dim reader As New StreamReader(client.OpenRead(id_s))
-        Dim r_text = reader.ReadToEnd
+        Dim r_text As String = ""
+        Try
+            Dim reader As New StreamReader(client.OpenRead(id_s))
+            r_text = reader.ReadToEnd
+        Catch ex As Exception
+            MsgBox("Unable to connect to WoT Api Server!", MsgBoxStyle.Exclamation, "No Internet!")
+            Return "Unable to connect to WoT Api Server!" + vbCrLf + "Internet Connection problem?"
+        End Try
         Dim ar = r_text.Split("description")
         Dim os = ar(1).Replace("""", "")
         os = os.Replace(":", "")
         os = os.Replace("}", "")
-        os = os.Replace(". ", "." + vbCrLf)
+        'os = os.Replace(". ", "." + vbCrLf)
         Return os
     End Function
 

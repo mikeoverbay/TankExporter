@@ -33,15 +33,14 @@ float chebyshevUpperBound( float distance)
     // We now use chebyshev's upperBound to check
     // How likely this pixel is to be lit (p_max)
     float variance = moments.y - (moments.x*moments.x);
-    variance = max(variance,bias);
+    variance = max(variance,0.1);
 
     float d = distance - moments.x;
-    float p_max =  smoothstep(0.08, 0.18   , variance / (variance + d*d));
-    //float p_max =   variance / (variance + d*d);
+    //float p_max =  smoothstep(0.00, 1.0   , variance / (variance + d*d));
+    float p_max =   variance / (variance + d*d);
     p_max = max(p_max,0.0);
     return p_max ;
 }
-
 
 void main()
 {   
@@ -59,20 +58,11 @@ void main()
     bias = tan(acos(cosTheta)); // cosTheta is dot( n,l ), clamped between 0 and 1
 
     ShadowCoordPostW = ShadowCoord / ShadowCoord.w;
-    // Depth was scaled up in the depth writer so we scale it up here too.
+    // Depth was scaled up in the depth shader so we scale it up here too.
     // This fixes precision issues.
-    float shadow = chebyshevUpperBound(ShadowCoordPostW.z*250.0);
+    float shadow = chebyshevUpperBound(ShadowCoordPostW.z*5000.0);
 
-    float t = clamp(bias,-0.65,0.65);
-    float ca = 3.1;
-    if ( abs(bias) > ca){
-    //if (shadow >0.0) shadow =  round((ca/bias));
-    }
-
-     if (length(vVertex) > 12.0) shadow = 1.0;
+    if (length(vVertex) > 12.0) shadow = 1.0;
     gl_FragColor.r  =  max(abs(shadow)+0.4,0.1);
-
-
-
-  
+	  
 }

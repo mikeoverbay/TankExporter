@@ -8458,9 +8458,9 @@ skip_old_way:
 
         SaveFileDialog1.InitialDirectory = tfp
         If CRASH_MODE Then
-            SaveFileDialog1.FileName = short_tank_name.Replace("\/", "_") + "_CRASHED.fbx"
+            SaveFileDialog1.FileName = short_tank_name.Replace("/", "_") + "_CRASHED.fbx"
         Else
-            SaveFileDialog1.FileName = short_tank_name.Replace("\/", "_") + ".fbx"
+            SaveFileDialog1.FileName = short_tank_name.Replace("/", "_") + ".fbx"
         End If
         If PRIMITIVES_MODE Then
             SaveFileDialog1.FileName = Path.GetFileNameWithoutExtension(OpenFileDialog1.FileName)
@@ -9770,4 +9770,7 @@ skip_old_way:
 #End Region
 
 
+    Private Sub m_ExportExtract_Click(sender As Object, e As EventArgs) Handles m_ExportExtract.Click
+
+    End Sub
 End Class

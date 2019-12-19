@@ -1529,7 +1529,7 @@ outahere:
             frmReverseVertexWinding.add_to_fbx_list(i, Path.GetFileNameWithoutExtension(tn(0)))
         Next
 
-        ReDim t_fbx(0) ' clean up some memort
+        ReDim t_fbx(0) ' clean up some memory
         GC.Collect()
 
         get_component_index() 'build indexing table
@@ -1725,11 +1725,6 @@ outahere:
 
         '---------------------------------------------------------------------------------------------------
         'we need to laod the tank.xml so if the user wants to write it out, its there.
-        file_name = file_name.Replace("\", "/")
-        ar = file_name.Split("/")
-        Dim xml_file = ar(0) + "\" + ar(1) + "\" + ar(2) + ".xml"
-        frmMain.Text = "File: " + ar(0) + "\" + ar(1) + "\" + ar(2)
-        frmMain.get_tank_parts_from_xml(xml_file, New DataSet)
         'now we will load the model from the package files
         For i = 1 To 4
             Dim kk As Integer = 0
@@ -1755,6 +1750,14 @@ outahere:
             frmMain.Text = "File: " + ta(0)
             Dim success = build_primitive_data(True)
         Next
+        '---------------------------------------------------------------------------------------------------
+        'get the xml for this tank.
+        file_name = file_name.Replace("\", "/")
+        ar = file_name.Split("/")
+        Dim xml_file = ar(0) + "\" + ar(1) + "\" + ar(2) + ".xml"
+        frmMain.Text = "File: " + ar(0) + "\" + ar(1) + "\" + ar(2) ' title on main window
+
+        frmMain.get_tank_parts_from_xml(xml_file, New DataSet)
         '---------------------------------------------------------------------------------------------------
         'sort out how many are of what type in the existing model
         For i = 1 To object_count

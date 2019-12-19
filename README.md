@@ -10,9 +10,16 @@
 You can download it here: https://www.autodesk.com/developer-network/platform-technologies/fbx-converter-archives
 Or if you can not down load it from there... the 64 and 32 bit versions are located here: http://tnmshouse.com/converter/
 
+### Version 108:
+Fixed a issue with saving FBX files that have a "/" in their name.</br>
+Fixed an issue with the FBX not showing after importing it.</br>
+Tweeked the Shadows a little to fix the peter panning.</br>
+
+
 ### Version 107:
 I added "Tanks Description" to the right click load context menu.</br>
-Now you can see the information about the tank/
+Fixed the name of the tanks that had \/ showing up in their names.</br>
+
 
 ### Version 106:
 This fixes an indexing issue when a tank has more guns than storage I had allocated in Tank Exporter. I upped this to 64 slots. More than should ever be needed.
