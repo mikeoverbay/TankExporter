@@ -1,4 +1,4 @@
-﻿#version 120
+﻿#version 330 compatibility
 #extension GL_EXT_geometry_shader4 : enable         
  
 //uniform float uNormalsLength;      
@@ -20,7 +20,7 @@ void main()
  }
  else
  {
-    for(int i = 0; i < gl_VerticesIn; ++i)
+    for(int i = 0; i < gl_in.length(); ++i)
     {
         gl_Position = gl_ModelViewProjectionMatrix * gl_PositionIn[i];
         EmitVertex();      
