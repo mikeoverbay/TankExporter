@@ -1,34 +1,47 @@
-﻿#version 330 compatibility
+﻿//normal drawing geo shader
+#version 330 compatibility
+
+layout (triangles) in;
+layout (line_strip) out;
+layout (max_vertices = 6) out;
+
 #extension GL_EXT_geometry_shader4 : enable         
  
 //uniform float uNormalsLength;      
 uniform int mode;
-varying in vec3 normal[];      
+in vData
+{
+    vec3 normal;
+    vec4 vert;
+}vertices[];
+
 void main()
 {
-   
- if (mode == 1) {
  vec4 sumV;
  vec4 sumN;
- sumV = (gl_PositionIn[0] + gl_PositionIn[1] + gl_PositionIn[2]) / 3.0;
- sumN.xyz = (normal[0].xyz + normal[1].xyz + normal[2].xyz) / 3.0;
- sumN.w = 0.0;
+   
+ if (mode == 1) {
+ sumV = vec4(vertices[0].vert + vertices[1].vert + vertices[2].vert);
+ sumN.xyz = vec3(vertices[0].normal.xyz + vertices[1].normal.xyz + vertices[2].normal.xyz) / vec3(3.0,3.0,3.0);
+ sumN = vec4(sumN.xyz,0.0);
         gl_Position = gl_ModelViewProjectionMatrix * sumV;
         EmitVertex();      
-        gl_Position = gl_ModelViewProjectionMatrix * (sumV + (sumN * 0.03));
-        EmitVertex();      
- }
- else
- {
+        gl_Position = gl_ModelViewProjectionMatrix * (sumV + (sumN * 0.05));
+        EmitVertex();
+        EndPrimitive();
+     
+  }
+  else
+  {
     for(int i = 0; i < gl_in.length(); ++i)
     {
-        gl_Position = gl_ModelViewProjectionMatrix * gl_PositionIn[i];
+        gl_Position = gl_ModelViewProjectionMatrix * vertices[i].vert;
         EmitVertex();      
  
-        gl_Position = gl_ModelViewProjectionMatrix * (gl_PositionIn[i] + (vec4(normal[i], 0) * 0.03));
+        gl_Position = gl_ModelViewProjectionMatrix * (vertices[i].vert + (vec4(vertices[i].normal, 0) * 0.05));
         EmitVertex();      
  
         EndPrimitive();
     }
-}
+  }
 }

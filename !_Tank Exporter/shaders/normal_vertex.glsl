@@ -1,8 +1,13 @@
-﻿varying vec3 normal;      
- 
-void main(void)
+﻿// normal drawing vertex shader
+#version 330 compatibility
+out vData
 {
-    gl_Position = gl_Vertex;
-    normal = gl_Normal;
-    gl_FrontColor = gl_Color;
+    vec3 normal;
+    vec4 vert;
+}vertex;
+
+void main()
+{
+    vertex.normal = gl_Normal;
+    vertex.vert = gl_Vertex;
 }
