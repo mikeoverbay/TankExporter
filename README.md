@@ -12,7 +12,7 @@ Or if you can not down load it from there... the 64 and 32 bit versions are loca
 
 ### Version 109:
 Fixed the toLinear_fragment shader so shadow preview shows the depth texture correctly.</br>
-Add code to stop TE from crashing if windows(or some other app) deleted the decals folder. Now it will tell you it needs to delete the contents of the wot_temp folder and restart.</br>
+Added code to stop TE from crashing if windows or some other app, deleted the decals folder. Now it will tell you it needs to delete the contents of the wot_temp folder and restart.</br>
 
 ### Version 108:
 Fixed a issue with saving FBX files that have a "/" in their name.</br>
