@@ -1525,6 +1525,7 @@ save_it:
         Dim ent As Ionic.Zip.ZipEntry = Nothing
         If name = "" Then Return -1
         If My.Settings.res_mods_path.Contains("res_mods") Then
+            'GoTo skip_hd
             Dim r_path = My.Settings.res_mods_path + "\" + name.Replace(".dds", "_hd.dds")
             Dim r_pathSD = My.Settings.res_mods_path + "\" + name
             If name.Contains("res_mods") Then
@@ -1583,7 +1584,7 @@ save_it:
             Return id
         Else
             'look in current pkg for SD texture
-
+skip_hd:
             ent = frmMain.packages(current_tank_package)(name) ' look in tank package
             If ent Is Nothing Then 'if not found in current pkg than look in shared
                 If frmMain.packages_2(current_tank_package) IsNot Nothing Then

@@ -6,8 +6,7 @@ layout (line_strip) out;
 layout (max_vertices = 6) out;
 
 #extension GL_EXT_geometry_shader4 : enable         
- 
-//uniform float uNormalsLength;      
+
 uniform int mode;
 in vData
 {

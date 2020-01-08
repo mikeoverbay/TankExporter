@@ -22,7 +22,7 @@ float linearDepth(float depthSample)
 
 void main(){
 
-    float r = linearDepth(texture2D(depthMap, texCoord).r/250.0);
+    float r = linearDepth(texture2D(depthMap, texCoord).r/5000.0);
     gl_FragColor = vec4(vec3( r*1.0), 1.0);
     vec3 acolor = min(max(gl_FragColor.rgb - vec3(mininput), vec3(0.0)) / (vec3(maxinput) - vec3(mininput)), vec3(1.0));
     gl_FragColor.rgb = mix(vec3(minoutput), vec3(maxoutput), acolor);

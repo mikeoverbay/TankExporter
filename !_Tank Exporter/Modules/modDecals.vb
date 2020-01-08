@@ -443,7 +443,42 @@ Module modDecals
     End Sub
     Public Sub load_decal_textures()
         Dim dPath As String = decal_path + "\maps\decals_pbs\"
-        Dim dir_info = Directory.GetFiles(dPath)
+        Dim dir_info() As String = Nothing
+        Try
+            dir_info = Directory.GetFiles(dPath)
+        Catch ex As Exception
+            If MsgBox("It looks like the decals folder is missing" + vbCrLf + "from the wot_temp folder!" + vbCrLf + _
+                       "I will clear all the data and restart Tank" + vbCrLf + "Exorter to rebuild the missing folder." + vbCrLf + _
+                       "Continue?", MsgBoxStyle.YesNo, "Decal Folder is Missing!") = MsgBoxResult.Yes Then
+                _Started = False
+                While frmMain.update_thread.IsAlive
+                    Application.DoEvents()
+                End While
+                Dim f As DirectoryInfo = New DirectoryInfo(Temp_Storage)
+                frmMain.shared_contents_build.Dispose()
+                frmMain.packages(11).Dispose()
+                GC.Collect()
+                GC.WaitForFullGCComplete()
+                If f.Exists Then
+                    For Each fi In f.GetFiles
+                        If fi.Name.Contains("Path.txt") Then
+                        Else
+                            fi.Delete()
+
+                        End If
+                    Next
+                End If
+                Try
+                    f.Delete()
+                Catch ex2 As Exception
+                End Try
+                DisableOpenGL()
+                Application.Restart()
+                End
+            Else
+                End
+            End If
+        End Try
         Dim f_cnt = dir_info.Count
         Dim c_names(f_cnt) As String
         Dim c_c As Integer
