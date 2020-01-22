@@ -10,6 +10,11 @@
 You can download it here: https://www.autodesk.com/developer-network/platform-technologies/fbx-converter-archives
 Or if you can not down load it from there... the 64 and 32 bit versions are located here: http://tnmshouse.com/converter/
 
+### Version 110:
+Fixed a bug that affected writing WOTMOD files of German Tanks.</br>
+TE was creating the wrong path the the tanks script XML file.
+
+
 ### Version 109:
 Fixed the toLinear_fragment shader so shadow preview shows the depth texture correctly.</br>
 Added code to stop TE from crashing if windows or some other app, deleted the decals folder. Now it will tell you it needs to delete the contents of the wot_temp folder and restart.</br>

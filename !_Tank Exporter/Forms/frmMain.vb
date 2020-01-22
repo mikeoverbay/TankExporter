@@ -8931,7 +8931,7 @@ skip_old_way:
                 Exit For
             End If
         Next
-        Return s
+        Return s.Replace("germanyy", "germany")
     End Function
     Private Function validate_tank_data(ByVal p As String, ByVal author As String, ByVal tank As String) As Boolean
 
@@ -8941,7 +8941,7 @@ skip_old_way:
         Dim n_array = p.Split("\")
         Dim script_path = My.Settings.res_mods_path + "\res\scripts\item_defs\"
         script_path = fix_stupid_wargaming_path(script_path + Path.GetDirectoryName(tank))
-        Dim script_name = fix_stupid_wargaming_path(script_path + "\" + Path.GetFileName(tank) + ".xml")
+        Dim script_name = script_path + "\" + Path.GetFileName(tank) + ".xml"
 
         segment_visual_exist = find_tank_component(track_path, "segment.", ".visual_processed")
         segment_1_visual_exist = find_tank_component(track_path, "segment_1", ".visual_processed")
