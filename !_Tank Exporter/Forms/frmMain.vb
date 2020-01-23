@@ -8923,9 +8923,9 @@ skip_old_way:
         Return False 'not found
     End Function
     Private Function fix_stupid_wargaming_path(ByRef s As String) As String
-        Dim v_name() = {"american", "british", "chinese", "german", "russian"}
-        Dim p_name() = {"usa", "uk", "china", "germany", "ussr"}
-        For i = 0 To 4
+        Dim v_name() = {"american", "british", "chinese", "german", "russian", "french"}
+        Dim p_name() = {"usa", "uk", "china", "germany", "ussr", "france"}
+        For i = 0 To 5
             If s.ToLower.Contains(v_name(i)) Then
                 s = s.Replace(v_name(i), p_name(i))
                 Exit For
@@ -8939,6 +8939,7 @@ skip_old_way:
         Dim track_path = p + "track\"
         Dim crash_path = p + "crash\lod0\"
         Dim n_array = p.Split("\")
+load_script:
         Dim script_path = My.Settings.res_mods_path + "\res\scripts\item_defs\"
         script_path = fix_stupid_wargaming_path(script_path + Path.GetDirectoryName(tank))
         Dim script_name = script_path + "\" + Path.GetFileName(tank) + ".xml"
@@ -8963,8 +8964,10 @@ skip_old_way:
                    "from the scripts\item_defs\vehicle XMLs!" + vbCrLf + _
                    "Do it now?", MsgBoxStyle.YesNo) = MsgBoxResult.Yes Then
                 m_extract.PerformClick()
+                GoTo load_script
                 Return False
             Else
+                info_Label.Visible = False
                 Return False
             End If
         End If
