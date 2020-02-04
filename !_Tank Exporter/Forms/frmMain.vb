@@ -2443,53 +2443,60 @@ tryagain:
             'todo
         End If
 
-        get_tank_info_by_tier(i.ToString)
-        ReDim node_list(i).item(tier_list.Length)
-        ReDim icons(i).img(tier_list.Length)
+        Try
+            get_tank_info_by_tier(i.ToString)
+            ReDim node_list(i).item(tier_list.Length)
+            ReDim icons(i).img(tier_list.Length)
 
-        For Each t In tier_list
-            Dim n As New TreeNode
-            Select Case t.type ' icon types
-                Case "Heavy"
-                    n.SelectedImageIndex = 0
-                    n.StateImageIndex = 0
-                    n.ImageIndex = 0
-                Case "Medium"
-                    n.SelectedImageIndex = 2
-                    n.StateImageIndex = 2
-                    n.ImageIndex = 2
-                Case "Light"
-                    n.SelectedImageIndex = 4
-                    n.StateImageIndex = 4
-                    n.ImageIndex = 4
-                Case "Destoryer"
-                    n.SelectedImageIndex = 6
-                    n.StateImageIndex = 6
-                    n.ImageIndex = 6
-                Case "Artillary"
-                    n.SelectedImageIndex = 8
-                    n.StateImageIndex = 8
-                    n.ImageIndex = 8
+            For Each t In tier_list
+                Dim n As New TreeNode
+                Select Case t.type ' icon types
+                    Case "Heavy"
+                        n.SelectedImageIndex = 0
+                        n.StateImageIndex = 0
+                        n.ImageIndex = 0
+                    Case "Medium"
+                        n.SelectedImageIndex = 2
+                        n.StateImageIndex = 2
+                        n.ImageIndex = 2
+                    Case "Light"
+                        n.SelectedImageIndex = 4
+                        n.StateImageIndex = 4
+                        n.ImageIndex = 4
+                    Case "Destoryer"
+                        n.SelectedImageIndex = 6
+                        n.StateImageIndex = 6
+                        n.ImageIndex = 6
+                    Case "Artillary"
+                        n.SelectedImageIndex = 8
+                        n.StateImageIndex = 8
+                        n.ImageIndex = 8
 
-            End Select
-            n.Name = t.nation
-            n.Text = t.tag
-            n.Tag = fpath + ":" + "vehicles/" + get_nation(t.nation) + "/" + t.tag
-            node_list(i).item(cnt).name = t.tag
-            node_list(i).item(cnt).node = n
-            node_list(i).item(cnt).package = packages(i).Name
-            icons(i).img(cnt) = New entry_
-            icons(i).img(cnt).img = get_tank_icon(n.Text).Clone
-            icons(i).img(cnt).name = t.tag
-            If icons(i).img(cnt) IsNot Nothing Then
-                node_list(i).item(cnt).icon = icons(i).img(cnt).img.Clone
-                node_list(i).item(cnt).icon.Tag = current_png_path
-                cnt += 1
-                TOTAL_TANKS_FOUND += 1
-            Else
-                start_up_log.AppendLine("!!!!! Missing Tank Icon PNG !!!!! :" + current_png_path)
-            End If
-        Next
+                End Select
+                n.Name = t.nation
+                n.Text = t.tag
+                n.Tag = fpath + ":" + "vehicles/" + get_nation(t.nation) + "/" + t.tag
+                node_list(i).item(cnt).name = t.tag
+                node_list(i).item(cnt).node = n
+                node_list(i).item(cnt).package = packages(i).Name
+                icons(i).img(cnt) = New entry_
+                icons(i).img(cnt).img = get_tank_icon(n.Text).Clone
+                icons(i).img(cnt).name = t.tag
+                If icons(i).img(cnt) IsNot Nothing Then
+                    node_list(i).item(cnt).icon = icons(i).img(cnt).img.Clone
+                    node_list(i).item(cnt).icon.Tag = current_png_path
+                    cnt += 1
+                    TOTAL_TANKS_FOUND += 1
+                Else
+                    start_up_log.AppendLine("!!!!! Missing Tank Icon PNG !!!!! :" + current_png_path)
+                End If
+
+            Next
+        Catch ex As Exception
+            MsgBox("crashed getting type: Tier" + i.ToString + " Index" + cnt.ToString + vbCrLf + _
+                   " package " + fpath_1 + vbCrLf + _
+                   "png_path " + current_png_path, MsgBoxStyle.Exclamation, "Crashed!")
+        End Try
         ReDim Preserve node_list(i).item(cnt)
 
         Application.DoEvents()
@@ -2557,7 +2564,7 @@ tryagain:
             ReDim Preserve tier_list(count - 1)
 
         Catch ex As Exception
-            Return
+            MsgBox("Can't find in TankDataTable! index:" + count.ToString, MsgBoxStyle.Exclamation, "TankDataTable crash!")
         End Try
         Return
 
@@ -8650,6 +8657,10 @@ skip_old_way:
         frmWrite_Primitives.ShowDialog(Me)
     End Sub
 
+    Private Sub m_clear_temp_folder_data_Click(sender As Object, e As EventArgs) Handles m_clear_temp_folder_data.Click
+        clear_temp_folder()
+    End Sub
+
 #End Region
 
     Public d_sel_Len As Integer
@@ -9776,4 +9787,5 @@ load_script:
     Private Sub m_ExportExtract_Click(sender As Object, e As EventArgs) Handles m_ExportExtract.Click
 
     End Sub
+
 End Class
