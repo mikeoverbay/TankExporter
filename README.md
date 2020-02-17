@@ -10,6 +10,10 @@
 You can download it here: https://www.autodesk.com/developer-network/platform-technologies/fbx-converter-archives
 Or if you can not down load it from there... the 64 and 32 bit versions are located here: http://tnmshouse.com/converter/
 
+### Version 111:
+Fixed a bug that affected hiding and showing UVs of tanks with GUN in their name.</br>
+Added "Dump All Tanks as FBX" to the file menu. This will export all tanks Tank Export has found as FBX files. Be careful where you set the path!!</br>
+
 ### Version 110:
 Fixed a bug that affected writing WOTMOD files of German Tanks.</br>
 TE was creating the wrong path the the tanks script XML file.

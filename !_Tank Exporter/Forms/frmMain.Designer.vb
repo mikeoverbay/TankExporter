@@ -84,6 +84,8 @@ Partial Class frmMain
         Me.ToolStripSeparator25 = New System.Windows.Forms.ToolStripSeparator()
         Me.m_Shader_Debug = New System.Windows.Forms.ToolStripMenuItem()
         Me.m_edit_shaders = New System.Windows.Forms.ToolStripMenuItem()
+        Me.ToolStripSeparator31 = New System.Windows.Forms.ToolStripSeparator()
+        Me.m_dump_tanks = New System.Windows.Forms.ToolStripMenuItem()
         Me.ToolStripSeparator19 = New System.Windows.Forms.ToolStripSeparator()
         Me.M_Exit = New System.Windows.Forms.ToolStripMenuItem()
         Me.m_ExportExtract = New System.Windows.Forms.ToolStripMenuItem()
@@ -219,7 +221,7 @@ Partial Class frmMain
         '
         'm_file
         '
-        Me.m_file.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.m_test, Me.m_load_file, Me.m_save, Me.ToolStripSeparator7, Me.m_Import_FBX, Me.m_tangent_normalMaps, Me.ToolStripSeparator8, Me.m_import_primitives_fbx, Me.ToolStripSeparator29, Me.m_remove_fbx, Me.ToolStripSeparator1, Me.m_write_primitive, Me.m_write_non_tank_primitive, Me.ToolStripSeparator18, Me.m_build_wotmod, Me.ToolStripSeparator9, Me.m_load_primitive, Me.ToolStripSeparator28, Me.m_edit_visual, Me.m_show_log, Me.m_Open_game_folder, Me.ToolStripSeparator4, Me.m_region, Me.ToolStripSeparator11, Me.M_Path, Me.m_res_mods_path, Me.ToolStripSeparator2, Me.m_clear_temp_folder_data, Me.m_reload_api_data, Me.ToolStripSeparator3, Me.m_UI_settings, Me.ToolStripSeparator19, Me.M_Exit})
+        Me.m_file.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.m_test, Me.m_load_file, Me.m_save, Me.ToolStripSeparator7, Me.m_Import_FBX, Me.m_tangent_normalMaps, Me.ToolStripSeparator8, Me.m_import_primitives_fbx, Me.ToolStripSeparator29, Me.m_remove_fbx, Me.ToolStripSeparator1, Me.m_write_primitive, Me.m_write_non_tank_primitive, Me.ToolStripSeparator18, Me.m_build_wotmod, Me.ToolStripSeparator9, Me.m_load_primitive, Me.ToolStripSeparator28, Me.m_edit_visual, Me.m_show_log, Me.m_Open_game_folder, Me.ToolStripSeparator4, Me.m_region, Me.ToolStripSeparator11, Me.M_Path, Me.m_res_mods_path, Me.ToolStripSeparator2, Me.m_clear_temp_folder_data, Me.m_reload_api_data, Me.ToolStripSeparator3, Me.m_UI_settings, Me.ToolStripSeparator31, Me.m_dump_tanks, Me.ToolStripSeparator19, Me.M_Exit})
         Me.m_file.Name = "m_file"
         Me.m_file.Size = New System.Drawing.Size(90, 23)
         Me.m_file.Text = "&File / Settings"
@@ -566,6 +568,17 @@ Partial Class frmMain
         Me.m_edit_shaders.Name = "m_edit_shaders"
         Me.m_edit_shaders.Size = New System.Drawing.Size(349, 22)
         Me.m_edit_shaders.Text = "Edit Shaders"
+        '
+        'ToolStripSeparator31
+        '
+        Me.ToolStripSeparator31.Name = "ToolStripSeparator31"
+        Me.ToolStripSeparator31.Size = New System.Drawing.Size(211, 6)
+        '
+        'm_dump_tanks
+        '
+        Me.m_dump_tanks.Name = "m_dump_tanks"
+        Me.m_dump_tanks.Size = New System.Drawing.Size(214, 22)
+        Me.m_dump_tanks.Text = "Dump All Tanks as FBX"
         '
         'ToolStripSeparator19
         '
@@ -1006,7 +1019,7 @@ Partial Class frmMain
         Me.decal_panel.ForeColor = System.Drawing.Color.White
         Me.decal_panel.Location = New System.Drawing.Point(276, 54)
         Me.decal_panel.Name = "decal_panel"
-        Me.decal_panel.Size = New System.Drawing.Size(552, 382)
+        Me.decal_panel.Size = New System.Drawing.Size(561, 382)
         Me.decal_panel.TabIndex = 5
         '
         'copy_Decal_btn
@@ -1224,7 +1237,7 @@ Partial Class frmMain
         Me.d_move_down.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center
         Me.d_move_down.FlatStyle = System.Windows.Forms.FlatStyle.Popup
         Me.d_move_down.Image = Global.Tank_Exporter.My.Resources.Resources.control_270
-        Me.d_move_down.Location = New System.Drawing.Point(507, 165)
+        Me.d_move_down.Location = New System.Drawing.Point(516, 165)
         Me.d_move_down.Name = "d_move_down"
         Me.d_move_down.Size = New System.Drawing.Size(20, 20)
         Me.d_move_down.TabIndex = 5
@@ -1237,7 +1250,7 @@ Partial Class frmMain
         Me.d_move_up.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center
         Me.d_move_up.FlatStyle = System.Windows.Forms.FlatStyle.Popup
         Me.d_move_up.Image = Global.Tank_Exporter.My.Resources.Resources.control_090
-        Me.d_move_up.Location = New System.Drawing.Point(507, 145)
+        Me.d_move_up.Location = New System.Drawing.Point(516, 145)
         Me.d_move_up.Name = "d_move_up"
         Me.d_move_up.Size = New System.Drawing.Size(20, 20)
         Me.d_move_up.TabIndex = 4
@@ -1287,7 +1300,7 @@ Partial Class frmMain
         Me.d_list_tb.Multiline = True
         Me.d_list_tb.Name = "d_list_tb"
         Me.d_list_tb.ScrollBars = System.Windows.Forms.ScrollBars.Vertical
-        Me.d_list_tb.Size = New System.Drawing.Size(548, 237)
+        Me.d_list_tb.Size = New System.Drawing.Size(557, 237)
         Me.d_list_tb.TabIndex = 0
         '
         'current_decal_lable
@@ -1346,7 +1359,7 @@ Partial Class frmMain
         'pb2
         '
         Me.pb2.Anchor = System.Windows.Forms.AnchorStyles.None
-        Me.pb2.Location = New System.Drawing.Point(88, 125)
+        Me.pb2.Location = New System.Drawing.Point(91, 125)
         Me.pb2.Name = "pb2"
         Me.pb2.Size = New System.Drawing.Size(200, 100)
         Me.pb2.TabIndex = 3
@@ -1779,5 +1792,7 @@ Partial Class frmMain
     Friend WithEvents m_tangent_normalMaps As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents ToolStripSeparator30 As System.Windows.Forms.ToolStripSeparator
     Friend WithEvents ToolStripMenuItem1 As System.Windows.Forms.ToolStripMenuItem
+    Friend WithEvents ToolStripSeparator31 As System.Windows.Forms.ToolStripSeparator
+    Friend WithEvents m_dump_tanks As System.Windows.Forms.ToolStripMenuItem
 
 End Class

@@ -543,7 +543,7 @@ outofhere:
         rootNode.SetDefaultR(dfr)
         rootNode.SetDefaultS(dfs)
         rootNode.SetDefaultT(dft)
-        If frmFBX.no_markers_cb.Checked Then GoTo NO_PINS
+        If frmFBX.no_markers_cb.Checked Or WRITE_FBX_NOW Then GoTo NO_PINS
         'add the markers to the root
         ' get total vNodes needed
         Dim cnt As Integer = 0

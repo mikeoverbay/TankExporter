@@ -36,6 +36,9 @@ Module modGlobals
 
     'Public GBMT_atlas_render_index_array() As single_coords_
     'Public GBMT_atlas_index_array() As int_coords_
+    Public WRITE_FBX_NOW As Boolean
+    Public SAVE_FBX_PATH As String
+    Public STOP_FBX_SAVE As Boolean
 
     Public tank_api_id As String
 

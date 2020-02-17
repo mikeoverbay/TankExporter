@@ -97,7 +97,10 @@ Module modTextureScreen
         Dim r_cnt As Integer = 0
         Dim b_size As Integer = 50
         For i = 1 To object_count
-            If _group(i).name.ToLower.Contains(part) Then
+            Dim ar = _object(i).name.Split(":")
+            Dim fn = Path.GetFileName(ar(0))
+            If fn.ToLower.Contains(part) Then
+
                 id = i
                 r_cnt += 1
                 If id > -1 Then

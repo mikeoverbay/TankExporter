@@ -167,6 +167,11 @@ Public Class frmMain
         '============================================================================================
         'UI short cut keys
         Select Case e.KeyValue
+            Case Keys.Escape
+                If WRITE_FBX_NOW Then
+                    STOP_FBX_SAVE = True
+                    Exit Select
+                End If
             Case Keys.Space
                 If paused Then
                     paused = False
@@ -6298,7 +6303,7 @@ n_turret:
         LOAD_ERROR = LOAD_ERROR And build_primitive_data(True) ' -- hull
         If stop_updating Then draw_scene()
 
-        If save_tank Then
+        If WRITE_FBX_NOW Then
 
             file_name = turret_name
             LOAD_ERROR = LOAD_ERROR And build_primitive_data(True) ' -- turret
@@ -6405,7 +6410,7 @@ n_turret:
         look_point_y = tank_center_Y
         look_point_z = tank_center_Z
 
-        If save_tank Then
+        If False Then
             'get rotation limits for the turret and gun
             rot_limit_l = -400.0
             rot_limit_r = 400.0
@@ -8189,13 +8194,17 @@ skip_old_way:
     Private Sub gun_cb_CheckedChanged(sender As Object, e As EventArgs) Handles gun_cb.CheckedChanged
         If Not _Started Then Return
         For i = 1 To object_count
-            If _object(i).name.ToLower.Contains("gun") Then
+            Dim ar = _object(i).name.Split(":")
+            Dim fn = Path.GetFileName(ar(0))
+            If fn.ToLower.Contains("gun") Then
                 _object(i).visible = gun_cb.Checked
             End If
         Next
         If fbxgrp.Length > 1 Then
             For i = 1 To fbxgrp.Length - 1
-                If fbxgrp(i).name.ToLower.Contains("gun") Then
+                Dim ar = _object(i).name.Split(":")
+                Dim fn = Path.GetFileName(ar(0))
+                If fn.ToLower.Contains("gun") Then
                     fbxgrp(i).visible = gun_cb.Checked
                 End If
             Next
@@ -8659,6 +8668,53 @@ skip_old_way:
 
     Private Sub m_clear_temp_folder_data_Click(sender As Object, e As EventArgs) Handles m_clear_temp_folder_data.Click
         clear_temp_folder()
+    End Sub
+
+    Private Sub m_dump_tanks_Click(sender As Object, e As EventArgs) Handles m_dump_tanks.Click
+
+        If Not MsgBox("This uses massive space and takes a loooooong time!" + vbCrLf +
+                       "Continue?", MsgBoxStyle.YesNo, "Warning!") = MsgBoxResult.Yes Then
+            Return
+        End If
+
+        If Not FolderBrowserDialog1.ShowDialog = Forms.DialogResult.OK Then
+            Return
+        End If
+        SAVE_FBX_PATH = FolderBrowserDialog1.SelectedPath + "\"
+        My.Settings.fbx_path = SAVE_FBX_PATH
+        'FBX_Texture_path = Path.GetDirectoryName(My.Settings.fbx_path) + "\" + Name
+
+        STOP_FBX_SAVE = False
+        frmFBX.no_markers_cb.Checked = False
+        Dim c = SplitContainer2.Panel1.Controls
+        For Each t In c
+            For z = 0 To 9
+                Dim tc_ctrlls = t.controls
+                For Each ct In tc_ctrlls
+                    Dim tpage = ct.Controls
+                    For Each tview In tpage
+
+                        For Each tnode As TreeNode In tview.Nodes
+                            SaveFileDialog1.FileName = SAVE_FBX_PATH + tnode.Text
+                            FBX_NAME = tnode.Text
+                            WRITE_FBX_NOW = True
+                            Application.DoEvents()
+                            file_name = tnode.Tag
+                            process_tank(True)
+                            Application.DoEvents()
+                            file_name = tnode.Tag
+                            export_fbx_textures(False)
+                            export_fbx()
+                            Application.DoEvents()
+                            If STOP_FBX_SAVE Then
+                                WRITE_FBX_NOW = False
+                                Return
+                            End If
+                        Next
+                    Next
+                Next
+            Next
+        Next
     End Sub
 
 #End Region
@@ -9787,5 +9843,6 @@ load_script:
     Private Sub m_ExportExtract_Click(sender As Object, e As EventArgs) Handles m_ExportExtract.Click
 
     End Sub
+
 
 End Class
