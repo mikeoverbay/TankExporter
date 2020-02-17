@@ -16,8 +16,7 @@ Added "Dump All Tanks as FBX" to the file menu. This will export all tanks Tank 
 
 ### Version 110:
 Fixed a bug that affected writing WOTMOD files of German Tanks.</br>
-TE was creating the wrong path the the tanks script XML file.
-
+TE was creating the wrong path the the tanks script XML file.</br>
 
 ### Version 109:
 Fixed the toLinear_fragment shader so shadow preview shows the depth texture correctly.</br>
