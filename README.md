@@ -10,6 +10,9 @@
 You can download it here: https://www.autodesk.com/developer-network/platform-technologies/fbx-converter-archives
 Or if you can not down load it from there... the 64 and 32 bit versions are located here: http://tnmshouse.com/converter/
 
+### Version 112:
+This fixes issues bad tags in XML files Tank Exporter decompresses.
+
 ### Version 111:
 Fixed a bug that affected hiding and showing UVs of tanks with GUN in their name.</br>
 Added "Dump All Tanks as FBX" to the file menu. This will export all tanks Tank Export has found as FBX files. Be careful where you set the path!!</br>

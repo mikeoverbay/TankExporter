@@ -7203,7 +7203,25 @@ n_turret:
                     itemDefXmlString = itemDefXmlString.Replace("><", ">" + vbCrLf + "<")
                     itemDefXmlString = itemDefXmlString.Replace("<xmlref>", "<!--<xmlref>")
                     itemDefXmlString = itemDefXmlString.Replace("</xmlref>", "</xmlref>-->")
-                    itemDefXmlString = itemDefXmlString.Replace("formfactor_rect1x4direction_left_to_right", "formfactor_rect1x4 direction_left_to_right")
+
+                    itemDefXmlString = itemDefXmlString.Replace("rect1x4direction",
+                                                                "rect1x4 direction")
+
+                    itemDefXmlString = itemDefXmlString.Replace("squaredirection",
+                                                                "square direction")
+
+                    itemDefXmlString = itemDefXmlString.Replace("rightformfactor",
+                                                                "right formfactor")
+
+                    itemDefXmlString = itemDefXmlString.Replace("rect1x3direction",
+                                                                "rect1x3 direction")
+
+                    itemDefXmlString = itemDefXmlString.Replace("rect1x2direction",
+                                                                "rect1x2 direction")
+
+                    itemDefXmlString = itemDefXmlString.Replace("rect1x6direction",
+                                                                "rect1x6 direction")
+
                     If Not Directory.Exists(Path.GetDirectoryName(ip)) Then
                         Directory.CreateDirectory(Path.GetDirectoryName(ip))
                     End If
