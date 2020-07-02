@@ -1703,23 +1703,25 @@ done:
 
             Dim tiling = rr.Descendants("tiling")
             Dim cnt As Integer = 0
-            Dim t_names(100) As String
-            Dim s_names(100) As String
+            Dim t_names(200) As String
+            Dim s_names(200) As String
             For Each tank In tiling.Elements
                 Try
+                    If Not tbl.Columns.Contains(tank.Name.ToString) Then
 
-                    tbl.Columns.Add(tank.Name.ToString)
+                        tbl.Columns.Add(tank.Name.ToString)
 
-                    Dim name_str = tank.Name.ToString
+                        Dim name_str = tank.Name.ToString
 
-                    'lol wot has added some tanks 2 times to the tiling section
-                    'If color.InnerXml.Contains(name_str) Then
-                    '    name_str += "ERROR" + cnt.ToString("000")
-                    'Else
-                    t_names(cnt) = tank.Value.ToString
-                    s_names(cnt) = name_str
-                    cnt += 1
-                    'End If
+                        'lol wot has added some tanks 2 times to the tiling section
+                        'If color.InnerXml.Contains(name_str) Then
+                        '    name_str += "ERROR" + cnt.ToString("000")
+                        'Else
+                        t_names(cnt) = tank.Value.ToString
+                        s_names(cnt) = name_str
+                        cnt += 1
+                        'End If
+                    End If
                 Catch ex As Exception
                 End Try
             Next
@@ -2290,8 +2292,6 @@ tryagain:
             Dim l = node_list(i).item.Length - 2
             ReDim Preserve node_list(i).item(l) ' remove last empty item
             ReDim Preserve icons(i).img(l)
-            'sort the array
-            'node_list(i).item = node_list(i).item.OrderByDescending(Function(c) c.node.Name).ToArray
 
             Application.DoEvents()
             Application.DoEvents()
@@ -8694,7 +8694,14 @@ skip_old_way:
                        "Continue?", MsgBoxStyle.YesNo, "Warning!") = MsgBoxResult.Yes Then
             Return
         End If
+        Dim result As MsgBoxResult = MsgBox("Be Careful here!" + vbCrLf + vbCrLf + "Export Crashed Models?", MsgBoxStyle.YesNoCancel, "Normal/Crashed?")
+        CRASH_MODE = False
 
+        If result = MsgBoxResult.Cancel Then Return
+        If result = MsgBoxResult.Yes Then CRASH_MODE = True
+        If result = MsgBoxResult.No Then CRASH_MODE = False
+
+        'get location to save at.
         If Not FolderBrowserDialog1.ShowDialog = Forms.DialogResult.OK Then
             Return
         End If
@@ -8704,35 +8711,76 @@ skip_old_way:
 
         STOP_FBX_SAVE = False
         frmFBX.no_markers_cb.Checked = False
-        Dim c = SplitContainer2.Panel1.Controls
-        For Each t In c
-            For z = 0 To 9
-                Dim tc_ctrlls = t.controls
-                For Each ct In tc_ctrlls
-                    Dim tpage = ct.Controls
-                    For Each tview In tpage
 
-                        For Each tnode As TreeNode In tview.Nodes
-                            SaveFileDialog1.FileName = SAVE_FBX_PATH + tnode.Text
-                            FBX_NAME = tnode.Text
-                            WRITE_FBX_NOW = True
-                            Application.DoEvents()
-                            file_name = tnode.Tag
-                            process_tank(True)
-                            Application.DoEvents()
-                            file_name = tnode.Tag
-                            export_fbx_textures(False)
-                            export_fbx()
-                            Application.DoEvents()
-                            If STOP_FBX_SAVE Then
-                                WRITE_FBX_NOW = False
-                                Return
-                            End If
-                        Next
+        Dim tc_ctrlls = SplitContainer2.Panel1.Controls
+
+        For Each ct As TabControl In tc_ctrlls
+            For Each tpage As TabPage In ct.Controls
+                ct.SelectedTab = tpage
+                For Each tview As TreeView In tpage.Controls
+
+                    For Each tnode As TreeNode In tview.Nodes
+                        'select the node nad check it for high ligthing
+                        tview.SelectedNode = tnode
+                        tview.SelectedNode.Checked = True
+
+                        'tview.Update()
+                        Application.DoEvents()
+
+                        'set image in bottom right
+                        iconbox.Visible = True
+                        iconbox.BackgroundImage = icons(tview.Tag).img(tnode.Index).img
+                        Dim s = get_shortname(tnode)
+                        Dim ar = s.Split(":")
+                        tank_label.Text = ar(0)
+                        Application.DoEvents()
+                        Application.DoEvents()
+                        Application.DoEvents()
+
+                        SaveFileDialog1.FileName = SAVE_FBX_PATH + tnode.Text
+                        FBX_NAME = tnode.Text
+                        WRITE_FBX_NOW = True
+                        Application.DoEvents()
+                        file_name = tnode.Tag
+                        process_tank(True)
+                        Application.DoEvents()
+                        file_name = tnode.Tag
+                        export_fbx_textures(False)
+                        export_fbx()
+                        'tview.SelectedNode.Checked = False
+
+                        Application.DoEvents()
+                        If STOP_FBX_SAVE Then
+                            STOP_FBX_SAVE = False
+                            GoTo outta_here
+                        End If
                     Next
                 Next
             Next
         Next
+outta_here:
+        Try
+            For Each ct As TabControl In tc_ctrlls
+                For Each tpage As TabPage In ct.Controls
+                    ct.SelectedTab = tpage
+                    For Each tview As TreeView In tpage.Controls
+                        tview.SuspendLayout()
+                        For Each tnode As TreeNode In tview.Nodes
+                            'select the node and uncheck it
+                            tview.SelectedNode = tnode
+                            tview.SelectedNode.Checked = False
+                        Next
+                        tview.ResumeLayout()
+                    Next
+                Next
+            Next
+        Catch ex As Exception
+
+        End Try
+        'reset settings
+        iconbox.BackgroundImage = Nothing
+        CRASH_MODE = False
+        WRITE_FBX_NOW = False
     End Sub
 
 #End Region

@@ -17,9 +17,13 @@ Module formitems
                 e.Graphics.FillRectangle(New SolidBrush(Color.DimGray), e.Bounds)
 
             End If
+            If e.Node.Checked = True And WRITE_FBX_NOW Then
+                e.Graphics.FillRectangle(New SolidBrush(Color.DarkGray), e.Bounds)
+
+            End If
             TextRenderer.DrawText(e.Graphics, e.Node.Text, font, e.Bounds, fore, TextFormatFlags.GlyphOverhangPadding)
 
-            MyBase.OnDrawNode(e)
+            'MyBase.OnDrawNode(e)
         End Sub
         Protected Overrides Sub OnCreateControl()
             SetStyle(ControlStyles.OptimizedDoubleBuffer, True)

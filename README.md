@@ -10,6 +10,11 @@
 You can download it here: https://www.autodesk.com/developer-network/platform-technologies/fbx-converter-archives
 Or if you can not down load it from there... the 64 and 32 bit versions are located here: http://tnmshouse.com/converter/
 
+### Version 113:
+This release fixes some issues with dumping all tanks as FBX.</br>
+This also adds the ability to dump the crashed tanks.</br>
+DO NOT DUMP THEM IN THE SAME FOLDER!!</br>
+
 ### Version 112:
 This fixes issues bad tags in XML files Tank Exporter decompresses.
 

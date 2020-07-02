@@ -229,7 +229,7 @@ Module modTextures
         End If
         Dim abs_name As String = ""
         frmMain.info_Label.Visible = True
-
+        G_Buffer.init()
         frmMain.update_thread.Suspend()
         Threading.Thread.Sleep(100)
         For i = 0 To textures.Length - 2
@@ -267,7 +267,12 @@ Module modTextures
         frmMain.pb2.Visible = False
 
         frmMain.info_Label.Visible = False
-        frmMain.update_thread.Resume()
+        Try
+            frmMain.update_thread.Resume()
+        Catch ex As Exception
+
+        End Try
+        G_Buffer.init()
 
     End Sub
 
@@ -1553,7 +1558,9 @@ save_it:
         End Try
         If ent Is Nothing Then
             Try 'look in HD packages
-                ent = frmMain.packages_HD_2(current_tank_package)(name.Replace(".dds", "_hd.dds")) ' look in tank package
+                If current_tank_package > 4 Then
+                    ent = frmMain.packages_HD_2(current_tank_package)(name.Replace(".dds", "_hd.dds")) ' look in tank package
+                End If
             Catch ex As Exception
             End Try
         End If
