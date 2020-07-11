@@ -1822,19 +1822,23 @@ get_visual:
         tbl_transform = t.Tables("transform")
         tbl_transform.CaseSensitive = False
         identifier += "*"
+        Dim pnt As Integer = 0
+        Try
+            Dim r1 = From node_row In tbl_nodes.AsEnumerable _
+                     Where node_row.Field(Of String)("identifier").ToLower Like identifier.ToLower _
+        Select _
+                     r0 = node_row.Field(Of Integer)("node_Id")
+            pnt = r1(0)
+        Catch ex As Exception
+        End Try
 
-        Dim r1 = From node_row In tbl_nodes.AsEnumerable _
-                         Where node_row.Field(Of String)("identifier").ToLower Like identifier.ToLower _
- Select _
-                        r0 = node_row.Field(Of Integer)("node_Id")
-        Dim pnt As Integer = r1(0)
         Dim r2 = From tx_row In tbl_transform.AsEnumerable _
-                              Where tx_row.Field(Of Integer)("node_Id") = _
-                              pnt Select _
-                  row0 = tx_row.Field(Of String)("row0"), _
-                  row1 = tx_row.Field(Of String)("row1"), _
-                  row2 = tx_row.Field(Of String)("row2"), _
-                  row3 = tx_row.Field(Of String)("row3")
+                 Where tx_row.Field(Of Integer)("node_Id") = _
+                 pnt Select _
+                 row0 = tx_row.Field(Of String)("row0"), _
+                 row1 = tx_row.Field(Of String)("row1"), _
+                 row2 = tx_row.Field(Of String)("row2"), _
+                 row3 = tx_row.Field(Of String)("row3")
         For Each p In r2
 
             ta = p.row0.Split(" ")

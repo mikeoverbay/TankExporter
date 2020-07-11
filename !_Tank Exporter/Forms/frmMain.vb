@@ -6830,6 +6830,7 @@ n_turret:
 
 
     Private Sub export_camo()
+        If CRASH_MODE And WRITE_FBX_NOW Then Return 'we dont want to write camouflage 2 times!
         export_camo_to_res_mods("summer")
         export_camo_to_res_mods("winter")
         export_camo_to_res_mods("desert")
@@ -6853,19 +6854,25 @@ n_turret:
         Catch ex As Exception
             t.Dispose()
             d.Dispose()
-            MsgBox("This tank can not have camouflage appied to it!", MsgBoxStyle.Information, "Not Going to happen...")
+            If Not EXPORT_CAMOUFLAGE Then
+                MsgBox("This tank can not have camouflage appied to it!", MsgBoxStyle.Information, "Not Going to happen...")
+            End If
             Return
         End Try
 
  
         Dim cnt As Integer = 0
         Dim z_path As String = My.Settings.res_mods_path
-
+        If WRITE_FBX_NOW Then
+            z_path = My.Settings.fbx_path + "\" + FBX_NAME
+        End If
         For Each l In q
             If l.camoName IsNot Nothing Then
                 Dim ent = frmMain.packages(11)(l.texture)
-                ent.Extract(z_path, ExtractExistingFileAction.DoNotOverwrite)
-                cnt += 1
+                If ent IsNot Nothing Then
+                    ent.Extract(z_path, ExtractExistingFileAction.DoNotOverwrite)
+                    cnt += 1
+                End If
             Else
                 'Debug.WriteLine("missing camo: " + l.camoName)
             End If
@@ -8701,6 +8708,10 @@ skip_old_way:
         If result = MsgBoxResult.Yes Then CRASH_MODE = True
         If result = MsgBoxResult.No Then CRASH_MODE = False
 
+        EXPORT_CAMOUFLAGE = False
+        result = MsgBox("Export Camo?", MsgBoxStyle.YesNo, "Export Camo?")
+        If result = MsgBoxResult.Yes Then EXPORT_CAMOUFLAGE = True
+
         'get location to save at.
         If Not FolderBrowserDialog1.ShowDialog = Forms.DialogResult.OK Then
             Return
@@ -8714,64 +8725,64 @@ skip_old_way:
 
         Dim tc_ctrlls = SplitContainer2.Panel1.Controls
 
-        For Each ct As TabControl In tc_ctrlls
-            For Each tpage As TabPage In ct.Controls
-                ct.SelectedTab = tpage
-                For Each tview As TreeView In tpage.Controls
+        Dim ct As TabControl = SplitContainer2.Panel1.Controls(0)
+        For Each tpage As TabPage In ct.Controls
+            ct.SelectedTab = tpage
+            For Each tview As TreeView In tpage.Controls
 
-                    For Each tnode As TreeNode In tview.Nodes
-                        'select the node nad check it for high ligthing
-                        tview.SelectedNode = tnode
-                        tview.SelectedNode.Checked = True
+                For Each tnode As TreeNode In tview.Nodes
+                    'select the node nad check it for high ligthing
+                    tview.SelectedNode = tnode
+                    tview.SelectedNode.Checked = True
 
-                        'tview.Update()
-                        Application.DoEvents()
+                    'tview.Update()
+                    Application.DoEvents()
 
-                        'set image in bottom right
-                        iconbox.Visible = True
-                        iconbox.BackgroundImage = icons(tview.Tag).img(tnode.Index).img
-                        Dim s = get_shortname(tnode)
-                        Dim ar = s.Split(":")
-                        tank_label.Text = ar(0)
-                        Application.DoEvents()
-                        Application.DoEvents()
-                        Application.DoEvents()
+                    'set image in bottom right
+                    iconbox.Visible = True
+                    iconbox.BackgroundImage = icons(tview.Tag).img(tnode.Index).img
+                    Dim s = get_shortname(tnode)
+                    Dim ar = s.Split(":")
+                    tank_label.Text = ar(0)
+                    Application.DoEvents()
+                    Application.DoEvents()
+                    Application.DoEvents()
 
-                        SaveFileDialog1.FileName = SAVE_FBX_PATH + tnode.Text
-                        FBX_NAME = tnode.Text
-                        WRITE_FBX_NOW = True
-                        Application.DoEvents()
-                        file_name = tnode.Tag
-                        process_tank(True)
-                        Application.DoEvents()
-                        file_name = tnode.Tag
-                        export_fbx_textures(False)
-                        export_fbx()
-                        'tview.SelectedNode.Checked = False
+                    SaveFileDialog1.FileName = SAVE_FBX_PATH + tnode.Text
+                    FBX_NAME = tnode.Text
+                    WRITE_FBX_NOW = True
+                    Application.DoEvents()
+                    file_name = tnode.Tag
+                    process_tank(True)
+                    Application.DoEvents()
+                    file_name = tnode.Tag
+                    export_fbx_textures(False)
+                    export_fbx()
+                    If EXPORT_CAMOUFLAGE Then
+                        export_camo()
+                    End If
+                    'tview.SelectedNode.Checked = False
 
-                        Application.DoEvents()
-                        If STOP_FBX_SAVE Then
-                            STOP_FBX_SAVE = False
-                            GoTo outta_here
-                        End If
-                    Next
+                    Application.DoEvents()
+                    If STOP_FBX_SAVE Then
+                        STOP_FBX_SAVE = False
+                        GoTo outta_here
+                    End If
                 Next
             Next
         Next
 outta_here:
         Try
-            For Each ct As TabControl In tc_ctrlls
-                For Each tpage As TabPage In ct.Controls
-                    ct.SelectedTab = tpage
-                    For Each tview As TreeView In tpage.Controls
-                        tview.SuspendLayout()
-                        For Each tnode As TreeNode In tview.Nodes
-                            'select the node and uncheck it
-                            tview.SelectedNode = tnode
-                            tview.SelectedNode.Checked = False
-                        Next
-                        tview.ResumeLayout()
+            For Each tpage As TabPage In ct.Controls
+                ct.SelectedTab = tpage
+                For Each tview As TreeView In tpage.Controls
+                    tview.SuspendLayout()
+                    For Each tnode As TreeNode In tview.Nodes
+                        'select the node and uncheck it
+                        tview.SelectedNode = tnode
+                        tview.SelectedNode.Checked = False
                     Next
+                    tview.ResumeLayout()
                 Next
             Next
         Catch ex As Exception
