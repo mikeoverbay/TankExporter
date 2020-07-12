@@ -1,4 +1,4 @@
-﻿#version 130
+#version 130
 //tank_vertex.glsl
 //Used to light all models
 

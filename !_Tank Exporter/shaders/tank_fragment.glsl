@@ -1,4 +1,4 @@
-﻿// tank_fragment.glsl
+// tank_fragment.glsl
 // Used to light all tank models
 // This shader is mostly based on the code from https://github.com/KhronosGroup/glTF-WebGL-PBR
 // Many things had to be changed to get it working.
@@ -102,7 +102,7 @@ const float M_PI = 3.141592653589793;
 const float c_MinRoughness = 0.02;
 // used for debug.. shows different parts of the lighting
 
-#define MANUAL_SRGB;
+#define MANUAL_SRGB ;
 vec4 SRGBtoLINEAR(vec4 srgbIn)
 {
     #ifdef MANUAL_SRGB
