@@ -10,6 +10,13 @@
 You can download it here: https://www.autodesk.com/developer-network/platform-technologies/fbx-converter-archives
 Or if you can not down load it from there... the 64 and 32 bit versions are located here: http://tnmshouse.com/converter/
 
+## Stahlhelm-TV Has found a bug in the G45_G_Tiger Gun_01 crash model. (TY!)</br>
+I have let Wargaming know but they will probably ignore it.</br>
+I created a fix for this but it takes a little effort to use it.</br>
+Read this Issue thread to get the fix and how to use it.</br>
+https://github.com/mikeoverbay/TankExporter/issues/23
+
+
 ### Version 114:
 This release fixes more issues with dumping all tanks as FBX.</br>
 
