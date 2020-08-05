@@ -69,7 +69,8 @@ Public Class frmMain
     Public Shared shared_pkg As Ionic.Zip.ZipFile
     Public Shared shared_sandbox_pkg As Ionic.Zip.ZipFile
     Public shared_contents_build As New Ionic.Zip.ZipFile
-    Public gui_pkg As Ionic.Zip.ZipFile
+    Public gui_pkg_part_1 As Ionic.Zip.ZipFile
+    Public gui_pkg_part_2 As Ionic.Zip.ZipFile
     Public scripts_pkg As Ionic.Zip.ZipFile
     Dim treeviews(10) As TreeView
     Public icons(10) As pngs
@@ -134,7 +135,8 @@ Public Class frmMain
                 packages(i).Dispose()
             Next
             DisableOpenGL()
-            gui_pkg.Dispose()
+            gui_pkg_part_1.Dispose()
+            gui_pkg_part_2.Dispose()
             scripts_pkg.Dispose()
             'shared_pkg.Dispose()
             'shared_sandbox_pkg.Dispose()
@@ -606,7 +608,8 @@ done:
             TC1.Enabled = False
             Try
 
-                gui_pkg = New Ionic.Zip.ZipFile(My.Settings.game_path + "\res\packages\gui.pkg")
+                gui_pkg_part_1 = New Ionic.Zip.ZipFile(My.Settings.game_path + "\res\packages\gui-part1.pkg")
+                gui_pkg_part_2 = New Ionic.Zip.ZipFile(My.Settings.game_path + "\res\packages\gui-part2.pkg")
                 start_up_log.AppendLine("Loaded: " + My.Settings.game_path + "\res\packages\gui.pkg")
 
                 scripts_pkg = New Ionic.Zip.ZipFile(My.Settings.game_path + "\res\packages\scripts.pkg")
@@ -1597,7 +1600,7 @@ done:
             End If
         Next
         GC.Collect()
- 
+
     End Sub
 
     Private Sub build_customization_tables(ByVal id As Integer, ByVal filename As String)
@@ -1919,27 +1922,6 @@ loaded_jump:
         Gdi.SwapBuffers(pb1_hDC)
         'e = Gl.glGetError
 
-    End Sub
-    Private Sub load_back_ground()
-        Dim rnd As New Random
-tryagain:
-        Dim rn = CInt(rnd.NextDouble * 44.0)
-        If rn < 8 Then
-            GoTo tryagain
-        End If
-        Dim f = gui_pkg("gui/maps/login/back_" + rn.ToString + "_without_sparks.png")
-        Dim ms As New MemoryStream
-        Try
-
-            If ms IsNot Nothing Then
-                f.Extract(ms)
-                Background_image_id = get_png_id(ms)
-                delete_image_start += 1 ' so this texture is NOT deleted
-            End If
-        Catch ex As Exception
-            GoTo tryagain
-
-        End Try
     End Sub
 
     Private Sub set_treeview(ByRef tv As TreeView)
@@ -2714,7 +2696,7 @@ tryagain:
     End Function
 
     Private Function get_tank_icon(ByVal name As String) As Bitmap
-        For Each entry In gui_pkg
+        For Each entry In gui_pkg_part_1
             If entry.FileName.Contains(name) And entry.FileName.Contains("/icons/vehicle/") _
             And Not entry.FileName.Contains("small") _
             And Not entry.FileName.Contains("contour") _
@@ -2724,11 +2706,23 @@ tryagain:
                 Dim ms As New MemoryStream
                 entry.Extract(ms)
                 If ms IsNot Nothing Then
-                    'GC.Collect()
                     current_png_path = entry.FileName
                     Return get_png(ms).Clone
-                    'bmp.Tag = entry.FileName
-                    'Return bmp
+                End If
+            End If
+        Next
+        For Each entry In gui_pkg_part_2
+            If entry.FileName.Contains(name) And entry.FileName.Contains("/icons/vehicle/") _
+            And Not entry.FileName.Contains("small") _
+            And Not entry.FileName.Contains("contour") _
+            And Not entry.FileName.Contains("unique") _
+            And Not entry.FileName.Contains("library") _
+                Then
+                Dim ms As New MemoryStream
+                entry.Extract(ms)
+                If ms IsNot Nothing Then
+                    current_png_path = entry.FileName
+                    Return get_png(ms).Clone
                 End If
             End If
         Next
@@ -6860,7 +6854,7 @@ n_turret:
             Return
         End Try
 
- 
+
         Dim cnt As Integer = 0
         Dim z_path As String = My.Settings.res_mods_path
         If WRITE_FBX_NOW Then
@@ -7187,7 +7181,10 @@ n_turret:
             '------------------------------------------
             Dim tank_sr_name = Path.GetFileName(public_icon_path)
             If frmExtract.gui_cb.Checked Then
-                Dim ic_160x100 = gui_pkg(public_icon_path)
+                Dim ic_160x100 = gui_pkg_part_1(public_icon_path)
+                If ic_160x100 Is Nothing Then
+                    ic_160x100 = gui_pkg_part_2(public_icon_path)
+                End If
                 If ic_160x100 IsNot Nothing Then
                     ic_160x100.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
                 End If
@@ -7195,7 +7192,10 @@ n_turret:
                 tank_sr_name = an(1)
                 Dim sss = public_icon_path.Replace(an(0) + "-", "")
                 Dim srs = Path.GetDirectoryName(sss) + public_icon_path.Replace(public_icon_path.Replace(an(1) + "-", ""), "/420x307/" + tank_sr_name)
-                Dim ic_420x307 = gui_pkg(srs)
+                Dim ic_420x307 = gui_pkg_part_1(srs)
+                If ic_420x307 Is Nothing Then
+                    ic_420x307 = gui_pkg_part_2(srs)
+                End If
                 If ic_420x307 IsNot Nothing Then
                     ic_420x307.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
                 End If

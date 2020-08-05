@@ -17,6 +17,9 @@ Read this Issue thread to get the fix and how to use it.</br>
 https://github.com/mikeoverbay/TankExporter/issues/23
 
 
+### Version 115:
+This fixes the problems caused by wargaming splitting the gui.pkg in to 2 separate files. gui-part1.pkg and gui-part2.pkg
+
 ### Version 114:
 This release fixes more issues with dumping all tanks as FBX.</br>
 
