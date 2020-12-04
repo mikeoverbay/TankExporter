@@ -70,14 +70,14 @@ float maxoutput = 0.9;
 
 const float PI = 3.14159265359;
 
-float mip_map_level(in vec2 texture_coordinate)
+float get_mip_map_level(sampler2D samp)
 {
-    vec2  dx_vtc        = dFdx(texture_coordinate);
-    vec2  dy_vtc        = dFdy(texture_coordinate);
-    float delta_max_sqr = max(dot(dx_vtc, dx_vtc), dot(dy_vtc, dy_vtc));
+    ivec2 isize = textureSize(samp,0);
+    vec2  dx_vtc        = dFdx(TC1 * float(isize.x));
+    vec2  dy_vtc        = dFdy(TC1 * float(isize.y));
+    float d = max(dot(dx_vtc, dx_vtc), dot(dy_vtc, dy_vtc));
     
-    return 0.5 * log2(delta_max_sqr); 
-    return 5.0;
+    return round(0.25 * log2(d)); 
 }
 
 vec4 correct(in vec4 hdrColor, in float exposure, in float gamma_level){  
@@ -93,6 +93,18 @@ vec3 getNormalFromMap(in vec3 tangentNormal)
     return normalize(TBN * tangentNormal);
     }
 
+int get_dom_mix(in vec3 b){
+    int ov = 0;
+    float s = b.x;
+    if (b.y > b.x) {
+        s = b.y;
+        ov = 1;
+    }
+    if (b.z > s) {
+        ov = 2;
+    }
+    return ov;
+}
 // PBR Functions ======================================================
 vec3 fresnelSchlick(float cosTheta, vec3 F0)
 {
@@ -224,8 +236,6 @@ void main(void) {
     UV4_T.y = (fract(tc.y)*scaleX)+tile.y;
     //============================================
     //============================================
-    vec2 dirt_scale = vec2(dirt_params.y,dirt_params.z);
-    float dirt_blend = dirt_params.x;
     vec4 BLEND;
         if (IS_ATLAS == 1)
         {
@@ -236,22 +246,14 @@ void main(void) {
             BLEND = texture2D(ATLAS_BLEND_MAP,UV4_T);
         }
 
-    float mip = mip_map_level(TC1*image_size)*0.5;
+    float dirtLevel = BLEND.z;
 
-    vec4 colorAM_1 = texture2DLod(ATLAS_AM_Map,UV1,mip) * g_tile0Tint;
-    vec4 GBMT_1 =    texture2DLod(ATLAS_GBMT_Map,UV1,mip);
-    vec4 MAO_1 =     texture2DLod(ATLAS_MAO_Map,UV1,mip);
+    vec4 colorAM_x = texture2DLod(ATLAS_AM_Map,UV1,get_mip_map_level(ATLAS_AM_Map)) * g_tile0Tint;
 
-    vec4 colorAM_2 = texture2DLod(ATLAS_AM_Map,UV2,mip) * g_tile1Tint;
-    vec4 GBMT_2 =    texture2DLod(ATLAS_GBMT_Map,UV2,mip);
-    vec4 MAO_2 =     texture2DLod(ATLAS_MAO_Map,UV2,mip);
+    vec4 colorAM_y = texture2DLod(ATLAS_AM_Map,UV2,get_mip_map_level(ATLAS_AM_Map)) * g_tile1Tint;
 
-    vec4 colorAM_3 = texture2DLod(ATLAS_AM_Map,UV3,mip) * g_tile2Tint;
-    vec4 GBMT_3 =    texture2DLod(ATLAS_GBMT_Map,UV3,mip);
-    vec4 MAO_3 =     texture2DLod(ATLAS_MAO_Map,UV3,mip);
+    vec4 colorAM_z = texture2DLod(ATLAS_AM_Map,UV3,get_mip_map_level(ATLAS_AM_Map)) * g_tile2Tint;
    
-    vec4 DIRT = texture2DLod(ATLAS_DIRT_MAP,UV4,mip);
-    DIRT.rgb *= g_dirtColor.rgb;
     
     //non-atlas textures
     vec4 basic_color =  texture2D(colorMap,TC1);
@@ -259,27 +261,58 @@ void main(void) {
     vec4 bumpMap =      texture2D(normalMap,TC1);
     vec4 GMM =          texture2D(GMM_map,TC1);
     //============================================
-    // Some 40 plus hours of trial and error to get this working.
-    // The mix texture has to be compressed down/squished.
-    BLEND.r = smoothstep(BLEND.r*colorAM_1.a,0.00,0.09);
-    BLEND.g = smoothstep(BLEND.g*colorAM_2.a,0.00,0.25);
-    BLEND.b = smoothstep(BLEND.b,0.00,0.6);// uncertain still... but this value seems to work well
-    BLEND = correct(BLEND,4.0,0.8);
-    //============================================
-     vec4 colorAM = colorAM_3;
-          colorAM = mix(colorAM,colorAM_1, BLEND.r);
-          colorAM = mix(colorAM,colorAM_2, BLEND.g);
-          
-          colorAM = mix(colorAM,DIRT, BLEND.b);
-          colorAM *= BLEND.a;
+    float b = -BLEND.y + 1.0;
+    BLEND.z = clamp(-BLEND.x + b, 0.0, 1.0);
 
-    vec4 GBMT = GBMT_3;
-         GBMT = mix(GBMT, GBMT_1, BLEND.r);
-         GBMT = mix(GBMT, GBMT_2, BLEND.g);
-  
-    vec4 MAO = MAO_3;
-         MAO = mix(MAO, MAO_1, BLEND.r);
-         MAO = mix(MAO, MAO_2, BLEND.g);
+    BLEND.z += 0.01;
+
+    BLEND.x *= colorAM_x.a;
+    BLEND.y *= colorAM_y.a;
+    BLEND.z *= colorAM_z.a;
+
+    BLEND.xyz *= BLEND.xyz;
+    BLEND.xyz *= BLEND.xyz;
+    BLEND.xyz *= BLEND.xyz;
+
+    float d = dot(BLEND.xyz, vec3(1.0));
+    BLEND.xyz = BLEND.xyz/d;
+
+    vec4 GBMT, MAO;
+    vec2 DOM_UV;
+    switch (get_dom_mix(BLEND.xyz)){
+        case 0:
+            DOM_UV = UV1;
+            break;
+
+        case 1:
+            DOM_UV = UV2;
+            break;
+
+        case 2:
+            DOM_UV = UV3;
+        }
+
+    GBMT = textureLod(GMM_map,DOM_UV,get_mip_map_level(GBMT_Map));
+    MAO  = textureLod(MAO_Map,DOM_UV,get_mip_map_level(MAO_Map));
+
+
+    //need to sort this out!
+    vec2 dirt_scale = vec2(dirt_params.y,dirt_params.z);
+    float dirt_blend = dirt_params.x;
+
+    vec4 DIRT = texture2DLod(ATLAS_DIRT_MAP,UV4,get_mip_map_level(ATLAS_DIRT_MAP));
+    DIRT.rgb *= g_dirtColor.rgb;
+    DIRT.rgb *= DIRT.a;
+    //============================================
+
+    vec4 colorAM;
+    colorAM.xyz =  colorAM_y.xyz * BLEND.yyy;
+    colorAM.xyz += colorAM_z.xyz * BLEND.zzz;
+    colorAM.xyz += colorAM_x.xyz * BLEND.xxx;
+    //colorAM.rgb = mix(colorAM.rgb, DIRT.rgb, dirtLevel *0.35);
+ 
+
+    colorAM.rgb *= MAO.ggg;
     //============================================
     if (use_normapMAP == 0)
     {
@@ -301,7 +334,7 @@ void main(void) {
     bump       = normalize(bump);
     //============================================
     if (IS_ATLAS == 1){        
-            color = colorAM * MAO.g;
+            color = colorAM;
         }
         else
         {
@@ -326,7 +359,7 @@ void main(void) {
 //roughness *= 1.0*a;
     //============================================
     // Lighting calculations...
-    vec3 albedo = pow(colorAM.rgb,vec3(2.2));
+    vec3 albedo = pow(color.rgb,vec3(2.2));
     vec3 N = normalize(TBN * bump);
     vec3 V = normalize(-vVertex);
 
@@ -395,6 +428,6 @@ for(int i = 0; i < 3; ++i)
     gColor = vec4(col, 1.0);
     vec3 acolor = min(max(gColor.rgb - vec3(mininput), vec3(0.0)) / (vec3(maxinput) - vec3(mininput)), vec3(1.0));
     gColor.rgb = mix(vec3(minoutput), vec3(maxoutput), acolor);
-    gColor = correct(gColor,1.8,0.9);
+    gColor = correct(gColor,2.8,1.0);
     //gColor.rgb = gColor.rgb * 0.001 + bump;
 }//main

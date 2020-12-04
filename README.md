@@ -17,6 +17,10 @@ Read this Issue thread to get the fix and how to use it.</br>
 https://github.com/mikeoverbay/TankExporter/issues/23
 
 
+### Version 116:
+Fixed a bug with TE loading from the _Skins folder if it exist.</br>
+Added check box to load from _Skins if it exist.
+
 ### Version 115:
 This fixes the problems caused by wargaming splitting the gui.pkg in to 2 separate files. gui-part1.pkg and gui-part2.pkg
 

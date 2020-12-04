@@ -28,6 +28,7 @@ Partial Class frmComponents
         Me.continue_bt = New System.Windows.Forms.Button()
         Me.Label1 = New System.Windows.Forms.Label()
         Me.Label2 = New System.Windows.Forms.Label()
+        Me.look_for_skins_cb = New System.Windows.Forms.CheckBox()
         Me.SuspendLayout()
         '
         'tv_guns
@@ -52,7 +53,7 @@ Partial Class frmComponents
         '
         'continue_bt
         '
-        Me.continue_bt.Location = New System.Drawing.Point(44, 333)
+        Me.continue_bt.Location = New System.Drawing.Point(44, 358)
         Me.continue_bt.Name = "continue_bt"
         Me.continue_bt.Size = New System.Drawing.Size(75, 23)
         Me.continue_bt.TabIndex = 2
@@ -79,12 +80,24 @@ Partial Class frmComponents
         Me.Label2.TabIndex = 4
         Me.Label2.Text = "Found Guns"
         '
+        'look_for_skins_cb
+        '
+        Me.look_for_skins_cb.AutoSize = True
+        Me.look_for_skins_cb.ForeColor = System.Drawing.Color.White
+        Me.look_for_skins_cb.Location = New System.Drawing.Point(32, 333)
+        Me.look_for_skins_cb.Name = "look_for_skins_cb"
+        Me.look_for_skins_cb.Size = New System.Drawing.Size(100, 17)
+        Me.look_for_skins_cb.TabIndex = 5
+        Me.look_for_skins_cb.Text = "Look for _Skins"
+        Me.look_for_skins_cb.UseVisualStyleBackColor = True
+        '
         'frmComponents
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.Color.FromArgb(CType(CType(33, Byte), Integer), CType(CType(33, Byte), Integer), CType(CType(33, Byte), Integer))
-        Me.ClientSize = New System.Drawing.Size(164, 363)
+        Me.ClientSize = New System.Drawing.Size(164, 393)
+        Me.Controls.Add(Me.look_for_skins_cb)
         Me.Controls.Add(Me.Label2)
         Me.Controls.Add(Me.Label1)
         Me.Controls.Add(Me.continue_bt)
@@ -104,4 +117,5 @@ Partial Class frmComponents
     Friend WithEvents continue_bt As System.Windows.Forms.Button
     Friend WithEvents Label1 As System.Windows.Forms.Label
     Friend WithEvents Label2 As System.Windows.Forms.Label
+    Friend WithEvents look_for_skins_cb As CheckBox
 End Class

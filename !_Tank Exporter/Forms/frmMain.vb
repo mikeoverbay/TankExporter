@@ -5973,7 +5973,7 @@ fuckit:
                     Dim n = New TreeNode
 
                     n.Text = Path.GetFileNameWithoutExtension(guns(i))
-                    If guns(i).Contains("_skins") Then GoTo n_gun
+                    If guns(i).Contains("_skins") And frmComponents.look_for_skins_cb.Checked Then GoTo n_gun
                     n.Tag = i
                     'tv_guns.Nodes.Add(n)
                     frmComponents.tv_guns.Nodes.Add(n)
@@ -5991,7 +5991,7 @@ n_gun:
                 If validate_path(turrets(i)) = turrets(i) Then
                     Dim n = New TreeNode
                     n.Text = Path.GetFileNameWithoutExtension(turrets(i))
-                    If turrets(i).Contains("_skins") Then GoTo n_turret
+                    If turrets(i).Contains("_skins") And frmComponents.look_for_skins_cb.Checked Then GoTo n_turret
                     n.Tag = i
                     frmComponents.tv_turrets.Nodes.Add(n)
                     cn += 1
