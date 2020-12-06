@@ -561,24 +561,31 @@ done:
             File.WriteAllText(TankListTempFolder + "tanknames.txt", ts)
         End If
         '====================================================================================================
-        If File.Exists(Temp_Storage + "\game_Path.txt") Then
-            My.Settings.game_path = File.ReadAllText(Temp_Storage + "\game_Path.txt")
-        Else
-            If My.Settings.game_path = "" Then
-                MsgBox("Game Location needs to be set.", MsgBoxStyle.Information)
-                M_Path.PerformClick()
+        Try
+
+            If File.Exists(Temp_Storage + "\game_Path.txt") Then
+                My.Settings.game_path = File.ReadAllText(Temp_Storage + "\game_Path.txt")
+            Else
+                If My.Settings.game_path = "" Then
+                    MsgBox("Game Location needs to be set.", MsgBoxStyle.Information)
+                    M_Path.PerformClick()
+                End If
             End If
-        End If
-        If File.Exists(Temp_Storage + "\res_mods_Path.txt") Then
-            My.Settings.res_mods_path = File.ReadAllText(Temp_Storage + "\res_mods_Path.txt")
-        Else
-            If My.Settings.game_path = "C:\" Then
-                MsgBox("res_mods Location needs to be set.", MsgBoxStyle.Information)
-                m_res_mods_path.PerformClick()
+            If File.Exists(Temp_Storage + "\res_mods_Path.txt") Then
+                My.Settings.res_mods_path = File.ReadAllText(Temp_Storage + "\res_mods_Path.txt")
+            Else
+                If My.Settings.game_path = "C:\" Then
+                    MsgBox("res_mods Location needs to be set.", MsgBoxStyle.Information)
+                    m_res_mods_path.PerformClick()
+                End If
             End If
-        End If
+        Catch ex As Exception
+            MsgBox("Game Location needs to be set.", MsgBoxStyle.Information)
+            M_Path.PerformClick()
+        End Try
         '====================================================================================================
         'find out if our res_mods path is out of data!
+
         Dim pathsxml = File.ReadAllText(My.Settings.game_path + "\paths.xml")
         Dim ar = pathsxml.Split(vbLf)
         pathsxml = ar(2).Replace(vbTab, "")

@@ -292,8 +292,8 @@ void main(void) {
             DOM_UV = UV3;
         }
 
-    GBMT = textureLod(GMM_map,DOM_UV,get_mip_map_level(GBMT_Map));
-    MAO  = textureLod(MAO_Map,DOM_UV,get_mip_map_level(MAO_Map));
+    GBMT = textureLod(ATLAS_GBMT_Map,DOM_UV,get_mip_map_level(ATLAS_GBMT_Map));
+    MAO  = textureLod(ATLAS_MAO_Map,DOM_UV,get_mip_map_level(ATLAS_MAO_Map));
 
 
     //need to sort this out!
@@ -311,7 +311,6 @@ void main(void) {
     colorAM.xyz += colorAM_x.xyz * BLEND.xxx;
     //colorAM.rgb = mix(colorAM.rgb, DIRT.rgb, dirtLevel *0.35);
  
-
     colorAM.rgb *= MAO.ggg;
     //============================================
     if (use_normapMAP == 0)
