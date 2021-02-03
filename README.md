@@ -18,9 +18,11 @@ https://github.com/mikeoverbay/TankExporter/issues/23
 
 
 ## Version 118:
-This adds the ability to stop loading decals.<br/>
-This can help with load speeds but will make the terrain<br/>
-look bad.
+This adds the ability to stop loading decals.</br>
+This can help with load speeds but will make the terrain</br>
+look bad.</br>
+Updated the way you load _skin tanks.</br>
+Slight improvment to terrain rendering.</br>
 
 ### Version 117:
 Bug fixes and better lighting of stand alone primitives.
