@@ -438,6 +438,12 @@ done:
 
 
     '############################################################################ form load
+    Private Sub show_decal_load_form()
+        Me.Hide()
+        frmStartUp.ShowDialog(Me)
+        Me.Show()
+    End Sub
+
     Private Sub frmMain_Load(sender As Object, e As EventArgs) Handles Me.Load
 
         My.Settings.Upgrade() ' upgrades to keep old settings
@@ -445,11 +451,6 @@ done:
         Dim nonInvariantCulture As System.Globalization.CultureInfo = New CultureInfo("en-US")
         nonInvariantCulture.NumberFormat.NumberDecimalSeparator = "."
         System.Threading.Thread.CurrentThread.CurrentCulture = nonInvariantCulture
-
-        Dim x, z As Single
-        x = 2.846
-        z = 9.586
-
 
 
         tank_label.Text = ""
@@ -518,6 +519,7 @@ done:
         m_build_wotmod.Enabled = False
         m_hide_show_components.Enabled = False
         m_set_vertex_winding_order.Enabled = False
+
         '---------------------------------------------------------------------------------------------------------------------
         'just to convert to .te binary models;
         'load_and_save()
@@ -952,6 +954,21 @@ done:
         start_up_log.AppendLine("Done Creating XY Grid Display List.")
 
         '===================================================================================
+
+        If Not My.Settings.stop_Loading_set Then
+            If Not TERRAIN_DECALS Then
+                show_decal_load_form()
+                My.Settings.stop_Loading_set = True
+            End If
+        End If
+        TERRAIN_DECALS = Not My.Settings.stop_loading_decals
+
+        If TERRAIN_DECALS Then
+            m_decal.Visible = True
+        Else
+            m_decal.Visible = False
+        End If
+        '===================================================================================
         info_Label.Text = "loading terrain, textures, creating shadow texture, ect..."
         Application.DoEvents()
         load_resources()
@@ -995,6 +1012,7 @@ done:
         window_state = Me.WindowState
 
         allow_mouse = True
+        My.Settings.Save()
     End Sub
     '############################################################################ form load
     Private Sub reset_view()
@@ -1374,28 +1392,30 @@ done:
         start_up_log.AppendLine("T = " + tt + "ms")
         t.Restart()
         '==========
-        info_Label.Text = "loading Upton control"
-        start_up_log.AppendLine("loading Upton....")
-        Application.DoEvents()
-        upton.load_upton()
-        tt = t.ElapsedMilliseconds.ToString
-        start_up_log.AppendLine("T = " + tt + "ms")
-        t.Restart()
-        '==========
-        info_Label.Text = "loading Decal textures"
-        start_up_log.AppendLine("loading Decal Textures")
-        Application.DoEvents()
-        load_decal_textures()
-        tt = t.ElapsedMilliseconds.ToString
-        start_up_log.AppendLine("T = " + tt + "ms")
-        t.Restart()
-        '==========
-        info_Label.Text = "loading Decal layout"
-        start_up_log.AppendLine("loading Decal Layout")
-        Application.DoEvents()
-        load_decal_data()
-        tt = t.ElapsedMilliseconds.ToString
-        start_up_log.AppendLine("T = " + tt + "ms")
+        If TERRAIN_DECALS Then
+            info_Label.Text = "loading Upton control"
+            start_up_log.AppendLine("loading Upton....")
+            Application.DoEvents()
+            upton.load_upton()
+            tt = t.ElapsedMilliseconds.ToString
+            start_up_log.AppendLine("T = " + tt + "ms")
+            t.Restart()
+            '==========
+            info_Label.Text = "loading Decal textures"
+            start_up_log.AppendLine("loading Decal Textures")
+            Application.DoEvents()
+            load_decal_textures()
+            tt = t.ElapsedMilliseconds.ToString
+            start_up_log.AppendLine("T = " + tt + "ms")
+            t.Restart()
+            '==========
+            info_Label.Text = "loading Decal layout"
+            start_up_log.AppendLine("loading Decal Layout")
+            Application.DoEvents()
+            load_decal_data()
+            tt = t.ElapsedMilliseconds.ToString
+            start_up_log.AppendLine("T = " + tt + "ms")
+        End If
         '==========
         iPath = Application.StartupPath + "\resources\"
         arrow_textureID(0) = load_png_file(iPath + "arrow_texture_up.png")
@@ -2919,7 +2939,9 @@ loaded_jump:
         If frmScreenCap.RENDER_OUT And Not frmScreenCap.r_terrain Then
             Return
         End If
-
+        If Not TERRAIN_DECALS Then
+            Return
+        End If
         Dim w, h As Integer
         Dim l_array(8) As Single
 
@@ -5966,84 +5988,13 @@ fuckit:
             End If
             ReDim Preserve turrets(cnt)
         End If
-        cnt = 0
-        '-------------------------------------------------------
-        'setup treeview and its nodes
-        Dim selected_turret, selected_gun As Integer
-        If Not save_tank Then
-            frmComponents.tv_guns.Nodes.Clear()
-            frmComponents.tv_turrets.Nodes.Clear()
-
-            Dim cn As Integer = 0
-            For i = 0 To guns.Length - 2
-                If validate_path(guns(i)) = guns(i) Then
-                    Dim n = New TreeNode
-
-                    n.Text = Path.GetFileNameWithoutExtension(guns(i))
-                    If guns(i).Contains("_skins") And frmComponents.look_for_skins_cb.Checked Then GoTo n_gun
-                    n.Tag = i
-                    'tv_guns.Nodes.Add(n)
-                    frmComponents.tv_guns.Nodes.Add(n)
-                    cn += 1
-n_gun:
-                End If
-            Next
-            'frmComponents.tv_guns.Nodes.Add(tv_guns)
-            frmComponents.tv_guns.SelectedNode = frmComponents.tv_guns.Nodes(cn - 1)
-            frmComponents.tv_guns.SelectedNode.Checked = True
-            selected_gun = cn
-            '-------------------------------------------------------
-            cn = 0
-            For i = 0 To turrets.Length - 2
-                If validate_path(turrets(i)) = turrets(i) Then
-                    Dim n = New TreeNode
-                    n.Text = Path.GetFileNameWithoutExtension(turrets(i))
-                    If turrets(i).Contains("_skins") And frmComponents.look_for_skins_cb.Checked Then GoTo n_turret
-                    n.Tag = i
-                    frmComponents.tv_turrets.Nodes.Add(n)
-                    cn += 1
-n_turret:
-                End If
-            Next
-            frmComponents.tv_turrets.SelectedNode = frmComponents.tv_turrets.Nodes(cn - 1)
-            frmComponents.tv_turrets.SelectedNode.Checked = True
-            selected_turret = cn
-            '-------------------------------------------------------
-            If frmFBX.Visible Then ' if fbx export form is visble, place the components form next to it
-                Dim l = frmFBX.Location
-                l.X -= frmComponents.Width
-                frmComponents.Location = l
-            Else
-                frmComponents.Location = Me.Location + New Point(200, 200)
-            End If
-            frmComponents.ShowDialog(Me)
-            If frmFBX.Visible Then
-                frmFBX.Location = Me.Location
-            End If
-        End If
-        '----- chassis
-
-        tbl = t.Tables("chassis")
-        Dim q2 = From row In tbl.AsEnumerable _
-            Select _
-            chass = row.Field(Of String)("model")
-        For Each thing In q2
-
-            chassis(cnt) = thing
-            cnt += 1
-        Next
-        If cnt = 0 Then
-            bad_tanks.AppendLine(file_name)
-            Return
-        End If
-        ReDim Preserve chassis(cnt)
-        cnt = 0
-        '-------------------------------------------------------
         '----- hull
+        cnt = 0
+
         tbl = t.Tables("hull")
         Dim q3 = From row In tbl.AsEnumerable
-                Select _
-                model = row.Field(Of String)("model"), _
+                 Select
+                model = row.Field(Of String)("model"),
                 tile = row.Field(Of String)("hull_camouflage")
 
         For Each thing In q3
@@ -6060,9 +6011,110 @@ n_turret:
             bad_tanks.AppendLine(file_name)
             Return
         End If
+        '-------------------------------------------------------
         ReDim Preserve hulls(cnt)
         ReDim Preserve hull_tile(cnt)
         cnt = 0
+        '----- chassis
+
+        tbl = t.Tables("chassis")
+        Dim q2 = From row In tbl.AsEnumerable
+                 Select
+            chass = row.Field(Of String)("model")
+        For Each thing In q2
+
+            chassis(cnt) = thing
+            cnt += 1
+        Next
+        If cnt = 0 Then
+            bad_tanks.AppendLine(file_name)
+            Return
+        End If
+        ReDim Preserve chassis(cnt)
+        cnt = 0
+        '-------------------------------------------------------
+        '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        'setup treeview and its nodes
+        '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        If Not save_tank Then
+            frmComponents.tv_guns.Nodes.Clear()
+            frmComponents.tv_turrets.Nodes.Clear()
+            frmComponents.tv_hulls.Nodes.Clear()
+            frmComponents.tv_chassis.Nodes.Clear()
+
+            Dim cn As Integer = 0
+            For i = 0 To guns.Length - 2
+                If validate_path(guns(i)) = guns(i) Then
+                    Dim n = New TreeNode
+
+                    n.Text = Path.GetFileNameWithoutExtension(guns(i))
+                    If guns(i).Contains("_skin") Then n.Text += " (Skin)"
+                    n.Tag = i
+                    frmComponents.tv_guns.Nodes.Add(n)
+                    cn += 1
+                End If
+            Next
+            frmComponents.tv_guns.SelectedNode = frmComponents.tv_guns.Nodes(0)
+            frmComponents.tv_guns.SelectedNode.Checked = True
+            '-------------------------------------------------------
+            cn = 0
+            For i = 0 To turrets.Length - 2
+                If validate_path(turrets(i)) = turrets(i) Then
+                    Dim n = New TreeNode
+                    n.Text = Path.GetFileNameWithoutExtension(turrets(i))
+                    If turrets(i).Contains("_skin") Then n.Text += " (Skin)"
+                    n.Tag = i
+                    frmComponents.tv_turrets.Nodes.Add(n)
+                    cn += 1
+                End If
+            Next
+            frmComponents.tv_turrets.SelectedNode = frmComponents.tv_turrets.Nodes(0)
+            frmComponents.tv_turrets.SelectedNode.Checked = True
+            '-------------------------------------------------------
+            cn = 0
+            For i = 0 To hulls.Length - 2
+                If validate_path(hulls(i)) = hulls(i) Then
+                    Dim n = New TreeNode
+                    n.Text = Path.GetFileNameWithoutExtension(hulls(i))
+                    If hulls(i).Contains("_skin") Then n.Text += " (Skin)"
+                    n.Tag = i
+                    frmComponents.tv_hulls.Nodes.Add(n)
+                    cn += 1
+                End If
+            Next
+            frmComponents.tv_hulls.SelectedNode = frmComponents.tv_hulls.Nodes(0)
+            frmComponents.tv_hulls.SelectedNode.Checked = True
+
+            '-------------------------------------------------------
+            cn = 0
+            For i = 0 To chassis.Length - 2
+                If validate_path(chassis(i)) = chassis(i) Then
+                    Dim n = New TreeNode
+                    n.Text = Path.GetFileNameWithoutExtension(chassis(i))
+                    If chassis(i).Contains("_skin") Then n.Text += " (Skin)"
+                    n.Tag = i
+                    frmComponents.tv_chassis.Nodes.Add(n)
+                    cn += 1
+                End If
+            Next
+            frmComponents.tv_chassis.SelectedNode = frmComponents.tv_chassis.Nodes(0)
+            frmComponents.tv_chassis.SelectedNode.Checked = True
+            '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+            '-------------------------------------------------------
+            If frmFBX.Visible Then ' if fbx export form is visble, place the components form next to it
+                Dim l = frmFBX.Location
+                l.X -= frmComponents.Width
+                frmComponents.Location = l
+            Else
+                frmComponents.Location = Me.Location + New Point(200, 200)
+            End If
+            frmComponents.ShowDialog(Me)
+            If frmFBX.Visible Then
+                frmFBX.Location = Me.Location
+            End If
+        End If
+
         '-------------------------------------------------------
         'Array.Sort(guns)
         'Array.Sort(turrets)
@@ -6070,41 +6122,49 @@ n_turret:
         'Array.Sort(chassis)
         'more hacks to deal with turret names
         Dim turret_name As String
-        Try
-            turret_name = turrets(turrets.Length - 3)
-        Catch ex1 As Exception
-            Try
-                turret_name = turrets(turrets.Length - 2)
-            Catch ex2 As Exception
-                turret_name = turrets(turrets.Length - 1)
-            End Try
+        Dim t_idx = frmComponents.t_idx
+        turret_name = turrets(t_idx)
+        'Try
+        'Catch ex1 As Exception
+        '    'Try
+        '    '    turret_name = turrets(turrets.Length - 2)
+        '    'Catch ex2 As Exception
+        '    '    turret_name = turrets(turrets.Length - 1)
+        '    'End Try
 
-        End Try
-        Try
-            turret_tiling = turret_tile(turrets.Length - 3)
-        Catch ex As Exception
-            turret_tiling = turret_tile(turrets.Length - 2)
-        End Try
-        Dim hull_name = hulls(hulls.Length - 2)
-        hull_tiling = hull_tile(hulls.Length - 2)
-        Dim chassis_name = chassis(chassis.Length - 2)
+        'End Try
+        turret_tiling = turret_tile(t_idx)
+        'Try
+        'Catch ex As Exception
+        '    'turret_tiling = turret_tile(turrets.Length - 2)
+        'End Try
+
+        Dim h_idx = frmComponents.h_idx
+        Dim hull_name = hulls(h_idx)
+        hull_tiling = hull_tile(h_idx)
+
+        Dim c_idx = frmComponents.c_idx
+        Dim chassis_name = chassis(c_idx)
+
         Dim gun_name As String = ""
+        Dim g_idx = frmComponents.g_idx
         Dim ti, tj As New vect4
-        If guns.Length = 10 Then
-            gun_name = guns(guns.Length - 2)
-            ti = gun_tile(guns.Length - 2)
-            tj = ti
-            tj.w = ti.z
-            tj.z = ti.w
-            gun_tiling = tj
-        Else
-            gun_name = guns(guns.Length - 2)
-            ti = gun_tile(guns.Length - 2)
-            tj = ti
-            tj.w = ti.z
-            tj.z = ti.w
-            gun_tiling = tj
-        End If
+        gun_name = guns(g_idx)
+        ti = gun_tile(g_idx)
+        tj = ti
+        tj.w = ti.z
+        tj.z = ti.w
+        gun_tiling = tj
+
+        'If guns.Length = 10 Then
+        '    gun_name = guns(g_idx)
+        '    ti = gun_tile(g_idx)
+        '    tj = ti
+        '    tj.w = ti.z
+        '    tj.z = ti.w
+        '    gun_tiling = tj
+        'Else
+        'End If
         '========================================
         Dim nation_string As String = ""
         Select Case ar(1)
@@ -9923,6 +9983,16 @@ load_script:
             Return
         End If
     End Sub
+
+    Private Sub m_enable_tarrain_decals_Click(sender As Object, e As EventArgs) Handles m_enable_tarrain_decals.Click
+        If MsgBox("This will close Tank Exporter and allow resetting the flag." + vbCrLf +
+                  "Continue?", MsgBoxStyle.YesNo, "Reset") = MsgBoxResult.No Then
+            Return
+        End If
+        My.Settings.stop_Loading_set = False
+        Me.Close()
+    End Sub
+
     Private Sub m_clear_PythonLog_Click(sender As Object, e As EventArgs) Handles m_clear_PythonLog.Click
         If File.Exists(My.Settings.game_path + "\Python.log") Then
             Dim t As String = ""

@@ -24,8 +24,8 @@
     <UpdatePeriodically>false</UpdatePeriodically>
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
-    <ApplicationRevision>117</ApplicationRevision>
-    <ApplicationVersion>1.0.0.117</ApplicationVersion>
+    <ApplicationRevision>118</ApplicationRevision>
+    <ApplicationVersion>1.0.0.118</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
@@ -290,6 +290,12 @@
     <Compile Include="Forms\FrmShadowSettings.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Forms\frmStartUp.Designer.vb">
+      <DependentUpon>frmStartUp.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\frmStartUp.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Forms\frmTankInfo.Designer.vb">
       <DependentUpon>frmTankInfo.vb</DependentUpon>
     </Compile>
@@ -448,6 +454,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\FrmShadowSettings.resx">
       <DependentUpon>FrmShadowSettings.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\frmStartUp.resx">
+      <DependentUpon>frmStartUp.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\frmTankInfo.resx">
       <DependentUpon>frmTankInfo.vb</DependentUpon>

@@ -492,11 +492,11 @@ Module ModTankLoader
         ' 5 Segment
         'Hack to remove _skins from british tank
         'C:\Games\World_of_Tanks\res_mods\1.1.0.1\vehicles\british\GB93_Caernarvon_AX\_skins\RoyalCorps\normal\lod0
-        If file_name.Contains("/_skin") And Not frmComponents.look_for_skins_cb.Checked Then
-            Dim s_parts = file_name.Split("/")
-            file_name = s_parts(0) + "/" + s_parts(1) + "/" + s_parts(2) + "/" + s_parts(5) + "/" + s_parts(6) + "/" + s_parts(7)
+        'If file_name.Contains("/_skin") And Not frmComponents.look_for_skins_cb.Checked Then
+        '    Dim s_parts = file_name.Split("/")
+        '    file_name = s_parts(0) + "/" + s_parts(1) + "/" + s_parts(2) + "/" + s_parts(5) + "/" + s_parts(6) + "/" + s_parts(7)
 
-        End If
+        'End If
         If InStr(Path.GetFileNameWithoutExtension(file_name), "Chassis") > 0 Then
             xmlget_mode = 1
         End If
@@ -1505,14 +1505,14 @@ all_done:
             End Try
 
             Try
-                Dim p_ = From row_ In geo.AsEnumerable _
-                            Select _
-                            vert_name = row_.Field(Of String)("vertices"), _
-                            indi_name = row_.Field(Of String)("primitive"), _
-                            uv2_name = row_.Field(Of String)("stream"), _
-                            colour_name = row_.Field(Of String)("stream"), _
-                            index = row_.Field(Of Int32)("geometry_Id") _
-                            Order By index Descending '<--- this line failed BAD! It did NOT sort the items descending!!
+                Dim p_ = From row_ In geo.AsEnumerable
+                         Select
+                            vert_name = row_.Field(Of String)("vertices"),
+                            indi_name = row_.Field(Of String)("primitive"),
+                            uv2_name = row_.Field(Of String)("stream"),
+                            colour_name = row_.Field(Of String)("stream"),
+                            index = row_.Field(Of Int32)("geometry_Id")
+                         Order By index Descending '<--- this line failed BAD! It did NOT sort the items descending!!
 
 
                 ReDim ordered_names(p_.Count)
@@ -1535,9 +1535,9 @@ all_done:
                     ordered_names(cnt).index = p.index
                     'must clear these first!
                     If has_stream Then
-                        Dim pp_ = From row In _stream.AsEnumerable _
-                            Where row.Field(Of Integer)("geometry_Id") = p.index
-                            Select st = row.Field(Of String)("stream_Text")
+                        Dim pp_ = From row In _stream.AsEnumerable
+                                  Where row.Field(Of Integer)("geometry_Id") = p.index
+                                  Select st = row.Field(Of String)("stream_Text")
                         For Each pa In pp_
                             If pa IsNot Nothing Then
                                 If pa.Contains("colour") Then
@@ -1570,14 +1570,14 @@ all_done:
             End Try
 
             Try
-                Dim p_ = From row_ In geo.AsEnumerable _
-                            Select _
-                            vert_name = row_.Field(Of String)("vertices"), _
-                            indi_name = row_.Field(Of String)("primitive"), _
-                            uv2_name = row_.Field(Of String)("stream"), _
-                            colour_name = row_.Field(Of String)("stream"), _
-                            index = row_.Field(Of Int32)("geometry_Id") _
-                            Order By index
+                Dim p_ = From row_ In geo.AsEnumerable
+                         Select
+                            vert_name = row_.Field(Of String)("vertices"),
+                            indi_name = row_.Field(Of String)("primitive"),
+                            uv2_name = row_.Field(Of String)("stream"),
+                            colour_name = row_.Field(Of String)("stream"),
+                            index = row_.Field(Of Int32)("geometry_Id")
+                         Order By index
 
 
                 ReDim ordered_names(p_.Count)
@@ -1600,9 +1600,9 @@ all_done:
                     ordered_names(cnt).index = p.index
                     'must clear these first!
                     If has_stream Then
-                        Dim pp_ = From row In _stream.AsEnumerable _
-                            Where row.Field(Of Integer)("geometry_Id") = p.index
-                            Select st = row.Field(Of String)("stream_Text")
+                        Dim pp_ = From row In _stream.AsEnumerable
+                                  Where row.Field(Of Integer)("geometry_Id") = p.index
+                                  Select st = row.Field(Of String)("stream_Text")
                         For Each pa In pp_
                             If pa IsNot Nothing Then
                                 If pa.Contains("colour") Then
@@ -1637,8 +1637,8 @@ all_done:
         Public v_center As vect3
         Public Function get_center() As vect3
             Dim v As vect3
-            v.x = (Me.v1.x + Me.v2.x + Me.v3.x) / 3.0
-            v.y = (Me.v1.y + Me.v2.y + Me.v3.y) / 3.0
+            v.x = (Me.v1.X + Me.v2.X + Me.v3.X) / 3.0
+            v.y = (Me.v1.Y + Me.v2.Y + Me.v3.Y) / 3.0
             v.z = (Me.v1.Z + Me.v2.Z + Me.v3.Z) / 3.0
             v_center = v
             Return v
@@ -1735,7 +1735,7 @@ look_again:
             End If
 
 
-            Dim q = From row In tbl.AsEnumerable _
+            Dim q = From row In tbl.AsEnumerable
                     Select s = row.Field(Of String)("nodefullVisual")
 
             filename = q(0) + ".visual_processed"
@@ -1787,9 +1787,9 @@ get_visual:
         Dim tbl As New DataTable
         Dim t As DataSet = xmldataset.Copy
         tbl = t.Tables("geometry")
-        Dim query = From Nrow In tbl.AsEnumerable _
-                        Select _
-                        row0 = Nrow.Field(Of String)("vertices"), _
+        Dim query = From Nrow In tbl.AsEnumerable
+                    Select
+                        row0 = Nrow.Field(Of String)("vertices"),
                         row1 = Nrow.Field(Of String)("primitive")
         Dim cnt As Integer = 0
         For Each item In query
@@ -1805,8 +1805,8 @@ get_visual:
         Return name_list
     End Function
 
-    Public Function get_matrix(ByVal Id As Integer, _
-                                ByVal identifier As String, _
+    Public Function get_matrix(ByVal Id As Integer,
+                                ByVal identifier As String,
                                 ByVal connect_point As String) As vect3
         Dim return_V As New vect3
         Dim ta(4) As String
@@ -1824,20 +1824,20 @@ get_visual:
         identifier += "*"
         Dim pnt As Integer = 0
         Try
-            Dim r1 = From node_row In tbl_nodes.AsEnumerable _
-                     Where node_row.Field(Of String)("identifier").ToLower Like identifier.ToLower _
-        Select _
+            Dim r1 = From node_row In tbl_nodes.AsEnumerable
+                     Where node_row.Field(Of String)("identifier").ToLower Like identifier.ToLower
+                     Select
                      r0 = node_row.Field(Of Integer)("node_Id")
             pnt = r1(0)
         Catch ex As Exception
         End Try
 
-        Dim r2 = From tx_row In tbl_transform.AsEnumerable _
-                 Where tx_row.Field(Of Integer)("node_Id") = _
-                 pnt Select _
-                 row0 = tx_row.Field(Of String)("row0"), _
-                 row1 = tx_row.Field(Of String)("row1"), _
-                 row2 = tx_row.Field(Of String)("row2"), _
+        Dim r2 = From tx_row In tbl_transform.AsEnumerable
+                 Where tx_row.Field(Of Integer)("node_Id") =
+                 pnt Select
+                 row0 = tx_row.Field(Of String)("row0"),
+                 row1 = tx_row.Field(Of String)("row1"),
+                 row2 = tx_row.Field(Of String)("row2"),
                  row3 = tx_row.Field(Of String)("row3")
         For Each p In r2
 
@@ -1867,15 +1867,15 @@ get_visual:
         Dim ary = Str.Split(" ")
 
         If connect_point.Length > 0 Then
-            Dim r3 = From node_row In tbl_nodes.AsEnumerable _
-         Where node_row.Field(Of String)("identifier") Like connect_point _
-         Select _
+            Dim r3 = From node_row In tbl_nodes.AsEnumerable
+                     Where node_row.Field(Of String)("identifier") Like connect_point
+                     Select
         r4 = node_row.Field(Of Integer)("node_Id")
             pnt = r3(0)
-            Dim r5 = From tx_row In tbl_transform.AsEnumerable _
-                        Where tx_row.Field(Of Integer)("node_Id") = _
-                        pnt _
-                      Select row3 = tx_row.Field(Of String)("row3")
+            Dim r5 = From tx_row In tbl_transform.AsEnumerable
+                     Where tx_row.Field(Of Integer)("node_Id") =
+                        pnt
+                     Select row3 = tx_row.Field(Of String)("row3")
             Str = r5(0)
             ary = Str.Split(" ")
         End If
@@ -2047,11 +2047,11 @@ get_visual:
     End Sub
 
     Private Sub store_matrix(jj As Integer)
-        _object(jj).matrix = { _
-                                    _object(jj).row0.x, _object(jj).row0.y, _object(jj).row0.z, 0.0F, _
-                                    _object(jj).row1.x, _object(jj).row1.y, _object(jj).row1.z, 0.0F, _
-                                    _object(jj).row2.x, _object(jj).row2.y, _object(jj).row2.z, 0.0F, _
-                                    _object(jj).row3.x, _object(jj).row3.y, _object(jj).row3.z, 1.0F _
+        _object(jj).matrix = {
+                                    _object(jj).row0.x, _object(jj).row0.y, _object(jj).row0.z, 0.0F,
+                                    _object(jj).row1.x, _object(jj).row1.y, _object(jj).row1.z, 0.0F,
+                                    _object(jj).row2.x, _object(jj).row2.y, _object(jj).row2.z, 0.0F,
+                                    _object(jj).row3.x, _object(jj).row3.y, _object(jj).row3.z, 1.0F
                                     }
 
     End Sub
@@ -2059,7 +2059,7 @@ get_visual:
         Dim delim As String() = New String(0) {"<primitiveGroup>"}
         Dim sp1 = TheXML_String.Split(delim, StringSplitOptions.None)
         If loop_count > sp1.Length - 1 Then
-            MsgBox("We have a problem!" + vbCrLf + "There are more models than entries in the Visual." + _
+            MsgBox("We have a problem!" + vbCrLf + "There are more models than entries in the Visual." +
                    vbCrLf + "I can load them but with not texture info!")
             Return ""
         End If
@@ -2631,7 +2631,7 @@ get_visual:
         Gl.glNewList(_object(I).main_display_list, Gl.GL_COMPILE)
         main_list(_object(I).count, I)
         Gl.glEndList()
-        model_loaded = True
+        MODEL_LOADED = True
         Dim e = Gl.glGetError
 
     End Sub

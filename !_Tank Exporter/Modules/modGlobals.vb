@@ -40,7 +40,7 @@ Module modGlobals
     Public EXPORT_CAMOUFLAGE As Boolean
     Public SAVE_FBX_PATH As String
     Public STOP_FBX_SAVE As Boolean
-
+    Public TERRAIN_DECALS As Boolean
     Public tank_api_id As String
 
     Public FBX_NAME As String = ""

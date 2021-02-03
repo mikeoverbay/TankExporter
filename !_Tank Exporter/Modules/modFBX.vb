@@ -1481,6 +1481,9 @@ outahere:
         ReDim Preserve fbxgrp(fbx_idx).vertices(vertexId - 1)
         ReDim Preserve fbxgrp(fbx_idx).indicies(vertexId - 1)
         fbxgrp(fbx_idx).nVertices_ = max_cp_index + 1
+
+        'check_winding_order(fbx_idx)
+
         create_TBNS2(fbx_idx)
 
         Return True
@@ -1530,6 +1533,8 @@ outahere:
         Next
 
         ReDim t_fbx(0) ' clean up some memory
+
+
         GC.Collect()
 
         get_component_index() 'build indexing table
@@ -1620,9 +1625,9 @@ outahere:
         odd_model = False
         For i = 1 To fbxgrp.Length - 1
             If Not odd_model Then
-                If fbxgrp(i).name.ToLower.Contains("chassis") Or _
-                    fbxgrp(i).name.ToLower.Contains("hull") Or _
-                    fbxgrp(i).name.ToLower.Contains("turret") Or _
+                If fbxgrp(i).name.ToLower.Contains("chassis") Or
+                    fbxgrp(i).name.ToLower.Contains("hull") Or
+                    fbxgrp(i).name.ToLower.Contains("turret") Or
                     fbxgrp(i).name.ToLower.Contains("gun") Then
                 Else
                     odd_model = True
@@ -1903,10 +1908,10 @@ whichone:
         'need to find out if there is a dangling model that was imported.
         'one that was not assigned via name to a group
         If odd_model Then
-            MsgBox("It appears you have added a model that is not assigned to a group." + vbCrLf + _
-                    "Make sure you renamed the model you created to include a group name.." + vbCrLf + _
-                    "The name should include one of these : Chassis, Hull, Turret or Gun." + vbCrLf + _
-                    "I CAN NOT add a new group to a tank model. I can Only add new items to a group." + vbCrLf + _
+            MsgBox("It appears you have added a model that is not assigned to a group." + vbCrLf +
+                    "Make sure you renamed the model you created to include a group name.." + vbCrLf +
+                    "The name should include one of these : Chassis, Hull, Turret or Gun." + vbCrLf +
+                    "I CAN NOT add a new group to a tank model. I can Only add new items to a group." + vbCrLf +
                     "You will not beable to save this model!", MsgBoxStyle.Exclamation, "Import Issue")
             frmMain.m_write_primitive.Enabled = False
         Else
@@ -1920,8 +1925,8 @@ whichone:
         Dim dp = My.Settings.res_mods_path + "\" + fn
         frmWritePrimitive.SAVE_NAME = dp
         If Not Directory.Exists(dp) Then
-            If MsgBox("It appears You have not extracted data for this model." + vbCrLf + _
-                      "There is no place to save this new Model." + vbCrLf + _
+            If MsgBox("It appears You have not extracted data for this model." + vbCrLf +
+                      "There is no place to save this new Model." + vbCrLf +
                        "Would you like to extract the data from the .PKG files?", MsgBoxStyle.YesNo, "Extract?") = MsgBoxResult.Yes Then
                 file_name = "1:dummy:" + Path.GetFileNameWithoutExtension(dp.Replace("/", "\"))
                 frmMain.m_extract.PerformClick()
@@ -2025,6 +2030,54 @@ whichone:
         frmMain.m_set_vertex_winding_order.Enabled = True
     End Sub
 
+    Private Sub check_winding_order(ByVal i As Integer)
+
+
+        For k As UInt32 = 0 To fbxgrp(i).nPrimitives_ * 3 - 1 Step 3
+
+            Dim p1 = fbxgrp(i).indicies(k + 0).v1
+            Dim p2 = fbxgrp(i).indicies(k + 1).v1
+            Dim p3 = fbxgrp(i).indicies(k + 2).v1
+            Dim v1, v2, v3 As Vector3
+            v1.X = fbxgrp(i).vertices(p1).x
+            v1.Y = fbxgrp(i).vertices(p1).y
+            v1.Z = fbxgrp(i).vertices(p1).z
+
+            v2.X = fbxgrp(i).vertices(p2).x
+            v2.Y = fbxgrp(i).vertices(p2).y
+            v2.Z = fbxgrp(i).vertices(p2).z
+
+            v3.X = fbxgrp(i).vertices(p3).x
+            v3.Y = fbxgrp(i).vertices(p3).y
+            v3.Z = fbxgrp(i).vertices(p3).z
+
+            Dim Dir = Vector3.Cross(v2 - v1, v3 - v1)
+            Dim n = Vector3.Normalize(Dir)
+            Dim n2 As New FbxVector4
+            n2.X = n.X
+            n2.Y = n.Y
+            n2.Z = n.Z
+
+
+            fbxgrp(i).vertices(p1).nx = n.X
+            fbxgrp(i).vertices(p1).ny = n.Y
+            fbxgrp(i).vertices(p1).nz = n.Z
+            fbxgrp(i).vertices(p1).n = packnormalFBX888(n2)
+
+            fbxgrp(i).vertices(p2).nx = n.X
+            fbxgrp(i).vertices(p2).ny = n.Y
+            fbxgrp(i).vertices(p2).nz = n.Z
+            fbxgrp(i).vertices(p2).n = fbxgrp(i).vertices(p1).n
+
+            fbxgrp(i).vertices(p3).nx = n.X
+            fbxgrp(i).vertices(p3).ny = n.Y
+            fbxgrp(i).vertices(p3).nz = n.Z
+            fbxgrp(i).vertices(p3).n = fbxgrp(i).vertices(p1).n
+
+
+        Next
+
+    End Sub
     Public Sub make_fbx_display_lists(ByVal cnt As Integer, ByVal jj As Integer)
         Gl.glBegin(Gl.GL_TRIANGLES)
         For z As UInt32 = 0 To (cnt) - 1

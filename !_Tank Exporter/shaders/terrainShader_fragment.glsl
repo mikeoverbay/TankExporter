@@ -49,7 +49,7 @@ vec3 getNormal()
     vec3 b = normalize(cross(ng, t));
     mat3 tbn = mat3(t, b, ng);
     vec3 n = ng;
-    n = texture2D(normalMap, TC1*uv_Scale).rgb*2.0-1.0;
+    n = texture(normalMap, TC1*uv_Scale, 1.0).rgb*2.0-1.0;
     n.x*=-1.0;
     n = normalize(tbn * n);
     return n;

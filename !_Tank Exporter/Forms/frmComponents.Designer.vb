@@ -28,7 +28,10 @@ Partial Class frmComponents
         Me.continue_bt = New System.Windows.Forms.Button()
         Me.Label1 = New System.Windows.Forms.Label()
         Me.Label2 = New System.Windows.Forms.Label()
-        Me.look_for_skins_cb = New System.Windows.Forms.CheckBox()
+        Me.Label3 = New System.Windows.Forms.Label()
+        Me.tv_hulls = New System.Windows.Forms.TreeView()
+        Me.Label4 = New System.Windows.Forms.Label()
+        Me.tv_chassis = New System.Windows.Forms.TreeView()
         Me.SuspendLayout()
         '
         'tv_guns
@@ -38,7 +41,7 @@ Partial Class frmComponents
         Me.tv_guns.ForeColor = System.Drawing.Color.White
         Me.tv_guns.Location = New System.Drawing.Point(12, 24)
         Me.tv_guns.Name = "tv_guns"
-        Me.tv_guns.Size = New System.Drawing.Size(136, 140)
+        Me.tv_guns.Size = New System.Drawing.Size(136, 115)
         Me.tv_guns.TabIndex = 0
         '
         'tv_turrets
@@ -46,14 +49,14 @@ Partial Class frmComponents
         Me.tv_turrets.BackColor = System.Drawing.Color.FromArgb(CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer))
         Me.tv_turrets.CheckBoxes = True
         Me.tv_turrets.ForeColor = System.Drawing.Color.White
-        Me.tv_turrets.Location = New System.Drawing.Point(12, 183)
+        Me.tv_turrets.Location = New System.Drawing.Point(154, 24)
         Me.tv_turrets.Name = "tv_turrets"
-        Me.tv_turrets.Size = New System.Drawing.Size(136, 144)
+        Me.tv_turrets.Size = New System.Drawing.Size(136, 115)
         Me.tv_turrets.TabIndex = 1
         '
         'continue_bt
         '
-        Me.continue_bt.Location = New System.Drawing.Point(44, 358)
+        Me.continue_bt.Location = New System.Drawing.Point(116, 233)
         Me.continue_bt.Name = "continue_bt"
         Me.continue_bt.Size = New System.Drawing.Size(75, 23)
         Me.continue_bt.TabIndex = 2
@@ -64,7 +67,7 @@ Partial Class frmComponents
         '
         Me.Label1.AutoSize = True
         Me.Label1.ForeColor = System.Drawing.Color.White
-        Me.Label1.Location = New System.Drawing.Point(12, 167)
+        Me.Label1.Location = New System.Drawing.Point(154, 8)
         Me.Label1.Name = "Label1"
         Me.Label1.Size = New System.Drawing.Size(73, 13)
         Me.Label1.TabIndex = 3
@@ -80,24 +83,56 @@ Partial Class frmComponents
         Me.Label2.TabIndex = 4
         Me.Label2.Text = "Found Guns"
         '
-        'look_for_skins_cb
+        'Label3
         '
-        Me.look_for_skins_cb.AutoSize = True
-        Me.look_for_skins_cb.ForeColor = System.Drawing.Color.White
-        Me.look_for_skins_cb.Location = New System.Drawing.Point(32, 333)
-        Me.look_for_skins_cb.Name = "look_for_skins_cb"
-        Me.look_for_skins_cb.Size = New System.Drawing.Size(100, 17)
-        Me.look_for_skins_cb.TabIndex = 5
-        Me.look_for_skins_cb.Text = "Look for _Skins"
-        Me.look_for_skins_cb.UseVisualStyleBackColor = True
+        Me.Label3.AutoSize = True
+        Me.Label3.ForeColor = System.Drawing.Color.White
+        Me.Label3.Location = New System.Drawing.Point(12, 142)
+        Me.Label3.Name = "Label3"
+        Me.Label3.Size = New System.Drawing.Size(63, 13)
+        Me.Label3.TabIndex = 7
+        Me.Label3.Text = "Found Hulls"
+        '
+        'tv_hulls
+        '
+        Me.tv_hulls.BackColor = System.Drawing.Color.FromArgb(CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer))
+        Me.tv_hulls.CheckBoxes = True
+        Me.tv_hulls.ForeColor = System.Drawing.Color.White
+        Me.tv_hulls.Location = New System.Drawing.Point(12, 158)
+        Me.tv_hulls.Name = "tv_hulls"
+        Me.tv_hulls.Size = New System.Drawing.Size(136, 69)
+        Me.tv_hulls.TabIndex = 6
+        '
+        'Label4
+        '
+        Me.Label4.AutoSize = True
+        Me.Label4.ForeColor = System.Drawing.Color.White
+        Me.Label4.Location = New System.Drawing.Point(154, 142)
+        Me.Label4.Name = "Label4"
+        Me.Label4.Size = New System.Drawing.Size(76, 13)
+        Me.Label4.TabIndex = 9
+        Me.Label4.Text = "Found Chassis"
+        '
+        'tv_chassis
+        '
+        Me.tv_chassis.BackColor = System.Drawing.Color.FromArgb(CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer))
+        Me.tv_chassis.CheckBoxes = True
+        Me.tv_chassis.ForeColor = System.Drawing.Color.White
+        Me.tv_chassis.Location = New System.Drawing.Point(154, 158)
+        Me.tv_chassis.Name = "tv_chassis"
+        Me.tv_chassis.Size = New System.Drawing.Size(136, 69)
+        Me.tv_chassis.TabIndex = 8
         '
         'frmComponents
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.Color.FromArgb(CType(CType(33, Byte), Integer), CType(CType(33, Byte), Integer), CType(CType(33, Byte), Integer))
-        Me.ClientSize = New System.Drawing.Size(164, 393)
-        Me.Controls.Add(Me.look_for_skins_cb)
+        Me.ClientSize = New System.Drawing.Size(302, 266)
+        Me.Controls.Add(Me.Label4)
+        Me.Controls.Add(Me.tv_chassis)
+        Me.Controls.Add(Me.Label3)
+        Me.Controls.Add(Me.tv_hulls)
         Me.Controls.Add(Me.Label2)
         Me.Controls.Add(Me.Label1)
         Me.Controls.Add(Me.continue_bt)
@@ -117,5 +152,8 @@ Partial Class frmComponents
     Friend WithEvents continue_bt As System.Windows.Forms.Button
     Friend WithEvents Label1 As System.Windows.Forms.Label
     Friend WithEvents Label2 As System.Windows.Forms.Label
-    Friend WithEvents look_for_skins_cb As CheckBox
+    Friend WithEvents Label3 As Label
+    Friend WithEvents tv_hulls As TreeView
+    Friend WithEvents Label4 As Label
+    Friend WithEvents tv_chassis As TreeView
 End Class
