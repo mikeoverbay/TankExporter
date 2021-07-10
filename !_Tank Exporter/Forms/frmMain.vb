@@ -490,8 +490,6 @@ done:
         PB3.Parent = Me
         PB3.SendToBack()
         PB3.Visible = False
-        ToolStripComboBox1.Visible = False
-        ToolStripComboBox1.Text = My.Settings.region_selection
         decal_panel.Parent = SplitContainer2.Panel1
         decal_panel.Visible = False
         Application.DoEvents()
@@ -1868,6 +1866,7 @@ loaded_jump:
         _Started = False
         While update_thread.IsAlive
             Application.DoEvents()
+            update_thread.Abort()
         End While
         Dim f As DirectoryInfo = New DirectoryInfo(Temp_Storage)
         shared_contents_build.Dispose()
@@ -7322,14 +7321,19 @@ fuckit:
                 itemDefXmlString = ts
 
             End If
-            Dim tar = itemDefXmlString.Split("vbcrlf")
+            Dim tar = itemDefXmlString.Split(vbCrLf)
             Dim seg_path As String = ""
             For i = 0 To tar.Length - 1
-                If tar(i).Contains("segmentModelLeft") Then
-                    Dim sega = tar(i).Split("left>")
-                    Dim sega1 = sega(1).Split("</")
-                    seg_path = Path.GetDirectoryName(sega1(0)).Replace("\", "/")
-                End If
+                Try
+
+                    If tar(i).Contains("segmentModelLeft") Then
+                        Dim sega = tar(i).Split("left>")
+                        Dim sega1 = sega(1).Split("</")
+                        seg_path = Path.GetDirectoryName(sega1(0)).Replace("\", "/")
+                    End If
+                Catch ex As Exception
+
+                End Try
             Next
             If seg_path = "" Then ' 'Dont allow a search with a empty string. It will find every thing!!
                 seg_path = "donkey_breath"
@@ -8391,22 +8395,8 @@ skip_old_way:
         frmModelInfo.Show()
     End Sub
 
-    Private Sub m_region_Click(sender As Object, e As EventArgs) Handles m_region.Click
-        ToolStripComboBox1.Visible = True
-    End Sub
 
-    Private Sub ToolStripComboBox1_TextChanged(sender As Object, e As EventArgs) Handles ToolStripComboBox1.TextChanged
-        If Not _Started Then Return ' dont want to cause a trigger here!
-        API_REGION = ToolStripComboBox1.Text
-        My.Settings.region_selection = API_REGION
-        ToolStripComboBox1.Visible = False
-        MsgBox("You will need to clear the temp folder (under menu)" + vbCrLf + _
-                "and restart Tank Exporter." + vbCrLf + _
-                "This had to be done to reload data for your region!", MsgBoxStyle.Exclamation, "Warning!")
 
-        My.Settings.Save()
-
-    End Sub
 
 
     Private Sub m_Shader_Debug_Click(sender As Object, e As EventArgs) Handles m_Shader_Debug.Click
@@ -10010,5 +10000,15 @@ load_script:
 
     End Sub
 
+    Private Sub m_region_combo_SelectedIndexChanged(sender As Object, e As EventArgs) Handles m_region_combo.SelectedIndexChanged
+        My.Settings.region_selection = m_region_combo.SelectedItem.ToString
+        If Not _Started Then Return ' dont want to cause a trigger here!
+        API_REGION = m_region_combo.Text
+        My.Settings.region_selection = API_REGION
+        MsgBox("You will need to clear the temp folder (under menu)" + vbCrLf +
+                "and restart Tank Exporter." + vbCrLf +
+                "This has to be done to reload data for your region!", MsgBoxStyle.Exclamation, "Warning!")
 
+        My.Settings.Save()
+    End Sub
 End Class

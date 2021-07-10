@@ -17,6 +17,9 @@ Read this Issue thread to get the fix and how to use it.</br>
 https://github.com/mikeoverbay/TankExporter/issues/23
 
 
+## Version 119:
+I fixed a bug that silently stopped exporting to the res_mods folder on some tanks
+
 ## Version 118:
 This adds the ability to stop loading decals.</br>
 This can help with load speeds but will make the terrain look bad.</br>

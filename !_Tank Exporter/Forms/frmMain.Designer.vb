@@ -56,7 +56,7 @@ Partial Class frmMain
         Me.m_show_log = New System.Windows.Forms.ToolStripMenuItem()
         Me.m_Open_game_folder = New System.Windows.Forms.ToolStripMenuItem()
         Me.ToolStripSeparator4 = New System.Windows.Forms.ToolStripSeparator()
-        Me.m_region = New System.Windows.Forms.ToolStripMenuItem()
+        Me.m_region_combo = New System.Windows.Forms.ToolStripComboBox()
         Me.ToolStripSeparator11 = New System.Windows.Forms.ToolStripSeparator()
         Me.M_Path = New System.Windows.Forms.ToolStripMenuItem()
         Me.m_res_mods_path = New System.Windows.Forms.ToolStripMenuItem()
@@ -110,7 +110,6 @@ Partial Class frmMain
         Me.m_donate = New System.Windows.Forms.ToolStripMenuItem()
         Me.m_decal = New System.Windows.Forms.ToolStripMenuItem()
         Me.m_help = New System.Windows.Forms.ToolStripMenuItem()
-        Me.ToolStripComboBox1 = New System.Windows.Forms.ToolStripComboBox()
         Me.ToolStripSeparator14 = New System.Windows.Forms.ToolStripSeparator()
         Me.ToolStripSeparator5 = New System.Windows.Forms.ToolStripSeparator()
         Me.ToolStripSeparator12 = New System.Windows.Forms.ToolStripSeparator()
@@ -214,7 +213,7 @@ Partial Class frmMain
         'MM
         '
         Me.MM.AutoSize = False
-        Me.MM.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.m_file, Me.m_ExportExtract, Me.m_show_model_info, Me.m_show_fbx, Me.m_export_tank_list, Me.m_clear_selected_tanks, Me.m_pick_camo, Me.m_edit_camo, Me.m_load_textures, Me.m_GMM_toy_cb, Me.m_lighting, Me.m_donate, Me.m_decal, Me.m_help, Me.ToolStripComboBox1})
+        Me.MM.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.m_file, Me.m_ExportExtract, Me.m_show_model_info, Me.m_show_fbx, Me.m_export_tank_list, Me.m_clear_selected_tanks, Me.m_pick_camo, Me.m_edit_camo, Me.m_load_textures, Me.m_GMM_toy_cb, Me.m_lighting, Me.m_donate, Me.m_decal, Me.m_help})
         Me.MM.Location = New System.Drawing.Point(0, 0)
         Me.MM.Name = "MM"
         Me.MM.Size = New System.Drawing.Size(968, 27)
@@ -222,7 +221,7 @@ Partial Class frmMain
         '
         'm_file
         '
-        Me.m_file.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.m_test, Me.m_load_file, Me.m_save, Me.ToolStripSeparator7, Me.m_Import_FBX, Me.m_tangent_normalMaps, Me.ToolStripSeparator8, Me.m_import_primitives_fbx, Me.ToolStripSeparator29, Me.m_remove_fbx, Me.ToolStripSeparator1, Me.m_write_primitive, Me.m_write_non_tank_primitive, Me.ToolStripSeparator18, Me.m_build_wotmod, Me.ToolStripSeparator9, Me.m_load_primitive, Me.ToolStripSeparator28, Me.m_edit_visual, Me.m_show_log, Me.m_Open_game_folder, Me.ToolStripSeparator4, Me.m_region, Me.ToolStripSeparator11, Me.M_Path, Me.m_res_mods_path, Me.ToolStripSeparator2, Me.m_clear_temp_folder_data, Me.m_reload_api_data, Me.ToolStripSeparator3, Me.m_UI_settings, Me.ToolStripSeparator31, Me.m_dump_tanks, Me.m_enable_tarrain_decals, Me.ToolStripSeparator19, Me.M_Exit})
+        Me.m_file.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.m_test, Me.m_load_file, Me.m_save, Me.ToolStripSeparator7, Me.m_Import_FBX, Me.m_tangent_normalMaps, Me.ToolStripSeparator8, Me.m_import_primitives_fbx, Me.ToolStripSeparator29, Me.m_remove_fbx, Me.ToolStripSeparator1, Me.m_write_primitive, Me.m_write_non_tank_primitive, Me.ToolStripSeparator18, Me.m_build_wotmod, Me.ToolStripSeparator9, Me.m_load_primitive, Me.ToolStripSeparator28, Me.m_edit_visual, Me.m_show_log, Me.m_Open_game_folder, Me.ToolStripSeparator4, Me.m_region_combo, Me.ToolStripSeparator11, Me.M_Path, Me.m_res_mods_path, Me.ToolStripSeparator2, Me.m_clear_temp_folder_data, Me.m_reload_api_data, Me.ToolStripSeparator3, Me.m_UI_settings, Me.ToolStripSeparator31, Me.m_dump_tanks, Me.m_enable_tarrain_decals, Me.ToolStripSeparator19, Me.M_Exit})
         Me.m_file.Name = "m_file"
         Me.m_file.Size = New System.Drawing.Size(90, 23)
         Me.m_file.Text = "&File / Settings"
@@ -398,12 +397,12 @@ Partial Class frmMain
         Me.ToolStripSeparator4.Name = "ToolStripSeparator4"
         Me.ToolStripSeparator4.Size = New System.Drawing.Size(227, 6)
         '
-        'm_region
+        'm_region_combo
         '
-        Me.m_region.Name = "m_region"
-        Me.m_region.Size = New System.Drawing.Size(230, 22)
-        Me.m_region.Text = "Set Region"
-        Me.m_region.Visible = False
+        Me.m_region_combo.Items.AddRange(New Object() {"NA", "EU", "RU", "ASIA"})
+        Me.m_region_combo.Name = "m_region_combo"
+        Me.m_region_combo.Size = New System.Drawing.Size(121, 23)
+        Me.m_region_combo.Text = Global.Tank_Exporter.My.MySettings.Default.region_selection
         '
         'ToolStripSeparator11
         '
@@ -744,14 +743,6 @@ Partial Class frmMain
         Me.m_help.Size = New System.Drawing.Size(28, 23)
         Me.m_help.Text = "Help"
         '
-        'ToolStripComboBox1
-        '
-        Me.ToolStripComboBox1.Items.AddRange(New Object() {"NA", "EU", "RU", "ASIA"})
-        Me.ToolStripComboBox1.Name = "ToolStripComboBox1"
-        Me.ToolStripComboBox1.Size = New System.Drawing.Size(121, 23)
-        Me.ToolStripComboBox1.Text = "NA"
-        Me.ToolStripComboBox1.Visible = False
-        '
         'ToolStripSeparator14
         '
         Me.ToolStripSeparator14.Name = "ToolStripSeparator14"
@@ -1027,7 +1018,7 @@ Partial Class frmMain
         Me.decal_panel.ForeColor = System.Drawing.Color.White
         Me.decal_panel.Location = New System.Drawing.Point(276, 54)
         Me.decal_panel.Name = "decal_panel"
-        Me.decal_panel.Size = New System.Drawing.Size(582, 382)
+        Me.decal_panel.Size = New System.Drawing.Size(588, 382)
         Me.decal_panel.TabIndex = 5
         '
         'copy_Decal_btn
@@ -1245,7 +1236,7 @@ Partial Class frmMain
         Me.d_move_down.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center
         Me.d_move_down.FlatStyle = System.Windows.Forms.FlatStyle.Popup
         Me.d_move_down.Image = Global.Tank_Exporter.My.Resources.Resources.control_270
-        Me.d_move_down.Location = New System.Drawing.Point(537, 165)
+        Me.d_move_down.Location = New System.Drawing.Point(543, 165)
         Me.d_move_down.Name = "d_move_down"
         Me.d_move_down.Size = New System.Drawing.Size(20, 20)
         Me.d_move_down.TabIndex = 5
@@ -1258,7 +1249,7 @@ Partial Class frmMain
         Me.d_move_up.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center
         Me.d_move_up.FlatStyle = System.Windows.Forms.FlatStyle.Popup
         Me.d_move_up.Image = Global.Tank_Exporter.My.Resources.Resources.control_090
-        Me.d_move_up.Location = New System.Drawing.Point(537, 145)
+        Me.d_move_up.Location = New System.Drawing.Point(543, 145)
         Me.d_move_up.Name = "d_move_up"
         Me.d_move_up.Size = New System.Drawing.Size(20, 20)
         Me.d_move_up.TabIndex = 4
@@ -1308,7 +1299,7 @@ Partial Class frmMain
         Me.d_list_tb.Multiline = True
         Me.d_list_tb.Name = "d_list_tb"
         Me.d_list_tb.ScrollBars = System.Windows.Forms.ScrollBars.Vertical
-        Me.d_list_tb.Size = New System.Drawing.Size(578, 237)
+        Me.d_list_tb.Size = New System.Drawing.Size(584, 237)
         Me.d_list_tb.TabIndex = 0
         '
         'current_decal_lable
@@ -1367,7 +1358,7 @@ Partial Class frmMain
         'pb2
         '
         Me.pb2.Anchor = System.Windows.Forms.AnchorStyles.None
-        Me.pb2.Location = New System.Drawing.Point(98, 125)
+        Me.pb2.Location = New System.Drawing.Point(100, 125)
         Me.pb2.Name = "pb2"
         Me.pb2.Size = New System.Drawing.Size(200, 100)
         Me.pb2.TabIndex = 3
@@ -1710,9 +1701,7 @@ Partial Class frmMain
     Friend WithEvents m_show_model_info As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents m_simple_lighting As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents ToolStripSeparator10 As System.Windows.Forms.ToolStripSeparator
-    Friend WithEvents m_region As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents ToolStripSeparator11 As System.Windows.Forms.ToolStripSeparator
-    Friend WithEvents ToolStripComboBox1 As System.Windows.Forms.ToolStripComboBox
     Friend WithEvents ToolStripSeparator12 As System.Windows.Forms.ToolStripSeparator
     Friend WithEvents m_Shader_Debug As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents m_show_environment As System.Windows.Forms.ToolStripMenuItem
@@ -1803,4 +1792,5 @@ Partial Class frmMain
     Friend WithEvents ToolStripSeparator31 As System.Windows.Forms.ToolStripSeparator
     Friend WithEvents m_dump_tanks As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents m_enable_tarrain_decals As ToolStripMenuItem
+    Friend WithEvents m_region_combo As ToolStripComboBox
 End Class
