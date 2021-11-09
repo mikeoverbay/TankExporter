@@ -17,6 +17,9 @@ Read this Issue thread to get the fix and how to use it.</br>
 https://github.com/mikeoverbay/TankExporter/issues/23
 
 
+## Version 120:
+WG moved the location of the tank detail textures. This screwed up lighting. I finally fixed it.
+
 ## Version 119:
 I fixed a bug that silently stopped exporting to the res_mods folder on some tanks
 

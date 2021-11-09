@@ -1334,25 +1334,25 @@ done:
                 pkg_search_list(cnt) = f
                 cnt += 1
             End If
-            If ar(0) = "shared" Then
+            If ar(0).Contains("shared") Then
                 pkg_search_list(cnt) = f
                 cnt += 1
                 tank_pkg_search_list(cnt2) = f
                 cnt2 += 1
             End If
-            If ar(0) = "particles" Then
+            If ar(0).Contains("particles") Then
                 pkg_search_list(cnt) = f
                 cnt += 1
                 tank_pkg_search_list(cnt2) = f
                 cnt2 += 1
             End If
-            If ar(0) = "particles_hd" Then
-                pkg_search_list(cnt) = f
-                cnt += 1
-                tank_pkg_search_list(cnt2) = f
-                cnt2 += 1
-            End If
-            If ar(0) = "hangar" Then
+            'If ar(0) = "particles_hd" Then
+            '    pkg_search_list(cnt) = f
+            '    cnt += 1
+            '    tank_pkg_search_list(cnt2) = f
+            '    cnt2 += 1
+            'End If
+            If ar(0).Contains("hangar") Then
                 pkg_search_list(cnt) = f
                 cnt += 1
             End If
