@@ -17,6 +17,9 @@ Read this Issue thread to get the fix and how to use it.</br>
 https://github.com/mikeoverbay/TankExporter/issues/23
 
 
+## Version 121:
+Fixed an issue with blacked out normal maps that were converted during FBX export. The alpha is now 1.0 unless it stores masking values.
+
 ## Version 120:
 WG moved the location of the tank detail textures. This screwed up lighting. I finally fixed it.
 

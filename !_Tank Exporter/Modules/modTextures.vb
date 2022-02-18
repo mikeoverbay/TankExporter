@@ -52,6 +52,7 @@ Module modTextures
         Public g_det_id As Integer
         Public doubleSided As Boolean
         Public alphaRef As Integer
+        Public alphaTestEnabled As Integer
         Public skinned As Boolean
     End Structure
 
@@ -110,6 +111,7 @@ Module modTextures
         Next
 
         For i = 1 To object_count
+            Dim alpha_enabled = _group(i).alphaTest
 
             With _group(i)
                 Dim idx = .g_atlas_indexs.x
@@ -151,14 +153,14 @@ Module modTextures
                             abs_name += "empty_NM_" + i.ToString
                             .normal_name = "empty_NM_" + i.ToString
                         End If
-                        save_fbx_texture(.normal_Id, abs_name, True)
+                        save_fbx_texture(.normal_Id, abs_name, True, alpha_enabled)
                         'Albeto
                         abs_name = FBX_Texture_path + "\" + Path.GetFileNameWithoutExtension(.color_name)
                         If abs_name = FBX_Texture_path + "\" Then
                             abs_name += "empty_AM_" + i.ToString
                             .color_name = "empty_AM_" + i.ToString
                         End If
-                        save_fbx_texture(.color_Id, abs_name, False)
+                        save_fbx_texture(.color_Id, abs_name, False, alpha_enabled)
                     End If
                 End If
             End With
@@ -233,6 +235,9 @@ Module modTextures
         frmMain.update_thread.Suspend()
         Threading.Thread.Sleep(100)
         For i = 0 To textures.Length - 2
+
+            Dim alpha_enabled = textures(i).alphaTestEnabled
+
             With textures(i)
                 'color
                 abs_name = FBX_Texture_path + "\" + Path.GetFileNameWithoutExtension(.c_name)
@@ -246,20 +251,20 @@ Module modTextures
                     Next
                     save_fbx_textureCamouflaged(.c_id, .ao_id, SELECTED_CAMO_BUTTON, abs_name, part)
                 Else
-                    save_fbx_texture(.c_id, abs_name, False)
+                    save_fbx_texture(.c_id, abs_name, False, alpha_enabled)
                 End If
                 'normal
                 abs_name = FBX_Texture_path + "\" + Path.GetFileNameWithoutExtension(.n_name)
-                save_fbx_texture(.n_id, abs_name, True)
+                save_fbx_texture(.n_id, abs_name, True, alpha_enabled)
                 'ao
                 abs_name = FBX_Texture_path + "\" + Path.GetFileNameWithoutExtension(.ao_name)
-                save_fbx_texture(.ao_id, abs_name, False)
+                save_fbx_texture(.ao_id, abs_name, False, 0)
                 'gmm
                 abs_name = FBX_Texture_path + "\" + Path.GetFileNameWithoutExtension(.gmm_name)
-                save_fbx_texture(.gmm_id, abs_name, False)
+                save_fbx_texture(.gmm_id, abs_name, False, 0)
                 'detail
                 abs_name = FBX_Texture_path + "\" + Path.GetFileNameWithoutExtension(.detail_name)
-                save_fbx_texture(.detail_id, abs_name, False)
+                save_fbx_texture(.detail_id, abs_name, False, 0)
 
             End With
 
@@ -721,7 +726,7 @@ save_it:
     End Sub
 
 
-    Public Sub save_fbx_texture(ByVal id As Integer, ByVal save_path As String, ByVal n_map As Boolean)
+    Public Sub save_fbx_texture(ByVal id As Integer, ByVal save_path As String, ByVal n_map As Boolean, alpha_enabled As Integer)
         If id = -1 Then Return
         frmMain.info_Label.Text = "Exporting : " + save_path + ".png"
         If File.Exists(save_path + ".png") Then ' stop saving exiting FBX textures.. It crashes 3DS Max
@@ -760,8 +765,12 @@ save_it:
         Gl.glDisable(Gl.GL_DEPTH_TEST)
         Gl.glTexEnvi(Gl.GL_TEXTURE_ENV, Gl.GL_TEXTURE_ENV_MODE, Gl.GL_REPLACE)
 
+        Gl.glUseProgram(shader_list.convertNormalMap_shader)
+
+        Gl.glUniform1i(convertMap_convert, 0)
+        Gl.glUniform1i(convertMap_alpha_enabled, alpha_enabled)
+
         If n_map Then
-            Gl.glUseProgram(shader_list.convertNormalMap_shader)
             If frmFBX.convert_normal_maps_cb.Checked Then
                 Gl.glUniform1i(convertMap_convert, 1)
             Else
@@ -773,7 +782,6 @@ save_it:
                 Gl.glUniform1i(convertMap_flip_y, 0)
             End If
         End If
-
 
 
         Gl.glBegin(Gl.GL_QUADS)
@@ -1008,6 +1016,7 @@ save_it:
                     _group(id).g_detailMap_id = textures(i).g_detailMap_id
 
                     _group(id).alphaRef = textures(i).alphaRef
+                    _group(id).alphaTest = textures(i).alphaTestEnabled
                     _group(id).doubleSided = textures(i).doubleSided
                     _group(id).skinned = textures(i).skinned
 
@@ -1054,6 +1063,7 @@ save_it:
 
         textures(i).doubleSided = _group(id).doubleSided
         textures(i).alphaRef = _group(id).alphaRef
+        textures(i).alphaTestEnabled = _group(id).alphaTest
         textures(i).skinned = _group(id).skinned
 
         _group(id).texture_id = i

@@ -2504,7 +2504,7 @@ get_visual:
             _group(id).alphaTest = ref
         Else
             _group(id).alphaTest = 0
-            _group(id).alphaRef = 0 '?
+            '_group(id).alphaRef = 0 '?
 
 
         End If

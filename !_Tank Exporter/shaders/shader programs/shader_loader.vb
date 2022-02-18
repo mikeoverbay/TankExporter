@@ -708,12 +708,13 @@ Module shader_loader
 
     End Sub
 
-    Public convertMap_map, convertMap_flip_y, convertMap_convert As Integer
+    Public convertMap_map, convertMap_flip_y, convertMap_convert, convertMap_alpha_enabled As Integer
     '==============================================================================================================
     Public Sub set_convertNormalMap_variables()
         convertMap_map = Gl.glGetUniformLocation(shader_list.convertNormalMap_shader, "map")
         convertMap_convert = Gl.glGetUniformLocation(shader_list.convertNormalMap_shader, "convert")
         convertMap_flip_y = Gl.glGetUniformLocation(shader_list.convertNormalMap_shader, "flip_y")
+        convertMap_alpha_enabled = Gl.glGetUniformLocation(shader_list.convertNormalMap_shader, "alpha_enabled")
 
     End Sub
 

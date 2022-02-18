@@ -7,6 +7,7 @@ uniform sampler2D map;
 
 uniform int convert;
 uniform int flip_y;
+uniform int alpha_enabled;
 
 in vec2 TC1;
 out vec4 color_out;
@@ -23,10 +24,14 @@ vec4 m = texture2D(map,TC1);
 	if (convert == 1)
 	{
 		color_out.rgb =  tn.rgb*0.5+0.5;
-		color_out.a = m.r;
+
+		if (alpha_enabled == 1) {color_out.a = m.r;}
+		if (alpha_enabled == 0) {color_out.a = 1.0;}
+
 	}
 	else
 	{
 		color_out = m;
+		color_out.a = 1.0;
 	}
 }
