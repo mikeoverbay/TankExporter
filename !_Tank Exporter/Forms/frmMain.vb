@@ -2029,10 +2029,6 @@ loaded_jump:
         Dim doc As New XmlDocument
         Dim xmlroot As XmlNode = xDoc.CreateElement(XmlNodeType.Element, "root", "")
         Dim root_node As XmlNode = doc.CreateElement("model")
-        doc.AppendChild(root_node)
-        'doc.DocumentElement.ParentNode.Value = "<root>" + vbCrLf + "</root>"
-
-
 
         'this is going to be a mess :(
 
@@ -2049,192 +2045,79 @@ loaded_jump:
             End If
         Next
 
+        Dim chassis = doc.CreateElement("chassis")
 
+        Dim hulls = doc.CreateElement("hull")
+        Dim hull_tiling = doc.CreateElement("hull_tiling")
 
-        Dim turret_tiling = doc.CreateElement("turret_tiling")
-        Dim found_camo As Boolean = False
-        For Each turret0 As XElement In docx.Descendants("turrets0")
-            For Each model In turret0.Descendants("undamaged")
-                If model.Value.ToLower.ToLower.Contains("turret_") Then
-
-                    Dim p = model.Parent.FirstNode
-                    Dim pp = p.Parent
-                    Dim ppp = pp.Parent
-
-                    For Each n In ppp.Elements
-                        If n.LastNode IsNot Nothing Then
-
-                            If n.LastNode.ToString.ToLower.Contains("tiling") And Not n.FirstNode.ToString.ToLower.Contains("gun") Then
-
-                                Dim tile = n.Descendants("tiling")
-                                Dim cct = doc.CreateElement("tiling")
-                                cct.InnerText = tile.Value.ToString
-                                turret_tiling.AppendChild(cct)
-                                root_node.AppendChild(turret_tiling)
-                                found_camo = True
-                            End If
-
-                        End If
-                    Next
-                    If Not found_camo Then
-                        Dim cct = doc.CreateElement("tiling")
-                        cct.InnerText = "1.0 1.0 0.0 0.0"
-                        turret_tiling.AppendChild(cct)
-                        root_node.AppendChild(turret_tiling)
-                    End If
-                End If
-
-            Next
-
-        Next
-        ' root_node.AppendChild(cct)
         Dim turrets = doc.CreateElement("turrets")
-        root_node.AppendChild(turrets)
 
-        For Each turret0 As XElement In docx.Descendants("turrets0")
-            For Each turret In turret0.Descendants
-                'If turret.Name.ToString.ToLower.Contains("turret" + ext) Then
-                'Dim turret_name As XElement = turret.FirstNode
+        Dim guns = doc.CreateElement("guns")
+        Dim gun_tiling = doc.CreateElement("gun_tiling")
 
-                'add turrets name
-                Dim r_node = doc.CreateElement("node")
-                For Each guns As XElement In turret.Descendants("guns")
-                    Dim p = guns.Parent.FirstNode
-                    Dim pp = p.Parent
-                    'Dim ppp = pp.Parent.FirstNode
-                    Dim t_node = pp.FirstNode
-                    Dim t_name As String = pp.Name.ToString
-                    Dim nd_turret = doc.CreateElement("turret_name")
-                    Dim tx_turret = doc.CreateTextNode(t_name)
-                    Dim nd_turret_name = doc.CreateElement("turret")
 
-                    nd_turret_name.InnerText = turret.Name.ToString
-                    nd_turret.AppendChild(nd_turret_name)
+        'Add a dummy entry in to each element
+        ' so the xml is consistent building the tableset
+        Dim dummy = doc.CreateElement("chassis_name")
+        dummy.InnerText = ("dummy")
+        root_node.AppendChild(dummy)
+        dummy = doc.CreateElement("hull_name")
+        dummy.InnerText = ("dummy")
+        root_node.AppendChild(dummy)
+        dummy = doc.CreateElement("turret_name")
+        dummy.InnerText = ("dummy")
+        root_node.AppendChild(dummy)
+        dummy = doc.CreateElement("gun_name")
+        dummy.InnerText = ("dummy")
+        root_node.AppendChild(dummy)
 
-                    Dim gun_name As XElement = guns.FirstNode
-                    For Each gun In guns.Descendants("undamaged")
 
-                        Dim nd_gun = doc.CreateElement("gun")
-                        r_node.AppendChild(nd_gun)
-                        Dim nd_gun_name = doc.CreateElement("gun_name")
-                        Dim gg = gun.Parent
-                        Dim ggg = gg.Parent
-                        Dim g_name = ggg.Name.ToString
-                        nd_gun_name.InnerText = g_name
-                        nd_gun.AppendChild(nd_gun_name)
+        Dim armor = docx.Descendants("undamaged")
+        For Each item In armor
+            Select Case True
+                Case item.Value.Contains("Chassis")
+                    Dim gn = doc.CreateElement("chassis_name")
+                    gn.InnerText = item.Value.Replace("/", "\")
+                    root_node.AppendChild(gn)
+                Case item.Value.Contains("Hull")
+                    Dim gn = doc.CreateElement("hull_name")
+                    gn.InnerText = item.Value.Replace("/", "\")
+                    root_node.AppendChild(gn)
+                Case item.Value.Contains("Turret")
+                    Dim gn = doc.CreateElement("turret_name")
+                    gn.InnerText = item.Value.Replace("/", "\")
+                    root_node.AppendChild(gn)
+                Case item.Value.Contains("Gun")
+                    Dim gn = doc.CreateElement("gun_name")
+                    gn.InnerText = item.Value.Replace("/", "\")
+                    root_node.AppendChild(gn)
+            End Select
 
-                        gun.Value = gun.Value.Replace("/", "\")
-                        Dim nd_g = doc.CreateElement("model")
-                        nd_g.InnerText = gun.Value
-                        nd_gun.AppendChild(nd_g)
-                        Dim camo_cnt As Integer = 0
-                        For Each camo In gun_name.Descendants("camouflage")
-                            Dim nd_c = doc.CreateElement("gun_camouflage")
-                            For Each til In camo.Descendants("tiling")
-                                nd_c.InnerText = til.Value
-                                nd_gun.AppendChild(nd_c)
-                                camo_cnt += 1
-                            Next
-                            'If Not camo.Value.ToLower.Contains("gun") And camo.Value.Length > 2 Then
-                            '    nd_c.InnerText = camo.Value
-                            '    nd_gun.AppendChild(nd_c)
-                            '    camo_cnt += 1
-                            'End If
-                        Next
-                        If camo_cnt = 0 Then
-                            Dim nd_c = doc.CreateElement("gun_camouflage")
-                            nd_c.InnerText = "1 1 0 0"
-                            nd_gun.AppendChild(nd_c)
-
-                        End If
-                    Next
-                    'nd_turret.LastChild.AppendChild(tx_gun)
-                    r_node.AppendChild(nd_turret)
-                    turrets.AppendChild(r_node)
-                Next
-            Next
-            'turrets.LastChild.AppendChild(tx_turret)
-            'End If
         Next
-        For Each turret In docx.Descendants("turrets0")
+        Dim camo = docx.Descendants("hull")
+        Dim tile = camo.Descendants("tiling")
+        hull_tiling.InnerText = tile.Value
+        root_node.AppendChild(hull_tiling)
 
-            Dim tur = turret.Descendants("models")
-            For Each models In tur.Descendants("undamaged")
-                If models.Value.ToString.ToLower.Contains("turret_") Then
-                    ' Dim t_e = doc.CreateElement("turret_model")
-                    Dim t_n = doc.CreateElement("turret_model")
-                    Dim no = doc.GetElementsByTagName("turret_models") ' see if thsi has been created already
-                    If no.Count = 0 Then
-                        Dim t_n1 = doc.CreateElement("model")
-                        t_n1.InnerText = models.Value.ToString
-                        t_n.AppendChild(t_n1)
-                        root_node.AppendChild(t_n)
+        camo = docx.Descendants("guns")
+        tile = camo.Descendants("tiling")
+        gun_tiling.InnerText = tile.Value
 
-                    Else
-                        'If they are out of order, the turret_model has already been created.
-                        'We need to add to that element other wise it breaks the XML formating
-                        With doc.SelectSingleNode("model/turret_model").CreateNavigator().AppendChild()
-                            .WriteElementString("model", models.Value.ToString)
-                            .WriteEndElement()
-                            .Close()
-                        End With
+        'root_node.AppendChild(chassis)
+        'root_node.AppendChild(hulls)
+        'root_node.AppendChild(turrets)
+        'root_node.AppendChild(guns)
+        root_node.AppendChild(gun_tiling)
+        root_node.AppendChild(hull_tiling)
 
-                    End If
-                End If
-            Next
-        Next
-        'root_node.AppendChild(t_root)
+        doc.AppendChild(root_node)
 
-        Dim chassis = docx.Descendants("chassis")
-        For Each ch In chassis.Descendants("undamaged")
-            Dim c = doc.CreateElement("chassis")
-            Dim cn = doc.CreateElement("model")
-            cn.InnerText = ch.Value.ToString
-            root_node.AppendChild(c)
-            c.AppendChild(cn)
-        Next
-        Dim cnt As Integer = 0
 
-        For Each n As XElement In docx.Descendants("hull")
-            For Each h In n.Descendants("undamaged")
-                Dim hn = doc.CreateElement("model")
-                hn.InnerText = h.Value.ToString
-                For Each camo As XElement In n.Descendants("camouflage")
-                    For Each til In camo.Descendants("tiling")
-                        Dim nd = doc.CreateElement("hull_camouflage")
-                        Dim hull = doc.CreateElement("hull")
-                        root_node.AppendChild(hull)
-                        nd.InnerText = til.Value
-                        hull.AppendChild(hn)
-                        hull.AppendChild(nd)
-                        cnt += 1
-                    Next
-                    'If Not camo.Value.ToLower.Contains("hull") And camo.Value.Length > 2 Then
-                    '    cnt += 1
-                    '    Dim hull = doc.CreateElement("hull")
-                    '    root_node.AppendChild(hull)
 
-                    '    Dim nd = doc.CreateElement("hull_camouflage")
-                    '    nd.InnerText = camo.Value
-                    '    hull.AppendChild(hn)
-                    '    hull.AppendChild(nd)
-                    'End If
-                Next
-                If cnt = 0 Then
-                    Dim hull = doc.CreateElement("hull")
-                    root_node.AppendChild(hull)
-                    Dim nd = doc.CreateElement("hull_camouflage")
-                    nd.InnerText = "1.0 1.0 0.0 0.0"
-                    hull.AppendChild(hn)
-                    hull.AppendChild(nd)
-
-                End If
-            Next
-        Next
         Try
 
             Dim track = doc.CreateElement("track_info")
-            cnt = 1
+            Dim cnt = 1
             Dim spline_ = docx.Descendants("splineDesc")
             Dim segr = spline_.Descendants("segmentModelRight")
             Dim segl = spline_.Descendants("segmentModelLeft")
@@ -2291,6 +2174,12 @@ loaded_jump:
         doc.Save(fm)
         fm.Position = 0
         data_set.ReadXml(fm)
+
+        'Delete the dummy now that the table has been built correctly.
+        data_set.Tables("chassis_name").Select.First.Delete()
+        data_set.Tables("hull_name").Select.First.Delete()
+        data_set.Tables("turret_name").Select.First.Delete()
+        data_set.Tables("gun_name").Select.First.Delete()
         ms.Dispose()
         fm.Dispose()
     End Sub
@@ -5786,6 +5675,7 @@ fuckit:
     End Sub
 
     Private Function validate_path(ByVal name As String)
+        If name Is Nothing Then Return "" ' trap dummy names
         Dim ent = packages(current_tank_package)(name)
         If ent IsNot Nothing Then
             Return name
@@ -5891,137 +5781,69 @@ fuckit:
         ReDim turret_tile(10)
         Dim cnt As Integer = 0
 
-        Dim tbl = t.Tables("gun")
-        Dim q = From row In tbl.AsEnumerable _
-                Select _
-                g_name = row.Field(Of String)("gun_name"), _
-                model = row.Field(Of String)("model"), _
-                tile = row.Field(Of String)("gun_camouflage") Distinct
-        cnt = 0
+        Dim tbl = t.Tables("gun_name")
+        Dim q = From row In tbl.AsEnumerable
+                Select
+                g_name = row.Field(Of String)("gun_name_Text")
+
+        Dim tq = From rom In t.Tables("model")
+                 Select
+                    gun_tiling = rom.Field(Of String)("gun_tiling"),
+                    hull_tiling = rom.Field(Of String)("hull_tiling")
         '-------------------------------------------------------
+        'fix stupid missing things in their files
+        Dim gt = tq(0).gun_tiling.Split(" ")
+        If gt.Length = 1 Then
+            ReDim gt(4)
+            gt(0) = "1"
+            gt(1) = "1"
+            gt(2) = "0"
+            gt(3) = "0"
+        End If
+        Dim ht = tq(0).hull_tiling.Split(" ")
+        If ht.Length = 1 Then
+            ReDim ht(4)
+            ht(0) = "1"
+            ht(1) = "1"
+            ht(2) = "0"
+            ht(3) = "0"
+        End If
         'guns
         For Each thing In q
-            Dim gn = thing.model
-            guns(cnt) = gn
             gun_tile(cnt) = New vect4
-            If thing.tile IsNot Nothing Then
 
-                Dim n = thing.tile.Split(" ")
-                gun_tile(cnt).x = CSng(n(0))
-                gun_tile(cnt).y = CSng(n(1))
-                gun_tile(cnt).z = CSng(n(2))
-                gun_tile(cnt).w = CSng(n(3))
-                cnt += 1
-            Else
-                gun_tile(cnt).x = 1.0
-                gun_tile(cnt).y = 1.0
-                gun_tile(cnt).z = 0.0
-                gun_tile(cnt).w = 0.0
-                cnt += 1
+            gun_tile(cnt).x = CSng(gt(0))
+            gun_tile(cnt).y = CSng(gt(1))
+            gun_tile(cnt).z = CSng(gt(2))
+            gun_tile(cnt).w = CSng(gt(3))
 
-            End If
-        Next
-        If cnt = 0 Then
-            bad_tanks.AppendLine(file_name)
-            Return
-        End If
-        ReDim Preserve guns(cnt)
-        ReDim Preserve gun_tile(cnt)
-        cnt = 0
-        '-------------------------------------------------------
-        '----- turret tiling
-        Try
-            tbl = t.Tables("turret_tiling")
+            turret_tile(cnt).x = CSng(ht(0))
+            turret_tile(cnt).y = CSng(ht(1))
+            turret_tile(cnt).z = CSng(ht(2))
+            turret_tile(cnt).w = CSng(ht(3))
 
-            Dim q25 = From row In tbl.AsEnumerable _
-                        Select _
-                        tile = row.Field(Of String)("tiling")
-
-            For Each thing In q25
-                Dim n = thing.Split(" ")
-                turret_tile(cnt).x = CSng(n(0))
-                turret_tile(cnt).y = CSng(n(1))
-                turret_tile(cnt).z = CSng(n(2))
-                turret_tile(cnt).w = CSng(n(3))
-                cnt += 1
-            Next
-            ReDim Preserve turret_tile(cnt)
-            cnt = 0
-        Catch ex As Exception
-            tbl = t.Tables("tiling")
-
-            Dim q25 = From row In tbl.AsEnumerable _
-                        Select _
-                        tile = row.Field(Of String)("tiling_Text")
-
-            For Each thing In q25
-                Dim n = thing.Split(" ")
-                turret_tile(cnt).x = CSng(n(0))
-                turret_tile(cnt).y = CSng(n(1))
-                turret_tile(cnt).z = CSng(n(2))
-                turret_tile(cnt).w = CSng(n(3))
-                cnt += 1
-            Next
-            ReDim Preserve turret_tile(cnt)
-            cnt = 0
-
-        End Try
-        '-------------------------------------
-        '----- turrets
-        tbl = t.Tables("turret_model")
-        If tbl Is Nothing Then
-
-        Else
-
-            Dim q1 = From row In tbl.AsEnumerable _
-                Select _
-                turret = row.Field(Of String)("model")
-
-            For Each r0 In q1
-                turrets(cnt) = r0
-                cnt += 1
-            Next
-            If cnt = 0 Then
-                bad_tanks.AppendLine(file_name)
-                Return
-            End If
-            ReDim Preserve turrets(cnt)
-        End If
-        '----- hull
-        cnt = 0
-
-        tbl = t.Tables("hull")
-        Dim q3 = From row In tbl.AsEnumerable
-                 Select
-                model = row.Field(Of String)("model"),
-                tile = row.Field(Of String)("hull_camouflage")
-
-        For Each thing In q3
-            hulls(cnt) = thing.model
-            hull_tile(cnt) = New vect4
-            Dim n = thing.tile.Split(" ")
-            hull_tile(cnt).x = CSng(n(0))
-            hull_tile(cnt).y = CSng(n(1))
-            hull_tile(cnt).z = CSng(n(2))
-            hull_tile(cnt).w = CSng(n(3))
+            hull_tile(cnt).x = CSng(ht(0))
+            hull_tile(cnt).y = CSng(ht(1))
+            hull_tile(cnt).z = CSng(ht(2))
+            hull_tile(cnt).w = CSng(ht(3))
             cnt += 1
         Next
         If cnt = 0 Then
             bad_tanks.AppendLine(file_name)
             Return
         End If
+        ReDim Preserve gun_tile(cnt)
+        ReDim Preserve turret_tile(cnt)
         '-------------------------------------------------------
-        ReDim Preserve hulls(cnt)
-        ReDim Preserve hull_tile(cnt)
+
         cnt = 0
         '----- chassis
 
-        tbl = t.Tables("chassis")
+        tbl = t.Tables("chassis_name")
         Dim q2 = From row In tbl.AsEnumerable
                  Select
-            chass = row.Field(Of String)("model")
+            chass = row.Field(Of String)("chassis_name_Text")
         For Each thing In q2
-
             chassis(cnt) = thing
             cnt += 1
         Next
@@ -6030,7 +5852,40 @@ fuckit:
             Return
         End If
         ReDim Preserve chassis(cnt)
+
         cnt = 0
+        tbl = t.Tables("gun_name")
+        q2 = From row In tbl.AsEnumerable
+             Select
+            gn = row.Field(Of String)("gun_name_Text")
+        For Each thing In q2
+            guns(cnt) = thing
+            cnt += 1
+        Next
+        ReDim Preserve guns(cnt)
+
+        cnt = 0
+        tbl = t.Tables("hull_name")
+        q2 = From row In tbl.AsEnumerable
+             Select
+            hul = row.Field(Of String)("hull_name_Text")
+        For Each thing In q2
+            hulls(cnt) = thing
+            cnt += 1
+        Next
+        ReDim Preserve hulls(cnt)
+
+        cnt = 0
+        tbl = t.Tables("turret_name")
+        q2 = From row In tbl.AsEnumerable
+             Select
+            tur = row.Field(Of String)("turret_name_Text")
+        For Each thing In q2
+            turrets(cnt) = thing
+            cnt += 1
+        Next
+        ReDim Preserve turrets(cnt)
+
         '-------------------------------------------------------
         '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         'setup treeview and its nodes
@@ -6238,18 +6093,18 @@ fuckit:
 
             'test stuff to grab track stuff
             tbl = t.Tables("track_info")
-            Dim tq = From row In tbl.AsEnumerable
-                        Select _
+            Dim tkq = From row In tbl.AsEnumerable
+                      Select
                         seg_cnt = row.Field(Of String)("seg_cnt")
 
 
-            If tq(0).Contains("1") Then
+            If tkq(0).Contains("1") Then
                 track_info.segment_count = 1
                 Dim t1q = From row In tbl.AsEnumerable
-                            Select _
-                            trp = row.Field(Of String)("right_filename"), _
-                            tlp = row.Field(Of String)("left_filename"), _
-                            seglength = row.Field(Of String)("segment_length"), _
+                          Select
+                            trp = row.Field(Of String)("right_filename"),
+                            tlp = row.Field(Of String)("left_filename"),
+                            seglength = row.Field(Of String)("segment_length"),
                             seg_off = row.Field(Of String)("segmentOffset")
                 For Each tr In t1q
                     track_info.left_path1 = tr.tlp
