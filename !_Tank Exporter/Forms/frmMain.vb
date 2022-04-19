@@ -2357,8 +2357,8 @@ loaded_jump:
             'todo
         End If
 
-        Try
-            get_tank_info_by_tier(i.ToString)
+        'Try
+        get_tank_info_by_tier(i.ToString)
             ReDim node_list(i).item(tier_list.Length)
             ReDim icons(i).img(tier_list.Length)
 
@@ -2406,11 +2406,12 @@ loaded_jump:
                 End If
 
             Next
-        Catch ex As Exception
-            MsgBox("crashed getting type: Tier" + i.ToString + " Index" + cnt.ToString + vbCrLf + _
-                   " package " + fpath_1 + vbCrLf + _
-                   "png_path " + current_png_path, MsgBoxStyle.Exclamation, "Crashed!")
-        End Try
+        'Catch ex As Exception
+        '    start_up_log.AppendLine("!!!!! Missing Tank Icon PNG !!!!! :" + current_png_path)
+        '    MsgBox("crashed getting type: Tier" + i.ToString + " Index" + cnt.ToString + vbCrLf +
+        '           " package " + fpath_1 + vbCrLf +
+        '           "png_path " + current_png_path, MsgBoxStyle.Exclamation, "Crashed!")
+        'End Try
         ReDim Preserve node_list(i).item(cnt)
 
         Application.DoEvents()
@@ -2623,8 +2624,9 @@ loaded_jump:
     End Function
 
     Private Function get_tank_icon(ByVal name As String) As Bitmap
+
         For Each entry In gui_pkg_part_1
-            If entry.FileName.Contains(name) And entry.FileName.Contains("/icons/vehicle/") _
+            If entry.FileName.ToLower.Contains(name.ToLower) And entry.FileName.Contains("/icons/vehicle/") _
             And Not entry.FileName.Contains("small") _
             And Not entry.FileName.Contains("contour") _
             And Not entry.FileName.Contains("unique") _
@@ -2639,7 +2641,7 @@ loaded_jump:
             End If
         Next
         For Each entry In gui_pkg_part_2
-            If entry.FileName.Contains(name) And entry.FileName.Contains("/icons/vehicle/") _
+            If entry.FileName.ToLower.Contains(name.ToLower) And entry.FileName.Contains("/icons/vehicle/") _
             And Not entry.FileName.Contains("small") _
             And Not entry.FileName.Contains("contour") _
             And Not entry.FileName.Contains("unique") _

@@ -123,7 +123,7 @@ Module WOT_Dev_interface
     End Function
 
     Public Sub get_tank_names()
-
+        System.Net.ServicePointManager.SecurityProtocol = System.Net.SecurityProtocolType.Tls12
 
         frmMain.info_Label.Text = "Connecting to WoT Api Server"
         Application.DoEvents()
