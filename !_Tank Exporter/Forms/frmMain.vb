@@ -5778,9 +5778,9 @@ fuckit:
         Dim guns(64) As String
         Dim hulls(10) As String
         Dim chassis(10) As String
-        ReDim hull_tile(10)
+        ReDim hull_tile(20)
         ReDim gun_tile(64)
-        ReDim turret_tile(10)
+        ReDim turret_tile(20)
         Dim cnt As Integer = 0
 
         Dim tbl = t.Tables("gun_name")
@@ -5820,9 +5820,10 @@ fuckit:
             gun_tile(cnt).w = CSng(gt(3))
 
             turret_tile(cnt).x = CSng(ht(0))
-            turret_tile(cnt).y = CSng(ht(1))
-            turret_tile(cnt).z = CSng(ht(2))
-            turret_tile(cnt).w = CSng(ht(3))
+                turret_tile(cnt).y = CSng(ht(1))
+                turret_tile(cnt).z = CSng(ht(2))
+                turret_tile(cnt).w = CSng(ht(3))
+
 
             hull_tile(cnt).x = CSng(ht(0))
             hull_tile(cnt).y = CSng(ht(1))

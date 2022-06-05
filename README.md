@@ -16,6 +16,9 @@ I created a fix for this but it takes a little effort to use it.</br>
 Read this Issue thread to get the fix and how to use it.</br>
 https://github.com/mikeoverbay/TankExporter/issues/23
 
+## Version 124:
+Fixed Issue with not loading tanks with many turret styles.</br>
+
 ## Version 123:
 Fixed Issue connecting to the API server.</br>
 
