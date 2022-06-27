@@ -50,7 +50,12 @@ Public Class frmComponents
         c_idx = tv_chassis.SelectedNode.Index
         h_idx = tv_hulls.SelectedNode.Index
         g_idx = tv_guns.SelectedNode.Index
-        t_idx = tv_turrets.SelectedNode.Index
+        If tv_turrets.SelectedNode IsNot Nothing Then
+            t_idx = tv_turrets.SelectedNode.Index
+        Else
+            t_idx = 0
+        End If
+
         Me.Hide()
     End Sub
 

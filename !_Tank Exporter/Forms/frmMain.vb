@@ -2178,7 +2178,10 @@ loaded_jump:
         'Delete the dummy now that the table has been built correctly.
         data_set.Tables("chassis_name").Select.First.Delete()
         data_set.Tables("hull_name").Select.First.Delete()
-        data_set.Tables("turret_name").Select.First.Delete()
+        If data_set.Tables("turret_name") IsNot Nothing Then
+            data_set.Tables("turret_name").Select.First.Delete()
+
+        End If
         data_set.Tables("gun_name").Select.First.Delete()
         ms.Dispose()
         fm.Dispose()
@@ -5880,13 +5883,16 @@ fuckit:
 
         cnt = 0
         tbl = t.Tables("turret_name")
-        q2 = From row In tbl.AsEnumerable
-             Select
+        If tbl IsNot Nothing Then
+            q2 = From row In tbl.AsEnumerable
+                 Select
             tur = row.Field(Of String)("turret_name_Text")
-        For Each thing In q2
-            turrets(cnt) = thing
-            cnt += 1
-        Next
+            For Each thing In q2
+                turrets(cnt) = thing
+                cnt += 1
+            Next
+
+        End If
         ReDim Preserve turrets(cnt)
 
         '-------------------------------------------------------
@@ -5925,8 +5931,13 @@ fuckit:
                     cn += 1
                 End If
             Next
-            frmComponents.tv_turrets.SelectedNode = frmComponents.tv_turrets.Nodes(0)
-            frmComponents.tv_turrets.SelectedNode.Checked = True
+            Try
+                frmComponents.tv_turrets.SelectedNode = frmComponents.tv_turrets.Nodes(0)
+                frmComponents.tv_turrets.SelectedNode.Checked = True
+
+            Catch ex As Exception
+
+            End Try
             '-------------------------------------------------------
             cn = 0
             For i = 0 To hulls.Length - 2
@@ -6248,9 +6259,14 @@ fuckit:
 
             Next
         Else
-            file_name = turrets(frmComponents.tv_turrets.SelectedNode.Tag)
-            LOAD_ERROR = LOAD_ERROR And build_primitive_data(True) ' -- turret
-            If stop_updating Then draw_scene()
+            If turrets(0) IsNot Nothing Then
+                file_name = turrets(frmComponents.tv_turrets.SelectedNode.Tag)
+                LOAD_ERROR = LOAD_ERROR And build_primitive_data(True) ' -- turret
+                If stop_updating Then draw_scene()
+            Else
+                file_name = ""
+                If stop_updating Then draw_scene()
+            End If
 
             file_name = guns(frmComponents.tv_guns.SelectedNode.Tag)
             LOAD_ERROR = LOAD_ERROR And build_primitive_data(True) ' -- gun
@@ -6388,9 +6404,9 @@ fuckit:
             Dim rotation_limit As Single = 0.0
             'ver 1
             Dim s1 = "File format: 1 INT32 as version, INT32 as chassis and hull vertex count, INT32 as turret vertex count, INT32 as Gun vertex Count."
-            Dim s2 = "3 Floats turret pivot center XYZ, " + _
+            Dim s2 = "3 Floats turret pivot center XYZ, " +
                     "2 Floats rotation limits L&R,"
-            Dim s3 = "3 Floats gun pivot point XYZ , 2 Floats gun limits U&D, " + _
+            Dim s3 = "3 Floats gun pivot point XYZ , 2 Floats gun limits U&D, " +
                     "6 Floats as list of vertices:Each being (position XYZ Normal XYZ), "
             Dim s4 = "9 Floats for future use."
             fw.Write(s1)
@@ -6446,10 +6462,16 @@ fuckit:
 
             fo.Close()
         End If
+
         t.Dispose()
-        tbl.Dispose()
+
+        If tbl IsNot Nothing Then
+            tbl.Dispose()
+
+        End If
+
         GC.Collect()
-        If FBX_LOADED Then
+            If FBX_LOADED Then
             m_show_fbx.Visible = True
             m_show_fbx.Checked = False
         End If

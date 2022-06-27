@@ -16,6 +16,9 @@ I created a fix for this but it takes a little effort to use it.</br>
 Read this Issue thread to get the fix and how to use it.</br>
 https://github.com/mikeoverbay/TankExporter/issues/23
 
+## Version 125:
+Fixed Hetzer and Stug 40 not loading. Maybe others with missing turret entries.</br>
+
 ## Version 124:
 Fixed Issue with not loading tanks with many turret styles.</br>
 
