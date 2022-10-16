@@ -1713,13 +1713,22 @@ look_again:
                 If e IsNot Nothing Then
                     e.Extract(mstream)
                 Else
-                    e = frmMain.packages_2(current_tank_package)(filename)
+                    Try
+                        e = frmMain.packages_3(current_tank_package)(filename)
+                    Catch ex As Exception
+
+                    End Try
                     If e IsNot Nothing Then
                         e.Extract(mstream)
                     Else
-                        If filename.Contains("Turret_01") Then
-                            filename = filename.Replace("Turret_01", "Turret_02")
-                            GoTo look_again
+                        e = frmMain.packages_2(current_tank_package)(filename)
+                        If e IsNot Nothing Then
+                            e.Extract(mstream)
+                        Else
+                            If filename.Contains("Turret_01") Then
+                                filename = filename.Replace("Turret_01", "Turret_02")
+                                GoTo look_again
+                            End If
                         End If
                     End If
                 End If
@@ -1753,21 +1762,30 @@ get_visual:
                 If e IsNot Nothing Then
                     e.Extract(mstream)
                 Else
-                    e = frmMain.packages(11)(filename)
+                    Try
+                        e = frmMain.packages_3(current_tank_package)(filename)
+
+                    Catch ex As Exception
+                        e = Nothing
+                    End Try
                     If e IsNot Nothing Then
                         e.Extract(mstream)
                     Else
-                        Try
-                            e = frmMain.packages_2(11)(filename)
-                        Catch ex As Exception
-                        End Try
+                        e = frmMain.packages(11)(filename)
                         If e IsNot Nothing Then
                             e.Extract(mstream)
+                        Else
+                            Try
+                                e = frmMain.packages_2(11)(filename)
+                            Catch ex As Exception
+                            End Try
+                            If e IsNot Nothing Then
+                                e.Extract(mstream)
+                            End If
                         End If
                     End If
                 End If
             End If
-
             openXml_stream(mstream, "")
         Catch ex As Exception
             Return False
