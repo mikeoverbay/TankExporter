@@ -64,8 +64,10 @@ Public Class frmMain
 
     Public Shared packages(12) As Ionic.Zip.ZipFile
     Public Shared packages_2(12) As Ionic.Zip.ZipFile
+    Public Shared packages_3(12) As Ionic.Zip.ZipFile
     Public Shared packages_HD(12) As Ionic.Zip.ZipFile
     Public Shared packages_HD_2(12) As Ionic.Zip.ZipFile
+    Public Shared packages_HD_3(12) As Ionic.Zip.ZipFile
     Public Shared shared_pkg As Ionic.Zip.ZipFile
     Public Shared shared_sandbox_pkg As Ionic.Zip.ZipFile
     Public shared_contents_build As New Ionic.Zip.ZipFile
@@ -760,6 +762,36 @@ done:
                     Next
                 Catch ex As Exception
                     start_up_log.AppendLine("Could not find: \res\packages\shared_content-part2.pkg")
+                End Try
+                '================================================================================
+                'part 3
+                info_Label.Text = "Reading shared_content-part3.pkg"
+                Application.DoEvents()
+                arc = Ionic.Zip.ZipFile.Read(My.Settings.game_path + "\res\packages\shared_content-part3.pkg")
+                PG1.Value = 0
+                PG1.Maximum = arc.Count
+                cnt = 0
+                start_up_log.AppendLine("reading: \res\packages\shared_content-part3.pkg")
+                For Each entry In arc
+                    PG1.Value = cnt
+                    cnt += 1
+                    If entry.FileName.ToLower.Contains("vehicle") Then
+                        entry.Extract(z_path, ExtractExistingFileAction.OverwriteSilently)
+                        Application.DoEvents()
+                    End If
+                Next
+                cnt = 0
+                Try
+                    info_Label.Text = "getting decals from shared_content_part3.pkg"
+                    For Each entry In arc
+                        PG1.Value = cnt
+                        cnt += 1
+                        If entry.FileName.ToLower.Contains("decals_pbs") And Not entry.IsDirectory Then
+                            entry.Extract(decal_path, ExtractExistingFileAction.OverwriteSilently)
+                            Application.DoEvents()
+                        End If
+                    Next
+                Catch ex As Exception
                 End Try
                 '================================================================================
                 'part 1
@@ -2352,9 +2384,24 @@ loaded_jump:
             'start_up_log.AppendLine("Could not find: " + fpath)
             'Return
         End If
+        fpath = My.Settings.game_path + "/res/packages/vehicles_level_" + i.ToString("00") + "-part3.pkg"
+        If File.Exists(fpath) Then
+            packages_3(i) = Ionic.Zip.ZipFile.Read(fpath)
+            start_up_log.AppendLine("Getting Tank data from: " + fpath)
+        Else
+            'start_up_log.AppendLine("Could not find: " + fpath)
+            'Return
+        End If
         fpath_1 = My.Settings.game_path + "/res/packages/vehicles_level_" + i.ToString("00") + "_hd-part2.pkg"
         If File.Exists(fpath_1) Then
             packages_HD_2(i) = Ionic.Zip.ZipFile.Read(fpath_1)
+            start_up_log.AppendLine("Getting Tank data from: " + fpath_1)
+        Else
+            'todo
+        End If
+        fpath_1 = My.Settings.game_path + "/res/packages/vehicles_level_" + i.ToString("00") + "_hd-part3.pkg"
+        If File.Exists(fpath_1) Then
+            packages_HD_3(i) = Ionic.Zip.ZipFile.Read(fpath_1)
             start_up_log.AppendLine("Getting Tank data from: " + fpath_1)
         Else
             'todo
@@ -5693,6 +5740,11 @@ fuckit:
         If ent IsNot Nothing Then
             Return name
         End If
+        ent = packages_3(current_tank_package)(name)
+        If ent IsNot Nothing Then
+            Return name
+        End If
+
         Return ""
     End Function
 
@@ -7274,6 +7326,9 @@ fuckit:
             For i = start_from To 10
                 search_and_extract(packages_2(i), ar(2))
             Next
+            For i = start_from To 10
+                search_and_extract(packages_3(i), ar(2))
+            Next
             ' now check package_hd data
             For i = 1 To packages_HD.Length - 2
                 search_and_extract(packages_HD(i), ar(2))
@@ -7345,6 +7400,9 @@ fuckit:
             ' now check package_2 data
             For i = start_from To 10
                 search_and_extract(packages_2(i), seg_path)
+            Next
+            For i = start_from To 10
+                search_and_extract(packages_3(i), seg_path)
             Next
             ' now check package_hd data
             For i = 1 To packages_HD.Length - 2

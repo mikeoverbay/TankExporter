@@ -29,3 +29,5 @@ _ReSharper*/
 [Tt]est[Rr]esult*
 *.vssscc
 $tf*/
+/.vs
+/!_Tank Exporter.sln - Shortcut.lnk
