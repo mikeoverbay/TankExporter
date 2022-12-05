@@ -99,7 +99,7 @@ Module modCamouflage
 
 
         Dim qq = From row In t.AsEnumerable
-        Select _
+                 Select
         armorC = row.Field(Of String)("aColor")
         ARMORCOLOR = get_vect4(qq(0))
         Dim ar = TANK_NAME.Split(":")
@@ -108,16 +108,16 @@ Module modCamouflage
         '===================================
         t = d.Tables("colors")
 
-        Dim q = From row In t.AsEnumerable _
-                Where type = row.Field(Of String)("kind") _
-                Select _
-                texture = row.Field(Of String)("texture"), _
-                camoName = row.Field(Of String)("camoName"), _
-                tank_tiling = row.Field(Of String)(t_name), _
-                id_ = row.Field(Of String)("Id"), _
-                c0 = row.Field(Of String)("c0"), _
-                c1 = row.Field(Of String)("c1"), _
-                c2 = row.Field(Of String)("c2"), _
+        Dim q = From row In t.AsEnumerable
+                Where type = row.Field(Of String)("kind")
+                Select
+                texture = row.Field(Of String)("texture"),
+                camoName = row.Field(Of String)("camoName"),
+                tank_tiling = row.Field(Of String)(t_name),
+                id_ = row.Field(Of String)("Id"),
+                c0 = row.Field(Of String)("c0"),
+                c1 = row.Field(Of String)("c1"),
+                c2 = row.Field(Of String)("c2"),
                 c3 = row.Field(Of String)("c3")
 
         Try
@@ -145,7 +145,10 @@ Module modCamouflage
         For Each l In q
 
             If l.texture.Contains("IGR") Or l.texture.Contains("Clan") Or l.texture.ToLower.Contains("victim") Then
-            'GoTo skip
+                'GoTo skip
+            End If
+            If l.texture Is Nothing Then
+                GoTo skip
             End If
             If l.camoName.Length = 0 Then
                 GoTo skip
@@ -155,7 +158,15 @@ Module modCamouflage
                 bb_tank_tiling(cnt) = New vect4
                 bb_camoName(cnt) = l.camoName
                 'do not put anything after tiling read!
-                bb_tank_tiling(cnt) = get_vect4_no_conversion(l.tank_tiling)
+                If l.tank_tiling IsNot Nothing Then
+                    bb_tank_tiling(cnt) = get_vect4_no_conversion(l.tank_tiling)
+                Else
+                    Dim v_t As vect4
+                    v_t.x = 1.0
+                    v_t.y = 1.0
+                    bb_tank_tiling(cnt) = v_t
+                End If
+
             Catch ex As Exception
                 Dim v_t As vect4
                 v_t.x = 1.0
