@@ -276,8 +276,8 @@ Module modFBX
         importer.Destroy()
         rootnode.Destroy()
         pManager.Destroy()
-        Try
-            process_fbx_data()
+        '        Try
+        process_fbx_data()
             For i = 1 To object_count - 1
                 tank_center_X += _object(i).center_x
                 tank_center_Y += _object(i).center_y
@@ -290,9 +290,9 @@ Module modFBX
             look_point_y = tank_center_Y
             look_point_z = tank_center_Z
 
-        Catch ex As Exception
+            'Catch ex As Exception
 
-        End Try
+            'End Try
 
 outofhere:
         frmMain.info_Label.Text = "Creating Display Lists"

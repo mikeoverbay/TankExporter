@@ -5740,10 +5740,15 @@ fuckit:
         If ent IsNot Nothing Then
             Return name
         End If
-        ent = packages_3(current_tank_package)(name)
-        If ent IsNot Nothing Then
-            Return name
-        End If
+        Try
+            ent = packages_3(current_tank_package)(name)
+            If ent IsNot Nothing Then
+                Return name
+            End If
+
+        Catch ex As Exception
+
+        End Try
 
         Return ""
     End Function
