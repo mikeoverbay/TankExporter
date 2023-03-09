@@ -1,4 +1,5 @@
-﻿Imports System
+﻿Imports System.Resources
+Imports System
 Imports System.Reflection
 Imports System.Runtime.InteropServices
 
@@ -8,12 +9,12 @@ Imports System.Runtime.InteropServices
 
 ' Review the values of the assembly attributes
 
-<Assembly: AssemblyTitle("Tank Exporter")> 
-<Assembly: AssemblyDescription("")> 
-<Assembly: AssemblyCompany("Coffee_")> 
+<Assembly: AssemblyTitle("Tank Exporter")>
+<Assembly: AssemblyDescription("")>
+<Assembly: AssemblyCompany("Coffee_")>
 <Assembly: AssemblyProduct("Tank Exporter")>
 <Assembly: AssemblyCopyright("Copyright ©  2021")>
-<Assembly: AssemblyTrademark("")> 
+<Assembly: AssemblyTrademark("")>
 
 <Assembly: ComVisible(False)>
 
@@ -33,3 +34,4 @@ Imports System.Runtime.InteropServices
 
 <Assembly: AssemblyVersion("1.0.0.127")>
 <Assembly: AssemblyFileVersion("1.0.0.127")>
+<Assembly: NeutralResourcesLanguage("pl")>
