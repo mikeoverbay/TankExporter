@@ -43,6 +43,9 @@ Module modToLists
         comp = New comp_
         ReDim comp.vertices(fbxgrp(fbx_id).vertices.Length)
         ReDim comp.indices(fbxgrp(fbx_id).vertices.Length)
+
+        ReDim fbx_uv2s(fbxgrp(fbx_id).vertices.Length)
+        uv2_total_count = 0
         For i = 0 To fbxgrp(fbx_id).vertices.Length - 1
 
             fbx_uv2s(uv2_total_count) = New uv_
@@ -52,6 +55,8 @@ Module modToLists
             comp.vertices(i) = New vertice_
             fbxgrp(fbx_id).vertices(i).found = False
         Next
+        ReDim Preserve fbx_uv2s(uv2_total_count - 1)
+
         Dim v_cnt As Integer
         Dim i_cnt As Integer
         Dim indx As Integer

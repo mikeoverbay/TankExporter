@@ -761,88 +761,9 @@ found_it:
     End Sub
     Private Sub edit_visual()
         Dim visual_changed As Boolean = False
-        'first find out whats been deleted
-        For i = 0 To v_boneGroups.Length - 1
-            Dim cnt = v_boneGroups(i).nodeCnt
-            'Debug.WriteLine(v_boneGroups(i).groupName + " ==========================")
-            For j = 0 To v_boneGroups(i).node_list.Length - 1
-                If v_boneGroups(i).node_list(j) IsNot Nothing Then
-
-                    Dim s = v_boneGroups(i).node_list(j)
-                    v_boneGroups(i).models(j).found = find_and_tag_if_missing(i, j)
-                End If
-            Next
-        Next
         Dim xml = XML_Strings(1).Replace("  ", "")
         xml = xml.Replace(vbCrLf, vbLf)
         Dim xmlArray = xml.Split(vbLf)
-
-        For j = 0 To fbx_boneGroups.Length - 1
-            If Not fbx_boneGroups(j).isTrack Then
-                For i = 0 To fbx_boneGroups(j).node_list.Length - 1
-                    If Not check_visual_matrix(xmlArray, fbx_boneGroups(j).node_list(i), j, i) Then
-                        visual_changed = True
-                    End If
-                Next
-
-            End If
-        Next
-
-
-        For i = 0 To v_boneGroups.Length - 1
-            Dim cnt = v_boneGroups(i).nodeCnt
-            For k = 0 To cnt - 1
-                If Not v_boneGroups(i).node_list(k).Contains("V_B") Then
-                    If v_boneGroups(i).node_list(k).Contains("W_") Or _
-                      v_boneGroups(i).node_list(k).Contains("WD_") Then
-
-
-                        If Not v_boneGroups(i).models(k).found Then
-                            Dim name = v_boneGroups(i).node_list(k)
-                            Dim ss As String = ""
-                            Dim side_str As String = ""
-                            If name.Substring(0, 3) = "W_L" Then
-                                ss = "W_L"
-                                side_str = "L"
-                            End If
-                            If name.Substring(0, 4) = "WD_L" Then
-                                ss = "WD_L"
-                                side_str = "L"
-                            End If
-                            If name.Substring(0, 3) = "W_R" Then
-                                ss = "W_R"
-                                side_str = "R"
-                            End If
-                            If name.Substring(0, 4) = "WD_R" Then
-                                ss = "WD_R"
-                                side_str = "R"
-                            End If
-                            Dim na = name.ToCharArray
-                            Dim val As Integer
-                            For Each bc In na
-                                Dim str As String = bc
-                                If IsNumeric(bc) Then
-                                    val = Convert.ToInt32(bc.ToString)
-                                    Exit For
-                                End If
-                            Next
-                            Dim t_str As String = "Track_" + side_str + val.ToString + "_BlendBone"
-                            Dim b1, b2 As Boolean
-                            b1 = remove_string_entry(xmlArray, name)
-                            b2 = remove_string_entry(xmlArray, t_str)
-                            If Not (b1 Or b2) Then
-                                MsgBox(name + " was removed from the FBX but I cant find it in the visual!", MsgBoxStyle.Exclamation, "Crappo!")
-                                Return
-                            End If
-                            visual_changed = True
-                            'Debug.WriteLine("found: grp id:" + i.ToString + "  idx:" + k.ToString)
-                        End If
-
-                    End If
-                End If
-
-            Next
-        Next
 
         If visual_changed Then ' write it if it has changed
 
