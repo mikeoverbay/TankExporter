@@ -568,6 +568,10 @@ Module ModTankLoader
             Else
                 Try
                     entry = frmMain.packages_2(current_tank_package)(file_name)
+                    If entry Is Nothing Then
+                        entry = frmMain.packages_3(current_tank_package)(file_name)
+
+                    End If
                 Catch ex As Exception
                 End Try
                 If entry IsNot Nothing Then

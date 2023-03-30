@@ -1501,10 +1501,14 @@ save_it:
             Using zipf As New ZipFile(f)
                 For Each entry In zipf
                     If Not entry.IsDirectory Then
-                        If entry.FileName.ToLower = ss Then
-                            zipf.Dispose()
-                            GC.Collect()
-                            Return entry
+                        If entry.FileName.Contains("vehicles") Then
+
+                            'Debug.WriteLine(entry.FileName)
+                            If entry.FileName.ToLower = ss Then
+                                zipf.Dispose()
+                                GC.Collect()
+                                Return entry
+                            End If
                         End If
                     End If
                 Next
@@ -1547,7 +1551,7 @@ save_it:
                 r_path = name
             End If
             If File.Exists(r_path) Then
-                log_text.AppendLine("loaded HD res_mods : " + Path.GetFileName(name))
+                log_text.AppendLine("loaded HD res_mods :  " + Path.GetFileName(name))
                 Dim raw = File.ReadAllBytes(r_path)
                 mStream = New MemoryStream(raw)
                 id = get_texture(mStream, name)
