@@ -26,6 +26,8 @@ Module modGlobals
     '##################################
     Public pkg_search_list() As String
     Public tank_pkg_search_list() As String
+    Public shared_pkg_search_list() As String
+
 
     Public atlas_images_coords() As atlas_image_data_
     'Public atlas_textures_ids As atlas_texture_ids_
@@ -36,6 +38,7 @@ Module modGlobals
 
     'Public GBMT_atlas_render_index_array() As single_coords_
     'Public GBMT_atlas_index_array() As int_coords_
+    Public WORKING As Boolean
     Public WRITE_FBX_NOW As Boolean
     Public EXPORT_CAMOUFLAGE As Boolean
     Public SAVE_FBX_PATH As String

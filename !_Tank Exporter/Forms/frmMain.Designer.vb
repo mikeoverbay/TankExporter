@@ -117,7 +117,6 @@ Partial Class frmMain
         Me.FolderBrowserDialog1 = New System.Windows.Forms.FolderBrowserDialog()
         Me.SplitContainer1 = New System.Windows.Forms.SplitContainer()
         Me.SplitContainer3 = New System.Windows.Forms.SplitContainer()
-        Me.showMarkers_cb = New System.Windows.Forms.CheckBox()
         Me.VertexColor_cb = New System.Windows.Forms.CheckBox()
         Me.show_textures_cb = New System.Windows.Forms.CheckBox()
         Me.wire_cb = New System.Windows.Forms.CheckBox()
@@ -799,7 +798,6 @@ Partial Class frmMain
         'SplitContainer3.Panel1
         '
         Me.SplitContainer3.Panel1.BackColor = System.Drawing.Color.FromArgb(CType(CType(30, Byte), Integer), CType(CType(30, Byte), Integer), CType(CType(30, Byte), Integer))
-        Me.SplitContainer3.Panel1.Controls.Add(Me.showMarkers_cb)
         Me.SplitContainer3.Panel1.Controls.Add(Me.VertexColor_cb)
         Me.SplitContainer3.Panel1.Controls.Add(Me.show_textures_cb)
         Me.SplitContainer3.Panel1.Controls.Add(Me.wire_cb)
@@ -822,24 +820,6 @@ Partial Class frmMain
         Me.SplitContainer3.SplitterDistance = 56
         Me.SplitContainer3.SplitterWidth = 1
         Me.SplitContainer3.TabIndex = 3
-        '
-        'showMarkers_cb
-        '
-        Me.showMarkers_cb.Appearance = System.Windows.Forms.Appearance.Button
-        Me.showMarkers_cb.BackColor = System.Drawing.Color.Gray
-        Me.showMarkers_cb.BackgroundImage = Global.Tank_Exporter.My.Resources.Resources.bone_off
-        Me.showMarkers_cb.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center
-        Me.showMarkers_cb.FlatAppearance.BorderSize = 2
-        Me.showMarkers_cb.FlatAppearance.CheckedBackColor = System.Drawing.Color.Sienna
-        Me.showMarkers_cb.FlatStyle = System.Windows.Forms.FlatStyle.Flat
-        Me.showMarkers_cb.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.showMarkers_cb.ForeColor = System.Drawing.Color.White
-        Me.showMarkers_cb.Location = New System.Drawing.Point(2, 207)
-        Me.showMarkers_cb.Name = "showMarkers_cb"
-        Me.showMarkers_cb.Size = New System.Drawing.Size(48, 48)
-        Me.showMarkers_cb.TabIndex = 10
-        Me.showMarkers_cb.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
-        Me.showMarkers_cb.UseVisualStyleBackColor = False
         '
         'VertexColor_cb
         '
@@ -1018,7 +998,7 @@ Partial Class frmMain
         Me.decal_panel.ForeColor = System.Drawing.Color.White
         Me.decal_panel.Location = New System.Drawing.Point(276, 54)
         Me.decal_panel.Name = "decal_panel"
-        Me.decal_panel.Size = New System.Drawing.Size(606, 382)
+        Me.decal_panel.Size = New System.Drawing.Size(612, 382)
         Me.decal_panel.TabIndex = 5
         '
         'copy_Decal_btn
@@ -1236,7 +1216,7 @@ Partial Class frmMain
         Me.d_move_down.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center
         Me.d_move_down.FlatStyle = System.Windows.Forms.FlatStyle.Popup
         Me.d_move_down.Image = Global.Tank_Exporter.My.Resources.Resources.control_270
-        Me.d_move_down.Location = New System.Drawing.Point(561, 165)
+        Me.d_move_down.Location = New System.Drawing.Point(567, 165)
         Me.d_move_down.Name = "d_move_down"
         Me.d_move_down.Size = New System.Drawing.Size(20, 20)
         Me.d_move_down.TabIndex = 5
@@ -1249,7 +1229,7 @@ Partial Class frmMain
         Me.d_move_up.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center
         Me.d_move_up.FlatStyle = System.Windows.Forms.FlatStyle.Popup
         Me.d_move_up.Image = Global.Tank_Exporter.My.Resources.Resources.control_090
-        Me.d_move_up.Location = New System.Drawing.Point(561, 145)
+        Me.d_move_up.Location = New System.Drawing.Point(567, 145)
         Me.d_move_up.Name = "d_move_up"
         Me.d_move_up.Size = New System.Drawing.Size(20, 20)
         Me.d_move_up.TabIndex = 4
@@ -1299,7 +1279,7 @@ Partial Class frmMain
         Me.d_list_tb.Multiline = True
         Me.d_list_tb.Name = "d_list_tb"
         Me.d_list_tb.ScrollBars = System.Windows.Forms.ScrollBars.Vertical
-        Me.d_list_tb.Size = New System.Drawing.Size(602, 237)
+        Me.d_list_tb.Size = New System.Drawing.Size(608, 237)
         Me.d_list_tb.TabIndex = 0
         '
         'current_decal_lable
@@ -1358,7 +1338,7 @@ Partial Class frmMain
         'pb2
         '
         Me.pb2.Anchor = System.Windows.Forms.AnchorStyles.None
-        Me.pb2.Location = New System.Drawing.Point(106, 125)
+        Me.pb2.Location = New System.Drawing.Point(108, 125)
         Me.pb2.Name = "pb2"
         Me.pb2.Size = New System.Drawing.Size(200, 100)
         Me.pb2.TabIndex = 3
@@ -1529,7 +1509,7 @@ Partial Class frmMain
         Me.tank_label.ForeColor = System.Drawing.Color.White
         Me.tank_label.Location = New System.Drawing.Point(0, 0)
         Me.tank_label.Name = "tank_label"
-        Me.tank_label.Size = New System.Drawing.Size(49, 16)
+        Me.tank_label.Size = New System.Drawing.Size(48, 16)
         Me.tank_label.TabIndex = 3
         Me.tank_label.Text = "Label1"
         '
@@ -1745,7 +1725,6 @@ Partial Class frmMain
     Friend WithEvents m_export_to_fbx As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents m_edit_camo As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents VertexColor_cb As System.Windows.Forms.CheckBox
-    Friend WithEvents showMarkers_cb As System.Windows.Forms.CheckBox
     Friend WithEvents ToolStripSeparator6 As System.Windows.Forms.ToolStripSeparator
     Friend WithEvents m_clean_res_mods As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents m_donate As System.Windows.Forms.ToolStripMenuItem

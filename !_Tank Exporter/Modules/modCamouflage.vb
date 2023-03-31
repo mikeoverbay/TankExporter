@@ -191,7 +191,7 @@ Module modCamouflage
                 bb_texture_ids(cnt) = get_fbx_texture(My.Settings.res_mods_path + "\" + bb_texture_list(cnt))
             Else ' otherwise load from pkg file
                 Dim ms As New MemoryStream
-                Dim ent = frmMain.packages(11)(l.texture)
+                Dim ent = search_shared_pkgs(l.texture)
                 If ent IsNot Nothing Then
                     ent.Extract(ms)
                     bb_texture_ids(cnt) = get_texture_from_stream(ms)
@@ -350,7 +350,7 @@ skip_adding:
         frmMain.pb2.Visible = False
         frmMain.pb2.BringToFront()
         'frmMain.gl_stop = True
-        frmMain.update_thread.Suspend()
+        stop_updating = True
         'While gl_busy
         '    Application.DoEvents()
         'End While
@@ -424,14 +424,14 @@ skip_adding:
         Il.ilBindImage(0)
         Il.ilDeleteImage(tId)
         Application.DoEvents()
-        frmMain.update_thread.Resume()
+        stop_updating = False
 
     End Sub
     Public Function make_mixed_texture(id As Integer) As Integer
         frmMain.pb2.Visible = False
         frmMain.pb2.BringToFront()
         'frmMain.gl_stop = True
-        frmMain.update_thread.Suspend()
+        stop_updating = True
         'While gl_busy
         '    Application.DoEvents()
         'End While
@@ -536,8 +536,7 @@ skip_adding:
         e = Gl.glGetError
 
         frmMain.gl_stop = False
-        frmMain.update_thread.Resume()
-
+        stop_updating = False
         Return image_id
     End Function
 

@@ -455,8 +455,6 @@ Module modDecals
                     Application.DoEvents()
                 End While
                 Dim f As DirectoryInfo = New DirectoryInfo(Temp_Storage)
-                frmMain.shared_contents_build.Dispose()
-                frmMain.packages(11).Dispose()
                 GC.Collect()
                 GC.WaitForFullGCComplete()
                 If f.Exists Then

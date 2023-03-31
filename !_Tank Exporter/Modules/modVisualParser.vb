@@ -87,7 +87,20 @@ Module modVisualParser
         co.a = 1.0
         Return co
     End Function
+    Public Function get_actual_primitive_name() As String
+        Try
+            Dim s = TheXML_String.Replace("  ", "")
+            Dim delim As String = "<primitivesName>"
+            Dim s_sections = s.Split(delim)
+            delim = "</primitivesName>"
+            Dim s_2 = s_sections(1).Split(delim)
+            Return s_2(0)
+        Catch ex As Exception
+            Return ""
 
+        End Try
+
+    End Function
     Public Sub praseVisualXml()
         'define our colors
         vc1 = set_vc_color(Color.Maroon)

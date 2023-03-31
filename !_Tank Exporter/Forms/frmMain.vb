@@ -25,6 +25,7 @@ Imports Ionic.Zip
 Imports System.Drawing.Imaging
 Imports System.Globalization
 Imports System.IO.Compression
+Imports SlimDX.Direct3D11
 #End Region
 
 Public Class frmMain
@@ -81,6 +82,7 @@ Public Class frmMain
     Public GMM_R, GMM_B As Single
     Public GMM_TOY_VISIBLE As Integer = 0
     Dim time As New Stopwatch
+    Dim time_flasher As New Stopwatch
     Dim pick_timer As New Stopwatch
 
     Dim spin_camera As Boolean = False
@@ -127,7 +129,6 @@ Public Class frmMain
     Private Sub frmMain_FormClosing(sender As Object, e As FormClosingEventArgs) Handles Me.FormClosing
         _Started = False
         Try
-            update_thread.Resume()
             While update_thread.IsAlive
                 _Started = False
                 update_thread.Abort()
@@ -289,11 +290,7 @@ Public Class frmMain
                 m_lighting.PerformClick()
 
             Case Keys.M
-                If showMarkers_cb.Checked Then
-                    showMarkers_cb.Checked = False
-                Else
-                    showMarkers_cb.Checked = True
-                End If
+
             Case Keys.N
                 normal_shader_mode += 1
                 If normal_shader_mode > 2 Then
@@ -551,9 +548,9 @@ done:
         '====================================================================================================
         ' Setup loaction for tank data.. sucks to do it this way but UAC wont allow it any other way.
         'I'M SAVING ALL CODE RELATED TO THE OLD TANK LIST IN CASE I WORK ON TERRA AGAIN!
-        TankListTempFolder = Temp_Storage + "\tanklist\"
         decal_path = Temp_Storage + "\decals"
 
+        TankListTempFolder = Temp_Storage + "\tanklist\"
         If Not System.IO.Directory.Exists(TankListTempFolder) Then
             System.IO.Directory.CreateDirectory(TankListTempFolder)
         End If
@@ -638,248 +635,7 @@ done:
             '====================================================================================================
             'MsgBox("I LOADED required pkg files!", MsgBoxStyle.Exclamation, "Error!")
             'Try
-            If File.Exists(Temp_Storage + "\shared_contents_build.pkg") Then
-                packages(11) = Ionic.Zip.ZipFile.Read(Temp_Storage + "\shared_contents_build.pkg")
-                start_up_log.AppendLine("Loaded: " + Temp_Storage + "\shared_contents_build.pkg")
-            Else
-                '===================================================================================
-                start_up_log.AppendLine("Finding all PBS decals in map pak files...")
-                info_Label.Text = "finding Decals. This only happens once after install."
 
-                start_up_log.AppendLine("Done Finding all PBS decals in map packages.")
-                find_pbs_decals()
-                '===================================================================================
-
-                shared_contents_build = New Ionic.Zip.ZipFile(Temp_Storage + "\shared_contents_build.pkg")
-                start_up_log.AppendLine("shared_contents_build.pkg does not exist. Building shared_contents_build.pkg")
-                start_up_log.AppendLine("Only Entries that contain Vehicle will be read.")
-                'add handler for progression call back to display progressbar value
-                AddHandler (shared_contents_build.SaveProgress), New EventHandler(Of SaveProgressEventArgs)(AddressOf save_progress)
-
-                info_Label.Text = "Reading all shared content packages. This only needs to be done once."
-                Application.DoEvents()
-                Application.DoEvents()
-
-                Dim z_path = Temp_Storage + "\zip"
-                IO.Directory.CreateDirectory(z_path)
-                info_Label.Text = "Reading shared_content-part1.pkg"
-                Application.DoEvents()
-                IO.Directory.CreateDirectory(decal_path)
-                '================================================================================
-                'part 1
-                PG1.Visible = True
-                PG1.Value = 0
-                Dim cnt = 0
-                Dim arc = Ionic.Zip.ZipFile.Read(My.Settings.game_path + "\res\packages\shared_content-part1.pkg")
-                PG1.Maximum = arc.Count
-                start_up_log.AppendLine("reading: \res\packages\shared_content-part1.pkg")
-
-                For Each entry In arc
-                    PG1.Value = cnt
-                    cnt += 1
-                    If entry.FileName.ToLower.Contains("vehicle") Then
-                        entry.Extract(z_path, ExtractExistingFileAction.OverwriteSilently)
-                        Application.DoEvents()
-                    End If
-                Next
-                cnt = 0
-                Try
-                    info_Label.Text = "getting decals from shared_content-part1.pkg"
-                    For Each entry In arc
-                        PG1.Value = cnt
-                        cnt += 1
-                        If entry.FileName.ToLower.Contains("decals_pbs") Then
-                            entry.Extract(decal_path, ExtractExistingFileAction.OverwriteSilently)
-                            Application.DoEvents()
-                        End If
-                    Next
-                Catch ex As Exception
-                End Try
-                Try
-                    info_Label.Text = "Reading shared_content_hd-part1.pkg"
-                    Application.DoEvents()
-                    arc = Ionic.Zip.ZipFile.Read(My.Settings.game_path + "\res\packages\shared_content_hd-part1.pkg")
-                    PG1.Value = 0
-                    PG1.Maximum = arc.Count
-                    cnt = 0
-                    start_up_log.AppendLine("reading: \res\packages\shared_content_hd-part1.pkg")
-                    For Each entry In arc
-                        PG1.Value = cnt
-                        cnt += 1
-                        If entry.FileName.ToLower.Contains("vehicle") Then
-                            entry.Extract(z_path, ExtractExistingFileAction.OverwriteSilently)
-                            Application.DoEvents()
-                        End If
-                    Next
-                Catch ex As Exception
-                    start_up_log.AppendLine("Could not find: \res\packages\shared_content-part1.pkg")
-                End Try
-                '================================================================================
-                'part 2
-                info_Label.Text = "Reading shared_content-part2.pkg"
-                Application.DoEvents()
-                arc = Ionic.Zip.ZipFile.Read(My.Settings.game_path + "\res\packages\shared_content-part2.pkg")
-                PG1.Value = 0
-                PG1.Maximum = arc.Count
-                cnt = 0
-                start_up_log.AppendLine("reading: \res\packages\shared_content-part2.pkg")
-                For Each entry In arc
-                    PG1.Value = cnt
-                    cnt += 1
-                    If entry.FileName.ToLower.Contains("vehicle") Then
-                        entry.Extract(z_path, ExtractExistingFileAction.OverwriteSilently)
-                        Application.DoEvents()
-                    End If
-                Next
-                cnt = 0
-                Try
-                    info_Label.Text = "getting decals from shared_content_hd-part2.pkg"
-                    For Each entry In arc
-                        PG1.Value = cnt
-                        cnt += 1
-                        If entry.FileName.ToLower.Contains("decals_pbs") Then
-                            entry.Extract(decal_path, ExtractExistingFileAction.OverwriteSilently)
-                            Application.DoEvents()
-                        End If
-                    Next
-                Catch ex As Exception
-                End Try
-                Try
-                    info_Label.Text = "Reading shared_content_hd-part2.pkg"
-                    Application.DoEvents()
-                    arc = Ionic.Zip.ZipFile.Read(My.Settings.game_path + "\res\packages\shared_content_hd-part2.pkg")
-                    PG1.Value = 0
-                    PG1.Maximum = arc.Count
-                    cnt = 0
-                    start_up_log.AppendLine("reading: \res\packages\shared_content_hd-part2.pkg")
-                    For Each entry In arc
-                        PG1.Value = cnt
-                        cnt += 1
-                        If entry.FileName.ToLower.Contains("vehicle") Then
-                            entry.Extract(z_path, ExtractExistingFileAction.OverwriteSilently)
-                            Application.DoEvents()
-                        End If
-                    Next
-                Catch ex As Exception
-                    start_up_log.AppendLine("Could not find: \res\packages\shared_content-part2.pkg")
-                End Try
-                '================================================================================
-                'part 3
-                info_Label.Text = "Reading shared_content-part3.pkg"
-                Application.DoEvents()
-                arc = Ionic.Zip.ZipFile.Read(My.Settings.game_path + "\res\packages\shared_content-part3.pkg")
-                PG1.Value = 0
-                PG1.Maximum = arc.Count
-                cnt = 0
-                start_up_log.AppendLine("reading: \res\packages\shared_content-part3.pkg")
-                For Each entry In arc
-                    PG1.Value = cnt
-                    cnt += 1
-                    If entry.FileName.ToLower.Contains("vehicle") Then
-                        entry.Extract(z_path, ExtractExistingFileAction.OverwriteSilently)
-                        Application.DoEvents()
-                    End If
-                Next
-                cnt = 0
-                Try
-                    info_Label.Text = "getting decals from shared_content_part3.pkg"
-                    For Each entry In arc
-                        PG1.Value = cnt
-                        cnt += 1
-                        If entry.FileName.ToLower.Contains("decals_pbs") And Not entry.IsDirectory Then
-                            entry.Extract(decal_path, ExtractExistingFileAction.OverwriteSilently)
-                            Application.DoEvents()
-                        End If
-                    Next
-                Catch ex As Exception
-                End Try
-                '================================================================================
-                'part 1
-                info_Label.Text = "Reading shared_content_sandbox-part1.pkg"
-                Application.DoEvents()
-                arc = Ionic.Zip.ZipFile.Read(My.Settings.game_path + "\res\packages\shared_content_sandbox-part1.pkg")
-                PG1.Value = 0
-                PG1.Maximum = arc.Count
-                cnt = 0
-                start_up_log.AppendLine("reading: \res\packages\shared_content_sandbox-part1.pkg")
-                For Each entry In arc
-                    PG1.Value = cnt
-                    cnt += 1
-                    If entry.FileName.ToLower.Contains("vehicle") Then
-                        entry.Extract(z_path, ExtractExistingFileAction.OverwriteSilently)
-                        Application.DoEvents()
-                    End If
-                Next
-                Try
-                    info_Label.Text = "Reading shared_content_sandbox_hd-part1.pkg"
-                    Application.DoEvents()
-                    arc = Ionic.Zip.ZipFile.Read(My.Settings.game_path + "\res\packages\shared_content_sandbox_hd-part1.pkg")
-                    PG1.Value = 0
-                    PG1.Maximum = arc.Count
-                    cnt = 0
-                    start_up_log.AppendLine("reading: \res\packages\shared_content_sandbox_hd-part1.pkg")
-                    For Each entry In arc
-                        PG1.Value = cnt
-                        cnt += 1
-                        If entry.FileName.ToLower.Contains("vehicle") Then
-                            entry.Extract(z_path, ExtractExistingFileAction.OverwriteSilently)
-                            Application.DoEvents()
-                        End If
-                    Next
-                Catch ex As Exception
-                    start_up_log.AppendLine("Could not find: \res\packages\shared_content_sandbox_hd-part1.pkg")
-                End Try
-                '================================================================================
-                'part 2
-                info_Label.Text = "Reading shared_content_sandbox-part2.pkg"
-                Application.DoEvents()
-                arc = Ionic.Zip.ZipFile.Read(My.Settings.game_path + "\res\packages\shared_content_sandbox-part2.pkg")
-                PG1.Value = 0
-                PG1.Maximum = arc.Count
-                cnt = 0
-                start_up_log.AppendLine("reading: \res\packages\shared_content_sandbox-part2.pkg")
-                For Each entry In arc
-                    PG1.Value = cnt
-                    cnt += 1
-                    If entry.FileName.ToLower.Contains("vehicle") Then
-                        entry.Extract(z_path, ExtractExistingFileAction.OverwriteSilently)
-                        Application.DoEvents()
-                    End If
-                Next
-                Try
-                    info_Label.Text = "Reading shared_content_sandbox_hd-part2.pkg"
-                    Application.DoEvents()
-                    arc = Ionic.Zip.ZipFile.Read(My.Settings.game_path + "\res\packages\shared_content_sandbox_hd-part2.pkg")
-                    PG1.Value = 0
-                    PG1.Maximum = arc.Count
-                    cnt = 0
-                    start_up_log.AppendLine("reading: \res\packages\shared_content_sandbox_hd-part2.pkg")
-                    For Each entry In arc
-                        PG1.Value = cnt
-                        cnt += 1
-                        If entry.FileName.ToLower.Contains("vehicle") Then
-                            entry.Extract(z_path, ExtractExistingFileAction.OverwriteSilently)
-                            Application.DoEvents()
-                        End If
-                    Next
-                Catch ex As Exception
-                    start_up_log.AppendLine("Could not find: \res\packages\shared_content_sandbox_hd-part2.pkg")
-                End Try
-                '================================================================================
-
-                shared_contents_build.AddDirectory(z_path)
-
-                GC.Collect()
-                GC.WaitForFullGCComplete()
-                shared_contents_build.CompressionLevel = 0 ' no compression
-                shared_contents_build.ParallelDeflateThreshold = 0
-                info_Label.Text = "Saving " + shared_contents_build.Entries.Count.ToString + " files to shared_contents_build.pkg.. This will take a long time!"
-                start_up_log.AppendLine("Saving: " + Temp_Storage + "\shared_contents_build.pkg")
-                Application.DoEvents()
-                shared_contents_build.Save()
-                packages(11) = New Ionic.Zip.ZipFile
-                packages(11) = shared_contents_build ' save this in to 11th position
-            End If
             'Catch ex As Exception
             '    start_up_log.AppendLine("Something went very wrong creating the shared_contents_build.pkg!")
             'End Try
@@ -964,6 +720,7 @@ done:
 
         'build pkg list
         make_pgk_search_list()
+        make_shared_pkg_search_list()
 
         TC1.SelectedIndex = 0
         Application.DoEvents()
@@ -1043,6 +800,7 @@ done:
 
         allow_mouse = True
         My.Settings.Save()
+        time_flasher.Start()
     End Sub
     '############################################################################ form load
     Private Sub reset_view()
@@ -1059,261 +817,9 @@ done:
 
     End Sub
     Private Sub make_888_lookup_table()
-        lookup(0) = 254
-        lookup(1) = 253
-        lookup(2) = 252
-        lookup(3) = 251
-        lookup(4) = 250
-        lookup(5) = 249
-        lookup(6) = 248
-        lookup(7) = 247
-        lookup(8) = 246
-        lookup(9) = 245
-        lookup(10) = 244
-        lookup(11) = 243
-        lookup(12) = 242
-        lookup(13) = 241
-        lookup(14) = 240
-        lookup(15) = 239
-        lookup(16) = 238
-        lookup(17) = 237
-        lookup(18) = 236
-        lookup(19) = 235
-        lookup(20) = 234
-        lookup(21) = 233
-        lookup(22) = 232
-        lookup(23) = 231
-        lookup(24) = 230
-        lookup(25) = 229
-        lookup(26) = 228
-        lookup(27) = 227
-        lookup(28) = 226
-        lookup(29) = 225
-        lookup(30) = 224
-        lookup(31) = 223
-        lookup(32) = 222
-        lookup(33) = 221
-        lookup(34) = 220
-        lookup(35) = 219
-        lookup(36) = 218
-        lookup(37) = 217
-        lookup(38) = 216
-        lookup(39) = 215
-        lookup(40) = 214
-        lookup(41) = 213
-        lookup(42) = 212
-        lookup(43) = 211
-        lookup(44) = 210
-        lookup(45) = 209
-        lookup(46) = 208
-        lookup(47) = 207
-        lookup(48) = 206
-        lookup(49) = 205
-        lookup(50) = 204
-        lookup(51) = 203
-        lookup(52) = 202
-        lookup(53) = 201
-        lookup(54) = 200
-        lookup(55) = 199
-        lookup(56) = 198
-        lookup(57) = 197
-        lookup(58) = 196
-        lookup(59) = 195
-        lookup(60) = 194
-        lookup(61) = 193
-        lookup(62) = 192
-        lookup(63) = 191
-        lookup(64) = 190
-        lookup(65) = 189
-        lookup(66) = 188
-        lookup(67) = 187
-        lookup(68) = 186
-        lookup(69) = 185
-        lookup(70) = 184
-        lookup(71) = 183
-        lookup(72) = 182
-        lookup(73) = 181
-        lookup(74) = 180
-        lookup(75) = 179
-        lookup(76) = 178
-        lookup(77) = 177
-        lookup(78) = 176
-        lookup(79) = 175
-        lookup(80) = 174
-        lookup(81) = 173
-        lookup(82) = 172
-        lookup(83) = 171
-        lookup(84) = 170
-        lookup(85) = 169
-        lookup(86) = 168
-        lookup(87) = 167
-        lookup(88) = 166
-        lookup(89) = 165
-        lookup(90) = 164
-        lookup(91) = 163
-        lookup(92) = 162
-        lookup(93) = 161
-        lookup(94) = 160
-        lookup(95) = 159
-        lookup(96) = 158
-        lookup(97) = 157
-        lookup(98) = 156
-        lookup(99) = 155
-        lookup(100) = 154
-        lookup(101) = 153
-        lookup(102) = 152
-        lookup(103) = 151
-        lookup(104) = 150
-        lookup(105) = 149
-        lookup(106) = 148
-        lookup(107) = 147
-        lookup(108) = 146
-        lookup(109) = 145
-        lookup(110) = 144
-        lookup(111) = 143
-        lookup(112) = 142
-        lookup(113) = 141
-        lookup(114) = 140
-        lookup(115) = 139
-        lookup(116) = 138
-        lookup(117) = 137
-        lookup(118) = 136
-        lookup(119) = 135
-        lookup(120) = 134
-        lookup(121) = 133
-        lookup(122) = 132
-        lookup(123) = 131
-        lookup(124) = 130
-        lookup(125) = 129
-        lookup(126) = 128
-        lookup(127) = 127
-        lookup(128) = 126
-        lookup(129) = 125
-        lookup(130) = 124
-        lookup(131) = 123
-        lookup(132) = 122
-        lookup(133) = 121
-        lookup(134) = 120
-        lookup(135) = 119
-        lookup(136) = 118
-        lookup(137) = 117
-        lookup(138) = 116
-        lookup(139) = 115
-        lookup(140) = 114
-        lookup(141) = 113
-        lookup(142) = 112
-        lookup(143) = 111
-        lookup(144) = 110
-        lookup(145) = 109
-        lookup(146) = 108
-        lookup(147) = 107
-        lookup(148) = 106
-        lookup(149) = 105
-        lookup(150) = 104
-        lookup(151) = 103
-        lookup(152) = 102
-        lookup(153) = 101
-        lookup(154) = 100
-        lookup(155) = 99
-        lookup(156) = 98
-        lookup(157) = 97
-        lookup(158) = 96
-        lookup(159) = 95
-        lookup(160) = 94
-        lookup(161) = 93
-        lookup(162) = 92
-        lookup(163) = 91
-        lookup(164) = 90
-        lookup(165) = 89
-        lookup(166) = 88
-        lookup(167) = 87
-        lookup(168) = 86
-        lookup(169) = 85
-        lookup(170) = 84
-        lookup(171) = 83
-        lookup(172) = 82
-        lookup(173) = 81
-        lookup(174) = 80
-        lookup(175) = 79
-        lookup(176) = 78
-        lookup(177) = 77
-        lookup(178) = 76
-        lookup(179) = 75
-        lookup(180) = 74
-        lookup(181) = 73
-        lookup(182) = 72
-        lookup(183) = 71
-        lookup(184) = 70
-        lookup(185) = 69
-        lookup(186) = 68
-        lookup(187) = 67
-        lookup(188) = 66
-        lookup(189) = 65
-        lookup(190) = 64
-        lookup(191) = 63
-        lookup(192) = 62
-        lookup(193) = 61
-        lookup(194) = 60
-        lookup(195) = 59
-        lookup(196) = 58
-        lookup(197) = 57
-        lookup(198) = 56
-        lookup(199) = 55
-        lookup(200) = 54
-        lookup(201) = 53
-        lookup(202) = 52
-        lookup(203) = 51
-        lookup(204) = 50
-        lookup(205) = 49
-        lookup(206) = 48
-        lookup(207) = 47
-        lookup(208) = 46
-        lookup(209) = 45
-        lookup(210) = 44
-        lookup(211) = 43
-        lookup(212) = 42
-        lookup(213) = 41
-        lookup(214) = 40
-        lookup(215) = 39
-        lookup(216) = 38
-        lookup(217) = 37
-        lookup(218) = 36
-        lookup(219) = 35
-        lookup(220) = 34
-        lookup(221) = 33
-        lookup(222) = 32
-        lookup(223) = 31
-        lookup(224) = 30
-        lookup(225) = 29
-        lookup(226) = 28
-        lookup(227) = 27
-        lookup(228) = 26
-        lookup(229) = 25
-        lookup(230) = 24
-        lookup(231) = 23
-        lookup(232) = 22
-        lookup(233) = 21
-        lookup(234) = 20
-        lookup(235) = 19
-        lookup(236) = 18
-        lookup(237) = 17
-        lookup(238) = 16
-        lookup(239) = 15
-        lookup(240) = 14
-        lookup(241) = 13
-        lookup(242) = 12
-        lookup(243) = 11
-        lookup(244) = 10
-        lookup(245) = 9
-        lookup(246) = 8
-        lookup(247) = 7
-        lookup(248) = 6
-        lookup(249) = 5
-        lookup(250) = 4
-        lookup(251) = 3
-        lookup(252) = 2
-        lookup(253) = 1
-        lookup(254) = 0
+        For i = 0 To 254
+            lookup(i) = 254 - i
+        Next
         lookup(255) = 0
 
     End Sub
@@ -1351,6 +857,23 @@ done:
 
 
     End Sub
+    Private Sub make_shared_pkg_search_list()
+        Dim p = My.Settings.game_path + "\res\packages\"
+        Dim di = Directory.GetFiles(p)
+        Dim cnt As Integer = 0
+        ReDim shared_pkg_search_list(200)
+        For Each f In di
+            Dim ts = Path.GetFileName(f)
+            Dim ar = ts.Split("_")
+            If ar(0).Contains("shared") Then
+                shared_pkg_search_list(cnt) = f
+                cnt += 1
+            End If
+        Next
+        ReDim Preserve shared_pkg_search_list(cnt - 1)
+
+    End Sub
+
     Private Sub make_pgk_search_list()
         'build a list of package files to search for items
         Dim p = My.Settings.game_path + "\res\packages\"
@@ -1589,11 +1112,11 @@ done:
         End If
     End Sub
 
-    Dim nations() As String = {"usa.xml", "uk.xml", _
-                             "china.xml", "czech.xml", _
-                             "france.xml", "germany.xml", _
-                             "japan.xml", "poland.xml", _
-                             "ussr.xml", "sweden.xml", _
+    Dim nations() As String = {"usa.xml", "uk.xml",
+                             "china.xml", "czech.xml",
+                             "france.xml", "germany.xml",
+                             "japan.xml", "poland.xml",
+                             "ussr.xml", "sweden.xml",
                              "italy.xml"}
     Private Sub load_customization_files()
         For Each entry In scripts_pkg
@@ -1625,7 +1148,7 @@ done:
     Private Sub build_list_table()
         Dim cnt As Integer = 0
         For Each entry In scripts_pkg
-            If entry.FileName.ToLower.Contains("item_defs/vehicles") And _
+            If entry.FileName.ToLower.Contains("item_defs/vehicles") And
                 entry.FileName.ToLower.Contains("list.xml") Then
                 Dim dt As New DataSet
                 Dim ms As New MemoryStream()
@@ -1887,11 +1410,11 @@ loaded_jump:
     End Sub
 
     Private Sub clear_temp_folder()
-        If MsgBox("This will clean out all temp folder data!!" + vbCrLf + _
-                    "Also this will RESTART the application because it can not run with out" + vbCrLf + _
-                    "the data." + vbCrLf + _
-                    "This only needs to be done if there was an update to the tank data." + vbCrLf + _
-                    "It will force a reload of all data and the long delay creating the shared file." + vbCrLf + _
+        If MsgBox("This will clean out all temp folder data!!" + vbCrLf +
+                    "Also this will RESTART the application because it can not run with out" + vbCrLf +
+                    "the data." + vbCrLf +
+                    "This only needs to be done if there was an update to the tank data." + vbCrLf +
+                    "It will force a reload of all data and the long delay creating the shared file." + vbCrLf +
                     "Would you like to continue?", MsgBoxStyle.YesNo, "Warning..") = MsgBoxResult.No Then
             Return
         End If
@@ -1902,7 +1425,6 @@ loaded_jump:
         End While
         Dim f As DirectoryInfo = New DirectoryInfo(Temp_Storage)
         shared_contents_build.Dispose()
-        packages(11).Dispose()
         GC.Collect()
         GC.WaitForFullGCComplete()
         If f.Exists Then
@@ -2409,53 +1931,53 @@ loaded_jump:
 
         'Try
         get_tank_info_by_tier(i.ToString)
-            ReDim node_list(i).item(tier_list.Length)
-            ReDim icons(i).img(tier_list.Length)
+        ReDim node_list(i).item(tier_list.Length)
+        ReDim icons(i).img(tier_list.Length)
 
-            For Each t In tier_list
-                Dim n As New TreeNode
-                Select Case t.type ' icon types
-                    Case "Heavy"
-                        n.SelectedImageIndex = 0
-                        n.StateImageIndex = 0
-                        n.ImageIndex = 0
-                    Case "Medium"
-                        n.SelectedImageIndex = 2
-                        n.StateImageIndex = 2
-                        n.ImageIndex = 2
-                    Case "Light"
-                        n.SelectedImageIndex = 4
-                        n.StateImageIndex = 4
-                        n.ImageIndex = 4
-                    Case "Destoryer"
-                        n.SelectedImageIndex = 6
-                        n.StateImageIndex = 6
-                        n.ImageIndex = 6
-                    Case "Artillary"
-                        n.SelectedImageIndex = 8
-                        n.StateImageIndex = 8
-                        n.ImageIndex = 8
+        For Each t In tier_list
+            Dim n As New TreeNode
+            Select Case t.type ' icon types
+                Case "Heavy"
+                    n.SelectedImageIndex = 0
+                    n.StateImageIndex = 0
+                    n.ImageIndex = 0
+                Case "Medium"
+                    n.SelectedImageIndex = 2
+                    n.StateImageIndex = 2
+                    n.ImageIndex = 2
+                Case "Light"
+                    n.SelectedImageIndex = 4
+                    n.StateImageIndex = 4
+                    n.ImageIndex = 4
+                Case "Destoryer"
+                    n.SelectedImageIndex = 6
+                    n.StateImageIndex = 6
+                    n.ImageIndex = 6
+                Case "Artillary"
+                    n.SelectedImageIndex = 8
+                    n.StateImageIndex = 8
+                    n.ImageIndex = 8
 
-                End Select
-                n.Name = t.nation
-                n.Text = t.tag
-                n.Tag = fpath + ":" + "vehicles/" + get_nation(t.nation) + "/" + t.tag
-                node_list(i).item(cnt).name = t.tag
-                node_list(i).item(cnt).node = n
-                node_list(i).item(cnt).package = packages(i).Name
-                icons(i).img(cnt) = New entry_
-                icons(i).img(cnt).img = get_tank_icon(n.Text).Clone
-                icons(i).img(cnt).name = t.tag
-                If icons(i).img(cnt) IsNot Nothing Then
-                    node_list(i).item(cnt).icon = icons(i).img(cnt).img.Clone
-                    node_list(i).item(cnt).icon.Tag = current_png_path
-                    cnt += 1
-                    TOTAL_TANKS_FOUND += 1
-                Else
-                    start_up_log.AppendLine("!!!!! Missing Tank Icon PNG !!!!! :" + current_png_path)
-                End If
+            End Select
+            n.Name = t.nation
+            n.Text = t.tag
+            n.Tag = fpath + ":" + "vehicles/" + get_nation(t.nation) + "/" + t.tag
+            node_list(i).item(cnt).name = t.tag
+            node_list(i).item(cnt).node = n
+            node_list(i).item(cnt).package = packages(i).Name
+            icons(i).img(cnt) = New entry_
+            icons(i).img(cnt).img = get_tank_icon(n.Text).Clone
+            icons(i).img(cnt).name = t.tag
+            If icons(i).img(cnt) IsNot Nothing Then
+                node_list(i).item(cnt).icon = icons(i).img(cnt).img.Clone
+                node_list(i).item(cnt).icon.Tag = current_png_path
+                cnt += 1
+                TOTAL_TANKS_FOUND += 1
+            Else
+                start_up_log.AppendLine("!!!!! Missing Tank Icon PNG !!!!! :" + current_png_path)
+            End If
 
-            Next
+        Next
         'Catch ex As Exception
         '    start_up_log.AppendLine("!!!!! Missing Tank Icon PNG !!!!! :" + current_png_path)
         '    MsgBox("crashed getting type: Tier" + i.ToString + " Index" + cnt.ToString + vbCrLf +
@@ -2504,18 +2026,18 @@ loaded_jump:
 
 
     Private Sub get_tank_info_by_tier(ByVal t As String)
-        ReDim tier_list(200)
+        ReDim tier_list(300)
         Dim count As Integer = 0
         Try
 
-            Dim q = From row In TankDataTable _
-                        Where row.Field(Of String)("tier") = t _
-                Select _
-                    un = row.Field(Of String)("shortname"), _
-                    tag = row.Field(Of String)("tag"), _
-                    nation = row.Field(Of String)("nation"), _
-                    type = row.Field(Of String)("type") _
-                        Order By nation Descending
+            Dim q = From row In TankDataTable
+                    Where row.Field(Of String)("tier") = t
+                    Select
+                        un = row.Field(Of String)("shortname"),
+                        tag = row.Field(Of String)("tag"),
+                        nation = row.Field(Of String)("nation"),
+                        type = row.Field(Of String)("type")
+                    Order By nation Descending
 
             'Dim a = q(0).un.Split(":")
             For Each item In q
@@ -2541,15 +2063,15 @@ loaded_jump:
         End If
         Try
 
-            Dim q = From row In TankDataTable _
-                        Where row.Field(Of String)("tag") = fname _
-                Select _
-                    un = row.Field(Of String)("shortname"), _
-                    tier = row.Field(Of String)("tier"), _
-                    natiom = row.Field(Of String)("nation"), _
-                    Type = row.Field(Of String)("type"), _
+            Dim q = From row In TankDataTable
+                    Where row.Field(Of String)("tag") = fname
+                    Select
+                    un = row.Field(Of String)("shortname"),
+                    tier = row.Field(Of String)("tier"),
+                    natiom = row.Field(Of String)("nation"),
+                    Type = row.Field(Of String)("type"),
                     id = row.Field(Of String)("id")
-                   Order By tier Descending
+                    Order By tier Descending
 
             'Dim a = q(0).un.Split(":")
             If q(0) IsNot Nothing Then
@@ -2563,11 +2085,11 @@ loaded_jump:
     End Function
     Private Function get_tier_id(ByVal fname As String) As String
         Try
-            Dim q = From row In TankDataTable _
-                        Where row.Field(Of String)("tag") = fname _
-                Select _
-                    un = row.Field(Of String)("shortname"), _
-                    tier = row.Field(Of String)("tier"), _
+            Dim q = From row In TankDataTable
+                    Where row.Field(Of String)("tag") = fname
+                    Select
+                    un = row.Field(Of String)("shortname"),
+                    tier = row.Field(Of String)("tier"),
                     natiom = row.Field(Of String)("nation")
                     Order By tier Descending
 
@@ -2655,15 +2177,15 @@ loaded_jump:
             Return "Progetto M35 mod 46"
         End If
 
-        Dim q = From row In TankDataTable _
-            Where row.Field(Of String)("tag") = n.Text _
-        Select _
-            un = row.Field(Of String)("shortname"), _
-            tier = row.Field(Of String)("tier"), _
-            natiom = row.Field(Of String)("nation"), _
-            Type = row.Field(Of String)("type"), _
+        Dim q = From row In TankDataTable
+                Where row.Field(Of String)("tag") = n.Text
+                Select
+            un = row.Field(Of String)("shortname"),
+            tier = row.Field(Of String)("tier"),
+            natiom = row.Field(Of String)("nation"),
+            Type = row.Field(Of String)("type"),
             id = row.Field(Of String)("id")
-        Order By tier Descending
+                Order By tier Descending
 
         'Dim a = q(0).un.Split(":")
         If q(0) IsNot Nothing Then
@@ -3071,14 +2593,14 @@ loaded_jump:
         Gl.glUniform4f(gDetail_b_group, v1, v2, v3, v4)
 
 
-        Gl.glUniform4f(gDetail_inf, _group(jj).g_detailInfluences.x, _
-                                    _group(jj).g_detailInfluences.y, _
-                                    _group(jj).g_detailInfluences.z, _
+        Gl.glUniform4f(gDetail_inf, _group(jj).g_detailInfluences.x,
+                                    _group(jj).g_detailInfluences.y,
+                                    _group(jj).g_detailInfluences.z,
                                     _group(jj).g_detailInfluences.w)
 
-        Gl.glUniform4f(g_Detail_reject_tiling, _group(jj).g_detailRejectTiling.x, _
-                                    _group(jj).g_detailRejectTiling.y, _
-                                    _group(jj).g_detailRejectTiling.z, _
+        Gl.glUniform4f(g_Detail_reject_tiling, _group(jj).g_detailRejectTiling.x,
+                                    _group(jj).g_detailRejectTiling.y,
+                                    _group(jj).g_detailRejectTiling.z,
                                     _group(jj).g_detailRejectTiling.w)
 
         Gl.glUniform1f(gDetail_A_level, A_level)
@@ -3475,37 +2997,7 @@ loaded_jump:
         'End If
         '-----------------------------------------------------------------------------
         'show bone markers if told to
-        If MODEL_LOADED And showMarkers_cb.Checked Then
-            Dim v_color As vColor_
-            Gl.glFrontFace(Gl.GL_CCW)
-            If m_show_fbx.Checked Then
-                For i = 0 To fbx_boneGroups.Length - 1
-                    For z = 0 To fbx_boneGroups(i).nodeCnt - 1
-                        If Not fbx_boneGroups(i).node_matrices(z).mat Is Nothing Then
-                            Gl.glPushMatrix()
-                            Gl.glMultMatrixd(fbx_boneGroups(i).node_matrices(z).mat)
-                            v_color = fbx_boneGroups(i).models(z).color
-                            Gl.glColor3f(v_color.r, v_color.g, v_color.b)
-                            Gl.glCallList(fbx_boneGroups(i).models(z).displayId)
-                            Gl.glPopMatrix()
-                        End If
 
-                    Next
-                Next
-            Else
-                For i = 0 To v_boneGroups.Length - 1
-                    For z = 0 To v_boneGroups(i).nodeCnt - 1
-                        Gl.glPushMatrix()
-                        Gl.glMultMatrixd(v_boneGroups(i).node_matrices(z).mat)
-                        v_color = v_boneGroups(i).models(z).color
-                        Gl.glColor3f(v_color.r, v_color.g, v_color.b)
-                        Gl.glCallList(v_boneGroups(i).models(z).displayId)
-                        Gl.glPopMatrix()
-                    Next
-                Next
-            End If
-            Gl.glFrontFace(Gl.GL_CW)
-        End If
         '-----------------------------------------------------------------------------
         Gl.glColor3f(1.0, 1.0, 1.0)
 
@@ -4232,6 +3724,18 @@ fuckit:
         '######################################################################
         If m_shadow_preview.Checked Then
             show_depth_texture()
+        End If
+        '######################################################################
+        '######################################################################
+        If WORKING Then
+            If time_flasher.ElapsedMilliseconds > 300 Then
+                glutPrint(pb1.Width - 100, -30, "WORKING", 1.0, 0.0, 0.0, 0.0)
+            Else
+                glutPrint(pb1.Width - 100, -30, "WORKING", 1.0, 1.0, 1.0, 0.0)
+            End If
+        End If
+        If time_flasher.ElapsedMilliseconds > 600 Then
+            time_flasher.Restart()
         End If
         '######################################################################
         '######################################################################
@@ -5732,23 +5236,23 @@ fuckit:
         If ent IsNot Nothing Then
             Return name
         End If
-        ent = packages(11)(name)
-        If ent IsNot Nothing Then
-            Return name
-        End If
         ent = packages_2(current_tank_package)(name)
         If ent IsNot Nothing Then
             Return name
         End If
+        'not all tiers have 3 parts
         Try
             ent = packages_3(current_tank_package)(name)
-            If ent IsNot Nothing Then
-                Return name
-            End If
-
         Catch ex As Exception
-
         End Try
+        If ent IsNot Nothing Then
+            Return name
+        End If
+
+        ent = search_shared_pkgs(name)
+        If ent IsNot Nothing Then
+            Return name
+        End If
 
         Return ""
     End Function
@@ -5758,6 +5262,7 @@ fuckit:
         'need to set these before loading anyhing
         clean_house()
         remove_loaded_fbx()
+        WORKING = True
         '===================================
         log_text.Append(" ======== Model Load Start =========" + vbCrLf)
         Dim ar = file_name.Split(":")
@@ -5804,6 +5309,7 @@ fuckit:
         Dim xml_file = ar(0) + "\" + ar(1) + "\" + ar(2) + ".xml"
         Dim t As New DataSet
         get_tank_parts_from_xml(xml_file, t)
+        Application.DoEvents()
         If t.Tables.Count = 0 Then
             Return
         End If
@@ -5818,7 +5324,7 @@ fuckit:
             Dim en = packages(current_tank_package)(exclusionMask_name)
             Dim ms As New MemoryStream
             If en Is Nothing Then
-                en = packages(11)(exclusionMask_name)
+                en = search_shared_pkgs(exclusionMask_name)
                 If en Is Nothing Then
                     en = shared_sandbox_pkg(exclusionMask_name)
                 End If
@@ -5831,6 +5337,7 @@ fuckit:
             End If
             et.Dispose()
         End If
+        Application.DoEvents()
         '-------------------------------------------------------
         'Return
         'get take part paths from table
@@ -5854,6 +5361,7 @@ fuckit:
                     gun_tiling = rom.Field(Of String)("gun_tiling"),
                     hull_tiling = rom.Field(Of String)("hull_tiling")
         '-------------------------------------------------------
+        Application.DoEvents()
         'fix stupid missing things in their files
         Dim gt = tq(0).gun_tiling.Split(" ")
         If gt.Length = 1 Then
@@ -5899,6 +5407,7 @@ fuckit:
         ReDim Preserve gun_tile(cnt)
         ReDim Preserve turret_tile(cnt)
         '-------------------------------------------------------
+        Application.DoEvents()
 
         cnt = 0
         '----- chassis
@@ -5952,6 +5461,7 @@ fuckit:
 
         End If
         ReDim Preserve turrets(cnt)
+        Application.DoEvents()
 
         '-------------------------------------------------------
         '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -5974,6 +5484,7 @@ fuckit:
                     frmComponents.tv_guns.Nodes.Add(n)
                     cn += 1
                 End If
+                Application.DoEvents()
             Next
             frmComponents.tv_guns.SelectedNode = frmComponents.tv_guns.Nodes(0)
             frmComponents.tv_guns.SelectedNode.Checked = True
@@ -5988,6 +5499,7 @@ fuckit:
                     frmComponents.tv_turrets.Nodes.Add(n)
                     cn += 1
                 End If
+                Application.DoEvents()
             Next
             Try
                 frmComponents.tv_turrets.SelectedNode = frmComponents.tv_turrets.Nodes(0)
@@ -6007,6 +5519,7 @@ fuckit:
                     frmComponents.tv_hulls.Nodes.Add(n)
                     cn += 1
                 End If
+                Application.DoEvents()
             Next
             frmComponents.tv_hulls.SelectedNode = frmComponents.tv_hulls.Nodes(0)
             frmComponents.tv_hulls.SelectedNode.Checked = True
@@ -6022,6 +5535,7 @@ fuckit:
                     frmComponents.tv_chassis.Nodes.Add(n)
                     cn += 1
                 End If
+                Application.DoEvents()
             Next
             frmComponents.tv_chassis.SelectedNode = frmComponents.tv_chassis.Nodes(0)
             frmComponents.tv_chassis.SelectedNode.Checked = True
@@ -6035,7 +5549,11 @@ fuckit:
             Else
                 frmComponents.Location = Me.Location + New Point(200, 200)
             End If
+            '-------------------------------------------------------
+            ' SHOW FORM
+            WORKING = False
             frmComponents.ShowDialog(Me)
+            WORKING = True
             If frmFBX.Visible Then
                 frmFBX.Location = Me.Location
             End If
@@ -6091,6 +5609,7 @@ fuckit:
         '    gun_tiling = tj
         'Else
         'End If
+        Application.DoEvents()
         '========================================
         Dim nation_string As String = ""
         Select Case ar(1)
@@ -6161,6 +5680,7 @@ fuckit:
             gun_cb.Checked = True
         End If
         '-------------------------------------------------------
+        Application.DoEvents()
         If TESTING Then
 
             'test stuff to grab track stuff
@@ -6188,13 +5708,13 @@ fuckit:
             Else
                 track_info.segment_count = 2
                 Dim t1q = From row In tbl.AsEnumerable
-                            Select _
-                            trp = row.Field(Of String)("right_filename"), _
-                            tlp = row.Field(Of String)("left_filename"), _
-                            seglength = row.Field(Of String)("segment_length"), _
-                            seg_off = row.Field(Of String)("segmentOffset"), _
-                            trp2 = row.Field(Of String)("right2_filename"), _
-                            tlp2 = row.Field(Of String)("left2_filename"), _
+                          Select
+                            trp = row.Field(Of String)("right_filename"),
+                            tlp = row.Field(Of String)("left_filename"),
+                            seglength = row.Field(Of String)("segment_length"),
+                            seg_off = row.Field(Of String)("segmentOffset"),
+                            trp2 = row.Field(Of String)("right2_filename"),
+                            tlp2 = row.Field(Of String)("left2_filename"),
                             seg_off2 = row.Field(Of String)("segment2Offset")
                 For Each tr In t1q
                     track_info.left_path1 = tr.tlp
@@ -6283,6 +5803,7 @@ fuckit:
 
 
         'Start of tank loading
+        Application.DoEvents()
         '======================================================================================
         If Not LOADING_FBX Then
             frmComponentView.clear_fbx_list()
@@ -6351,6 +5872,7 @@ fuckit:
         If Not LOAD_ERROR Then
             'MODEL_LOADED = False
             'clean_house()
+            WORKING = False
             Return
         End If
         part_counts = New part_counts_
@@ -6536,6 +6058,7 @@ fuckit:
         m_pick_camo.Enabled = True
         m_hide_show_components.Enabled = True
         m_set_vertex_winding_order.Enabled = True
+        WORKING = False
 
     End Sub
 
@@ -6878,7 +6401,7 @@ fuckit:
         End If
         For Each l In q
             If l.camoName IsNot Nothing Then
-                Dim ent = frmMain.packages(11)(l.texture)
+                Dim ent = search_shared_pkgs(l.texture)
                 If ent IsNot Nothing Then
                     ent.Extract(z_path, ExtractExistingFileAction.DoNotOverwrite)
                     cnt += 1
@@ -7151,9 +6674,9 @@ fuckit:
     End Sub
     Public Sub extract_selections()
         If Not My.Settings.res_mods_path.ToLower.Contains("res_mods") Then
-            If MsgBox("You need to set the path to the res_mods folder!" + vbCrLf + _
-                    "Set it Now and continue?" + vbCrLf + _
-                    "It should be something like this:" + vbCrLf + _
+            If MsgBox("You need to set the path to the res_mods folder!" + vbCrLf +
+                    "Set it Now and continue?" + vbCrLf +
+                    "It should be something like this:" + vbCrLf +
                     "C:\Games\World_of_Tanks\res_mods\1.5.1.0", MsgBoxStyle.YesNo, "Opps..") = MsgBoxResult.Yes Then
                 m_res_mods_path.PerformClick()
                 If Not My.Settings.res_mods_path.ToLower.Contains("res_mods") Then
@@ -7163,6 +6686,7 @@ fuckit:
                 Return
             End If
         End If
+        WORKING = True
         If frmExtract.m_export_camo_cb.Checked Then
             export_camo()
         End If
@@ -7205,9 +6729,16 @@ fuckit:
                     ic_160x100.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
                 End If
                 Dim an = tank_sr_name.Split("-")
-                tank_sr_name = an(1)
+                If an.Length > 1 Then
+                    tank_sr_name = an(1)
+                End If
                 Dim sss = public_icon_path.Replace(an(0) + "-", "")
-                Dim srs = Path.GetDirectoryName(sss) + public_icon_path.Replace(public_icon_path.Replace(an(1) + "-", ""), "/420x307/" + tank_sr_name)
+                Dim srs As String
+                If an.Length > 1 Then
+                    srs = Path.GetDirectoryName(sss) + public_icon_path.Replace(public_icon_path.Replace(an(1) + "-", ""), "/420x307/" + tank_sr_name)
+                Else
+                    srs = sss
+                End If
                 Dim ic_420x307 = gui_pkg_part_1(srs)
                 If ic_420x307 Is Nothing Then
                     ic_420x307 = gui_pkg_part_2(srs)
@@ -7253,6 +6784,7 @@ fuckit:
                 Catch ex As Exception
                     itemDefXmlString = ts
                     MsgBox(file_name + vbCrLf + ex.Message, MsgBoxStyle.Critical, "Shit!!")
+                    WORKING = False
                     Return
                 End Try
 
@@ -7310,6 +6842,7 @@ fuckit:
                     End If
                 Catch ex As Exception
                     MsgBox(file_name + vbCrLf + ex.Message, MsgBoxStyle.Critical, "NAR path")
+                    WORKING = False
                     Return
                 End Try
 
@@ -7450,6 +6983,9 @@ skip_old_way:
         Catch ex As Exception
             'File.WriteAllText("C:\TE.txt", sb.ToString)
         End Try
+
+        WORKING = False
+
         TC1.Enabled = True
     End Sub
 

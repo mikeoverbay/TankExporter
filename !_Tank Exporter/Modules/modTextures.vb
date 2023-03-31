@@ -103,7 +103,7 @@ Module modTextures
         Dim abs_name As String = ""
         frmMain.info_Label.Visible = True
 
-        frmMain.update_thread.Suspend()
+        stop_updating = True
 
         For i = 1 To object_count
             _group(i).fbx_texture_id = 0
@@ -212,7 +212,7 @@ Module modTextures
         frmMain.pb2.Visible = False
 
         frmMain.info_Label.Visible = False
-        frmMain.update_thread.Resume()
+        stop_updating = False
 
     End Sub
     Public Sub export_fbx_textures(ByVal AC As Boolean)
@@ -232,7 +232,7 @@ Module modTextures
         Dim abs_name As String = ""
         frmMain.info_Label.Visible = True
         G_Buffer.init()
-        frmMain.update_thread.Suspend()
+        stop_updating = True
         Threading.Thread.Sleep(100)
         For i = 0 To textures.Length - 2
 
@@ -273,7 +273,7 @@ Module modTextures
 
         frmMain.info_Label.Visible = False
         Try
-            frmMain.update_thread.Resume()
+            stop_updating = False
         Catch ex As Exception
 
         End Try
@@ -1091,7 +1091,7 @@ save_it:
                 Return "File Not Found"
             End If
         End If
-        frmMain.update_thread.Suspend()
+        stop_updating = True
 
         If p.Contains(".dds") Then 'pre-built atlas map?
             Dim p2 = p.Replace(".dds", "_hd.dds")
@@ -1109,7 +1109,7 @@ save_it:
                 Case ATLAS_TYPE.ATLAS_MAO
                     _group(idx).MAO_atlas = get_DDS_search_option(p)
             End Select
-            frmMain.update_thread.Resume()
+            stop_updating = False
             For i = 0 To AM_index_texture_list.Length - 1
 
                 Select Case atlas_mode
@@ -1324,7 +1324,7 @@ save_it:
         'Gl.glBindTexture(Gl.GL_TEXTURE_2D, 0)
 
         Gl.glDisable(Gl.GL_TEXTURE_2D)
-        frmMain.update_thread.Resume()
+        stop_updating = False
         Return "OK"
     End Function
     Private Sub save_atlas_map(ByVal file_name_out As String, ByVal w As Integer, ByVal h As Integer, ByVal img As Integer)
@@ -1579,7 +1579,7 @@ save_it:
             End Try
         End If
         If ent Is Nothing Then ' look in shared content
-            ent = frmMain.packages(11)(name.Replace(".dds", "_hd.dds")) ' look in tank package
+            ent = search_shared_pkgs(name.Replace(".dds", "_hd.dds")) ' look in tank package
         End If
         If PRIMITIVES_MODE Then
             id = get_DDS_search_option(name.Replace(".dds", "_hd.dds"))
@@ -1613,10 +1613,7 @@ skip_hd:
                 End If
             End If
             If ent Is Nothing Then 'if not found in current pkg than look in shared
-                If frmMain.packages(11) IsNot Nothing Then
-                    ent = frmMain.packages(11)(name) ' look in 2nd tank package
-                End If
-
+                ent = search_shared_pkgs(name) ' look in 2nd tank package
             End If
 
             If ent Is Nothing Then

@@ -442,7 +442,44 @@ Module ModTankLoader
     Dim ordered_names(1) As item_list_
 
 #End Region
+    Public Function search_shared_pkgs(ss As String) As ZipEntry
+        For Each f In shared_pkg_search_list
+            Using zipf As New ZipFile(f)
+                For Each entry In zipf
+                    If Not entry.IsDirectory Then
+                        If entry.FileName.Contains("vehicles") Then
 
+                            'Debug.WriteLine(entry.FileName)
+                            If entry.FileName.ToLower = ss.ToLower Then
+                                zipf.Dispose()
+                                GC.Collect()
+                                Return entry
+                            End If
+                        End If
+                    End If
+                Next
+            End Using
+        Next
+        ss = ss.Replace("\", "/")
+        Debug.WriteLine(ss)
+        Using zipf As New ZipFile(Path.GetDirectoryName(shared_pkg_search_list(0)) + "\particles.pkg")
+            For Each entry In zipf
+                If Not entry.IsDirectory Then
+                    If entry.FileName.Contains("vehicles") Then
+
+                        'Debug.WriteLine(entry.FileName)
+                        If entry.FileName.ToLower = ss.ToLower Then
+                            zipf.Dispose()
+                            GC.Collect()
+                            Return entry
+                        End If
+                    End If
+                End If
+            Next
+        End Using
+        Return Nothing
+
+    End Function
     Public Function build_primitive_data(_add As Boolean) As Boolean
         '------------
         Dim f_name_vertices, f_name_indices, f_name_uv2, f_name_color As String
@@ -531,10 +568,20 @@ Module ModTankLoader
         '============================'============================
         'this gets all the entries in the xml file..
         'IE.. bone and wheel locations
-        If xmlget_mode = 1 Then
-            praseVisualXml()
-        End If
+        'NOT LONGER LOADING THIS!
+        'If xmlget_mode = 1 Then
+        '    praseVisualXml()
+        'End If
 
+
+        'Some tanks have the primuitive used stored in the visual files.
+        'NOT ALL so we have to trap it.
+        file_name = get_actual_primitive_name()
+        If file_name = "" Then
+            file_name = old_file_name.Replace("model", "primitives_processed")
+        Else
+            file_name &= ".primitives_processed"
+        End If
         '####################################################################################
         'Since I wrote this, The order has been fucking backwards!
         'This fixes that major screwup with out affecting existing
@@ -577,7 +624,7 @@ Module ModTankLoader
                 If entry IsNot Nothing Then
                     entry.Extract(r)
                 Else
-                    entry = frmMain.packages(11)(file_name)
+                    entry = search_shared_pkgs(file_name)
                     If entry IsNot Nothing Then
                         entry.Extract(r)
                     Else
@@ -1713,31 +1760,31 @@ look_again:
             If e IsNot Nothing Then
                 e.Extract(mstream)
             Else
-                e = frmMain.packages(11)(filename)
+
+                Try
+                    e = frmMain.packages_3(current_tank_package)(filename)
+                Catch ex As Exception
+                End Try
                 If e IsNot Nothing Then
                     e.Extract(mstream)
                 Else
-                    Try
-                        e = frmMain.packages_3(current_tank_package)(filename)
-                    Catch ex As Exception
-
-                    End Try
+                    e = frmMain.packages_2(current_tank_package)(filename)
                     If e IsNot Nothing Then
                         e.Extract(mstream)
                     Else
-                        e = frmMain.packages_2(current_tank_package)(filename)
-                        If e IsNot Nothing Then
-                            e.Extract(mstream)
-                        Else
-                            If filename.Contains("Turret_01") Then
-                                filename = filename.Replace("Turret_01", "Turret_02")
-                                GoTo look_again
-                            End If
+                        If filename.Contains("Turret_01") Then
+                            filename = filename.Replace("Turret_01", "Turret_02")
+                            GoTo look_again
                         End If
                     End If
                 End If
             End If
-            'e.Extract(mstream)
+
+            e = search_shared_pkgs(filename)
+            If e IsNot Nothing Then
+                e.Extract(mstream)
+            End If
+
             openXml_stream(mstream, "")
             Dim d As DataSet = xmldataset
             Dim tbl = d.Tables("map_")
@@ -1775,7 +1822,7 @@ get_visual:
                     If e IsNot Nothing Then
                         e.Extract(mstream)
                     Else
-                        e = frmMain.packages(11)(filename)
+                        e = search_shared_pkgs(filename)
                         If e IsNot Nothing Then
                             e.Extract(mstream)
                         Else

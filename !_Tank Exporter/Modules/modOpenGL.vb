@@ -156,9 +156,7 @@ Module modOpenGL
         'End If
 
     End Sub
-    Private Function get_support_sync() As Boolean
-        'Dim wglswap As Wgl.PFNWGLSWAPINTERVALEXTPROC
-    End Function
+
 
     Public Sub DisableOpenGL()
         G_Buffer.shut_down()
