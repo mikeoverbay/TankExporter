@@ -251,6 +251,57 @@ remove_more:
         Return Result
     End Function
 
+    Public Sub DecodePackedFile_3(ByVal reader As BinaryReader)
+        reader.ReadSByte()
+        Dim dictionary As List(Of String) = PS.readDictionary(reader)
+        'PackedFileName = PackedFileName.Replace("_back", "")
+        Dim xmlroot As XmlNode = xDoc.CreateNode(XmlNodeType.Element, PackedFileName, "")
+        xDoc.OuterXml.Replace("><", ">" + vbCrLf + "<")
+
+
+        PS.readElement(reader, xmlroot, xDoc, dictionary)
+        Dim xml_string As String = xmlroot.InnerXml
+
+        Dim fileS As New MemoryStream
+        Dim fbw As New BinaryWriter(fileS)
+        fileS.Position = 0
+
+        xDoc.AppendChild(xmlroot)
+        Dim Id = xmlroot.Name + "/gameplayTypes"
+
+        fileS.Position = 0
+        xDoc.Save(fileS)
+
+        '' xDoc.Save(sfd.FileName);
+        Dim fbr As New BinaryReader(fileS)
+        fileS.Position = 0
+        TheXML_String = fbr.ReadChars(fileS.Length)
+
+        'Try
+        '    xmldataset.ReadXml(fileS)
+
+        'Catch ex As Exception
+        '    MsgBox("Please report this bug." + ex.Message, MsgBoxStyle.Exclamation, "packed XML file Error...")
+        'End Try
+        'Dim sw As New StringWriter
+        'Dim xtw As New XmlTextWriter(sw)
+        'xtw.Formatting = Formatting.Indented
+        'xtw.IndentChar = vbTab
+        'xtw.Indentation = 1
+        'data_set.WriteTo(xtw)
+        'xtw.Flush()
+        fbr.Close()
+        fbw.Close()
+        fileS.Close()
+        fileS.Dispose()
+
+        'Dim f As String = File.ReadAllText("C:\wot_temp\InnerXml.xml")
+        'f = f.Replace(vbCrLf, vbLf)
+
+        'muted .. to slow
+        'File.WriteAllText("C:\wot_temp\InnerXml.xml", f)
+        'frmMain.WebBrowser1.DocumentStream = TransformXML(f, My.Resources.xml_format)
+    End Sub
     Public Sub DecodePackedFile_2(ByVal reader As BinaryReader)
         reader.ReadSByte()
         Dim dictionary As List(Of String) = PS.readDictionary(reader)
@@ -412,6 +463,27 @@ remove_more:
         Else
             Return False
 
+        End If
+        reader.Close()
+        Return True
+    End Function
+    Public Function openXml_stream_3(ByVal f As MemoryStream, ByVal PackedFileName_in As String) As Boolean
+        xDoc = New XmlDocument
+        f.Position = 0
+        xmldataset.Clear()
+        While xmldataset.Tables.Count > 0
+            xmldataset.Reset()
+        End While
+        PackedFileName = "map_" & PackedFileName_in.ToLower()
+        Dim reader As New BinaryReader(f)
+        Dim head As Int32 = reader.ReadInt32()
+        If head = Packed_Section.Packed_Header Then
+            DecodePackedFile_3(reader)
+        ElseIf head = Binary_Header Then
+        Else
+            If Not PackedFileName.Contains(".xml") Then
+                PackedFileName &= ".xml"
+            End If
         End If
         reader.Close()
         Return True

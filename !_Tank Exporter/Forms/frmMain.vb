@@ -1572,7 +1572,7 @@ loaded_jump:
         End If
         Dim ms As New MemoryStream
         f.Extract(ms)
-        openXml_stream(ms, "nation")
+        openXml_stream_3(ms, "nation")
         ms.Dispose()
         Dim docx = XDocument.Parse(TheXML_String)
         itemDefXmlString = TheXML_String
@@ -6753,29 +6753,31 @@ fuckit:
                 Try ' catch any exception thrown
 
                     Dim ip = My.Settings.res_mods_path + "\" + itemDefPathString.Replace(" ", "")
-                    prep_tanks_xml(itemDefXmlString)
-                    itemDefXmlString = itemDefXmlString.Replace("  ", vbTab)
-                    itemDefXmlString = itemDefXmlString.Replace("><", ">" + vbCrLf + "<")
-                    itemDefXmlString = itemDefXmlString.Replace("<xmlref>", "<!--<xmlref>")
-                    itemDefXmlString = itemDefXmlString.Replace("</xmlref>", "</xmlref>-->")
+                    'prep_tanks_xml(itemDefXmlString)
+                    'itemDefXmlString = itemDefXmlString.Replace("  ", vbTab)
+                    'itemDefXmlString = itemDefXmlString.Replace("><", ">" + vbCrLf + "<")
+                    'itemDefXmlString = itemDefXmlString.Replace("<xmlref>", "<!--<xmlref>")
+                    'itemDefXmlString = itemDefXmlString.Replace("</xmlref>", "</xmlref>-->")
 
-                    itemDefXmlString = itemDefXmlString.Replace("rect1x4direction",
-                                                                "rect1x4 direction")
+                    'itemDefXmlString = itemDefXmlString.Replace("rect1x4direction",
+                    '                                            "rect1x4 direction")
 
-                    itemDefXmlString = itemDefXmlString.Replace("squaredirection",
-                                                                "square direction")
+                    'itemDefXmlString = itemDefXmlString.Replace("squaredirection",
+                    '                                            "square direction")
 
-                    itemDefXmlString = itemDefXmlString.Replace("rightformfactor",
-                                                                "right formfactor")
+                    'itemDefXmlString = itemDefXmlString.Replace("rightformfactor",
+                    '                                            "right formfactor")
+                    'itemDefXmlString = itemDefXmlString.Replace("rightformfactor",
+                    '                                            "right formfactor")
 
-                    itemDefXmlString = itemDefXmlString.Replace("rect1x3direction",
-                                                                "rect1x3 direction")
+                    'itemDefXmlString = itemDefXmlString.Replace("rect1x3direction",
+                    '                                            "rect1x3 direction")
 
-                    itemDefXmlString = itemDefXmlString.Replace("rect1x2direction",
-                                                                "rect1x2 direction")
+                    'itemDefXmlString = itemDefXmlString.Replace("rect1x2direction",
+                    '                                            "rect1x2 direction")
 
-                    itemDefXmlString = itemDefXmlString.Replace("rect1x6direction",
-                                                                "rect1x6 direction")
+                    'itemDefXmlString = itemDefXmlString.Replace("rect1x6direction",
+                    '                                            "rect1x6 direction")
 
                     If Not Directory.Exists(Path.GetDirectoryName(ip)) Then
                         Directory.CreateDirectory(Path.GetDirectoryName(ip))
