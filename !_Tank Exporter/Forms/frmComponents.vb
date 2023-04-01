@@ -31,6 +31,11 @@ Public Class frmComponents
         tv.SelectedNode.Checked = True
     End Sub
 
+    Private Sub cancel_btn_Click(sender As Object, e As EventArgs) Handles cancel_btn.Click
+        CONTINUE_LOADING = False
+        Me.Close()
+    End Sub
+
     Private Sub tv_chassis_NodeMouseClick(sender As Object, e As TreeNodeMouseClickEventArgs) Handles tv_chassis.NodeMouseClick
         Dim tv = DirectCast(sender, TreeView)
         tv.SelectedNode = Nothing

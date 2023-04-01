@@ -24,24 +24,20 @@ Imports Skill.FbxSDK
 
 
 Module modVisualParser
-    <Extension()> _
-    Public Function Split(ByVal input As String, _
+    <Extension()>
+    Public Function Split(ByVal input As String,
                           ByVal ParamArray delimiter As String()) As String()
         Return input.Split(delimiter, StringSplitOptions.None)
         Dim a(0) As String
         a(0) = input
         Return a
     End Function
-    Public boneMarker As Integer
-    Public boneMarker2 As Integer
-    Public boneMarker3 As Integer
-    Public boneMarker4 As Integer
+
 
     Public visualXML_str As String
     Public myPath As String
 
-    Public v_boneGroups(1) As v_boneGroups_
-    Public fbx_boneGroups(1) As v_boneGroups_
+
     Public Structure v_boneGroups_
         Public groupName As String
         Public node_list() As String
@@ -103,79 +99,8 @@ Module modVisualParser
     End Function
     Public Sub praseVisualXml()
         'define our colors
-        vc1 = set_vc_color(Color.Maroon)
-        vc2 = set_vc_color(Color.Green)
-        vc3 = set_vc_color(Color.Navy)
-        vc4 = set_vc_color(Color.Olive)
-        vc5 = set_vc_color(Color.Purple)
-        vc0 = set_vc_color(Color.Gray)
 
 
-        Dim s = TheXML_String.Replace("  ", "")
-        'first,clean up the string
-        s = s.Replace("</renderSet>", "")
-        s = s.Replace("</geometry>", "")
-
-        Dim delim As String = "<renderSet>"
-        Dim s_sections = s.Split(delim)
-        'resize v_boneGroups
-        ReDim v_boneGroups(s_sections.Length - 2)
-        For i = 0 To s_sections.Length - 2
-            v_boneGroups(i) = New v_boneGroups_
-            Dim suba = s_sections(i + 1).Split("<geometry>")
-            Dim subb = suba(0).Split(vbLf)
-            v_boneGroups(i).groupName = trim_string(suba(1))
-            If v_boneGroups(i).groupName.ToLower.Contains("tra") Then
-                v_boneGroups(i).isTrack = True
-            Else
-                v_boneGroups(i).isTrack = False
-            End If
-            Dim cnt As Integer = 0
-            For k = 0 To subb.Length - 1
-                If subb(k).Length > 0 Then
-                    If Not subb(k).ToLower.Contains("true") Then
-                        If Not subb(k).Length < 3 Then
-                            cnt += 1
-                        End If
-
-                    End If
-                End If
-            Next
-            ReDim v_boneGroups(i).node_list(cnt - 1)
-            ReDim v_boneGroups(i).models(cnt - 1)
-            ReDim v_boneGroups(i).node_matrices(cnt - 1)
-            cnt = 0
-            For k = 0 To subb.Length - 1
-                If subb(k).Length > 0 Then
-                    If Not subb(k).ToLower.Contains("true") Then
-                        If Not subb(k).Length < 3 Then
-                            v_boneGroups(i).node_list(cnt) = trim_string(subb(k))
-                            v_boneGroups(i).nodeCnt = cnt + 1
-                            v_boneGroups(i).node_matrices(cnt) = New mat_
-                            ReDim v_boneGroups(i).node_matrices(cnt).mat(15)
-                            get_type_and_color(v_boneGroups(i), cnt) 'figures out what type of entry this is
-                            find_visual_matrix(s_sections(0), v_boneGroups(i), cnt) 'find and get the matrix for this entry
-                            cnt += 1
-                        End If
-                    End If
-                End If
-            Next
-
-
-
-        Next
-    End Sub
-    Private Sub find_visual_matrix(ByRef vs As String, ByRef v_r As v_boneGroups_, ByRef i As Integer)
-        'Find and get the matrix for this entry
-        Dim s_inx As Integer = 0
-        Dim da = vs.Split(vbLf)
-        For z = 0 To da.Length - 1
-            If da(z).ToLower.Contains(v_r.node_list(i).ToLower) Then
-                v_r.node_matrices(i) = get_vr_matrix(da, z)
-                Return
-            End If
-
-        Next
 
 
     End Sub
@@ -209,75 +134,7 @@ Module modVisualParser
 
         Return mat
     End Function
-    Public Sub get_type_and_color(ByRef v_r As v_boneGroups_, ByRef i As Integer)
-        'Figures out what type of entry this is
-        Dim s = v_r.node_list(i).Substring(0, 2)
-        v_r.models(i).displayId = boneMarker
-        Select Case s.ToLower
-            Case "v_"
-                v_r.models(i).type = 0
-                v_r.models(i).color = vc4
-                v_r.models(i).displayId = boneMarker3
-                Return
-            Case "wd"
-                v_r.models(i).type = 1
-                v_r.models(i).color = vc1
-                Return
-            Case "w_"
-                v_r.models(i).type = 2
-                v_r.models(i).color = vc2
-                Return
-            Case "tr"
-                v_r.models(i).type = 3
-                v_r.models(i).color = vc3
-            Case "ta"
-                v_r.models(i).type = 5
-                v_r.models(i).color = vc5
-                v_r.models(i).displayId = boneMarker4
-                Return
-        End Select
-        If Not v_r.isTrack Then
-            v_r.models(i).displayId = boneMarker2
-            v_r.models(i).type = 4
-            v_r.models(i).color = vc0
-        End If
 
-    End Sub
-
-    Public Sub fbx_in_get_type_and_color(ByRef v_r As v_boneGroups_, ByVal i As Integer, ByVal s As String)
-        'Figures out what type of entry this is
-        s = s.Substring(0, 2)
-        v_r.models(i).displayId = boneMarker
-        Select Case s.ToLower
-            Case "v_"
-                v_r.models(i).type = 0
-                v_r.models(i).color = vc4
-                v_r.models(i).displayId = boneMarker3
-                Return
-            Case "wd"
-                v_r.models(i).type = 1
-                v_r.models(i).color = vc1
-                Return
-            Case "w_"
-                v_r.models(i).type = 2
-                v_r.models(i).color = vc2
-                Return
-            Case "tr"
-                v_r.models(i).type = 3
-                v_r.models(i).color = vc3
-            Case "ta"
-                v_r.models(i).type = 5
-                v_r.models(i).color = vc5
-                v_r.models(i).displayId = boneMarker4
-                Return
-        End Select
-        If Not v_r.isTrack Then
-            v_r.models(i).displayId = boneMarker2
-            v_r.models(i).type = 4
-            v_r.models(i).color = vc0
-        End If
-
-    End Sub
 
     Private Function trim_string(ByRef s As String)
         Dim a = s.Split(">")

@@ -56,7 +56,6 @@ Module modFBX
             Next
             frmMain.m_show_fbx.Visible = False
             frmMain.m_show_fbx.Checked = False
-            ReDim fbx_boneGroups(0)
             frmMain.m_show_fbx.Enabled = True
             frmMain.m_write_non_tank_primitive.Enabled = False
 
@@ -175,7 +174,6 @@ Module modFBX
 
         Dim childnode As FbxNode
         Dim mesh As FbxMesh = Nothing
-        ReDim fbx_boneGroups(0)
         LOADING_FBX = True ' so we dont read from the res_Mods folder
         Dim r_c As Integer = 0
         For i = 1 To rootnode.GetChildCount
@@ -201,76 +199,7 @@ Module modFBX
                 End If
             End If
             Dim child_Count = childnode.GetChildCount
-            If child_Count > 0 Then
-                ReDim Preserve fbx_boneGroups(TboneCount)
-                Dim node_name As String = childnode.Name
 
-                If fbx_boneGroups(TboneCount).node_list Is Nothing Then
-                    ReDim fbx_boneGroups(TboneCount).node_list(40)
-                    ReDim fbx_boneGroups(TboneCount).models(40)
-                    ReDim fbx_boneGroups(TboneCount).node_matrices(40)
-                End If
-                Dim n_cnt As Integer = 0
-                For k = 0 To child_Count - 1
-                    Dim cn = childnode.GetChild(k)
-                    Dim n As String = cn.Name
-                    Dim ar = n.Split("~")
-                    Dim idx = Convert.ToInt32(ar(0))
-                    fbx_boneGroups(TboneCount).node_list(idx) = ar(1)
-                    fbx_boneGroups(TboneCount).models(idx) = New Vmodel_
-                    get_type_and_color(fbx_boneGroups(TboneCount), idx)
-                    get_fbx_vNodeMatrix(cn, scene, rootnode, TboneCount, idx)
-                    If ar(3).ToLower.Contains("trac") Then fbx_boneGroups(TboneCount).isTrack = True
-
-                    If cn.MaterialCount > 0 Then
-                        Dim mat = cn.GetMaterial(0)
-                        Dim ab As New FbxVector4
-                        Dim propAmbient As FbxProperty = mat.FindProperty("DiffuseColor")
-                        If propAmbient IsNot Nothing Then
-                            Dim c As New FbxDouble3
-                            c = propAmbient.GetValueAsDouble3
-                            c.X = Round(c.X, 4)
-                            c.Y = Round(c.Y, 4)
-                            c.Z = Round(c.Z, 4)
-
-                            fbx_boneGroups(TboneCount).models(idx).color.r = CSng(c.X)
-                            fbx_boneGroups(TboneCount).models(idx).color.g = CSng(c.Y)
-                            fbx_boneGroups(TboneCount).models(idx).color.b = CSng(c.Z)
-                            If c.X > 0.0! And c.Y > 0.0! And c.Z = 0.0 Then
-                                fbx_boneGroups(TboneCount).models(idx).type = 0
-                                fbx_boneGroups(TboneCount).models(idx).displayId = boneMarker3
-                            End If
-                            If c.X > 0.0! And c.Y = 0.0 And c.Z = 0.0 Then
-                                fbx_boneGroups(TboneCount).models(idx).type = 1
-                                fbx_boneGroups(TboneCount).models(idx).displayId = boneMarker
-                            End If
-                            If c.X = 0.0 And c.Y > 0.0! And c.Z = 0.0 Then
-                                fbx_boneGroups(TboneCount).models(idx).type = 2
-                                fbx_boneGroups(TboneCount).models(idx).displayId = boneMarker
-                            End If
-                            If c.X = 0.0 And c.Y = 0.0 And c.Z > 0.0! Then
-                                fbx_boneGroups(TboneCount).models(idx).type = 3
-                                fbx_boneGroups(TboneCount).models(idx).displayId = boneMarker
-                            End If
-                            If c.X > 0.0! And c.Y > 0.0! And c.Z > 0.0! Then
-                                fbx_boneGroups(TboneCount).models(idx).type = 4
-                                fbx_boneGroups(TboneCount).models(idx).displayId = boneMarker2
-                            End If
-                            If c.X > 0.0! And c.Y = 0.0 And c.Z > 0.0! Then
-                                fbx_boneGroups(TboneCount).models(idx).type = 5
-                                fbx_boneGroups(TboneCount).models(idx).displayId = boneMarker4
-                            End If
-                        End If
-                    End If
-                    n_cnt += 1
-                Next
-                n_cnt -= 1
-                ReDim Preserve fbx_boneGroups(TboneCount).node_list(n_cnt)
-                ReDim Preserve fbx_boneGroups(TboneCount).models(n_cnt)
-                ReDim Preserve fbx_boneGroups(TboneCount).node_matrices(n_cnt)
-                fbx_boneGroups(TboneCount).nodeCnt = fbx_boneGroups(TboneCount).node_list.Length
-                TboneCount += 1
-            End If
         Next
         'clean up 
         importer.Destroy()
@@ -408,7 +337,6 @@ outofhere:
 
         Dim childnode As FbxNode
         Dim mesh As FbxMesh = Nothing
-        ReDim fbx_boneGroups(0)
         LOADING_FBX = True ' so we dont read from the res_Mods folder
         Dim r_c As Integer = 0
         For i = 1 To rootnode.GetChildCount
@@ -543,113 +471,12 @@ outofhere:
         rootNode.SetDefaultR(dfr)
         rootNode.SetDefaultS(dfs)
         rootNode.SetDefaultT(dft)
-        If frmFBX.no_markers_cb.Checked Or WRITE_FBX_NOW Then GoTo NO_PINS
         'add the markers to the root
         ' get total vNodes needed
         Dim cnt As Integer = 0
-        For i = 0 To v_boneGroups.Length - 1
-            cnt += v_boneGroups(i).nodeCnt
-        Next
-        ReDim Preserve node_Vlist(cnt)
-        cnt = 0
-        Dim Vmesh = fbx_create_Vmesh("pin_1", pManager, v_marker)
-        Dim Vmesh2 = fbx_create_Vmesh("pin_2", pManager, v_marker2)
-        Dim Vmesh3 = fbx_create_Vmesh("pin_3", pManager, v_marker3)
-        Dim Vmesh4 = fbx_create_Vmesh("pin_4", pManager, v_marker4)
-        For id = 0 To v_boneGroups.Length - 1
-            Dim m_node = FbxNode.Create(pManager, v_boneGroups(id).groupName.ToLower.Replace(".vertices", ""))
-            Dim NullNode As FbxNode
-            NullNode = FbxNode.Create(scene, m_node.Name)
 
-            m_node.NodeAttribute = Vmesh3
-            m_node.SetCurrentTakeNode("Show all faces")
 
-            m_node.Show = 1
-            m_node.Visibility = 1.0
 
-            For i = 0 To v_boneGroups(id).nodeCnt - 1
-                Dim n = v_boneGroups(id).node_list(i)
-
-                n = i.ToString("00") + "~" + n + "~" + i.ToString("00") + "~" _
-                                            + v_boneGroups(id).groupName.ToLower.Replace(".vertices", "")
-                node_Vlist(cnt) = FbxNode.Create(pManager, n)
-
-                node_Vlist(cnt).SetCurrentTakeNode("Show all faces")
-
-                'get matrix
-                Dim m_ = v_boneGroups(id).node_matrices(i).mat
-                Dim scale As New SlimDX.Vector3
-                Dim rot As New SlimDX.Quaternion
-                Dim trans As New SlimDX.Vector3
-                Dim Mt As New SlimDX.Matrix
-                Mt = load_matrix_decompose(m_, trans, scale, rot)
-                Dim r_vector As New FbxVector4(rot.X, 0.0, rot.Z, rot.W)
-                Dim t_vector As New FbxVector4(trans.X, trans.Y, trans.Z)
-                Dim s_vector As New FbxVector4(scale.X, scale.Y, scale.Z, 0.0)
-
-                Dim dr, ds, dt As New FbxVector4
-                dr.Set(0, 0, 0, 0)
-                ds.Set(1, 1, 1, 1)
-                dt.Set(0, 0, 0, 1)
-
-                node_Vlist(cnt).SetDefaultR(r_vector)
-                node_Vlist(cnt).SetDefaultT(t_vector)
-                node_Vlist(cnt).SetDefaultS(s_vector)
-
-                node_Vlist(cnt).Shading_Mode = FbxNode.ShadingMode.HardShading ' not even sure this is needed but what ever.
-                Dim e = CBool(pManager.LastErrorID)
-                Dim estr = pManager.LastErrorString
-                Dim vstr = Vmesh.LastErrorString
-                Dim vmm = node_Vlist(cnt).LastErrorString
-
-                Dim blender_mode As Boolean = True
-
-                If frmFBX.blender_cb.Checked Or frmFBX.texture_per_model_cb.Checked Then
-                    'create new model and texture for each pin
-                    Dim ns = "_" + id.ToString + "_" + i.ToString("00")
-                    If v_boneGroups(id).node_list(i).Substring(0, 3).ToLower.Contains("tan") Then
-                        node_Vlist(cnt).NodeAttribute = fbx_create_Vmesh("pin_4" + ns, pManager, v_marker4)
-                    Else
-                        If v_boneGroups(id).node_list(i).Substring(0, 3).ToLower.Contains("v_b") Then
-                            node_Vlist(cnt).NodeAttribute = fbx_create_Vmesh("pin_3" + ns, pManager, v_marker3)
-                        Else
-                            If Not v_boneGroups(id).isTrack And Not v_boneGroups(id).node_list(i).Substring(0, 2).ToLower.Contains("w") Then
-                                node_Vlist(cnt).NodeAttribute = fbx_create_Vmesh("pin_2" + ns, pManager, v_marker2)
-                            Else
-                                node_Vlist(cnt).NodeAttribute = fbx_create_Vmesh("pin_1" + ns, pManager, v_marker)
-                            End If
-                        End If
-                    End If
-                    node_Vlist(cnt).AddMaterial(fbx_create_Vmaterial_blender(pManager, v_boneGroups(id).models(i).type, id.ToString + "_" + i.ToString("00")))
-                Else
-                    ' Instanced models and textures
-                    If v_boneGroups(id).node_list(i).Substring(0, 3).ToLower.Contains("tan") Then
-                        node_Vlist(cnt).NodeAttribute = Vmesh4
-                    Else
-                        If v_boneGroups(id).node_list(i).Substring(0, 3).ToLower.Contains("v_b") Then
-                            node_Vlist(cnt).NodeAttribute = Vmesh3
-                        Else
-                            If Not v_boneGroups(id).isTrack And Not v_boneGroups(id).node_list(i).Substring(0, 2).ToLower.Contains("w") Then
-                                node_Vlist(cnt).NodeAttribute = Vmesh2
-                            Else
-                                node_Vlist(cnt).NodeAttribute = Vmesh
-                            End If
-                        End If
-                    End If
-                    node_Vlist(cnt).AddMaterial(vMaterials(v_boneGroups(id).models(i).type))
-                    node_Vlist(cnt).ConnectSrcObject(vMaterials(v_boneGroups(id).models(i).type), FbxConnectionType.ConnectionDefault)
-
-                End If
-
-                m_node.AddChild(node_Vlist(cnt))
-
-                cnt += 1
-skip_v_:
-            Next
-            rootNode.AddChild(m_node)
-            rootNode.ConnectSrcObject(m_node, FbxConnectionType.ConnectionDefault)
-        Next
-NO_PINS:
         For id = 1 To object_count
             ReDim Preserve node_list(id + 1)
 
@@ -975,68 +802,7 @@ outahere:
 
 #Region "Import helpers"
 
-    Private Sub get_fbx_vNodeMatrix(ByRef childnode As FbxNode, ByRef scene As FbxScene, ByRef rootnode As FbxNode, ByVal grp As Integer, ByVal idx As Integer)
-        With fbx_boneGroups(grp)
-            .models(idx).translation = New FbxVector4
-            .models(idx).scale = New FbxVector4
-            .models(idx).rotation = New FbxVector4
 
-            Dim t As New FbxTime
-            Dim GlobalUnitScale = scene.GlobalSettings.FindProperty("UnitScaleFactor", False).GetValueAsDouble
-
-            Dim ls = childnode.GetLocalSFromDefaultTake(FbxNode.PivotSet.SourceSet)
-            If ls.X = 1.0 Then
-                ls.X = 0.1
-                ls.Y = 0.1
-                ls.Z = 1.0
-            End If
-
-            Dim nodeGT = rootnode.GetGlobalFromDefaultTake(FbxNode.PivotSet.DestinationSet)
-
-            Dim lr = childnode.GetLocalRFromDefaultTake(FbxNode.PivotSet.SourceSet)
-            Dim lt = childnode.GetLocalTFromCurrentTake(t)
-            Dim gr = childnode.Parent.GetLocalRFromCurrentTake(t)
-
-            Dim scaling = childnode.Scaling.GetValueAsDouble3
-
-            .models(idx).rotation = childnode.GetGeometricRotation(FbxNode.PivotSet.SourceSet)
-            .models(idx).translation = childnode.GetGeometricTranslation(FbxNode.PivotSet.SourceSet)
-            .models(idx).scale = childnode.GetGeometricScaling(FbxNode.PivotSet.SourceSet)
-            Dim fbx_matrix As New FbxXMatrix
-            fbx_matrix.SetIdentity()
-
-            Dim dr As New FbxVector4
-            Dim dt As New FbxVector4
-            Dim ds As New FbxVector4
-
-            Dim gm = childnode.GetGlobalFromCurrentTake(t)
-
-            childnode.GetDefaultR(dr)
-            childnode.GetDefaultS(ds)
-            childnode.GetDefaultT(dt)
-            .models(idx).rotation = childnode.GetGeometricRotation(FbxNode.PivotSet.SourceSet)
-            .models(idx).translation = childnode.GetGeometricTranslation(FbxNode.PivotSet.SourceSet)
-            .models(idx).scale = childnode.GetGeometricScaling(FbxNode.PivotSet.SourceSet)
-            Dim TnR As Double = 0
-            Try
-                TnR = Round(.models(idx).rotation.X, 6) + Round(.models(idx).rotation.Y, 6) + Round(.models(idx).rotation.Z, 6) _
-                    + Round(.models(idx).translation.X, 6) + Round(.models(idx).translation.Y, 6) + Round(.models(idx).translation.Z, 6)
-            Catch ex As Exception
-
-            End Try
-
-            fbx_matrix.SetTRS(lt, lr, ds)
-            fbx_matrix = gm
-            fbx_matrix.Transpose()
-
-            .node_matrices(idx) = New mat_
-            ReDim .node_matrices(idx).mat(15)
-            For i = 0 To 15
-                .node_matrices(idx).mat(i) = CSng(fbx_matrix.Item((i >> 2 And &H3), (i And &H3)))
-            Next
-
-        End With
-    End Sub
     Private Function readMeshdata(ByVal i As Integer, ByRef childnode As FbxNode, _
                                   start_vertex As Integer, start_index As Integer, _
                                   scene As FbxScene, rootnode As FbxNode, mesh As FbxMesh)

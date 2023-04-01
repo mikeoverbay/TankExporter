@@ -1058,10 +1058,6 @@ done:
     Private Sub load_models()
         load_binary_models()
         'load_x_models()
-        boneMarker = get_X_model_marker(Application.StartupPath + "\resources\models\marker.x", v_marker)
-        boneMarker2 = get_X_model_marker(Application.StartupPath + "\resources\models\marker_2.x", v_marker2)
-        boneMarker3 = get_X_model_marker(Application.StartupPath + "\resources\models\marker_3.x", v_marker3)
-        boneMarker4 = get_X_model_marker(Application.StartupPath + "\resources\models\marker_4.x", v_marker4)
 
     End Sub
 
@@ -5258,7 +5254,7 @@ fuckit:
     End Function
 
     '##################################################################################
-    Public Sub process_tank(ByVal save_tank As Boolean)
+    Public Function process_tank(ByVal save_tank As Boolean) As Boolean
         'need to set these before loading anyhing
         clean_house()
         remove_loaded_fbx()
@@ -5299,7 +5295,7 @@ fuckit:
                 End If
             Catch eex As Exception
                 MsgBox("Unable to find package file!", MsgBoxStyle.Exclamation, "Well shit...")
-                Return
+                Return False
             End Try
 
         End Try
@@ -5311,14 +5307,14 @@ fuckit:
         get_tank_parts_from_xml(xml_file, t)
         Application.DoEvents()
         If t.Tables.Count = 0 Then
-            Return
+            Return False
         End If
         '-----------------------------------
         'see if this is the old style tanks
         If GLOBAL_exclusionMask = 1 Then
             Dim et = t.Tables("exclusionMask")
-            Dim eq = From row In et.AsEnumerable _
-                        Select _
+            Dim eq = From row In et.AsEnumerable
+                     Select
                         na = row.Field(Of String)("name")
             exclusionMask_name = eq(0)
             Dim en = packages(current_tank_package)(exclusionMask_name)
@@ -5389,9 +5385,9 @@ fuckit:
             gun_tile(cnt).w = CSng(gt(3))
 
             turret_tile(cnt).x = CSng(ht(0))
-                turret_tile(cnt).y = CSng(ht(1))
-                turret_tile(cnt).z = CSng(ht(2))
-                turret_tile(cnt).w = CSng(ht(3))
+            turret_tile(cnt).y = CSng(ht(1))
+            turret_tile(cnt).z = CSng(ht(2))
+            turret_tile(cnt).w = CSng(ht(3))
 
 
             hull_tile(cnt).x = CSng(ht(0))
@@ -5402,7 +5398,7 @@ fuckit:
         Next
         If cnt = 0 Then
             bad_tanks.AppendLine(file_name)
-            Return
+            Return False
         End If
         ReDim Preserve gun_tile(cnt)
         ReDim Preserve turret_tile(cnt)
@@ -5422,7 +5418,7 @@ fuckit:
         Next
         If cnt = 0 Then
             bad_tanks.AppendLine(file_name)
-            Return
+            Return False
         End If
         ReDim Preserve chassis(cnt)
 
@@ -5552,7 +5548,9 @@ fuckit:
             '-------------------------------------------------------
             ' SHOW FORM
             WORKING = False
+            CONTINUE_LOADING = True
             frmComponents.ShowDialog(Me)
+
             WORKING = True
             If frmFBX.Visible Then
                 frmFBX.Location = Me.Location
@@ -5648,13 +5646,16 @@ fuckit:
                 nation_string = "italy"
         End Select
         TANK_NAME = "vehicles\" + ar(1) + "\" + ar(2) + ":" + current_tank_package.ToString
+        If Not CONTINUE_LOADING Then
+            Return False
+        End If
         '===================================
         Dim d = custom_tables(CURRENT_DATA_SET).Copy
         '===================================
 
         Dim tt = d.Tables("armorcolor")
         Dim qq = From row In tt.AsEnumerable
-        Select _
+                 Select
         armorC = row.Field(Of String)("aColor")
         ARMORCOLOR = get_vect4(qq(0))
         tt.Dispose()
@@ -5873,7 +5874,7 @@ fuckit:
             'MODEL_LOADED = False
             'clean_house()
             WORKING = False
-            Return
+            Return False
         End If
         part_counts = New part_counts_
         For i = 1 To object_count
@@ -6051,7 +6052,7 @@ fuckit:
         End If
 
         GC.Collect()
-            If FBX_LOADED Then
+        If FBX_LOADED Then
             m_show_fbx.Visible = True
             m_show_fbx.Checked = False
         End If
@@ -6059,8 +6060,8 @@ fuckit:
         m_hide_show_components.Enabled = True
         m_set_vertex_winding_order.Enabled = True
         WORKING = False
-
-    End Sub
+        Return True
+    End Function
 
     Private Sub write_vertex_data(ByVal o As obj, ByVal fw As BinaryWriter)
         For i As Integer = 1 To o.count
@@ -7129,10 +7130,18 @@ skip_old_way:
         m_show_fbx.Checked = False
         current_tank_name = file_name
         short_tank_name = tank_label.Text
-        process_tank(False) 'false .. don't save the binary tank file
+        Application.DoEvents()
+        'send false .. don't save the binary tank file
+        If Not process_tank(False) Then
+            'canceled or an error
+            TC1.Enabled = True
+            find_icon_image(TANK_NAME)
+            Return
+        End If
+        find_icon_image(TANK_NAME)
+
         m_ExportExtract.Enabled = True
         TC1.Enabled = True
-        find_icon_image(TANK_NAME)
         m_build_wotmod.Enabled = True
         m_load_textures.Enabled = True
         m_load_textures.Checked = True
@@ -7199,7 +7208,7 @@ skip_old_way:
         frmExtract.ShowDialog(Me)
     End Sub
 
-    Public Function find_icon_image(ByVal in_s As String) As Boolean
+    Public Sub find_icon_image(ByVal in_s As String)
 
         '1
         For Each n As TreeNode In TreeView1.Nodes
@@ -7370,9 +7379,9 @@ skip_old_way:
             End If
         Next
         'm_export_tank_list.Visible = True
-        Return False
+        Return
         Application.DoEvents()
-    End Function
+    End Sub
 
     Private Sub m_load_file_Click(sender As Object, e As EventArgs) Handles m_load_file.Click
         out_string.Length = 0
@@ -8270,7 +8279,6 @@ skip_old_way:
         'FBX_Texture_path = Path.GetDirectoryName(My.Settings.fbx_path) + "\" + Name
 
         STOP_FBX_SAVE = False
-        frmFBX.no_markers_cb.Checked = False
 
         Dim tc_ctrlls = SplitContainer2.Panel1.Controls
 

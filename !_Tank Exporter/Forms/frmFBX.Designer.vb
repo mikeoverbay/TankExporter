@@ -1,9 +1,9 @@
-﻿<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()> _
+﻿<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()>
 Partial Class frmFBX
     Inherits System.Windows.Forms.Form
 
     'Form overrides dispose to clean up the component list.
-    <System.Diagnostics.DebuggerNonUserCode()> _
+    <System.Diagnostics.DebuggerNonUserCode()>
     Protected Overrides Sub Dispose(ByVal disposing As Boolean)
         Try
             If disposing AndAlso components IsNot Nothing Then
@@ -20,7 +20,7 @@ Partial Class frmFBX
     'NOTE: The following procedure is required by the Windows Form Designer
     'It can be modified using the Windows Form Designer.  
     'Do not modify it using the code editor.
-    <System.Diagnostics.DebuggerStepThrough()> _
+    <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(frmFBX))
         Me.flip_u = New System.Windows.Forms.CheckBox()
@@ -35,7 +35,6 @@ Partial Class frmFBX
         Me.Label2 = New System.Windows.Forms.Label()
         Me.convert_normal_maps_cb = New System.Windows.Forms.CheckBox()
         Me.flip_normal_cb = New System.Windows.Forms.CheckBox()
-        Me.no_markers_cb = New System.Windows.Forms.CheckBox()
         Me.SuspendLayout()
         '
         'flip_u
@@ -124,7 +123,7 @@ Partial Class frmFBX
         Me.Label1.Name = "Label1"
         Me.Label1.Size = New System.Drawing.Size(243, 36)
         Me.Label1.TabIndex = 5
-        Me.Label1.Text = "This exporter uses Fbx Sdk 2009.1" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "To convert to other versions, Find" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "AutoDesk's" & _
+        Me.Label1.Text = "This exporter uses Fbx Sdk 2009.1" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "To convert to other versions, Find" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "AutoDesk's" &
     " FBX Converter"
         '
         'blender_cb
@@ -198,21 +197,6 @@ Partial Class frmFBX
         Me.flip_normal_cb.Text = "Flip Y Normal"
         Me.flip_normal_cb.UseVisualStyleBackColor = False
         '
-        'no_markers_cb
-        '
-        Me.no_markers_cb.AutoSize = True
-        Me.no_markers_cb.BackColor = System.Drawing.Color.Transparent
-        Me.no_markers_cb.Checked = Global.Tank_Exporter.My.MySettings.Default.No_Markers
-        Me.no_markers_cb.DataBindings.Add(New System.Windows.Forms.Binding("Checked", Global.Tank_Exporter.My.MySettings.Default, "No_Markers", True, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged))
-        Me.no_markers_cb.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.no_markers_cb.ForeColor = System.Drawing.Color.Yellow
-        Me.no_markers_cb.Location = New System.Drawing.Point(12, 240)
-        Me.no_markers_cb.Name = "no_markers_cb"
-        Me.no_markers_cb.Size = New System.Drawing.Size(155, 17)
-        Me.no_markers_cb.TabIndex = 11
-        Me.no_markers_cb.Text = "Do Not Export Markers"
-        Me.no_markers_cb.UseVisualStyleBackColor = False
-        '
         'frmFBX
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -221,7 +205,6 @@ Partial Class frmFBX
         Me.BackgroundImage = Global.Tank_Exporter.My.Resources.Resources.upton_BnW
         Me.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
         Me.ClientSize = New System.Drawing.Size(305, 381)
-        Me.Controls.Add(Me.no_markers_cb)
         Me.Controls.Add(Me.Label2)
         Me.Controls.Add(Me.Label1)
         Me.Controls.Add(Me.flip_normal_cb)
@@ -259,5 +242,4 @@ Partial Class frmFBX
     Friend WithEvents Label2 As System.Windows.Forms.Label
     Friend WithEvents convert_normal_maps_cb As System.Windows.Forms.CheckBox
     Friend WithEvents flip_normal_cb As System.Windows.Forms.CheckBox
-    Friend WithEvents no_markers_cb As System.Windows.Forms.CheckBox
 End Class

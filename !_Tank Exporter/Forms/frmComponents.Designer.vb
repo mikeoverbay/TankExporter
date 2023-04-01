@@ -32,6 +32,7 @@ Partial Class frmComponents
         Me.tv_hulls = New System.Windows.Forms.TreeView()
         Me.Label4 = New System.Windows.Forms.Label()
         Me.tv_chassis = New System.Windows.Forms.TreeView()
+        Me.cancel_btn = New System.Windows.Forms.Button()
         Me.SuspendLayout()
         '
         'tv_guns
@@ -56,7 +57,7 @@ Partial Class frmComponents
         '
         'continue_bt
         '
-        Me.continue_bt.Location = New System.Drawing.Point(116, 233)
+        Me.continue_bt.Location = New System.Drawing.Point(215, 233)
         Me.continue_bt.Name = "continue_bt"
         Me.continue_bt.Size = New System.Drawing.Size(75, 23)
         Me.continue_bt.TabIndex = 2
@@ -123,12 +124,22 @@ Partial Class frmComponents
         Me.tv_chassis.Size = New System.Drawing.Size(136, 69)
         Me.tv_chassis.TabIndex = 8
         '
+        'cancel_btn
+        '
+        Me.cancel_btn.Location = New System.Drawing.Point(73, 233)
+        Me.cancel_btn.Name = "cancel_btn"
+        Me.cancel_btn.Size = New System.Drawing.Size(75, 23)
+        Me.cancel_btn.TabIndex = 10
+        Me.cancel_btn.Text = "Cancel"
+        Me.cancel_btn.UseVisualStyleBackColor = True
+        '
         'frmComponents
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.Color.FromArgb(CType(CType(33, Byte), Integer), CType(CType(33, Byte), Integer), CType(CType(33, Byte), Integer))
         Me.ClientSize = New System.Drawing.Size(302, 266)
+        Me.Controls.Add(Me.cancel_btn)
         Me.Controls.Add(Me.Label4)
         Me.Controls.Add(Me.tv_chassis)
         Me.Controls.Add(Me.Label3)
@@ -156,4 +167,5 @@ Partial Class frmComponents
     Friend WithEvents tv_hulls As TreeView
     Friend WithEvents Label4 As Label
     Friend WithEvents tv_chassis As TreeView
+    Friend WithEvents cancel_btn As Button
 End Class
