@@ -9186,7 +9186,7 @@ load_script:
 
 
         Dim f_script = SaveFileDialog1.FileName.Replace(".wotmod", "_scripts.wotmod")
-        Dim f_model = SaveFileDialog1.FileName.Replace(".wotmod", ".wotmod")
+        Dim f_model = SaveFileDialog1.FileName
 
         If File.Exists(f_model) Then
             File.Delete(f_model)
@@ -9240,17 +9240,27 @@ load_script:
         '------------------------------------------------------------------
 
         'we have all files in the temp res folder.. now lets fix paths in xmls
-        If Not validate_tank_data(new_path + tank + "\", frmAuthor.creator_tb.Text, tank) Then
-            Directory.Delete(new_path, True) 'somthing went wrong.. delete temp res folder and return
-            GC.Collect() 'cleans out garbage in the garbage collecor
-            Return
-        End If
+        'If Not validate_tank_data(new_path + tank + "\", frmAuthor.creator_tb.Text, tank) Then
+        '    Directory.Delete(new_path, True) 'somthing went wrong.. delete temp res folder and return
+        '    GC.Collect() 'cleans out garbage in the garbage collecor
+        '    Return
+        'End If
 
         Dim tank_sr_name = Path.GetFileName(public_icon_path)
         Dim an = tank_sr_name.Split("-")
-        tank_sr_name = an(1)
-        Dim sss = public_icon_path.Replace(an(0) + "-", "")
-        Dim srs = Path.GetDirectoryName(sss) + public_icon_path.Replace(public_icon_path.Replace(an(1) + "-", ""), "\420x307\" + tank_sr_name)
+        Dim sss As String = ""
+        Dim srs As String = ""
+        If an.Length > 1 Then
+            sss = public_icon_path.Replace(an(0) + "-", "")
+            srs = Path.GetDirectoryName(sss) + public_icon_path.Replace(public_icon_path.Replace(an(1) + "-", ""), "\420x307\" + tank_sr_name)
+            tank_sr_name = an(1)
+        Else
+            sss = public_icon_path.Replace(an(0) + "-", "")
+            srs = Path.GetDirectoryName(sss) + public_icon_path.Replace(public_icon_path.Replace(an(0) + "-", ""), "\" + tank_sr_name)
+            tank_sr_name = an(0)
+        End If
+
+
 
         Dim source_420x307_path = My.Settings.res_mods_path + "\" + srs
         Dim dest_420x307_path = My.Settings.res_mods_path + "\temp\res\" + srs
@@ -9261,7 +9271,7 @@ load_script:
         Dim source_gui_path As String = My.Settings.res_mods_path + "\" + public_icon_path
         Dim dest_gui_path As String = My.Settings.res_mods_path + "\temp\res\" + public_icon_path
         Dim source_path As String = My.Settings.res_mods_path + "\res\" + p_path
-        Dim final_path = new_path_save + "\" + frmAuthor.creator_tb.Text + "\remodels"
+        Dim final_path = new_path_save ' + "\" + frmAuthor.creator_tb.Text + "\remodels"
         Directory.CreateDirectory(final_path)
         CopyDirectory(source_path, final_path)
         CopyDirectory(source_scripts_path, dest_scripts_path)
@@ -9271,12 +9281,12 @@ load_script:
             End If
             File.Copy(source_gui_path, dest_gui_path)
         End If
-        If File.Exists(source_420x307_path) Then
-            If Not Directory.Exists(Path.GetDirectoryName(dest_420x307_path)) Then
-                Directory.CreateDirectory(Path.GetDirectoryName(dest_420x307_path))
-            End If
-            File.Copy(source_420x307_path, dest_420x307_path)
-        End If
+        'If File.Exists(source_420x307_path) Then
+        '    If Not Directory.Exists(Path.GetDirectoryName(dest_420x307_path)) Then
+        '        Directory.CreateDirectory(Path.GetDirectoryName(dest_420x307_path))
+        '    End If
+        '    File.Copy(source_420x307_path, dest_420x307_path)
+        'End If
         Directory.Delete(new_path, True) 'clean out old data
         'Return
         'save the meta.xml
@@ -9485,10 +9495,6 @@ load_script:
 
 #End Region
 
-
-    Private Sub m_ExportExtract_Click(sender As Object, e As EventArgs) Handles m_ExportExtract.Click
-
-    End Sub
 
     Private Sub m_region_combo_SelectedIndexChanged(sender As Object, e As EventArgs) Handles m_region_combo.SelectedIndexChanged
         My.Settings.region_selection = m_region_combo.SelectedItem.ToString
