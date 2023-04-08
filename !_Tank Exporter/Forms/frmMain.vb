@@ -57,6 +57,7 @@ Public Class frmMain
     Public found_triangle_tv As Integer
     Private TOTAL_TANKS_FOUND As Integer = 0
     Private itemDefXmlString As String = ""
+    Private itemDefXmlUncompressed() As Byte
     Private itemDefPathString As String = ""
     Private sorted As Boolean
 
@@ -1572,6 +1573,10 @@ loaded_jump:
         End If
         Dim ms As New MemoryStream
         f.Extract(ms)
+        Dim binaryreader As New BinaryReader(ms)
+        ms.Position = 0
+        ReDim itemDefXmlUncompressed(ms.Length)
+        itemDefXmlUncompressed = binaryreader.ReadBytes(ms.Length - 1)
         openXml_stream_3(ms, "nation")
         ms.Dispose()
         Dim docx = XDocument.Parse(TheXML_String)
@@ -6753,6 +6758,7 @@ fuckit:
                 Try ' catch any exception thrown
 
                     Dim ip = My.Settings.res_mods_path + "\" + itemDefPathString.Replace(" ", "")
+                    File.WriteAllBytes(ip, itemDefXmlUncompressed)
                     'prep_tanks_xml(itemDefXmlString)
                     'itemDefXmlString = itemDefXmlString.Replace("  ", vbTab)
                     'itemDefXmlString = itemDefXmlString.Replace("><", ">" + vbCrLf + "<")
@@ -6779,11 +6785,11 @@ fuckit:
                     'itemDefXmlString = itemDefXmlString.Replace("rect1x6direction",
                     '                                            "rect1x6 direction")
 
-                    If Not Directory.Exists(Path.GetDirectoryName(ip)) Then
-                        Directory.CreateDirectory(Path.GetDirectoryName(ip))
-                    End If
-                    itemDefXmlString = itemDefXmlString.Replace("map_nation", Path.GetFileNameWithoutExtension(ip) + ".xml")
-                    File.WriteAllText(ip, itemDefXmlString, Encoding.ASCII)
+                    'If Not Directory.Exists(Path.GetDirectoryName(ip)) Then
+                    '    Directory.CreateDirectory(Path.GetDirectoryName(ip))
+                    'End If
+                    'itemDefXmlString = itemDefXmlString.Replace("map_nation", Path.GetFileNameWithoutExtension(ip) + ".xml")
+                    'File.WriteAllText(ip, itemDefXmlString, Encoding.ASCII)
                 Catch ex As Exception
                     itemDefXmlString = ts
                     MsgBox(file_name + vbCrLf + ex.Message, MsgBoxStyle.Critical, "Shit!!")
@@ -6791,7 +6797,7 @@ fuckit:
                     Return
                 End Try
 
-                itemDefXmlString = ts
+                'itemDefXmlString = ts
 
             End If
             Dim tar = itemDefXmlString.Split(vbCrLf)
