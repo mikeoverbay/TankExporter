@@ -16,6 +16,12 @@ I created a fix for this but it takes a little effort to use it.</br>
 Read this Issue thread to get the fix and how to use it.</br>
 https://github.com/mikeoverbay/TankExporter/issues/23
 
+## Version 131,130,129,128 
+Fixes to bufferes, search is changed, item_defs xml is no longer decompressed when extracted.
+There is a bug in my extraction code that gets found in the newer XML defs.
+There are tools to edit decompress and edit it. I even wrote one BUT!!!
+It probably has the same bug in it as the decompression code is the same.
+
 ## Version 127:
 Added more room for the amount of skins on some tanks.
 
