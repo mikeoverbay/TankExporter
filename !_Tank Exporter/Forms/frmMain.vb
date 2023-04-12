@@ -646,7 +646,81 @@ done:
             End If
             Application.DoEvents()
             '====================================================================================================
-            '====================================================================================================
+            Dim arc = Ionic.Zip.ZipFile.Read(My.Settings.game_path + "\res\packages\shared_content-part1.pkg")
+            Try
+                info_Label.Text = "getting decals from shared_content pkgs"
+                For Each entry In arc
+
+                    If entry.FileName.ToLower.Contains("decals_pbs") Then
+                        entry.Extract(decal_path, ExtractExistingFileAction.OverwriteSilently)
+                        Application.DoEvents()
+                    End If
+                Next
+            Catch ex As Exception
+            End Try
+            Try
+
+            Catch ex As Exception
+                arc = Ionic.Zip.ZipFile.Read(My.Settings.game_path + "\res\packages\shared_content_hd-part1.pkg")
+                For Each entry In arc
+
+                    If entry.FileName.ToLower.Contains("decals_pbs") Then
+                        entry.Extract(decal_path, ExtractExistingFileAction.OverwriteSilently)
+                        Application.DoEvents()
+                    End If
+                Next
+
+            End Try
+            Try
+                arc = Ionic.Zip.ZipFile.Read(My.Settings.game_path + "\res\packages\shared_content-part2.pkg")
+                For Each entry In arc
+
+                    If entry.FileName.ToLower.Contains("decals_pbs") Then
+                        entry.Extract(decal_path, ExtractExistingFileAction.OverwriteSilently)
+                        Application.DoEvents()
+                    End If
+                Next
+            Catch ex As Exception
+
+            End Try
+
+            Try
+                arc = Ionic.Zip.ZipFile.Read(My.Settings.game_path + "\res\packages\shared_content_hd-part2.pkg")
+                For Each entry In arc
+
+                    If entry.FileName.ToLower.Contains("decals_pbs") Then
+                        entry.Extract(decal_path, ExtractExistingFileAction.OverwriteSilently)
+                        Application.DoEvents()
+                    End If
+                Next
+            Catch ex As Exception
+
+            End Try
+            Try
+                arc = Ionic.Zip.ZipFile.Read(My.Settings.game_path + "\res\packages\shared_content_hd-part3.pkg")
+                For Each entry In arc
+
+                    If entry.FileName.ToLower.Contains("decals_pbs") Then
+                        entry.Extract(decal_path, ExtractExistingFileAction.OverwriteSilently)
+                        Application.DoEvents()
+                    End If
+                Next
+            Catch ex As Exception
+
+            End Try
+
+            Try
+                arc = Ionic.Zip.ZipFile.Read(My.Settings.game_path + "\res\packages\shared_content-part3.pkg")
+                For Each entry In arc
+
+                    If entry.FileName.ToLower.Contains("decals_pbs") Then
+                        entry.Extract(decal_path, ExtractExistingFileAction.OverwriteSilently)
+                        Application.DoEvents()
+                    End If
+                Next
+            Catch ex As Exception
+
+            End Try         '====================================================================================================
             tank_label.Parent = iconbox
             tank_label.Text = ""
             tank_label.Location = New Point(5, 10)
