@@ -672,6 +672,42 @@ done:
 
             End Try
             Try
+                arc = Ionic.Zip.ZipFile.Read(My.Settings.game_path + "\res\packages\208_bf_epic_normandy.pkg")
+                For Each entry In arc
+
+                    If entry.FileName.ToLower.Contains("decals_pbs") Then
+                        entry.Extract(decal_path, ExtractExistingFileAction.OverwriteSilently)
+                        Application.DoEvents()
+                    End If
+                Next
+            Catch ex As Exception
+
+            End Try
+            Try
+                arc = Ionic.Zip.ZipFile.Read(My.Settings.game_path + "\res\packages\07_lakeville.pkg")
+                For Each entry In arc
+
+                    If entry.FileName.ToLower.Contains("decals_pbs") Then
+                        entry.Extract(decal_path, ExtractExistingFileAction.OverwriteSilently)
+                        Application.DoEvents()
+                    End If
+                Next
+            Catch ex As Exception
+
+            End Try
+            Try
+                arc = Ionic.Zip.ZipFile.Read(My.Settings.game_path + "\res\packages\19_monastery.pkg")
+                For Each entry In arc
+
+                    If entry.FileName.ToLower.Contains("decals_pbs") Then
+                        entry.Extract(decal_path, ExtractExistingFileAction.OverwriteSilently)
+                        Application.DoEvents()
+                    End If
+                Next
+            Catch ex As Exception
+
+            End Try
+            Try
                 arc = Ionic.Zip.ZipFile.Read(My.Settings.game_path + "\res\packages\shared_content-part2.pkg")
                 For Each entry In arc
 
