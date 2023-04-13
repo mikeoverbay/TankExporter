@@ -19,7 +19,6 @@ Imports System.Threading
 Imports System.Data
 Imports Skill.FbxSDK
 Imports Skill.FbxSDK.IO
-Imports SlimDX
 Imports cttools
 Module modFBX
     Public t_fbx(0) As _grps
@@ -497,10 +496,10 @@ outofhere:
             'Dim m As New FbxXMatrix
             Dim m_ = _object(id).matrix
 
-            Dim scale As New SlimDX.Vector3
-            Dim rot As New SlimDX.Quaternion
-            Dim trans As New SlimDX.Vector3
-            Dim Mt As New SlimDX.Matrix
+            Dim scale As New SharpDX.Vector3
+            Dim rot As New SharpDX.Quaternion
+            Dim trans As New SharpDX.Vector3
+            Dim Mt As New SharpDX.Matrix
             Mt = load_matrix_decompose(m_, trans, scale, rot)
 
             Dim r_vector As New FbxVector4(rot.X, 0.0, rot.Z, rot.W)
@@ -679,10 +678,10 @@ outahere:
 
             Dim m_ = _object(id).matrix
 
-            Dim scale As New SlimDX.Vector3
-            Dim rot As New SlimDX.Quaternion
-            Dim trans As New SlimDX.Vector3
-            Dim Mt As New SlimDX.Matrix
+            Dim scale As New SharpDX.Vector3
+            Dim rot As New SharpDX.Quaternion
+            Dim trans As New SharpDX.Vector3
+            Dim Mt As New SharpDX.Matrix
             Mt = load_matrix_decompose(m_, trans, scale, rot)
 
 
@@ -1804,7 +1803,7 @@ whichone:
             Dim p1 = fbxgrp(i).indicies(k + 0).v1
             Dim p2 = fbxgrp(i).indicies(k + 1).v1
             Dim p3 = fbxgrp(i).indicies(k + 2).v1
-            Dim v1, v2, v3 As Vector3
+            Dim v1, v2, v3 As SharpDX.Vector3
             v1.X = fbxgrp(i).vertices(p1).x
             v1.Y = fbxgrp(i).vertices(p1).y
             v1.Z = fbxgrp(i).vertices(p1).z
@@ -1817,8 +1816,8 @@ whichone:
             v3.Y = fbxgrp(i).vertices(p3).y
             v3.Z = fbxgrp(i).vertices(p3).z
 
-            Dim Dir = Vector3.Cross(v2 - v1, v3 - v1)
-            Dim n = Vector3.Normalize(Dir)
+            Dim Dir = SharpDX.Vector3.Cross(v2 - v1, v3 - v1)
+            Dim n = SharpDX.Vector3.Normalize(Dir)
             Dim n2 As New FbxVector4
             n2.X = n.X
             n2.Y = n.Y
@@ -1870,14 +1869,14 @@ whichone:
     End Sub
 
     Private Sub setFbxMatrix(ByRef m_() As Double, ByRef fb As FbxXMatrix)
-        Dim m As New SlimDX.Matrix
+        Dim m As New SharpDX.Matrix
         For i = 1 To 3
             For j = 1 To 3
                 m.Item(j, i) = m_((i * 4) + j)
             Next
         Next
-        Dim r As SlimDX.Quaternion
-        Dim t, s As SlimDX.Vector3
+        Dim r As SharpDX.Quaternion
+        Dim t, s As SharpDX.Vector3
         m.Decompose(s, r, t)
         Dim vs As New FbxVector4(s.X, s.Y, s.Z, 1.0)
         Dim vt As New FbxVector4(t.X, t.X, t.Z, 1.0)
@@ -2297,11 +2296,11 @@ whichone:
         Return texture
     End Function
 
-    Private Function load_matrix_decompose(data() As Double, ByRef trans As SlimDX.Vector3, ByRef scale As SlimDX.Vector3, ByRef rot As SlimDX.Quaternion) As SlimDX.Matrix
-        Dim m_ As New SlimDX.Matrix
+    Private Function load_matrix_decompose(data() As Double, ByRef trans As SharpDX.Vector3, ByRef scale As SharpDX.Vector3, ByRef rot As SharpDX.Quaternion) As SharpDX.Matrix
+        Dim m_ As New SharpDX.Matrix
         For i = 0 To 3
             For k = 0 To 3
-                m_(i, k) = data((i * 4) + k)
+                'm_(i, k) = data((i * 4) + k)
             Next
         Next
         'm_(0, 0) *= -1.0

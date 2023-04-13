@@ -130,7 +130,7 @@ Module modGlobals
     End Structure
     Public Structure path_data_
         Dim dist As Single
-        Dim pos1 As SlimDX.Vector3
+        Dim pos1 As SharpDX.Vector3
         Dim z1, y1 As Single
         Dim z2, y2 As Single
         Dim zc, yc As Single
@@ -146,7 +146,7 @@ Module modGlobals
         Public right_path2 As String
         Public segment_length, segment_offset1, segment_offset2 As Single
         Public segment_count As Integer
-        Public spline_list() As SlimDX.Vector3
+        Public spline_list() As SharpDX.Vector3
         Public spline_length As Integer
     End Structure
     Public API_REGION As String = ""
@@ -267,7 +267,7 @@ Module modGlobals
         Dim matrix() As Single
         Dim name As String
         Dim id As String
-        Public position As SlimDX.Vector3
+        Public position As SharpDX.Vector3
     End Structure
 
     Public tier_list(1) As tnk_list

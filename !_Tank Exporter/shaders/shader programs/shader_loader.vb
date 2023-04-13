@@ -1,9 +1,5 @@
-﻿Imports System
+﻿Imports System.IO
 Imports System.Text
-Imports System.String
-Imports System.IO
-Imports Tao.OpenGl
-Imports Tao.Platform.Windows
 Module shader_loader
     Public shader_list As New shader_list_
     Public Class shader_list_
@@ -93,7 +89,7 @@ Module shader_loader
                     .vertex = v_list(i)
                     .geo = ""
                     For Each g In g_list ' find matching geo if there is one.. usually there wont be
-                        If g.Contains(ar(0)) Then
+                        If Path.GetFileNameWithoutExtension(g).Contains(ar(0)) Then
                             .geo = g
                             .has_geo = True ' found a matching geo so we need to set this true
                         End If

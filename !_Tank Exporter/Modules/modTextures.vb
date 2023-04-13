@@ -1159,7 +1159,6 @@ save_it:
         'dds_ms.Dispose()
         '==================================================================================
         ReDim atlas_images_coords(160) 'make room for textures
-        Dim w, h As Integer
         Dim cnt As Integer = 0
         Gl.glEnable(Gl.GL_TEXTURE_2D)
 

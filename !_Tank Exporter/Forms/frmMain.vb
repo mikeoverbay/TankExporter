@@ -3226,6 +3226,7 @@ loaded_jump:
         If MODEL_LOADED And m_load_textures.Checked And Not m_show_fbx.Checked And Not m_simple_lighting.Checked And Not PRIMITIVES_MODE Then
             'Gl.glDisable(Gl.GL_BLEND)
             view_status_string += "Textured : "
+            Gl.glEnable(Gl.GL_TEXTURE_2D)
 
             G_Buffer.attachColor_And_blm_tex1()
 
@@ -6295,7 +6296,7 @@ fuckit:
         Dim cnt As Integer
         Dim z__ As Decimal
 
-        Dim p1, p2, p3 As SlimDX.Vector3
+        Dim p1, p2, p3 As SharpDX.Vector3
 
         p1 = path_data(check_pos(pos, path_pointer)).pos1
         p2 = path_data(check_pos(pos + 1, path_pointer)).pos1

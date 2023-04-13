@@ -11,13 +11,13 @@ Module catMull_Rom
         'Display a spline between 2 points derived with the Catmull-Rom spline algorithm
         Public Sub GetCatmullRomSpline1(ByVal pos As Integer)
             'The 4 points we need to form a spline between p1 and p2
-            Dim p0 As SlimDX.Vector3 = tracks(ClampListPos(pos - 1)).position
-            Dim p1 As SlimDX.Vector3 = tracks(pos).position
-            Dim p2 As SlimDX.Vector3 = tracks(ClampListPos(pos + 1)).position
-            Dim p3 As SlimDX.Vector3 = tracks(ClampListPos(pos + 2)).position
+            Dim p0 As SharpDX.Vector3 = tracks(ClampListPos(pos - 1)).position
+            Dim p1 As SharpDX.Vector3 = tracks(pos).position
+            Dim p2 As SharpDX.Vector3 = tracks(ClampListPos(pos + 1)).position
+            Dim p3 As SharpDX.Vector3 = tracks(ClampListPos(pos + 2)).position
 
             'The start position of the line
-            Dim lastPos As SlimDX.Vector3 = p1
+            Dim lastPos As SharpDX.Vector3 = p1
 
             'The spline's resolution
             'Make sure it's is adding up to 1, so 0.3 will give a gap, but 0.2 will work
@@ -30,7 +30,7 @@ Module catMull_Rom
                 Dim t As Single = i * resolution
 
                 'Find the coordinate between the end points with a Catmull-Rom spline
-                Dim newPos As SlimDX.Vector3 = GetCatmullRomPosition(t, p0, p1, p2, p3)
+                Dim newPos As SharpDX.Vector3 = GetCatmullRomPosition(t, p0, p1, p2, p3)
 
                 'Draw this line segment
                 ' Gizmos.DrawLine(lastPos, newPos)
@@ -62,13 +62,13 @@ Module catMull_Rom
         End Sub
         Public Sub GetCatmullRomSpline2(ByVal pos As Integer)
             'The 4 points we need to form a spline between p1 and p2
-            Dim p0 As SlimDX.Vector3 = tracks(ClampListPos(pos - 1)).position
-            Dim p1 As SlimDX.Vector3 = tracks(pos).position
-            Dim p2 As SlimDX.Vector3 = tracks(ClampListPos(pos + 1)).position
-            Dim p3 As SlimDX.Vector3 = tracks(ClampListPos(pos + 2)).position
+            Dim p0 As SharpDX.Vector3 = tracks(ClampListPos(pos - 1)).position
+            Dim p1 As SharpDX.Vector3 = tracks(pos).position
+            Dim p2 As SharpDX.Vector3 = tracks(ClampListPos(pos + 1)).position
+            Dim p3 As SharpDX.Vector3 = tracks(ClampListPos(pos + 2)).position
 
             'The start position of the line
-            Dim lastPos As SlimDX.Vector3 = p1
+            Dim lastPos As SharpDX.Vector3 = p1
 
             'The spline's resolution
             'Make sure it's is adding up to 1, so 0.3 will give a gap, but 0.2 will work
@@ -81,7 +81,7 @@ Module catMull_Rom
                 Dim t As Single = i * resolution
 
                 'Find the coordinate between the end points with a Catmull-Rom spline
-                Dim newPos As SlimDX.Vector3 = GetCatmullRomPosition(t, p0, p1, p2, p3)
+                Dim newPos As SharpDX.Vector3 = GetCatmullRomPosition(t, p0, p1, p2, p3)
 
                 'Draw this line segment
                 ' Gizmos.DrawLine(lastPos, newPos)
@@ -113,13 +113,13 @@ Module catMull_Rom
         End Sub
         Public Sub CatmullRomSpline_get_length(ByVal pos As Integer)
             'The 4 points we need to form a spline between p1 and p2
-            Dim p0 As SlimDX.Vector3 = tracks(ClampListPos(pos - 1)).position
-            Dim p1 As SlimDX.Vector3 = tracks(pos).position
-            Dim p2 As SlimDX.Vector3 = tracks(ClampListPos(pos + 1)).position
-            Dim p3 As SlimDX.Vector3 = tracks(ClampListPos(pos + 2)).position
+            Dim p0 As SharpDX.Vector3 = tracks(ClampListPos(pos - 1)).position
+            Dim p1 As SharpDX.Vector3 = tracks(pos).position
+            Dim p2 As SharpDX.Vector3 = tracks(ClampListPos(pos + 1)).position
+            Dim p3 As SharpDX.Vector3 = tracks(ClampListPos(pos + 2)).position
 
             'The start position of the line
-            Dim lastPos As SlimDX.Vector3 = p1
+            Dim lastPos As SharpDX.Vector3 = p1
 
             'The spline's resolution
             'Make sure it's is adding up to 1, so 0.3 will give a gap, but 0.2 will work
@@ -132,7 +132,7 @@ Module catMull_Rom
                 Dim t As Single = i * resolution
 
                 'Find the coordinate between the end points with a Catmull-Rom spline
-                Dim newPos As SlimDX.Vector3 = GetCatmullRomPosition(t, p0, p1, p2, p3)
+                Dim newPos As SharpDX.Vector3 = GetCatmullRomPosition(t, p0, p1, p2, p3)
 
                 'Draw this line segment
                 ' Gizmos.DrawLine(lastPos, newPos)
@@ -150,13 +150,13 @@ Module catMull_Rom
 
         Public Sub DisplayCatmullRomSpline(ByVal pos As Integer)
             'The 4 points we need to form a spline between p1 and p2
-            Dim p0 As SlimDX.Vector3 = tracks(ClampListPos(pos - 1)).position
-            Dim p1 As SlimDX.Vector3 = tracks(pos).position
-            Dim p2 As SlimDX.Vector3 = tracks(ClampListPos(pos + 1)).position
-            Dim p3 As SlimDX.Vector3 = tracks(ClampListPos(pos + 2)).position
+            Dim p0 As SharpDX.Vector3 = tracks(ClampListPos(pos - 1)).position
+            Dim p1 As SharpDX.Vector3 = tracks(pos).position
+            Dim p2 As SharpDX.Vector3 = tracks(ClampListPos(pos + 1)).position
+            Dim p3 As SharpDX.Vector3 = tracks(ClampListPos(pos + 2)).position
 
             'The start position of the line
-            Dim lastPos As SlimDX.Vector3 = p1
+            Dim lastPos As SharpDX.Vector3 = p1
 
             'The spline's resolution
             'Make sure it's is adding up to 1, so 0.3 will give a gap, but 0.2 will work
@@ -169,7 +169,7 @@ Module catMull_Rom
                 Dim t As Single = i * resolution
 
                 'Find the coordinate between the end points with a Catmull-Rom spline
-                Dim newPos As SlimDX.Vector3 = GetCatmullRomPosition(t, p0, p1, p2, p3)
+                Dim newPos As SharpDX.Vector3 = GetCatmullRomPosition(t, p0, p1, p2, p3)
                 If running = 0.0 Then
                     Gl.glPushMatrix()
                     Gl.glTranslatef(newPos.X, newPos.Y, newPos.Z)
@@ -205,17 +205,17 @@ Module catMull_Rom
             Return pos
         End Function
 
-        'Returns a position between 4 SlimDX.Vector3 with Catmull-Rom spline algorithm
+        'Returns a position between 4 SharpDX.Vector3 with Catmull-Rom spline algorithm
         'http://www.iquilezles.org/www/articles/minispline/minispline.htm
-        Private Function GetCatmullRomPosition(t As Single, p0 As SlimDX.Vector3, p1 As SlimDX.Vector3, p2 As SlimDX.Vector3, p3 As SlimDX.Vector3) As SlimDX.Vector3
+        Private Function GetCatmullRomPosition(t As Single, p0 As SharpDX.Vector3, p1 As SharpDX.Vector3, p2 As SharpDX.Vector3, p3 As SharpDX.Vector3) As SharpDX.Vector3
             'The coefficients of the cubic polynomial (except the 0.5f * which I added later for performance)
-            Dim a As SlimDX.Vector3 = 2.0F * p1
-            Dim b As SlimDX.Vector3 = p2 - p0
-            Dim c As SlimDX.Vector3 = 2.0F * p0 - 5.0F * p1 + 4.0F * p2 - p3
-            Dim d As SlimDX.Vector3 = -p0 + 3.0F * p1 - 3.0F * p2 + p3
+            Dim a As SharpDX.Vector3 = 2.0F * p1
+            Dim b As SharpDX.Vector3 = p2 - p0
+            Dim c As SharpDX.Vector3 = 2.0F * p0 - 5.0F * p1 + 4.0F * p2 - p3
+            Dim d As SharpDX.Vector3 = -p0 + 3.0F * p1 - 3.0F * p2 + p3
 
             'The cubic polynomial: a + b * t + c * t^2 + d * t^3
-            Dim pos As SlimDX.Vector3 = 0.5F * (a + (b * t) + (c * t * t) + (d * t * t * t))
+            Dim pos As SharpDX.Vector3 = 0.5F * (a + (b * t) + (c * t * t) + (d * t * t * t))
 
             Return pos
         End Function

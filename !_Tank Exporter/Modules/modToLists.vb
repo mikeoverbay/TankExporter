@@ -20,7 +20,6 @@ Imports System.Threading
 Imports System.Data
 Imports Skill.FbxSDK
 Imports Skill.FbxSDK.IO
-Imports SlimDX
 Imports cttools
 #End Region
 
