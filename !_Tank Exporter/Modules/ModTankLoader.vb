@@ -2740,7 +2740,8 @@ get_visual:
             Gl.glMultiTexCoord3f(2, _object(jj).tris(i).b1.x, _object(jj).tris(i).b1.y, _object(jj).tris(i).b1.z) ' bitangent
             Gl.glMultiTexCoord2f(4, _object(jj).tris(i).uv1_2.u, _object(jj).tris(i).uv1_2.v) 'uv2
             'Gl.glMultiTexCoord4f(5, _object(jj).tris(i).c1.x, _object(jj).tris(i).c1.y, _object(jj).tris(i).c1.z, _object(jj).tris(i).c1.w) 'color
-
+            'must have these for AMD!!!
+            Gl.glTexCoord2f(_object(jj).tris(i).uv1.u, _object(jj).tris(i).uv1.v)
             'Gl.glMultiTexCoord3f(3, _object(jj).tris(i).color1.x, _object(jj).tris(i).color1.y, _object(jj).tris(i).color1.z) 'color
 
             Gl.glVertex3f(_object(jj).tris(i).v1.x, _object(jj).tris(i).v1.y, _object(jj).tris(i).v1.z) 'vertex
@@ -2751,6 +2752,8 @@ get_visual:
             Gl.glMultiTexCoord3f(2, _object(jj).tris(i).b2.x, _object(jj).tris(i).b2.y, _object(jj).tris(i).b2.z)
             Gl.glMultiTexCoord2f(4, _object(jj).tris(i).uv2_2.u, _object(jj).tris(i).uv2_2.v) 'uv2
             'Gl.glMultiTexCoord4f(5, _object(jj).tris(i).c2.x, _object(jj).tris(i).c2.y, _object(jj).tris(i).c2.z, _object(jj).tris(i).c2.w) 'color
+            'must have these for AMD!!!
+            Gl.glTexCoord2f(_object(jj).tris(i).uv2.u, _object(jj).tris(i).uv2.v)
 
             'Gl.glMultiTexCoord3f(3, _object(jj).tris(i).color2.x, _object(jj).tris(i).color2.y, _object(jj).tris(i).color2.z) 'color
 
@@ -2762,6 +2765,8 @@ get_visual:
             Gl.glMultiTexCoord3f(2, _object(jj).tris(i).b3.x, _object(jj).tris(i).b3.y, _object(jj).tris(i).b3.z)
             Gl.glMultiTexCoord2f(4, _object(jj).tris(i).uv3_2.u, _object(jj).tris(i).uv3_2.v) 'uv2
             'Gl.glMultiTexCoord4f(5, _object(jj).tris(i).c3.x, _object(jj).tris(i).c3.y, _object(jj).tris(i).c3.z, _object(jj).tris(i).c3.w) 'color
+            'must have these for AMD!!!
+            Gl.glTexCoord2f(_object(jj).tris(i).uv3.u, _object(jj).tris(i).uv3.v)
 
             'Gl.glMultiTexCoord3f(3, _object(jj).tris(i).color3.x, _object(jj).tris(i).color3.y, _object(jj).tris(i).color3.z) 'color
 

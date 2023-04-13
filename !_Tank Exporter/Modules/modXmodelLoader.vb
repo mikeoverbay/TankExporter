@@ -31,7 +31,7 @@ Module modXmodelLoader
             Gl.glNormal3f(v.x, v.y, v.z)
             v.x = br.ReadSingle
             v.y = br.ReadSingle
-            Gl.glMultiTexCoord2f(0, v.x, v.y)
+            Gl.glTexCoord2f(v.x, v.y)
             v.x = br.ReadSingle
             v.y = br.ReadSingle
             v.z = br.ReadSingle

@@ -1,29 +1,6 @@
 ﻿#Region "imports"
-Imports System.Windows
-Imports System.Windows.Forms
-Imports System.Drawing
-Imports System.Drawing.Drawing2D
-Imports System.Net
-Imports System.Text
 Imports System.IO
-Imports System.Xml
-Imports System.Web
-Imports Tao.OpenGl
-Imports Tao.Platform.Windows
-Imports Tao.FreeGlut
-Imports Tao.FreeGlut.Glut
-Imports Microsoft.VisualBasic.Strings
-Imports System.Math
-Imports System.Object
-Imports System.Threading
-Imports System.Data
-Imports Tao.DevIl
-Imports System.Runtime.InteropServices
-Imports System.Runtime.CompilerServices
-Imports System.Collections.Generic
-Imports Ionic.Zip
-Imports System.Drawing.Imaging
-Imports System.Globalization
+Imports System.Windows
 #End Region
 
 
@@ -48,7 +25,7 @@ Public Class frmScreenCap
 
     End Sub
 
-    Public Sub set_size()
+    Private Sub Set_size_img_size()
         If x1980x1200_rb.Checked Then
             r_size.Width = 1920
             r_size.Height = 1200
@@ -150,7 +127,7 @@ Public Class frmScreenCap
         If File.Exists(Temp_Storage + "\save_capture_path.txt") Then
             tfp = File.ReadAllText(Temp_Storage + "\save_capture_path.txt")
         End If
-        set_size()
+        Set_size_img_size()
         SaveFileDialog1.Title = "Save Screen Capture PNG file..."
         SaveFileDialog1.Filter = "Save PNG Image (*.png*)|*.png"
         SaveFileDialog1.InitialDirectory = tfp
@@ -230,7 +207,7 @@ Public Class frmScreenCap
         'While gl_busy
         'End While
         set_background_mode()
-        set_size()
+        Set_size_img_size()
         Dim w, h As Integer
         Gl.glEnable(Gl.GL_TEXTURE_2D)
         Gl.glActiveTexture(Gl.GL_TEXTURE0)

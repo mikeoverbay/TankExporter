@@ -1,31 +1,14 @@
 ﻿#Region "imports"
-Imports System.Windows
-Imports System.Windows.Forms
-Imports System.Drawing
-Imports System.Drawing.Drawing2D
-Imports System.Net
-Imports System.Text
-Imports System.IO
-Imports System.Xml
-Imports System.Web
-Imports Tao.OpenGl
-Imports Tao.Platform.Windows
-Imports Tao.FreeGlut
-Imports Tao.FreeGlut.Glut
-Imports Microsoft.VisualBasic.Strings
-Imports System.Math
-Imports System.Object
-Imports System.Threading
-Imports System.Data
-Imports Tao.DevIl
-Imports System.Runtime.InteropServices
-Imports System.Runtime.CompilerServices
-Imports System.Collections.Generic
-Imports Ionic.Zip
-Imports System.Drawing.Imaging
 Imports System.Globalization
-Imports System.IO.Compression
-Imports SlimDX.Direct3D11
+Imports System.IO
+Imports System.Math
+Imports System.Text
+Imports System.Threading
+Imports System.Windows
+Imports System.Xml
+Imports Ionic.Zip
+Imports Microsoft.VisualBasic.Strings
+Imports Tao.FreeGlut.Glut
 #End Region
 
 Public Class frmMain
@@ -562,22 +545,18 @@ done:
         End If
         '====================================================================================================
         Try
-
+            ' LOOK FOR PATHS BEING PRESET. IF NOT, GET THEM FROM USER!
             If File.Exists(Temp_Storage + "\game_Path.txt") Then
                 My.Settings.game_path = File.ReadAllText(Temp_Storage + "\game_Path.txt")
             Else
-                If My.Settings.game_path = "" Then
-                    MsgBox("Game Location needs to be set.", MsgBoxStyle.Information)
-                    M_Path.PerformClick()
-                End If
+                MsgBox("Game Location needs to be set.", MsgBoxStyle.Information)
+                M_Path.PerformClick()
             End If
             If File.Exists(Temp_Storage + "\res_mods_Path.txt") Then
                 My.Settings.res_mods_path = File.ReadAllText(Temp_Storage + "\res_mods_Path.txt")
             Else
-                If My.Settings.game_path = "C:\" Then
-                    MsgBox("res_mods Location needs to be set.", MsgBoxStyle.Information)
-                    m_res_mods_path.PerformClick()
-                End If
+                MsgBox("res_mods Location needs to be set.", MsgBoxStyle.Information)
+                m_res_mods_path.PerformClick()
             End If
         Catch ex As Exception
             MsgBox("Game Location needs to be set.", MsgBoxStyle.Information)
@@ -646,117 +625,91 @@ done:
             End If
             Application.DoEvents()
             '====================================================================================================
-            Dim arc = Ionic.Zip.ZipFile.Read(My.Settings.game_path + "\res\packages\shared_content-part1.pkg")
-            Try
-                info_Label.Text = "getting decals from shared_content pkgs"
-                For Each entry In arc
+            ' Do it only if needed
+            If Not Directory.Exists(decal_path) And Not My.Settings.stop_Loading_set Then
+                Dim arc = Ionic.Zip.ZipFile.Read(My.Settings.game_path + "\res\packages\shared_content-part1.pkg")
+                Try
 
-                    If entry.FileName.ToLower.Contains("decals_pbs") Then
-                        entry.Extract(decal_path, ExtractExistingFileAction.OverwriteSilently)
-                        Application.DoEvents()
-                    End If
-                Next
-            Catch ex As Exception
-            End Try
-            Try
+                    info_Label.Text = "getting decals from shared_content pkgs"
+                    For Each entry In arc
 
-            Catch ex As Exception
-                arc = Ionic.Zip.ZipFile.Read(My.Settings.game_path + "\res\packages\shared_content_hd-part1.pkg")
-                For Each entry In arc
+                        If entry.FileName.ToLower.Contains("decals_pbs") Then
+                            entry.Extract(decal_path, ExtractExistingFileAction.OverwriteSilently)
+                            Application.DoEvents()
+                        End If
+                    Next
+                    arc = Ionic.Zip.ZipFile.Read(My.Settings.game_path + "\res\packages\shared_content-part2.pkg")
+                    For Each entry In arc
 
-                    If entry.FileName.ToLower.Contains("decals_pbs") Then
-                        entry.Extract(decal_path, ExtractExistingFileAction.OverwriteSilently)
-                        Application.DoEvents()
-                    End If
-                Next
+                        If entry.FileName.ToLower.Contains("decals_pbs") Then
+                            entry.Extract(decal_path, ExtractExistingFileAction.OverwriteSilently)
+                            Application.DoEvents()
+                        End If
+                    Next
+                    arc = Ionic.Zip.ZipFile.Read(My.Settings.game_path + "\res\packages\shared_content-part3.pkg")
+                    For Each entry In arc
 
-            End Try
-            Try
-                arc = Ionic.Zip.ZipFile.Read(My.Settings.game_path + "\res\packages\208_bf_epic_normandy.pkg")
-                For Each entry In arc
+                        If entry.FileName.ToLower.Contains("decals_pbs") Then
+                            entry.Extract(decal_path, ExtractExistingFileAction.OverwriteSilently)
+                            Application.DoEvents()
+                        End If
+                    Next
+                    arc = Ionic.Zip.ZipFile.Read(My.Settings.game_path + "\res\packages\208_bf_epic_normandy.pkg")
+                    For Each entry In arc
 
-                    If entry.FileName.ToLower.Contains("decals_pbs") Then
-                        entry.Extract(decal_path, ExtractExistingFileAction.OverwriteSilently)
-                        Application.DoEvents()
-                    End If
-                Next
-            Catch ex As Exception
+                        If entry.FileName.ToLower.Contains("decals_pbs") Then
+                            entry.Extract(decal_path, ExtractExistingFileAction.OverwriteSilently)
+                            Application.DoEvents()
+                        End If
+                    Next
+                    arc = Ionic.Zip.ZipFile.Read(My.Settings.game_path + "\res\packages\07_lakeville.pkg")
+                    For Each entry In arc
 
-            End Try
-            Try
-                arc = Ionic.Zip.ZipFile.Read(My.Settings.game_path + "\res\packages\07_lakeville.pkg")
-                For Each entry In arc
+                        If entry.FileName.ToLower.Contains("decals_pbs") Then
+                            entry.Extract(decal_path, ExtractExistingFileAction.OverwriteSilently)
+                            Application.DoEvents()
+                        End If
+                    Next
+                    arc = Ionic.Zip.ZipFile.Read(My.Settings.game_path + "\res\packages\19_monastery.pkg")
+                    For Each entry In arc
 
-                    If entry.FileName.ToLower.Contains("decals_pbs") Then
-                        entry.Extract(decal_path, ExtractExistingFileAction.OverwriteSilently)
-                        Application.DoEvents()
-                    End If
-                Next
-            Catch ex As Exception
+                        If entry.FileName.ToLower.Contains("decals_pbs") Then
+                            entry.Extract(decal_path, ExtractExistingFileAction.OverwriteSilently)
+                            Application.DoEvents()
+                        End If
+                    Next
+                    '---------------------
+                    arc = Ionic.Zip.ZipFile.Read(My.Settings.game_path + "\res\packages\shared_content_hd-part1.pkg")
+                    For Each entry In arc
 
-            End Try
-            Try
-                arc = Ionic.Zip.ZipFile.Read(My.Settings.game_path + "\res\packages\19_monastery.pkg")
-                For Each entry In arc
+                        If entry.FileName.ToLower.Contains("decals_pbs") Then
+                            entry.Extract(decal_path, ExtractExistingFileAction.OverwriteSilently)
+                            Application.DoEvents()
+                        End If
+                    Next
+                    arc = Ionic.Zip.ZipFile.Read(My.Settings.game_path + "\res\packages\shared_content_hd-part2.pkg")
+                    For Each entry In arc
 
-                    If entry.FileName.ToLower.Contains("decals_pbs") Then
-                        entry.Extract(decal_path, ExtractExistingFileAction.OverwriteSilently)
-                        Application.DoEvents()
-                    End If
-                Next
-            Catch ex As Exception
+                        If entry.FileName.ToLower.Contains("decals_pbs") Then
+                            entry.Extract(decal_path, ExtractExistingFileAction.OverwriteSilently)
+                            Application.DoEvents()
+                        End If
+                    Next
 
-            End Try
-            Try
-                arc = Ionic.Zip.ZipFile.Read(My.Settings.game_path + "\res\packages\shared_content-part2.pkg")
-                For Each entry In arc
+                    arc = Ionic.Zip.ZipFile.Read(My.Settings.game_path + "\res\packages\shared_content_hd-part3.pkg")
+                    For Each entry In arc
 
-                    If entry.FileName.ToLower.Contains("decals_pbs") Then
-                        entry.Extract(decal_path, ExtractExistingFileAction.OverwriteSilently)
-                        Application.DoEvents()
-                    End If
-                Next
-            Catch ex As Exception
+                        If entry.FileName.ToLower.Contains("decals_pbs") Then
+                            entry.Extract(decal_path, ExtractExistingFileAction.OverwriteSilently)
+                            Application.DoEvents()
+                        End If
+                    Next
+                Catch ex As Exception
+                End Try
+            End If
 
-            End Try
 
-            Try
-                arc = Ionic.Zip.ZipFile.Read(My.Settings.game_path + "\res\packages\shared_content_hd-part2.pkg")
-                For Each entry In arc
-
-                    If entry.FileName.ToLower.Contains("decals_pbs") Then
-                        entry.Extract(decal_path, ExtractExistingFileAction.OverwriteSilently)
-                        Application.DoEvents()
-                    End If
-                Next
-            Catch ex As Exception
-
-            End Try
-            Try
-                arc = Ionic.Zip.ZipFile.Read(My.Settings.game_path + "\res\packages\shared_content_hd-part3.pkg")
-                For Each entry In arc
-
-                    If entry.FileName.ToLower.Contains("decals_pbs") Then
-                        entry.Extract(decal_path, ExtractExistingFileAction.OverwriteSilently)
-                        Application.DoEvents()
-                    End If
-                Next
-            Catch ex As Exception
-
-            End Try
-
-            Try
-                arc = Ionic.Zip.ZipFile.Read(My.Settings.game_path + "\res\packages\shared_content-part3.pkg")
-                For Each entry In arc
-
-                    If entry.FileName.ToLower.Contains("decals_pbs") Then
-                        entry.Extract(decal_path, ExtractExistingFileAction.OverwriteSilently)
-                        Application.DoEvents()
-                    End If
-                Next
-            Catch ex As Exception
-
-            End Try         '====================================================================================================
+            '====================================================================================================
             tank_label.Parent = iconbox
             tank_label.Text = ""
             tank_label.Location = New Point(5, 10)
@@ -1038,7 +991,7 @@ done:
         info_Label.Text = "loading Environment models"
         start_up_log.AppendLine("loading models..")
         Application.DoEvents()
-        load_models()
+        load_binary_models()
         Dim tt = t.ElapsedMilliseconds.ToString
         start_up_log.AppendLine("T = " + tt + "ms")
         t.Restart()
@@ -1166,11 +1119,7 @@ done:
         Il.ilBindImage(id)
         'get the cube model
     End Sub
-    Private Sub load_models()
-        load_binary_models()
-        'load_x_models()
 
-    End Sub
 
 
     Private Sub load_type_images()
@@ -2391,7 +2340,7 @@ loaded_jump:
         Gl.glPushMatrix()
         'Gl.glTranslatef(0.0, -0.06, 0.0)
         'Gl.glRotatef(0.25, -1.0, 0.0, 1.0)
-        Gl.glDisable(Gl.GL_CULL_FACE)
+        Gl.glEnable(Gl.GL_CULL_FACE)
         Gl.glFrontFace(Gl.GL_CCW)
         Gl.glEnable(Gl.GL_BLEND)
         Gl.glUseProgram(shader_list.terrainShader_shader)
@@ -4520,7 +4469,7 @@ fuckit:
                 v1.weight_2 = .weight_2
                 v1.weight_3 = .weight_3
                 v1.weight_4 = .weight_4
-                os1 = "Index: " + v1.index_1.ToString("00") + " " + v1.index_2.ToString("00") + " " + v1.index_3.ToString("00") + " " + v1.index_4.ToString("00") + _
+                os1 = "Index: " + v1.index_1.ToString("00") + " " + v1.index_2.ToString("00") + " " + v1.index_3.ToString("00") + " " + v1.index_4.ToString("00") +
                     " Weight: " + v1.weight_1.ToString("00") + " " + v1.weight_2.ToString("00") + " " + v1.weight_3.ToString("00") + " " + v1.weight_4.ToString("00")
             End With
         Else
@@ -4537,7 +4486,7 @@ fuckit:
                 v1.weight_2 = .weight_2
                 v1.weight_3 = .weight_3
                 v1.weight_4 = .weight_4
-                os1 = "Index: " + v1.index_1.ToString("00") + " " + v1.index_2.ToString("00") + " " + v1.index_3.ToString("00") + " " + v1.index_4.ToString("00") + _
+                os1 = "Index: " + v1.index_1.ToString("00") + " " + v1.index_2.ToString("00") + " " + v1.index_3.ToString("00") + " " + v1.index_4.ToString("00") +
                     " Weight: " + v1.weight_1.ToString("00") + " " + v1.weight_2.ToString("00") + " " + v1.weight_3.ToString("00") + " " + v1.weight_4.ToString("00")
             End With
 
@@ -4557,7 +4506,7 @@ fuckit:
         cam_x = (sin_x - (1 - cos_y) * sin_x) * view_radius
         cam_z = (cos_x - (1 - cos_y) * cos_x) * view_radius
 
-        Glu.gluLookAt(cam_x + U_look_point_x, cam_y + U_look_point_y, cam_z + U_look_point_z, _
+        Glu.gluLookAt(cam_x + U_look_point_x, cam_y + U_look_point_y, cam_z + U_look_point_z,
                             U_look_point_x, U_look_point_y, U_look_point_z, 0.0F, 1.0F, 0.0F)
 
         eyeX = cam_x + U_look_point_x
@@ -4693,7 +4642,7 @@ fuckit:
 
                 Dim sp = d_list_tb.GetFirstCharIndexFromLine(tc) ' get prev line
                 d_list_tb.SelectionStart = sp
-                d_list_tb.Select(d_list_tb.GetFirstCharIndexOfCurrentLine(), _
+                d_list_tb.Select(d_list_tb.GetFirstCharIndexOfCurrentLine(),
                                  d_list_tb.Lines(tc).Length) ' select prev line
 
             End If
@@ -6239,8 +6188,8 @@ fuckit:
 
         Dim t = data_set.Tables("node")
         Dim q = From row In t.AsEnumerable
-                Select _
-                Name = row.Field(Of String)("name"), _
+                Select
+                Name = row.Field(Of String)("name"),
             Matrix = row.Field(Of String)("matrix")
         ' id = row.Field(Of String)("id"), _
 
@@ -6458,15 +6407,15 @@ fuckit:
     End Sub
 
     Private Sub get_tank_xml_data(ByVal n As TreeNode)
-        Dim q = From row In TankDataTable _
-            Where row.Field(Of String)("tag") = n.Text _
-    Select _
-        un = row.Field(Of String)("shortname"), _
-        tier = row.Field(Of String)("tier"), _
-        natiom = row.Field(Of String)("nation"), _
-        Type = row.Field(Of String)("type"), _
-        id = row.Field(Of String)("id")
-        Order By tier Descending
+        Dim q = From row In TankDataTable
+                Where row.Field(Of String)("tag") = n.Text
+                Select
+                    un = row.Field(Of String)("shortname"),
+                    tier = row.Field(Of String)("tier"),
+                    natiom = row.Field(Of String)("nation"),
+                    Type = row.Field(Of String)("type"),
+                    id = row.Field(Of String)("id")
+                Order By tier Descending
 
         'Dim a = q(0).un.Split(":")
         If q(0) IsNot Nothing Then
@@ -7757,7 +7706,12 @@ skip_old_way:
     End Sub
 
     Private Sub m_res_mods_path_Click(sender As Object, e As EventArgs) Handles m_res_mods_path.Click
-        FolderBrowserDialog1.SelectedPath = My.Settings.res_mods_path
+        FolderBrowserDialog1.RootFolder = Environment.SpecialFolder.Desktop
+
+        FolderBrowserDialog1.SelectedPath = My.Settings.game_path + "/res_mods/"
+        Application.DoEvents()
+        Application.DoEvents()
+
         If FolderBrowserDialog1.ShowDialog = Forms.DialogResult.OK Then
             My.Settings.res_mods_path = FolderBrowserDialog1.SelectedPath
             'If Not File.Exists(My.Settings.res_mods_path) Then
