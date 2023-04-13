@@ -7708,7 +7708,7 @@ skip_old_way:
     Private Sub m_res_mods_path_Click(sender As Object, e As EventArgs) Handles m_res_mods_path.Click
         FolderBrowserDialog1.RootFolder = Environment.SpecialFolder.Desktop
 
-        FolderBrowserDialog1.SelectedPath = My.Settings.game_path + "/res_mods/"
+        FolderBrowserDialog1.SelectedPath = My.Settings.game_path + "\res_mods\"
         Application.DoEvents()
         Application.DoEvents()
 
