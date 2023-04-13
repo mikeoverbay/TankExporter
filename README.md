@@ -16,6 +16,9 @@ I created a fix for this but it takes a little effort to use it.</br>
 Read this Issue thread to get the fix and how to use it.</br>
 https://github.com/mikeoverbay/TankExporter/issues/23
 
+## Version 132-133
+Hopefully this will now run good on AMD video hardware.
+
 ## Version 131,130,129,128 
 Fixed buffer over runs, search is changed. No need to build the big xml.
 Item_defs xml is no longer decompressed when extracted.
