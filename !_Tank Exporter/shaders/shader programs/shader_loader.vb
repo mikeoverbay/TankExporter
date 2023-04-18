@@ -374,7 +374,7 @@ Module shader_loader
     '==============================================================================================================
     Public fbx_ambient, fbx_specular, fbx_level As Integer
     Public fbx_colorMap, fbx_specularMap, fbx_normalMap, fbx_is_GAmap, fbx_bumped As Integer
-    Public fbx_texture_count, fbx_alphatest, fbx_enableVcolor As Integer
+    Public fbx_alphatest, fbx_enableVcolor As Integer
     Private Sub set_fbx_shader_variables()
         fbx_ambient = Gl.glGetUniformLocation(shader_list.fbx_shader, "A_level")
         fbx_specular = Gl.glGetUniformLocation(shader_list.fbx_shader, "S_level")
@@ -382,7 +382,6 @@ Module shader_loader
         fbx_colorMap = Gl.glGetUniformLocation(shader_list.fbx_shader, "colorMap")
         fbx_normalMap = Gl.glGetUniformLocation(shader_list.fbx_shader, "normalMap")
         fbx_specularMap = Gl.glGetUniformLocation(shader_list.fbx_shader, "specularMap")
-        fbx_texture_count = Gl.glGetUniformLocation(shader_list.fbx_shader, "t_cnt")
         fbx_is_GAmap = Gl.glGetUniformLocation(shader_list.fbx_shader, "is_GAmap")
         fbx_bumped = Gl.glGetUniformLocation(shader_list.fbx_shader, "bumped")
         fbx_alphatest = Gl.glGetUniformLocation(shader_list.fbx_shader, "alphaTest")

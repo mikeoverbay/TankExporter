@@ -7,7 +7,6 @@ uniform sampler2D specularMap;
 uniform float A_level;
 uniform float S_level;
 uniform float T_level;
-uniform int t_cnt;
 uniform int is_GAmap;
 uniform int alphaTest;
 uniform int enableVcolor;

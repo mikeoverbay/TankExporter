@@ -3085,7 +3085,6 @@ loaded_jump:
                 End If
                 For jj = 1 To fbxgrp.Length - 1
                     If fbxgrp(jj).visible And fbxgrp(jj).component_visible Then
-                        Gl.glUniform1i(fbx_texture_count, fbxgrp(jj).texture_count)
                         If m_tangent_normalMaps.Checked Then
                             Gl.glUniform1i(fbx_is_GAmap, 0)
                         Else

@@ -2064,7 +2064,7 @@ whichone:
     Private Sub build_fbx_matrix(ByVal idx As Integer, ByVal fm As FbxXMatrix)
         ReDim fbxgrp(idx).matrix(15)
         For i = 0 To 15
-            fbxgrp(idx).matrix(i) = CSng(fm.Item((i >> 2 And &H3), (i And &H3)))
+            fbxgrp(idx).matrix(i) = CSng(fm((i >> 2 And &H3), (i And &H3)))
         Next
 
     End Sub
@@ -2300,7 +2300,7 @@ whichone:
         Dim m_ As New SharpDX.Matrix
         For i = 0 To 3
             For k = 0 To 3
-                'm_(i, k) = data((i * 4) + k)
+                m_(i, k) = data((i * 4) + k)
             Next
         Next
         'm_(0, 0) *= -1.0
