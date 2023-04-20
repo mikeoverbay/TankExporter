@@ -1,5 +1,7 @@
 ﻿Imports System.Text
 Imports System.IO
+Imports System.Data.SqlTypes
+
 Module modGlobals
     Public UV2s() As vec2
     Public LOADING_FBX As Boolean = False
@@ -13,6 +15,17 @@ Module modGlobals
     Public g_decal_scale As New vect3
     Public g_decal_rotate As vect3
     Public g_decal_translate As vect3
+    '##################################
+    'turret and gun rotation matrices 
+    Public tm() = {1.0F, 0.0F, 0.0F, 0.0F,
+                     0.0F, 1.0F, 0.0F, 0.0F,
+                     0.0F, 0.0F, 1.0F, 0.0F,
+                     0.0F, 0.0F, 0.0F, 1.0F}
+
+    Public gm() = {1.0F, 0.0F, 0.0F, 0.0F,
+                     0.0F, 1.0F, 0.0F, 0.0F,
+                     0.0F, 0.0F, 1.0F, 0.0F,
+                     0.0F, 0.0F, 0.0F, 1.0F}
 
     '##################################
     Public tank_center_X As Single
@@ -71,7 +84,8 @@ Module modGlobals
     Public PRIMITIVES_MODE As Boolean
     Public rot_limit_l, rot_limit_r As Single
     Public gun_limit_u, gun_limit_d As Single
-
+    Public gun_angle As Single
+    Public turret_angle As Single
     Public TankListTempFolder As String
     Public lookup(255) As Byte
 

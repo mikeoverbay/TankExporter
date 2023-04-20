@@ -124,8 +124,7 @@ found_it:
     End Function
 
     Public Sub write_chassis_crashed(ByVal id As Integer)
-        Dim i, j As UInt32
-        Dim tsa() As Char
+        Dim i As UInt32
         Dim dummy As UInt32 = 0
         'Return
         Dim table(20000) As Byte
@@ -135,7 +134,7 @@ found_it:
         Try
             r = New FileStream(My.Settings.res_mods_path + "\" + m_groups(id).f_name(0), FileMode.Create, FileAccess.Write)
         Catch e As Exception
-            MsgBox("I could not open """ + My.Settings.res_mods_path + "\" + m_groups(id).f_name(0) + """!" + vbCrLf + _
+            MsgBox("I could not open """ + My.Settings.res_mods_path + "\" + m_groups(id).f_name(0) + """!" + vbCrLf +
                     "The Root folder is there but there are no  .primitive_processed files." + vbCrLf _
                     + " Did you delete them?", MsgBoxStyle.Exclamation, "Can find folder!")
             Return
@@ -154,7 +153,7 @@ found_it:
                 '================================================================ TRACK
                 'All data for the tracks comes from the original file. There is no reason to 
                 'change any of this as it cant be edited anyway!
-                If _group(pnt_id).table_entry_name.ToLower.Contains("track") And _
+                If _group(pnt_id).table_entry_name.ToLower.Contains("track") And
                     _group(pnt_id).table_entry_name = section_names(1).names(k) Then
                     '-------------------------------------------------------------
                     frmMain.info_Label.Text = "Compacting Data ID=" + pnt_id.ToString
@@ -401,7 +400,7 @@ found_it:
         Try
             r = New FileStream(My.Settings.res_mods_path + "\" + m_groups(id).f_name(0), FileMode.Create, FileAccess.Write)
         Catch e As Exception
-            MsgBox("I could not open """ + My.Settings.res_mods_path + "\" + m_groups(id).f_name(0) + """!" + vbCrLf + _
+            MsgBox("I could not open """ + My.Settings.res_mods_path + "\" + m_groups(id).f_name(0) + """!" + vbCrLf +
                     "The Root folder is there but there are no  .primitive_processed files." + vbCrLf _
                     + " Did you delete them?", MsgBoxStyle.Exclamation, "Can find folder!")
             Return
@@ -421,7 +420,7 @@ found_it:
                 '================================================================ TRACK
                 'All data for the tracks comes from the original file. There is no reason to 
                 'change any of this as it cant be edited anyway!
-                If _group(pnt_id).table_entry_name.ToLower.Contains("track") And _
+                If _group(pnt_id).table_entry_name.ToLower.Contains("track") And
                     _group(pnt_id).table_entry_name = section_names(1).names(k) Then
                     'save current position
                     Dim sect_start = br.BaseStream.Position
@@ -591,7 +590,7 @@ found_it:
                 End If
                 '================================================================ CARRAIGE
 
-                If _group(pnt_id).table_entry_name.ToLower.Contains("chass") And _
+                If _group(pnt_id).table_entry_name.ToLower.Contains("chass") And
                     _group(pnt_id).table_entry_name = section_names(1).names(k) Then
                     'save current position
                     '-------------------------------------------------------------
@@ -896,8 +895,8 @@ found_it:
         Return
     End Sub
     Private Function make_entry_string(ByVal row As String, ByVal v As vec3) As String
-        Dim rs As String = _
-            "<" + row + ">" + v.x.ToString("0.000000") + " " + v.y.ToString("0.000000") + " " + v.z.ToString("0.000000") + _
+        Dim rs As String =
+            "<" + row + ">" + v.x.ToString("0.000000") + " " + v.y.ToString("0.000000") + " " + v.z.ToString("0.000000") +
             "</" + row + ">"
         Return rs
     End Function
@@ -977,7 +976,7 @@ found_section:
     Public Sub write_primitives(ByVal ID As Integer)
         Dim tsa() As Char
         Dim dummy As UInt32 = 0
-        Dim i, j As UInt32
+        Dim i As UInt32
         Dim indi_size, vert_size, UV2_size As UInt32
         Dim r As FileStream = Nothing
         uv2_total_count = 0
@@ -987,7 +986,7 @@ found_section:
         Try
             r = New FileStream(My.Settings.res_mods_path + "\" + m_groups(ID).f_name(0), FileMode.Create, FileAccess.Write)
         Catch e As Exception
-            MsgBox("I could not open """ + My.Settings.res_mods_path + "\" + m_groups(ID).f_name(0) + """!" + vbCrLf + _
+            MsgBox("I could not open """ + My.Settings.res_mods_path + "\" + m_groups(ID).f_name(0) + """!" + vbCrLf +
                     "The Root folder is there but there are no  .primitive_processed files." + vbCrLf _
                     + " Did you delete them?", MsgBoxStyle.Exclamation, "Can find folder!")
             Return
@@ -1144,7 +1143,7 @@ no_UV2EVER:
 
                 'check for legit texture assignments
                 If fbxgrp(fbx_id).normal_name Is Nothing And fbxgrp(fbx_id).color_name IsNot Nothing Then
-                    MsgBox("You have a diffuseMap but no normalMap for " + new_name + "..." + vbCrLf + _
+                    MsgBox("You have a diffuseMap but no normalMap for " + new_name + "..." + vbCrLf +
                             "Defaulting to colorOnly shader...", MsgBoxStyle.Exclamation, "Texture Mapping Issue...")
                 End If
                 primObj = primObj.Replace("<PG_ID>0</PG_ID>", "<PG_ID>" + pgrp.ToString + "</PG_ID>") ' update primitive grp id

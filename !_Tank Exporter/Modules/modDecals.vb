@@ -98,32 +98,32 @@ Module modDecals
 
             Dim s = Sin(Me.rotation.x)
             Dim c = Cos(Me.rotation.x)
-            Me.y_rotate_matrix = { _
-              c, 0.0, -s, 0.0, _
-              0.0, 1.0, 0.0, 0.0, _
-              s, 0.0, c, 0.0, _
+            Me.y_rotate_matrix = {
+              c, 0.0, -s, 0.0,
+              0.0, 1.0, 0.0, 0.0,
+              s, 0.0, c, 0.0,
               0.0, 0.0, 0.0, 1.0}
             s = Sin(Me.rotation.y)
             c = Cos(Me.rotation.y)
-            Me.x_rotate_matrix = { _
-                1.0, 0.0, 0.0, 0.0, _
-                0.0, c, s, 0.0, _
-                0.0, -s, c, 0.0, _
+            Me.x_rotate_matrix = {
+                1.0, 0.0, 0.0, 0.0,
+                0.0, c, s, 0.0,
+                0.0, -s, c, 0.0,
                 0.0, 0.0, 0.0, 1.0}
 
             s = Sin(Me.rotation.z)
             c = Cos(Me.rotation.z)
-            Me.z_rotate_matrix = { _
-                c, s, 0.0, 0.0, _
-                -s, c, 0.0, 0.0, _
-                0.0, 0.0, 1.0, 0.0, _
+            Me.z_rotate_matrix = {
+                c, s, 0.0, 0.0,
+                -s, c, 0.0, 0.0,
+                0.0, 0.0, 1.0, 0.0,
                 0.0, 0.0, 0.0, 1.0}
 
             Dim ss = Me.scale
-            Me.scale_matrix = { _
-                ss.x, 0.0, 0.0, 0.0, _
-                0.0, ss.y, 0.0, 0.0, _
-                0.0, 0.0, ss.z, 0.0, _
+            Me.scale_matrix = {
+                ss.x, 0.0, 0.0, 0.0,
+                0.0, ss.y, 0.0, 0.0,
+                0.0, 0.0, ss.z, 0.0,
                 0.0, 0.0, 0.0, 1.0}
             Dim v = Me.translate
             Me.translate_matrix(12) = v.x
@@ -158,35 +158,35 @@ Module modDecals
                 g_decal_scale.z = 1.0
 
             End If
-            display_matrix = { _
-                1.0, 0.0, 0.0, 0.0, _
-                0.0, 1.0, 0.0, 0.0, _
-                0.0, 0.0, 1.0, 0.0, _
+            display_matrix = {
+                1.0, 0.0, 0.0, 0.0,
+                0.0, 1.0, 0.0, 0.0,
+                0.0, 0.0, 1.0, 0.0,
                 0.0, 0.0, 0.0, 1.0}
-            x_rotate_matrix = { _
-                1.0, 0.0, 0.0, 0.0, _
-                0.0, 1.0, 0.0, 0.0, _
-                0.0, 0.0, 1.0, 0.0, _
+            x_rotate_matrix = {
+                1.0, 0.0, 0.0, 0.0,
+                0.0, 1.0, 0.0, 0.0,
+                0.0, 0.0, 1.0, 0.0,
                 0.0, 0.0, 0.0, 1.0}
-            y_rotate_matrix = { _
-                1.0, 0.0, 0.0, 0.0, _
-                0.0, 1.0, 0.0, 0.0, _
-                0.0, 0.0, 1.0, 0.0, _
+            y_rotate_matrix = {
+                1.0, 0.0, 0.0, 0.0,
+                0.0, 1.0, 0.0, 0.0,
+                0.0, 0.0, 1.0, 0.0,
                 0.0, 0.0, 0.0, 1.0}
-            z_rotate_matrix = { _
-                1.0, 0.0, 0.0, 0.0, _
-                0.0, 1.0, 0.0, 0.0, _
-                0.0, 0.0, 1.0, 0.0, _
+            z_rotate_matrix = {
+                1.0, 0.0, 0.0, 0.0,
+                0.0, 1.0, 0.0, 0.0,
+                0.0, 0.0, 1.0, 0.0,
                 0.0, 0.0, 0.0, 1.0}
-            scale_matrix = { _
-                1.0, 0.0, 0.0, 0.0, _
-                0.0, 1.0, 0.0, 0.0, _
-                0.0, 0.0, 1.0, 0.0, _
+            scale_matrix = {
+                1.0, 0.0, 0.0, 0.0,
+                0.0, 1.0, 0.0, 0.0,
+                0.0, 0.0, 1.0, 0.0,
                 0.0, 0.0, 0.0, 1.0}
-            translate_matrix = { _
-                1.0, 0.0, 0.0, 0.0, _
-                0.0, 1.0, 0.0, 0.0, _
-                0.0, 0.0, 1.0, 0.0, _
+            translate_matrix = {
+                1.0, 0.0, 0.0, 0.0,
+                0.0, 1.0, 0.0, 0.0,
+                0.0, 0.0, 1.0, 0.0,
                 U_look_point_x, U_look_point_y, U_look_point_z, 1.0} ' position where we are looking
             'preset translation to where we are looking.
             g_decal_translate.x = U_look_point_x
@@ -220,10 +220,10 @@ Module modDecals
             End If
             Dim s = Sin(Me.rotation.x)
             Dim c = Cos(Me.rotation.x)
-            Me.y_rotate_matrix = { _
-              c, 0.0, -s, 0.0, _
-              0.0, 1.0, 0.0, 0.0, _
-              s, 0.0, c, 0.0, _
+            Me.y_rotate_matrix = {
+              c, 0.0, -s, 0.0,
+              0.0, 1.0, 0.0, 0.0,
+              s, 0.0, c, 0.0,
               0.0, 0.0, 0.0, 1.0}
             Return Me.y_rotate_matrix
         End Function
@@ -237,10 +237,10 @@ Module modDecals
             End If
             Dim s = Sin(Me.rotation.y)
             Dim c = Cos(Me.rotation.y)
-            Me.x_rotate_matrix = { _
-                1.0, 0.0, 0.0, 0.0, _
-                0.0, c, s, 0.0, _
-                0.0, -s, c, 0.0, _
+            Me.x_rotate_matrix = {
+                1.0, 0.0, 0.0, 0.0,
+                0.0, c, s, 0.0,
+                0.0, -s, c, 0.0,
                 0.0, 0.0, 0.0, 1.0}
             Return Me.x_rotate_matrix
         End Function
@@ -254,10 +254,10 @@ Module modDecals
             End If
             Dim s = Sin(Me.rotation.z)
             Dim c = Cos(Me.rotation.z)
-            Me.z_rotate_matrix = { _
-                c, s, 0.0, 0.0, _
-                -s, c, 0.0, 0.0, _
-                0.0, 0.0, 1.0, 0.0, _
+            Me.z_rotate_matrix = {
+                c, s, 0.0, 0.0,
+                -s, c, 0.0, 0.0,
+                0.0, 0.0, 1.0, 0.0,
                 0.0, 0.0, 0.0, 1.0}
             Return Me.z_rotate_matrix
         End Function
@@ -267,10 +267,10 @@ Module modDecals
             If s.z < 0.1 Then s.z = 0.1
 
             Me.scale = s
-            Me.scale_matrix = { _
-                s.x, 0.0, 0.0, 0.0, _
-                0.0, s.y, 0.0, 0.0, _
-                0.0, 0.0, s.z, 0.0, _
+            Me.scale_matrix = {
+                s.x, 0.0, 0.0, 0.0,
+                0.0, s.y, 0.0, 0.0,
+                0.0, 0.0, s.z, 0.0,
                 0.0, 0.0, 0.0, 1.0}
 
             Return Me.scale_matrix
@@ -305,7 +305,7 @@ Module modDecals
             ReDim decal_order(lc)
             For i = 0 To lc
                 frmMain.d_list_tb.SelectionStart = frmMain.d_list_tb.GetFirstCharIndexFromLine(i)
-                frmMain.d_list_tb.Select(frmMain.d_list_tb.GetFirstCharIndexOfCurrentLine(), _
+                frmMain.d_list_tb.Select(frmMain.d_list_tb.GetFirstCharIndexOfCurrentLine(),
                      frmMain.d_list_tb.Lines(i).Length) ' select line
                 Dim ar = frmMain.d_list_tb.SelectedText.Split(":")
                 decal_order(i) = CInt(ar(1))
@@ -442,13 +442,15 @@ Module modDecals
 
     End Sub
     Public Sub load_decal_textures()
+        If My.Settings.stop_loading_decals Then Return
+
         Dim dPath As String = decal_path + "\maps\decals_pbs\"
         Dim dir_info() As String = Nothing
         Try
             dir_info = Directory.GetFiles(dPath)
         Catch ex As Exception
-            If MsgBox("It looks like the decals folder is missing" + vbCrLf + "from the wot_temp folder!" + vbCrLf + _
-                       "I will clear all the data and restart Tank" + vbCrLf + "Exorter to rebuild the missing folder." + vbCrLf + _
+            If MsgBox("It looks like the decals folder is missing" + vbCrLf + "from the wot_temp folder!" + vbCrLf +
+                       "I will clear all the data and restart Tank" + vbCrLf + "Exorter to rebuild the missing folder." + vbCrLf +
                        "Continue?", MsgBoxStyle.YesNo, "Decal Folder is Missing!") = MsgBoxResult.Yes Then
                 _Started = False
                 While frmMain.update_thread.IsAlive
@@ -803,7 +805,7 @@ Module modDecals
 
         Dim sp = frmMain.d_list_tb.GetFirstCharIndexFromLine(tc) ' get prev line
         frmMain.d_list_tb.SelectionStart = sp
-        frmMain.d_list_tb.Select(frmMain.d_list_tb.GetFirstCharIndexOfCurrentLine(), _
+        frmMain.d_list_tb.Select(frmMain.d_list_tb.GetFirstCharIndexOfCurrentLine(),
                          frmMain.d_list_tb.Lines(tc).Length) ' select prev line
         frmMain.d_sel_Len = frmMain.d_list_tb.Lines(tc).Length
 

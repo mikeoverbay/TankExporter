@@ -1853,6 +1853,7 @@ whichone:
 
     Private Sub make_triangle(ByVal jj As Integer, ByVal i As Integer)
         Gl.glNormal3f(fbxgrp(jj).vertices(i).nx, fbxgrp(jj).vertices(i).ny, fbxgrp(jj).vertices(i).nz)
+        Gl.glMultiTexCoord2f(0, -fbxgrp(jj).vertices(i).u, fbxgrp(jj).vertices(i).v)
         Gl.glMultiTexCoord3f(1, fbxgrp(jj).vertices(i).tx, fbxgrp(jj).vertices(i).ty, fbxgrp(jj).vertices(i).tz)
         Gl.glMultiTexCoord3f(2, fbxgrp(jj).vertices(i).bnx, fbxgrp(jj).vertices(i).bny, fbxgrp(jj).vertices(i).bnz)
         If fbxgrp(jj).has_Vcolor Then
@@ -1864,6 +1865,7 @@ whichone:
         End If
 
         Gl.glTexCoord2f(-fbxgrp(jj).vertices(i).u, fbxgrp(jj).vertices(i).v)
+
         Gl.glVertex3f(fbxgrp(jj).vertices(i).x, fbxgrp(jj).vertices(i).y, fbxgrp(jj).vertices(i).z)
 
     End Sub

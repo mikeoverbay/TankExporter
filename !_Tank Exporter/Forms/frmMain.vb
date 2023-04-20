@@ -2,12 +2,17 @@
 Imports System.Globalization
 Imports System.IO
 Imports System.Math
+Imports System.Runtime.CompilerServices
+Imports System.Runtime.InteropServices
+Imports System.Runtime.Remoting.Messaging
 Imports System.Text
 Imports System.Threading
 Imports System.Windows
 Imports System.Xml
 Imports Ionic.Zip
 Imports Microsoft.VisualBasic.Strings
+Imports SharpDX.Direct3D11
+Imports SharpDX.DXGI
 Imports Tao.FreeGlut.Glut
 #End Region
 
@@ -538,6 +543,7 @@ done:
         If Not System.IO.Directory.Exists(TankListTempFolder) Then
             System.IO.Directory.CreateDirectory(TankListTempFolder)
         End If
+
         If My.Settings.firstRun Then ' check for possible update to tank list.
             My.Settings.firstRun = False
             Dim ts = IO.File.ReadAllText(Application.StartupPath + "\tanks\tanknames.txt")
@@ -626,7 +632,7 @@ done:
             Application.DoEvents()
             '====================================================================================================
             ' Do it only if needed
-            If Not Directory.Exists(decal_path) And Not My.Settings.stop_Loading_set Then
+            If Not Directory.Exists(decal_path) And Not My.Settings.stop_loading_decals Then
                 Dim arc = Ionic.Zip.ZipFile.Read(My.Settings.game_path + "\res\packages\shared_content-part1.pkg")
                 Try
 
@@ -865,6 +871,12 @@ done:
         allow_mouse = True
         My.Settings.Save()
         time_flasher.Start()
+
+        'test
+        'Wgl.wglMakeCurrent(pb1_hDC, pb1_hRC)
+        'Dim droid = Gl.glGenLists(1)
+        'MsgBox("List id = " + droid.ToString)
+        'Gl.glDeleteLists(droid, 1)
     End Sub
     '############################################################################ form load
     Private Sub reset_view()
@@ -2395,7 +2407,7 @@ loaded_jump:
     'decals
     Private Sub draw_v_colors(id As Integer)
         'This is just to visualize the color stream.
-        'It does not look like it has any importance.
+        'vertex color determins what moves or not.
         Dim vt1, vt2, vt3 As vec3
         Dim n1, n2, n3 As vec3
         Dim c1, c2, c3 As vec3
@@ -2858,6 +2870,7 @@ loaded_jump:
 
     '###########################################################################################################################################
     Public Sub draw_scene()
+        Dim e = Gl.glGetError
         Application.DoEvents()
         If gl_stop Then Return
         view_status_string = ""
@@ -3111,13 +3124,18 @@ loaded_jump:
                         Gl.glPopMatrix()
                     End If
                 Next
+                e = Gl.glGetError
             Else
                 view_status_string += "Light Only : "
                 For jj = 1 To fbxgrp.Length - 1
                     If fbxgrp(jj).visible Then
                         Gl.glPushMatrix()
                         Gl.glMultMatrixd(fbxgrp(jj).matrix)
-                        If fbxgrp(jj).component_visible Then Gl.glCallList(fbxgrp(jj).call_list)
+                        If fbxgrp(jj).component_visible Then
+                            If _object(jj).main_display_list > 0 Then
+                                Gl.glCallList(_object(jj).main_display_list)
+                            End If
+                        End If
                         Gl.glPopMatrix()
                     End If
                 Next
@@ -3140,7 +3158,11 @@ loaded_jump:
                     If fbxgrp(jj).visible Then
                         Gl.glPushMatrix()
                         Gl.glMultMatrixd(fbxgrp(jj).matrix)
-                        If fbxgrp(jj).component_visible Then Gl.glCallList(fbxgrp(jj).call_list)
+                        If fbxgrp(jj).component_visible Then
+                            If _object(jj).main_display_list > 0 Then
+                                Gl.glCallList(_object(jj).main_display_list)
+                            End If
+                        End If
                         Gl.glPopMatrix()
                     End If
                 Next
@@ -3170,7 +3192,11 @@ loaded_jump:
                 End If
                 'Gl.glDisable(Gl.GL_CULL_FACE)
                 If _object(jj).visible Then
-                    If _group(jj).component_visible Then Gl.glCallList(_object(jj).main_display_list)
+                    If _group(jj).component_visible Then
+                        If _object(jj).main_display_list > 0 Then
+                            Gl.glCallList(_object(jj).main_display_list)
+                        End If
+                    End If
                 End If
             Next
 
@@ -3185,7 +3211,11 @@ loaded_jump:
                         Gl.glFrontFace(Gl.GL_CCW)
                     End If
                     If _object(jj).visible Then
-                        If _group(jj).component_visible Then Gl.glCallList(_object(jj).main_display_list)
+                        If _group(jj).component_visible Then
+                            If _object(jj).main_display_list > 0 Then
+                                Gl.glCallList(_object(jj).main_display_list)
+                            End If
+                        End If
                     End If
                 Next
 
@@ -3222,6 +3252,7 @@ loaded_jump:
         '===========================================================
         'Draw fully rendered?
         Dim id As Integer = SELECTED_CAMO_BUTTON
+        'Dim e = Gl.glGetError
         If MODEL_LOADED And m_load_textures.Checked And Not m_show_fbx.Checked And Not m_simple_lighting.Checked And Not PRIMITIVES_MODE Then
             'Gl.glDisable(Gl.GL_BLEND)
             view_status_string += "Textured : "
@@ -3333,12 +3364,41 @@ loaded_jump:
                     Gl.glActiveTexture(Gl.GL_TEXTURE0 + 7)
                     Gl.glBindTexture(Gl.GL_TEXTURE_2D, u_brdfLUT)
 
-                    'Gl.glPushMatrix()
-                    'Gl.glMultMatrixd(_object(jj).matrix)
-                    If _group(jj).component_visible Then Gl.glCallList(_object(jj).main_display_list)
-                    'Gl.glPopMatrix()
+                    If _group(jj).tank_part = "turret" Then
+                        If _group(jj).component_visible Then
+                            turret_angle = 30.0
+                            Gl.glPushMatrix()
+
+                            If _object(jj).main_display_list > 0 Then
+                                Gl.glCallList(_object(jj).main_display_list)
+                            End If
+                            Gl.glPopMatrix()
+                            'Gl.glMultMatrixd(trans_back(m, jj))
+
+                        End If
+
+                    ElseIf _group(jj).tank_part = "gun" Then
+                        If _group(jj).component_visible Then
+                            Gl.glPushMatrix()
+                            If _object(jj).main_display_list > 0 Then
+                                Gl.glCallList(_object(jj).main_display_list)
+                            End If
+                            Gl.glPopMatrix()
+                        End If
+
+                    ElseIf _group(jj).component_visible Then
+                        Gl.glPushMatrix()
+
+                        If _object(jj).main_display_list > 0 Then
+                            Gl.glCallList(_object(jj).main_display_list)
+                        End If
+                        Gl.glPopMatrix()
+
+                    End If
                 End If
             Next
+            e = Gl.glGetError
+
             Gl.glUseProgram(0)
 
             'clear texture bindings
@@ -3379,11 +3439,16 @@ loaded_jump:
                         Gl.glFrontFace(Gl.GL_CCW)
                     End If
                     If _object(jj).visible Then
-                        If _group(jj).component_visible Then Gl.glCallList(_object(jj).main_display_list)
+                        If _group(jj).component_visible Then
+                            If _object(jj).main_display_list > 0 Then
+                                Gl.glCallList(_object(jj).main_display_list)
+                            End If
+                        End If
                     End If
                 Next
             End If
         End If
+        e = Gl.glGetError
         Gl.glEnable(Gl.GL_CULL_FACE)
         'simple lighting
         If MODEL_LOADED And m_load_textures.Checked And Not m_show_fbx.Checked And m_simple_lighting.Checked Then
@@ -3567,6 +3632,7 @@ nothing_else:
         If Not grid_cb.Checked And Not grid_cb.CheckState = CheckState.Indeterminate Then
             Gl.glCallList(grid)
         End If
+        'e = Gl.glGetError
 
         'track_test()
         '=================================================================================
@@ -3623,7 +3689,7 @@ nothing_else:
             'Gl.glDisable(Gl.GL_LINE_STIPPLE)
         End If
 
-        Gl.glPopMatrix()
+        'Gl.glPopMatrix()
         If MODEL_LOADED Then
             draw_triangle_mouse_texture_window()
         Else
@@ -3641,6 +3707,9 @@ nothing_else:
         '######################################################################### ORTHO MODE
         '######################################################################### ORTHO MODE
         '######################################################################### ORTHO MODE
+        If E > 0 Then
+            MsgBox("error:" + E.ToString)
+        End If
         ViewOrtho()
         'GoTo fuckit
 
@@ -3967,6 +4036,9 @@ fuckit:
     End Sub
     '###########################################################################################################################################
     '###########################################################################################################################################
+
+
+
     Dim pan_slide As Single = 0
     Private Sub update_pan()
 
@@ -5878,10 +5950,12 @@ fuckit:
 
 
         loaded_from_resmods = False
-        file_name = chassis_name
         Dim LOAD_ERROR As Boolean = True
 
+
+        file_name = chassis_name
         LOAD_ERROR = LOAD_ERROR And build_primitive_data(False) ' -- chassis
+
         If stop_updating Then draw_scene()
 
         file_name = hull_name
@@ -6001,7 +6075,7 @@ fuckit:
         look_point_y = tank_center_Y
         look_point_z = tank_center_Z
 
-        If False Then
+        If True Then
             'get rotation limits for the turret and gun
             rot_limit_l = -400.0
             rot_limit_r = 400.0
@@ -6040,72 +6114,72 @@ fuckit:
 
 
 
-            Dim fo = File.Open(TankListTempFolder + ar(2) + ".tank", FileMode.OpenOrCreate)
-            Dim fw As New BinaryWriter(fo)
-            'version changes
-            'ver 1 
+            'Dim fo = File.Open(TankListTempFolder + ar(2) + ".tank", FileMode.OpenOrCreate)
+            'Dim fw As New BinaryWriter(fo)
+            ''version changes
+            ''ver 1 
 
-            Dim version As Integer = 1
-            Dim rotation_limit As Single = 0.0
-            'ver 1
-            Dim s1 = "File format: 1 INT32 as version, INT32 as chassis and hull vertex count, INT32 as turret vertex count, INT32 as Gun vertex Count."
-            Dim s2 = "3 Floats turret pivot center XYZ, " +
-                    "2 Floats rotation limits L&R,"
-            Dim s3 = "3 Floats gun pivot point XYZ , 2 Floats gun limits U&D, " +
-                    "6 Floats as list of vertices:Each being (position XYZ Normal XYZ), "
-            Dim s4 = "9 Floats for future use."
-            fw.Write(s1)
-            fw.Write(s2)
-            fw.Write(s3)
-            fw.Write(s4)
-            fw.Write(version)
+            'Dim version As Integer = 1
+            'Dim rotation_limit As Single = 0.0
+            ''ver 1
+            'Dim s1 = "File format: 1 INT32 as version, INT32 as chassis and hull vertex count, INT32 as turret vertex count, INT32 as Gun vertex Count."
+            'Dim s2 = "3 Floats turret pivot center XYZ, " +
+            '        "2 Floats rotation limits L&R,"
+            'Dim s3 = "3 Floats gun pivot point XYZ , 2 Floats gun limits U&D, " +
+            '        "6 Floats as list of vertices:Each being (position XYZ Normal XYZ), "
+            'Dim s4 = "9 Floats for future use."
+            'fw.Write(s1)
+            'fw.Write(s2)
+            'fw.Write(s3)
+            'fw.Write(s4)
+            'fw.Write(version)
 
-            fw.Write(part_counts.chassis_cnt + part_counts.hull_cnt)
-            fw.Write(part_counts.turret_cnt)
-            fw.Write(part_counts.gun_cnt)
-            'turret info
-            fw.Write(turret_location.x)
-            fw.Write(turret_location.y)
-            fw.Write(turret_location.z)
-            fw.Write(rot_limit_l)
-            fw.Write(rot_limit_r)
-            'gun info
-            fw.Write(gun_location.x)
-            fw.Write(gun_location.y)
-            fw.Write(gun_location.z)
-            fw.Write(gun_limit_u)
-            fw.Write(gun_limit_d)
-            'extra vects
-            '1
-            fw.Write(1.0!)
-            fw.Write(1.0!)
-            fw.Write(1.0!)
-            '2
-            fw.Write(1.0!)
-            fw.Write(1.0!)
-            fw.Write(1.0!)
-            '3
-            fw.Write(1.0!)
-            fw.Write(1.0!)
-            fw.Write(1.0!)
+            'fw.Write(part_counts.chassis_cnt + part_counts.hull_cnt)
+            'fw.Write(part_counts.turret_cnt)
+            'fw.Write(part_counts.gun_cnt)
+            ''turret info
+            'fw.Write(turret_location.x)
+            'fw.Write(turret_location.y)
+            'fw.Write(turret_location.z)
+            'fw.Write(rot_limit_l)
+            'fw.Write(rot_limit_r)
+            ''gun info
+            'fw.Write(gun_location.x)
+            'fw.Write(gun_location.y)
+            'fw.Write(gun_location.z)
+            'fw.Write(gun_limit_u)
+            'fw.Write(gun_limit_d)
+            ''extra vects
+            ''1
+            'fw.Write(1.0!)
+            'fw.Write(1.0!)
+            'fw.Write(1.0!)
+            ''2
+            'fw.Write(1.0!)
+            'fw.Write(1.0!)
+            'fw.Write(1.0!)
+            ''3
+            'fw.Write(1.0!)
+            'fw.Write(1.0!)
+            'fw.Write(1.0!)
 
-            For i = 1 To object_count
-                If _object(i).name.ToLower.Contains("chassis") Then
-                    write_vertex_data(_object(i), fw)
-                End If
-                If _object(i).name.ToLower.Contains("hull") Then
-                    write_vertex_data(_object(i), fw)
-                End If
-                If _object(i).name.ToLower.Contains("turret") Then
-                    write_vertex_data(_object(i), fw)
-                End If
-                If _object(i).name.ToLower.Contains("gun") Then
-                    write_vertex_data(_object(i), fw)
-                End If
+            'For i = 1 To object_count
+            '    If _object(i).name.ToLower.Contains("chassis") Then
+            '        write_vertex_data(_object(i), fw)
+            '    End If
+            '    If _object(i).name.ToLower.Contains("hull") Then
+            '        write_vertex_data(_object(i), fw)
+            '    End If
+            '    If _object(i).name.ToLower.Contains("turret") Then
+            '        write_vertex_data(_object(i), fw)
+            '    End If
+            '    If _object(i).name.ToLower.Contains("gun") Then
+            '        write_vertex_data(_object(i), fw)
+            '    End If
 
-            Next
+            'Next
 
-            fo.Close()
+            'fo.Close()
         End If
 
         t.Dispose()
@@ -6442,10 +6516,10 @@ fuckit:
         Dim t_name = Path.GetFileNameWithoutExtension(ar(0))
         '===================================
         Dim t = d.Tables("colors")
-        Dim q = From row In t.AsEnumerable _
-                Where type = row.Field(Of String)("kind") _
-                Select _
-                texture = row.Field(Of String)("texture"), _
+        Dim q = From row In t.AsEnumerable
+                Where type = row.Field(Of String)("kind")
+                Select
+                texture = row.Field(Of String)("texture"),
                 camoName = row.Field(Of String)("camoName")
         Try
 
@@ -7666,7 +7740,7 @@ skip_old_way:
     Private Sub m_export_fbx_Click(sender As Object, e As EventArgs)
 
         If Not loaded_from_resmods Then
-            If MsgBox("You are about to write a FBX loaded from the res_mods folder!" + vbCrLf + _
+            If MsgBox("You are about to write a FBX loaded from the res_mods folder!" + vbCrLf +
                        "Doing so will corrupt the chassis if the markers have been modified." _
                        , MsgBoxStyle.YesNo, "DANGER Will Robinson!") Then
             End If
@@ -8092,7 +8166,7 @@ skip_old_way:
             Dim sp = d_list_tb.GetFirstCharIndexFromLine(new_line) ' get line
             d_list_tb.SelectionStart = sp
             Try
-                d_list_tb.Select(d_list_tb.GetFirstCharIndexOfCurrentLine(), _
+                d_list_tb.Select(d_list_tb.GetFirstCharIndexOfCurrentLine(),
                                      d_list_tb.Lines(new_line).Length) ' select prev line
                 decal_matrix_list(new_line).get_decals_transform_info()
 
@@ -8113,7 +8187,7 @@ skip_old_way:
 
     Private Sub m_export_to_fbx_Click(sender As Object, e As EventArgs) Handles m_export_to_fbx.Click
         If loaded_from_resmods Then
-            If MsgBox("You are about to write a FBX loaded from the res_mods folder!" + vbCrLf + _
+            If MsgBox("You are about to write a FBX loaded from the res_mods folder!" + vbCrLf +
                        "Doing so will corrupt the chassis if the markers have been modified." _
                        , MsgBoxStyle.YesNo, "DANGER Will Robinson!") = MsgBoxResult.Yes Then
             Else
@@ -8167,8 +8241,8 @@ skip_old_way:
         Dim a = path.Split("normal")
         path = a(0)
         path = My.Settings.res_mods_path + "/" + path
-        If MsgBox("If you have IMPORTANT FILES you need to save" + vbCrLf + _
-                   "you need to do it before continuing!!" + vbCrLf + _
+        If MsgBox("If you have IMPORTANT FILES you need to save" + vbCrLf +
+                   "you need to do it before continuing!!" + vbCrLf +
                    "Delete Files now?", MsgBoxStyle.YesNo, "WARNING!!") = MsgBoxResult.Yes Then
             If Directory.Exists(path) Then
                 DeleteFilesFromFolder(path)
@@ -8180,7 +8254,7 @@ skip_old_way:
             System.IO.Directory.Delete(path, True)
 
         Catch ex As Exception
-            MsgBox("I cant delete " + path + vbCrLf + _
+            MsgBox("I cant delete " + path + vbCrLf +
                     "Someting is accessing the folders or files!", MsgBoxStyle.Exclamation, "Access Denied!")
         End Try
     End Sub
@@ -8461,7 +8535,7 @@ outta_here:
             Dim sp = d_list_tb.GetFirstCharIndexFromLine(prev_line) ' get prev line
             Application.DoEvents()
             d_list_tb.SelectionStart = sp
-            d_list_tb.Select(d_list_tb.GetFirstCharIndexOfCurrentLine(), _
+            d_list_tb.Select(d_list_tb.GetFirstCharIndexOfCurrentLine(),
                              d_list_tb.Lines(prev_line).Length) ' select prev line
             Application.DoEvents()
             Dim pre_text = d_list_tb.SelectedText ' save prev line text
@@ -8473,16 +8547,16 @@ outta_here:
             d_list_tb.SelectionStart = sp + sel_tex_current.Length + 2
             d_current_line = d_list_tb.GetLineFromCharIndex(d_list_tb.GetFirstCharIndexOfCurrentLine())
 
-            d_list_tb.Select(d_list_tb.GetFirstCharIndexOfCurrentLine(), _
+            d_list_tb.Select(d_list_tb.GetFirstCharIndexOfCurrentLine(),
                              d_list_tb.Lines(d_current_line).Length) ' reselect current line
             Application.DoEvents()
             d_list_tb.SelectedText = pre_text ' replace it with prev lines text
-            d_list_tb.Select(d_list_tb.GetFirstCharIndexOfCurrentLine(), _
+            d_list_tb.Select(d_list_tb.GetFirstCharIndexOfCurrentLine(),
                      d_list_tb.Lines(d_current_line).Length) ' reselect current line
             Application.DoEvents()
             update_decal_order()
             d_list_tb.SelectionStart = sp
-            d_list_tb.Select(d_list_tb.GetFirstCharIndexOfCurrentLine(), _
+            d_list_tb.Select(d_list_tb.GetFirstCharIndexOfCurrentLine(),
                        d_list_tb.Lines(prev_line).Length) ' select prev line
             d_current_line = prev_line
             decal_matrix_list(current_decal).get_decals_transform_info()
@@ -8500,7 +8574,7 @@ outta_here:
             Dim sp = d_list_tb.GetFirstCharIndexFromLine(next_line) ' get prev line
             Application.DoEvents()
             d_list_tb.SelectionStart = sp
-            d_list_tb.Select(d_list_tb.GetFirstCharIndexOfCurrentLine(), _
+            d_list_tb.Select(d_list_tb.GetFirstCharIndexOfCurrentLine(),
                              d_list_tb.Lines(next_line).Length) ' select prev line
             Application.DoEvents()
             Dim next_text = d_list_tb.SelectedText ' save prev line text
@@ -8512,16 +8586,16 @@ outta_here:
             d_list_tb.SelectionStart = sp - 2
             d_current_line = d_list_tb.GetLineFromCharIndex(d_list_tb.GetFirstCharIndexOfCurrentLine())
 
-            d_list_tb.Select(d_list_tb.GetFirstCharIndexOfCurrentLine(), _
+            d_list_tb.Select(d_list_tb.GetFirstCharIndexOfCurrentLine(),
                              d_list_tb.Lines(d_current_line).Length) ' reselect current line
             Application.DoEvents()
             d_list_tb.SelectedText = next_text ' replace it with prev lines text
-            d_list_tb.Select(d_list_tb.GetFirstCharIndexOfCurrentLine(), _
+            d_list_tb.Select(d_list_tb.GetFirstCharIndexOfCurrentLine(),
                      d_list_tb.Lines(d_current_line).Length) ' reselect current line
             Application.DoEvents()
             update_decal_order()
             d_list_tb.SelectionStart = sp
-            d_list_tb.Select(d_list_tb.GetFirstCharIndexOfCurrentLine(), _
+            d_list_tb.Select(d_list_tb.GetFirstCharIndexOfCurrentLine(),
                              d_list_tb.Lines(next_line).Length) ' select prev line
             d_current_line = next_line
             decal_matrix_list(current_decal).get_decals_transform_info()
@@ -8733,8 +8807,8 @@ load_script:
         gun_visual_exist = find_tank_component(lod0_path, "gun", ".visual_processed")
 
         If Not tank_script_xml_exist Then
-            If MsgBox("You MUST extract the " + Path.GetFileNameWithoutExtension(tank) + ".xml" + vbCrLf + _
-                   "from the scripts\item_defs\vehicle XMLs!" + vbCrLf + _
+            If MsgBox("You MUST extract the " + Path.GetFileNameWithoutExtension(tank) + ".xml" + vbCrLf +
+                   "from the scripts\item_defs\vehicle XMLs!" + vbCrLf +
                    "Do it now?", MsgBoxStyle.YesNo) = MsgBoxResult.Yes Then
                 m_extract.PerformClick()
                 GoTo load_script
@@ -9083,8 +9157,8 @@ load_script:
         Next
 
     End Sub
-    Private Sub fix_crash_paths_visual(ByVal item As String, ByVal p As String, _
-                                       ByVal author As String, ByVal tn As String, _
+    Private Sub fix_crash_paths_visual(ByVal item As String, ByVal p As String,
+                                       ByVal author As String, ByVal tn As String,
                                        ByRef names() As String)
         Dim save_it As Boolean = False
         Dim di As New DirectoryInfo(p)
@@ -9195,9 +9269,9 @@ load_script:
         End If
         'make sure we have loaded the modded files!
         If Not loaded_from_resmods Then
-            MsgBox("In order to create a wotmod file you" + vbCrLf + _
-                       "must load tank data from res_mods." + vbCrLf + _
-                       "You can create a wotmod from unmodified data" + vbCrLf + _
+            MsgBox("In order to create a wotmod file you" + vbCrLf +
+                       "must load tank data from res_mods." + vbCrLf +
+                       "You can create a wotmod from unmodified data" + vbCrLf +
                        "but that would be silly.", MsgBoxStyle.Exclamation, "No Data in Res_Mods to bundle!")
             Return
         End If

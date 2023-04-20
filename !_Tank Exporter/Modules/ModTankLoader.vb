@@ -566,6 +566,8 @@ Module ModTankLoader
             Return False
         End If
         file_name = old_file_name.Replace("model", "primitives_processed")
+
+
         '============================'============================
         'this gets all the entries in the xml file..
         'IE.. bone and wheel locations
@@ -802,6 +804,7 @@ next_m:
         Next
         b_reader.Close()
         buf = Nothing
+
 #End If
         Dim loop_count As Integer = 0
         Dim section_count As Integer = 0
@@ -1446,6 +1449,7 @@ next_m:
                 _object(jj).modified = False
                 GC.Collect()
                 _group(jj).table_entry_name = ordered_names(sg - sub_groups).indi_name
+
 
             Next jj
 no_line:
@@ -2694,15 +2698,28 @@ get_visual:
         Return p
     End Function
     Public Sub make_lists(I As Integer)
+        'MsgBox("Start making list:", MsgBoxStyle.OkOnly, "Debug")
+        Dim e = Gl.glGetError()
         Wgl.wglMakeCurrent(pb1_hDC, pb1_hRC)
 
-        Gl.glDeleteLists(_object(I).main_display_list, 1)
+
+        If _object(I).main_display_list > 0 Then
+            Gl.glDeleteLists(_object(I).main_display_list, 1)
+        End If
+        e = Gl.glGetError
+
         _object(I).main_display_list = Gl.glGenLists(1)
+
         Gl.glNewList(_object(I).main_display_list, Gl.GL_COMPILE)
+
         main_list(_object(I).count, I)
         Gl.glEndList()
+        e = Gl.glGetError()
+        If e > 0 Then
+            MsgBox("GL error :" + e.ToString, MsgBoxStyle.OkOnly, "Debug")
+
+        End If
         MODEL_LOADED = True
-        Dim e = Gl.glGetError
 
     End Sub
     Public max_u, max_v, min_u, min_v As Single
@@ -2736,7 +2753,7 @@ get_visual:
             pre_transform(jj, i)
             '1
             Gl.glNormal3f(_object(jj).tris(i).n1.x, _object(jj).tris(i).n1.y, _object(jj).tris(i).n1.z) 'normal
-            Gl.glMultiTexCoord2f(0, _object(jj).tris(i).uv1.u, _object(jj).tris(i).uv1.v) 'uv1
+            'Gl.glMultiTexCoord2f(0, _object(jj).tris(i).uv1.u, _object(jj).tris(i).uv1.v) 'uv1
             Gl.glMultiTexCoord3f(1, _object(jj).tris(i).t1.x, _object(jj).tris(i).t1.y, _object(jj).tris(i).t1.z) 'tangent
             Gl.glMultiTexCoord3f(2, _object(jj).tris(i).b1.x, _object(jj).tris(i).b1.y, _object(jj).tris(i).b1.z) ' bitangent
             Gl.glMultiTexCoord2f(4, _object(jj).tris(i).uv1_2.u, _object(jj).tris(i).uv1_2.v) 'uv2
@@ -2747,7 +2764,7 @@ get_visual:
 
             '2
             Gl.glNormal3f(_object(jj).tris(i).n2.x, _object(jj).tris(i).n2.y, _object(jj).tris(i).n2.z)
-            Gl.glMultiTexCoord2f(0, _object(jj).tris(i).uv2.u, _object(jj).tris(i).uv2.v) 'uv1
+            'Gl.glMultiTexCoord2f(0, _object(jj).tris(i).uv2.u, _object(jj).tris(i).uv2.v) 'uv1
             Gl.glMultiTexCoord3f(1, _object(jj).tris(i).t2.x, _object(jj).tris(i).t2.y, _object(jj).tris(i).t2.z)
             Gl.glMultiTexCoord3f(2, _object(jj).tris(i).b2.x, _object(jj).tris(i).b2.y, _object(jj).tris(i).b2.z)
             Gl.glMultiTexCoord2f(4, _object(jj).tris(i).uv2_2.u, _object(jj).tris(i).uv2_2.v) 'uv2
@@ -2758,7 +2775,7 @@ get_visual:
 
             '3
             Gl.glNormal3f(_object(jj).tris(i).n3.x, _object(jj).tris(i).n3.y, _object(jj).tris(i).n3.z)
-            Gl.glMultiTexCoord2f(0, _object(jj).tris(i).uv3.u, _object(jj).tris(i).uv3.v) 'uv1
+            'Gl.glMultiTexCoord2f(0, _object(jj).tris(i).uv3.u, _object(jj).tris(i).uv3.v) 'uv1
             Gl.glMultiTexCoord3f(1, _object(jj).tris(i).t3.x, _object(jj).tris(i).t3.y, _object(jj).tris(i).t3.z)
             Gl.glMultiTexCoord3f(2, _object(jj).tris(i).b3.x, _object(jj).tris(i).b3.y, _object(jj).tris(i).b3.z)
             Gl.glMultiTexCoord2f(4, _object(jj).tris(i).uv3_2.u, _object(jj).tris(i).uv3_2.v) 'uv2

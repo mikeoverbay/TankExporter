@@ -1,11 +1,16 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.32510.428
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.33516.290
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "!_Tank Exporter", "!_Tank Exporter\!_Tank Exporter.vbproj", "{C9AC5573-A1E9-4EAA-81BB-7FFC69BB5E5F}"
 EndProject
 Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Texp Setup", "Setup1\Setup1.vdproj", "{5B58A86C-F998-4D62-BB6F-79F4E13885D7}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{C0F6CE1F-8B0C-4C6A-94D5-161EBB1F57C0}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
