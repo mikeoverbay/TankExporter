@@ -633,6 +633,7 @@ done:
             '====================================================================================================
             ' Do it only if needed
             If Not Directory.Exists(decal_path) And Not My.Settings.stop_loading_decals Then
+                Directory.CreateDirectory(decal_path)
                 Dim arc = Ionic.Zip.ZipFile.Read(My.Settings.game_path + "\res\packages\shared_content-part1.pkg")
                 Try
 
@@ -2905,6 +2906,10 @@ loaded_jump:
                 _group(jj).alphaRef = 0
             End If
         Next
+        e = Gl.glGetError
+        If e > 0 Then
+            MsgBox("error:" + e.ToString + " Line 2909")
+        End If
         Dim color_top() As Byte = {20, 20, 20}
         Dim color_bottom() As Byte = {60, 60, 60}
         Dim position() As Single = {10, 10.0F, 10, 1.0F}
@@ -2920,11 +2925,19 @@ loaded_jump:
         Gl.glLineWidth(1)
         Gl.glPointSize(2.0)
 
+        e = Gl.glGetError
+        If e > 0 Then
+            MsgBox("error:" + e.ToString + " Line 2929")
+        End If
         Gl.glClearColor(0.0F, 0.0F, 0.0F, 1.0F)
         Dim no_background As Boolean = False
         If frmScreenCap.RENDER_OUT And frmScreenCap.r_color_flag Then
             Gl.glClearColor(frmScreenCap.r_color_val(0), frmScreenCap.r_color_val(1), frmScreenCap.r_color_val(2), 1.0)
             no_background = True
+        End If
+        e = Gl.glGetError
+        If e > 0 Then
+            MsgBox("error:" + e.ToString + " Line 2939")
         End If
 
         If frmScreenCap.RENDER_OUT And frmScreenCap.r_trans Then
@@ -2936,6 +2949,10 @@ loaded_jump:
         G_Buffer.attachColorTexture()
         Gl.glDisable(Gl.GL_BLEND)
         ResizeGL(w, h)
+        e = Gl.glGetError
+        If e > 0 Then
+            MsgBox("error:" + e.ToString + " Line 2953")
+        End If
 
         If frmScreenCap.RENDER_OUT And CUSTOM_IMAGE_MODE Then
             Gl.glColor4f(1.0, 1.0, 1.0, 0.0) 'red
@@ -2949,17 +2966,47 @@ loaded_jump:
             Gl.glBindTexture(Gl.GL_TEXTURE_2D, 0)
             Gl.glDisable(Gl.GL_TEXTURE_2D)
         End If
+        e = Gl.glGetError
+        If e > 0 Then
+            MsgBox("error:" + e.ToString + " Line 2958")
+        End If
 
 
         Gl.glEnable(Gl.GL_LIGHTING)
+        e = Gl.glGetError
+        If e > 0 Then
+            MsgBox("error:" + e.ToString + " Line 2977")
+        End If
         Gl.glEnable(Gl.GL_CULL_FACE)
+        e = Gl.glGetError
+        If e > 0 Then
+            MsgBox("error:" + e.ToString + " Line 2982")
+        End If
 
-        Gl.glEnable(Gl.GL_SMOOTH)
+        'Gl.glEnable(Gl.GL_SMOOTH)
+
+        e = Gl.glGetError
+        If e > 0 Then
+            MsgBox("error:" + e.ToString + " Line 2988")
+        End If
         Gl.glEnable(Gl.GL_NORMALIZE)
+        e = Gl.glGetError
+        If e > 0 Then
+            MsgBox("error:" + e.ToString + " Line 2993")
+        End If
+
+        Gl.glDisable(Gl.GL_DEPTH_TEST)
+        e = Gl.glGetError
+        If e > 0 Then
+            MsgBox("error:" + e.ToString + " Line 2999")
+        End If
+        Gl.glClear(Gl.GL_DEPTH_BUFFER_BIT)
+        e = Gl.glGetError
+        If e > 0 Then
+            MsgBox("error:" + e.ToString + " Line 2967")
+        End If
 
         Dim v As Point = pb1.Size
-        Gl.glDisable(Gl.GL_DEPTH_TEST)
-        Gl.glClear(Gl.GL_DEPTH_BUFFER_BIT)
         If Not no_background Then
             Gl.glClearColor(0.0F, 0.0F, 0.2353F, 1.0F)
             'gradiant background
@@ -3005,6 +3052,10 @@ loaded_jump:
         Else
             view_status_string += ": Facets : "
         End If
+        e = Gl.glGetError
+        If e > 0 Then
+            MsgBox("error:" + e.ToString + " Line 3009")
+        End If
         ViewPerspective(w, h)
         'adjust light2
         set_eyes()
@@ -3022,6 +3073,10 @@ loaded_jump:
         '=============================================================
         '-----------------------------------------------------------------------------
         'light positions
+        e = Gl.glGetError
+        If e > 0 Then
+            MsgBox("error:" + e.ToString + " Line 3028")
+        End If
         If Show_lights Then
             '0
             Gl.glPushMatrix()
@@ -3075,6 +3130,11 @@ loaded_jump:
         Gl.glColor3f(1.0, 1.0, 1.0)
 
         Gl.glColor3fv(l_color)
+        e = Gl.glGetError
+        If e > 0 Then
+            MsgBox("error:" + e.ToString + " Line 3079")
+        End If
+
         'Draw Imported FBX if it exists?
         If FBX_LOADED And m_show_fbx.Checked Then
             Gl.glEnable(Gl.GL_TEXTURE_2D)
@@ -3449,6 +3509,9 @@ loaded_jump:
             End If
         End If
         e = Gl.glGetError
+        If e > 0 Then
+            MsgBox("error:" + e.ToString + " Line 3452")
+        End If
         Gl.glEnable(Gl.GL_CULL_FACE)
         'simple lighting
         If MODEL_LOADED And m_load_textures.Checked And Not m_show_fbx.Checked And m_simple_lighting.Checked Then
@@ -3707,8 +3770,9 @@ nothing_else:
         '######################################################################### ORTHO MODE
         '######################################################################### ORTHO MODE
         '######################################################################### ORTHO MODE
-        If E > 0 Then
-            MsgBox("error:" + E.ToString)
+        e = Gl.glGetError
+        If e > 0 Then
+            MsgBox("error:" + e.ToString + " Line 3711")
         End If
         ViewOrtho()
         'GoTo fuckit
