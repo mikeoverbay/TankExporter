@@ -632,7 +632,10 @@ done:
             Application.DoEvents()
             '====================================================================================================
             ' Do it only if needed
-            If Not Directory.Exists(decal_path) And Not My.Settings.stop_loading_decals Then
+            Dim d As DirectoryInfo = Nothing
+            d = New DirectoryInfo(decal_path + "decals\maps\decals_pbs\00_CA_Decals")
+
+            If Not My.Settings.stop_loading_decals And Not d.EnumerateFiles().Any() Then
                 Directory.CreateDirectory(decal_path)
                 Dim arc = Ionic.Zip.ZipFile.Read(My.Settings.game_path + "\res\packages\shared_content-part1.pkg")
                 Try
