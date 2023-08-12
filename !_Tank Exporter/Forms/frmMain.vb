@@ -496,6 +496,7 @@ done:
         Ilut.ilutInit()
         EnableOpenGL()
         shadow_fbo.make_shadow_fbo()
+        G_Buffer.init()
         pb1.Visible = False
         '---------------------------------------------------------------------------------------------------------------------
         m_export_tank_list.Visible = False
@@ -865,7 +866,6 @@ done:
         view_radius = -8.5
         l_rot = PI * 0.25 + PI * 2
         pb1.Visible = True
-        G_Buffer.init()
 
         Startup_Timer.Enabled = True
         Application.DoEvents()
@@ -2911,7 +2911,7 @@ loaded_jump:
         Next
         e = Gl.glGetError
         If e > 0 Then
-            MsgBox("error:" + e.ToString + " Line 2909")
+            'MsgBox("error:" + e.ToString + " Line 2909")
         End If
         Dim color_top() As Byte = {20, 20, 20}
         Dim color_bottom() As Byte = {60, 60, 60}
@@ -2930,7 +2930,7 @@ loaded_jump:
 
         e = Gl.glGetError
         If e > 0 Then
-            MsgBox("error:" + e.ToString + " Line 2929")
+            'MsgBox("error:" + e.ToString + " Line 2929")
         End If
         Gl.glClearColor(0.0F, 0.0F, 0.0F, 1.0F)
         Dim no_background As Boolean = False
@@ -2940,7 +2940,7 @@ loaded_jump:
         End If
         e = Gl.glGetError
         If e > 0 Then
-            MsgBox("error:" + e.ToString + " Line 2939")
+            'MsgBox("error:" + e.ToString + " Line 2939")
         End If
 
         If frmScreenCap.RENDER_OUT And frmScreenCap.r_trans Then
@@ -2954,7 +2954,7 @@ loaded_jump:
         ResizeGL(w, h)
         e = Gl.glGetError
         If e > 0 Then
-            MsgBox("error:" + e.ToString + " Line 2953")
+            'MsgBox("error:" + e.ToString + " Line 2953")
         End If
 
         If frmScreenCap.RENDER_OUT And CUSTOM_IMAGE_MODE Then
@@ -2971,42 +2971,42 @@ loaded_jump:
         End If
         e = Gl.glGetError
         If e > 0 Then
-            MsgBox("error:" + e.ToString + " Line 2958")
+            'MsgBox("error:" + e.ToString + " Line 2958")
         End If
 
 
         Gl.glEnable(Gl.GL_LIGHTING)
         e = Gl.glGetError
         If e > 0 Then
-            MsgBox("error:" + e.ToString + " Line 2977")
+            'MsgBox("error:" + e.ToString + " Line 2977")
         End If
         Gl.glEnable(Gl.GL_CULL_FACE)
         e = Gl.glGetError
         If e > 0 Then
-            MsgBox("error:" + e.ToString + " Line 2982")
+            'MsgBox("error:" + e.ToString + " Line 2982")
         End If
 
         'Gl.glEnable(Gl.GL_SMOOTH)
 
         e = Gl.glGetError
         If e > 0 Then
-            MsgBox("error:" + e.ToString + " Line 2988")
+            'MsgBox("error:" + e.ToString + " Line 2988")
         End If
         Gl.glEnable(Gl.GL_NORMALIZE)
         e = Gl.glGetError
         If e > 0 Then
-            MsgBox("error:" + e.ToString + " Line 2993")
+            'MsgBox("error:" + e.ToString + " Line 2993")
         End If
 
         Gl.glDisable(Gl.GL_DEPTH_TEST)
         e = Gl.glGetError
         If e > 0 Then
-            MsgBox("error:" + e.ToString + " Line 2999")
+            'MsgBox("error:" + e.ToString + " Line 2999")
         End If
         Gl.glClear(Gl.GL_DEPTH_BUFFER_BIT)
         e = Gl.glGetError
         If e > 0 Then
-            MsgBox("error:" + e.ToString + " Line 2967")
+            'MsgBox("error:" + e.ToString + " Line 2967")
         End If
 
         Dim v As Point = pb1.Size
@@ -3057,7 +3057,7 @@ loaded_jump:
         End If
         e = Gl.glGetError
         If e > 0 Then
-            MsgBox("error:" + e.ToString + " Line 3009")
+            'MsgBox("error:" + e.ToString + " Line 3009")
         End If
         ViewPerspective(w, h)
         'adjust light2
@@ -3078,7 +3078,7 @@ loaded_jump:
         'light positions
         e = Gl.glGetError
         If e > 0 Then
-            MsgBox("error:" + e.ToString + " Line 3028")
+            'MsgBox("error:" + e.ToString + " Line 3028")
         End If
         If Show_lights Then
             '0
@@ -3134,9 +3134,9 @@ loaded_jump:
 
         Gl.glColor3fv(l_color)
         e = Gl.glGetError
-        If e > 0 Then
-            MsgBox("error:" + e.ToString + " Line 3079")
-        End If
+        'If e > 0 Then
+        '    MsgBox("error:" + e.ToString + " Line 3079")
+        'End If
 
         'Draw Imported FBX if it exists?
         If FBX_LOADED And m_show_fbx.Checked Then
@@ -3513,7 +3513,7 @@ loaded_jump:
         End If
         e = Gl.glGetError
         If e > 0 Then
-            MsgBox("error:" + e.ToString + " Line 3452")
+            'MsgBox("error:" + e.ToString + " Line 3452")
         End If
         Gl.glEnable(Gl.GL_CULL_FACE)
         'simple lighting
@@ -3775,7 +3775,7 @@ nothing_else:
         '######################################################################### ORTHO MODE
         e = Gl.glGetError
         If e > 0 Then
-            MsgBox("error:" + e.ToString + " Line 3711")
+            'MsgBox("error:" + e.ToString + " Line 3711")
         End If
         ViewOrtho()
         'GoTo fuckit
@@ -6958,7 +6958,17 @@ fuckit:
                 Try ' catch any exception thrown
 
                     Dim ip = My.Settings.res_mods_path + "\" + itemDefPathString.Replace(" ", "")
-                    File.WriteAllBytes(ip, itemDefXmlUncompressed)
+                    If File.Exists(ip) Then
+                    Else
+                        If Not Directory.Exists(Path.GetDirectoryName(ip)) Then
+                            Directory.CreateDirectory(Path.GetDirectoryName(ip))
+                        End If
+                        Using fs = File.Create(ip)
+                            Using sw As New StreamWriter(fs)
+                                sw.Write(ts)
+                            End Using
+                        End Using
+                    End If
                     'prep_tanks_xml(itemDefXmlString)
                     'itemDefXmlString = itemDefXmlString.Replace("  ", vbTab)
                     'itemDefXmlString = itemDefXmlString.Replace("><", ">" + vbCrLf + "<")

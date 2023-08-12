@@ -1618,7 +1618,7 @@
         "DisplayName" = "8:Release"
         "IsDebugOnly" = "11:FALSE"
         "IsReleaseOnly" = "11:TRUE"
-        "OutputFilename" = "8:..\\TankExporter_136.msi"
+        "OutputFilename" = "8:..\\TankExporter_137.msi"
         "PackageFilesAs" = "3:2"
         "PackageFileSize" = "3:-2147483648"
         "CabType" = "3:1"
@@ -1680,7 +1680,7 @@
                 {
                 "Name" = "8:.NET Framework"
                 "Message" = "8:[VSDNETMSG]"
-                "FrameworkVersion" = "8:v4.5"
+                "FrameworkVersion" = "8:v4.5 "
                 "AllowLaterVersions" = "11:FALSE"
                 "InstallUrl" = "8:http://go.microsoft.com/fwlink/?LinkId=395269"
                 }
@@ -6839,15 +6839,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Tank Exporter"
-        "ProductCode" = "8:{297BC7F0-66FD-4A0C-BF8F-5E943454269B}"
-        "PackageCode" = "8:{D80BB9B5-A16B-47DC-85A5-5084C96793E9}"
+        "ProductCode" = "8:{1B5021B2-11D3-421E-91FA-226B26F336CC}"
+        "PackageCode" = "8:{4DB18F6E-4438-4022-A616-2995DB0EFD80}"
         "UpgradeCode" = "8:{6ABAF23A-CB3D-4411-B78A-4855B5B5A0CD}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:1.0.136"
+        "ProductVersion" = "8:1.0.137"
         "Manufacturer" = "8:Coffee_"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
@@ -7399,7 +7399,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_D88F02B810ED4918A9E68229BD46788B"
             {
-            "SourcePath" = "8:..\\!_Tank Exporter\\obj\\x86\\Debug\\!_Tank Exporter.exe"
+            "SourcePath" = "8:"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_9BBCA850C4D847C495C4D74DD189C10E"

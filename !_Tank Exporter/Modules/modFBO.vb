@@ -245,7 +245,7 @@ Module modFBO
 
             'attach draw buffers
             Gl.glDrawBuffers(1, attachments)
-
+            Threading.Thread.Sleep(500)
             'attach draw buffers
             Dim Status = Gl.glCheckFramebufferStatusEXT(Gl.GL_FRAMEBUFFER_EXT)
 
