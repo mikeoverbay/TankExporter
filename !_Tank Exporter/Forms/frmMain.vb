@@ -461,6 +461,7 @@ done:
         Me.Text = " Tank Exporter Version: " + Application.ProductVersion
         '====================================================================================================
         start_up_log.AppendLine("------ App Startup ------")
+        start_up_log.AppendLine(Me.Text)
         '====================================================================================================
         SplitContainer2.Panel2.Controls.Add(tanklist)
         tanklist.Visible = False
@@ -538,7 +539,7 @@ done:
         '====================================================================================================
         ' Setup loaction for tank data.. sucks to do it this way but UAC wont allow it any other way.
         'I'M SAVING ALL CODE RELATED TO THE OLD TANK LIST IN CASE I WORK ON TERRA AGAIN!
-        decal_path = Temp_Storage + "\decals"
+        decal_path = Temp_Storage
 
         TankListTempFolder = Temp_Storage + "\tanklist\"
         If Not System.IO.Directory.Exists(TankListTempFolder) Then
@@ -632,166 +633,165 @@ done:
             End If
             Application.DoEvents()
             '====================================================================================================
-            ' Do it only if needed
-            Dim d As DirectoryInfo = Nothing
-            d = New DirectoryInfo(decal_path + "decals\maps\decals_pbs\00_CA_Decals")
 
-            If Not My.Settings.stop_loading_decals And Not d.EnumerateFiles().Any() Then
-                Directory.CreateDirectory(decal_path)
-                Dim arc = Ionic.Zip.ZipFile.Read(My.Settings.game_path + "\res\packages\shared_content-part1.pkg")
-                Try
-
-                    info_Label.Text = "getting decals from shared_content pkgs"
-                    For Each entry In arc
-
-                        If entry.FileName.ToLower.Contains("decals_pbs") Then
-                            entry.Extract(decal_path, ExtractExistingFileAction.OverwriteSilently)
-                            Application.DoEvents()
-                        End If
-                    Next
-                    arc = Ionic.Zip.ZipFile.Read(My.Settings.game_path + "\res\packages\shared_content-part2.pkg")
-                    For Each entry In arc
-
-                        If entry.FileName.ToLower.Contains("decals_pbs") Then
-                            entry.Extract(decal_path, ExtractExistingFileAction.OverwriteSilently)
-                            Application.DoEvents()
-                        End If
-                    Next
-                    arc = Ionic.Zip.ZipFile.Read(My.Settings.game_path + "\res\packages\shared_content-part3.pkg")
-                    For Each entry In arc
-
-                        If entry.FileName.ToLower.Contains("decals_pbs") Then
-                            entry.Extract(decal_path, ExtractExistingFileAction.OverwriteSilently)
-                            Application.DoEvents()
-                        End If
-                    Next
-                    arc = Ionic.Zip.ZipFile.Read(My.Settings.game_path + "\res\packages\208_bf_epic_normandy.pkg")
-                    For Each entry In arc
-
-                        If entry.FileName.ToLower.Contains("decals_pbs") Then
-                            entry.Extract(decal_path, ExtractExistingFileAction.OverwriteSilently)
-                            Application.DoEvents()
-                        End If
-                    Next
-                    arc = Ionic.Zip.ZipFile.Read(My.Settings.game_path + "\res\packages\07_lakeville.pkg")
-                    For Each entry In arc
-
-                        If entry.FileName.ToLower.Contains("decals_pbs") Then
-                            entry.Extract(decal_path, ExtractExistingFileAction.OverwriteSilently)
-                            Application.DoEvents()
-                        End If
-                    Next
-                    arc = Ionic.Zip.ZipFile.Read(My.Settings.game_path + "\res\packages\19_monastery.pkg")
-                    For Each entry In arc
-
-                        If entry.FileName.ToLower.Contains("decals_pbs") Then
-                            entry.Extract(decal_path, ExtractExistingFileAction.OverwriteSilently)
-                            Application.DoEvents()
-                        End If
-                    Next
-                    '---------------------
-                    arc = Ionic.Zip.ZipFile.Read(My.Settings.game_path + "\res\packages\shared_content_hd-part1.pkg")
-                    For Each entry In arc
-
-                        If entry.FileName.ToLower.Contains("decals_pbs") Then
-                            entry.Extract(decal_path, ExtractExistingFileAction.OverwriteSilently)
-                            Application.DoEvents()
-                        End If
-                    Next
-                    arc = Ionic.Zip.ZipFile.Read(My.Settings.game_path + "\res\packages\shared_content_hd-part2.pkg")
-                    For Each entry In arc
-
-                        If entry.FileName.ToLower.Contains("decals_pbs") Then
-                            entry.Extract(decal_path, ExtractExistingFileAction.OverwriteSilently)
-                            Application.DoEvents()
-                        End If
-                    Next
-
-                    arc = Ionic.Zip.ZipFile.Read(My.Settings.game_path + "\res\packages\shared_content_hd-part3.pkg")
-                    For Each entry In arc
-
-                        If entry.FileName.ToLower.Contains("decals_pbs") Then
-                            entry.Extract(decal_path, ExtractExistingFileAction.OverwriteSilently)
-                            Application.DoEvents()
-                        End If
-                    Next
-                Catch ex As Exception
-                End Try
-            End If
-
-
-            '====================================================================================================
-            tank_label.Parent = iconbox
-            tank_label.Text = ""
-            tank_label.Location = New Point(5, 10)
-            '===================================================================================
-            info_Label.Text = "Getting Camo Textures..."
-            'load_camo()
-            '===================================================================================
-            load_customization_files()
-            build_list_table()
-            'MsgBox("Past load_customization_files", MsgBoxStyle.Exclamation, "Debug")
-            load_season_icons()
-            load_tank_buttons()
-            start_up_log.AppendLine("Done Creating OpenGL based Buttons.")
-
-            Gl.glFinish()
-            '===================================================================================
-
-            If Not File.Exists(Temp_Storage + "\in_shortnames.txt") Then
-                start_up_log.AppendLine("Getting DEV API data.")
-                get_tank_names()
-            Else
-                get_tank_info_from_temp_folder()
-                start_up_log.AppendLine("Data already read from DEV API.. Loaded it..")
-            End If
-
-            Application.DoEvents()
-            set_treeview(TreeView1)
-            Application.DoEvents()
-            set_treeview(TreeView2)
-            Application.DoEvents()
-            set_treeview(TreeView3)
-            Application.DoEvents()
-            set_treeview(TreeView4)
-            Application.DoEvents()
-            set_treeview(TreeView5)
-            Application.DoEvents()
-            set_treeview(TreeView6)
-            Application.DoEvents()
-            set_treeview(TreeView7)
-            Application.DoEvents()
-            set_treeview(TreeView8)
-            Application.DoEvents()
-            set_treeview(TreeView9)
-            Application.DoEvents()
-            set_treeview(TreeView10)
-            '-----------------------------
-            Application.DoEvents()
-            treeviews(1) = TreeView1
-            Application.DoEvents()
-            treeviews(2) = TreeView2
-            Application.DoEvents()
-            treeviews(3) = TreeView3
-            Application.DoEvents()
-            treeviews(4) = TreeView4
-            Application.DoEvents()
-            treeviews(5) = TreeView5
-            Application.DoEvents()
-            treeviews(6) = TreeView6
-            Application.DoEvents()
-            treeviews(7) = TreeView7
-            Application.DoEvents()
-            treeviews(8) = TreeView8
-            Application.DoEvents()
-            treeviews(9) = TreeView9
-            Application.DoEvents()
-            treeviews(10) = TreeView10
-            '-----------------------------
-            Application.DoEvents()
-            load_tabs()
-            Application.DoEvents()
         End If
+            If Not My.Settings.stop_loading_decals Then
+
+                Directory.CreateDirectory(decal_path)
+                    Dim arc = Ionic.Zip.ZipFile.Read(My.Settings.game_path + "\res\packages\shared_content-part1.pkg")
+                    Try
+
+                        info_Label.Text = "getting decals from shared_content pkgs"
+                        For Each entry In arc
+
+                            If entry.FileName.ToLower.Contains("decals_pbs") Then
+                                entry.Extract(decal_path, ExtractExistingFileAction.OverwriteSilently)
+                                Application.DoEvents()
+                            End If
+                        Next
+                        arc = Ionic.Zip.ZipFile.Read(My.Settings.game_path + "\res\packages\shared_content-part2.pkg")
+                        For Each entry In arc
+
+                            If entry.FileName.ToLower.Contains("decals_pbs") Then
+                                entry.Extract(decal_path, ExtractExistingFileAction.OverwriteSilently)
+                                Application.DoEvents()
+                            End If
+                        Next
+                        arc = Ionic.Zip.ZipFile.Read(My.Settings.game_path + "\res\packages\shared_content-part3.pkg")
+                        For Each entry In arc
+
+                            If entry.FileName.ToLower.Contains("decals_pbs") Then
+                                entry.Extract(decal_path, ExtractExistingFileAction.OverwriteSilently)
+                                Application.DoEvents()
+                            End If
+                        Next
+                        arc = Ionic.Zip.ZipFile.Read(My.Settings.game_path + "\res\packages\208_bf_epic_normandy.pkg")
+                        For Each entry In arc
+
+                            If entry.FileName.ToLower.Contains("decals_pbs") Then
+                                entry.Extract(decal_path, ExtractExistingFileAction.OverwriteSilently)
+                                Application.DoEvents()
+                            End If
+                        Next
+                        arc = Ionic.Zip.ZipFile.Read(My.Settings.game_path + "\res\packages\07_lakeville.pkg")
+                        For Each entry In arc
+
+                            If entry.FileName.ToLower.Contains("decals_pbs") Then
+                                entry.Extract(decal_path, ExtractExistingFileAction.OverwriteSilently)
+                                Application.DoEvents()
+                            End If
+                        Next
+                        arc = Ionic.Zip.ZipFile.Read(My.Settings.game_path + "\res\packages\19_monastery.pkg")
+                        For Each entry In arc
+
+                            If entry.FileName.ToLower.Contains("decals_pbs") Then
+                                entry.Extract(decal_path, ExtractExistingFileAction.OverwriteSilently)
+                                Application.DoEvents()
+                            End If
+                        Next
+                        '---------------------
+                        arc = Ionic.Zip.ZipFile.Read(My.Settings.game_path + "\res\packages\shared_content_hd-part1.pkg")
+                        For Each entry In arc
+
+                            If entry.FileName.ToLower.Contains("decals_pbs") Then
+                                entry.Extract(decal_path, ExtractExistingFileAction.OverwriteSilently)
+                                Application.DoEvents()
+                            End If
+                        Next
+                        arc = Ionic.Zip.ZipFile.Read(My.Settings.game_path + "\res\packages\shared_content_hd-part2.pkg")
+                        For Each entry In arc
+
+                            If entry.FileName.ToLower.Contains("decals_pbs") Then
+                                entry.Extract(decal_path, ExtractExistingFileAction.OverwriteSilently)
+                                Application.DoEvents()
+                            End If
+                        Next
+
+                        arc = Ionic.Zip.ZipFile.Read(My.Settings.game_path + "\res\packages\shared_content_hd-part3.pkg")
+                        For Each entry In arc
+
+                            If entry.FileName.ToLower.Contains("decals_pbs") Then
+                                entry.Extract(decal_path, ExtractExistingFileAction.OverwriteSilently)
+                                Application.DoEvents()
+                            End If
+                        Next
+                    Catch ex As Exception
+                    End Try
+                End If
+
+
+                '====================================================================================================
+                tank_label.Parent = iconbox
+                tank_label.Text = ""
+                tank_label.Location = New Point(5, 10)
+                '===================================================================================
+                info_Label.Text = "Getting Camo Textures..."
+                'load_camo()
+                '===================================================================================
+                load_customization_files()
+                build_list_table()
+                'MsgBox("Past load_customization_files", MsgBoxStyle.Exclamation, "Debug")
+                load_season_icons()
+                load_tank_buttons()
+                start_up_log.AppendLine("Done Creating OpenGL based Buttons.")
+
+                Gl.glFinish()
+                '===================================================================================
+
+                If Not File.Exists(Temp_Storage + "\in_shortnames.txt") Then
+                    start_up_log.AppendLine("Getting DEV API data.")
+                    get_tank_names()
+                Else
+                    get_tank_info_from_temp_folder()
+                    start_up_log.AppendLine("Data already read from DEV API.. Loaded it..")
+                End If
+
+                Application.DoEvents()
+                set_treeview(TreeView1)
+                Application.DoEvents()
+                set_treeview(TreeView2)
+                Application.DoEvents()
+                set_treeview(TreeView3)
+                Application.DoEvents()
+                set_treeview(TreeView4)
+                Application.DoEvents()
+                set_treeview(TreeView5)
+                Application.DoEvents()
+                set_treeview(TreeView6)
+                Application.DoEvents()
+                set_treeview(TreeView7)
+                Application.DoEvents()
+                set_treeview(TreeView8)
+                Application.DoEvents()
+                set_treeview(TreeView9)
+                Application.DoEvents()
+                set_treeview(TreeView10)
+                '-----------------------------
+                Application.DoEvents()
+                treeviews(1) = TreeView1
+                Application.DoEvents()
+                treeviews(2) = TreeView2
+                Application.DoEvents()
+                treeviews(3) = TreeView3
+                Application.DoEvents()
+                treeviews(4) = TreeView4
+                Application.DoEvents()
+                treeviews(5) = TreeView5
+                Application.DoEvents()
+                treeviews(6) = TreeView6
+                Application.DoEvents()
+                treeviews(7) = TreeView7
+                Application.DoEvents()
+                treeviews(8) = TreeView8
+                Application.DoEvents()
+                treeviews(9) = TreeView9
+                Application.DoEvents()
+                treeviews(10) = TreeView10
+                '-----------------------------
+                Application.DoEvents()
+                load_tabs()
+                Application.DoEvents()
+
 
         'build pkg list
         make_pgk_search_list()
@@ -837,7 +837,7 @@ done:
         info_Label.Visible = False
         '###################################
         start_up_log.AppendLine("----- Startup Complete -----")
-        File.WriteAllText(Temp_Storage + "Startup_log.txt", start_up_log.ToString)
+        File.WriteAllText(Temp_Storage + "\Startup_log.txt", start_up_log.ToString)
         'show and hide to assign setting and initilize the windows
         FrmShadowSettings.Show() ' set the buttons and shadow quality
         FrmShadowSettings.Hide()
