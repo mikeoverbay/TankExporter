@@ -15,7 +15,6 @@ Module modXmodelLoader
 
     Public Function load_binary_model(m As String)
         Dim f As New FileStream(m, FileMode.Open, FileAccess.Read)
-        'tried everything.. stupid app is loading the wrong files over and over!!!
         Dim br As New BinaryReader(f)
 
         Dim v_cnt = br.ReadInt32 * 3 ' 3 per poly
