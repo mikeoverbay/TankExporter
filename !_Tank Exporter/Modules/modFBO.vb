@@ -250,7 +250,7 @@ Module modFBO
             Dim Status = Gl.glCheckFramebufferStatusEXT(Gl.GL_FRAMEBUFFER_EXT)
 
             If Status <> Gl.GL_FRAMEBUFFER_COMPLETE_EXT Then
-                MsgBox("Failed to create Deferred FBO", MsgBoxStyle.Critical, "Not good!")
+                '  MsgBox("Failed to create Deferred FBO", MsgBoxStyle.Critical, "Not good!")
                 Return False
             End If
 
