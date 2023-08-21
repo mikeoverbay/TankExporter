@@ -25,6 +25,7 @@ Imports Ionic.Zip
 Imports System.Drawing.Imaging
 Imports Skill.FbxSDK
 Imports SharpDX.Mathematics
+Imports SharpDX.Direct3D11
 #End Region
 
 
@@ -482,6 +483,7 @@ Module ModTankLoader
 
     End Function
     Public Function build_primitive_data(_add As Boolean) As Boolean
+        frmMain.update_log("started_loading_primitive")
         '------------
         Dim f_name_vertices, f_name_indices, f_name_uv2, f_name_color As String
         Dim tbuf() As vertice_
@@ -585,6 +587,7 @@ Module ModTankLoader
         Else
             file_name &= ".primitives_processed"
         End If
+        frmMain.update_log("tank component name: " + file_name)
         '####################################################################################
         'Since I wrote this, The order has been fucking backwards!
         'This fixes that major screwup with out affecting existing
@@ -593,6 +596,7 @@ Module ModTankLoader
             Return False 'Something went wrong with getting names in visual file
         End If
         '####################################################################################
+        frmMain.update_log("got ordered names")
         'Load Prmitive Data
         cnt = 0
         Dim r As New MemoryStream
@@ -603,13 +607,14 @@ Module ModTankLoader
         If File.Exists(t_path) And Not LOADING_FBX Then
             'yes... read the file
             buf = File.ReadAllBytes(t_path)
+            frmMain.update_log("reading data from res_mods")
             r = New MemoryStream(buf)
             File_len = r.Length
             loaded_from_resmods = True
         Else
             'no.. get the file from the package...
             If current_tank_package = 0 Then 'trap excep thrown by stand alone primitive load.
-                log_text.Append("File Not Found in package.." + file_name + vbCrLf)
+                frmMain.update_log("File Not Found in package.." + file_name + vbCrLf)
                 Return False
             End If
             Dim entry As ZipEntry = frmMain.packages(current_tank_package)(file_name)
@@ -634,7 +639,7 @@ Module ModTankLoader
                         'last ditch try searching all packages for the model
                         entry = find_tank_and_return_entry_in_pkgs(file_name)
                         If entry Is Nothing Then
-                            log_text.Append("File Not Found in package.." + file_name + vbCrLf)
+                            frmMain.update_log("File Not Found in package.." + file_name + vbCrLf)
                             Return False
                         Else
                             entry.Extract(r)
@@ -648,6 +653,7 @@ Module ModTankLoader
             For i = 0 To File_len - 1
                 buf(i) = b_reader.ReadByte
             Next
+            frmMain.update_log("Buf filled")
         End If
 
         r.Dispose()
@@ -707,7 +713,7 @@ Module ModTankLoader
                 Exit For
             End If
         Next
-
+        frmMain.update_log("Section table read")
         Dim by As Byte = 0
         b_reader.BaseStream.Seek(0, SeekOrigin.Begin)
         dummy = b_reader.ReadUInt32 ' read off special tag characters (4)
@@ -754,12 +760,14 @@ Module ModTankLoader
                 'loop through order_names and find matching type name
                 For id = 0 To ordered_names.Length - 1
                     If ordered_names(id).vert_name = f_name_vertices Then
+                        frmMain.update_log(".vert_name using table index " + id.ToString)
                         ReDim ordered_names(id).vert_data(section_sizes(i))
                         stream.Position = section_locations(i)
                         ordered_names(id).vert_data = b_reader.ReadBytes(section_sizes(i))
                         GoTo next_m
                     End If
                     If ordered_names(id).indi_name = f_name_indices Then
+                        frmMain.update_log(".indi_name using table index " + id.ToString)
                         ordered_names(id).section_name_id = section_id
                         ReDim ordered_names(id).indi_data(section_sizes(i))
                         stream.Position = section_locations(i)
@@ -767,6 +775,7 @@ Module ModTankLoader
                         GoTo next_m
                     End If
                     If ordered_names(id).color_name = f_name_color Then
+                        frmMain.update_log(".color_name using table index " + id.ToString)
                         ordered_names(id).has_color = True
                         stream.Position = section_locations(i)
                         b_reader.BaseStream.Position += 132
@@ -777,6 +786,7 @@ Module ModTankLoader
                         GoTo next_m
                     End If
                     If ordered_names(id).uv2_name = f_name_uv2 Then
+                        frmMain.update_log(".uv2_name using table index " + id.ToString)
                         ordered_names(id).has_uv2 = True
                         stream.Position = section_locations(i)
                         b_reader.BaseStream.Position += 132
@@ -786,7 +796,6 @@ Module ModTankLoader
                         ordered_names(id).uv2_data = b_reader.ReadBytes(section_sizes(i) - 136)
                         GoTo next_m
                     End If
-
                 Next
 next_m:
                 Dim l = b_reader.BaseStream.Position Mod 4 'read off pad characters
@@ -798,10 +807,11 @@ next_m:
                 f_name_uv2 = "zz"
                 f_name_color = "zz"
             Catch ex As Exception
-                log_text.Append("Something is wrong with primitives contents table.")
+                frmMain.update_log("Something is wrong with primitives contents table.")
                 Return False
             End Try
         Next
+        frmMain.update_log(" ")
         b_reader.Close()
         buf = Nothing
 
@@ -824,6 +834,7 @@ next_m:
                     color_rgb(i).b = CSng(ordered_names(sg - sub_groups).color_data((i * 4) + 2) / 255)
                     color_rgb(i).a = CSng(ordered_names(sg - sub_groups).color_data((i * 4) + 3) / 255)
                 Next
+                frmMain.update_log("color data read")
             End If
 
             ' changed july 7/11/14
@@ -878,7 +889,7 @@ next_m:
                 MsgBox("data in " + file_name + " is unreadable!", MsgBoxStyle.Exclamation, "Error!")
                 Return False
             End Try
-
+            frmMain.update_log("List indi size " + ind_scale.ToString)
             dr = False
             na = ""
             ReDim pGroups(ih.nInd_groups)
@@ -892,7 +903,13 @@ next_m:
                 pGroups(i).startVertex_ = ib_reader.ReadUInt32
                 pGroups(i).nVertices_ = ib_reader.ReadUInt32
 
+                frmMain.update_log("location data")
+                frmMain.update_log("startIndex_ " + pGroups(i).startIndex_.ToString)
+                frmMain.update_log("nPrimitives_ " + pGroups(i).nPrimitives_.ToString)
+                frmMain.update_log("startVertex_ " + pGroups(i).startVertex_.ToString)
+                frmMain.update_log("nVertices_ " + pGroups(i).nVertices_.ToString)
             Next
+            frmMain.update_log("")
             'get basic vertices info
             Dim vr = New MemoryStream(ordered_names(section_count).vert_data)
             Dim vb_reader = New BinaryReader(vr)
@@ -950,6 +967,8 @@ next_m:
             If BPVT_mode Then
                 vb_reader.BaseStream.Position = curpos + 132
             End If
+            frmMain.update_log("vh_header " + vh.header_text)
+
             vh.nVertice_count = vb_reader.ReadUInt32
             'now that we have a count.. lets see if we need to get the uv2 coords
             If ordered_names(sg - sub_groups).has_uv2 Then
@@ -1121,6 +1140,7 @@ next_m:
                 Next cnt
             Next k
             '           vb_reader.Close() ' we are done with this :)
+            frmMain.update_log("read geo data")
             vr.Close()
             vr.Dispose()
             vr = Nothing
@@ -1444,12 +1464,14 @@ next_m:
                 End If
                 Application.DoEvents()
                 make_lists(jj)
+                frmMain.update_log("Display list created " + jj.ToString)
                 _object(jj).find_center() 'must be after pre transform!
 
                 _object(jj).modified = False
                 GC.Collect()
                 _group(jj).table_entry_name = ordered_names(sg - sub_groups).indi_name
 
+                frmMain.update_log("object created " + jj.ToString)
 
             Next jj
 no_line:
@@ -1488,6 +1510,8 @@ all_done:
 
         Dim os As String = ""
         'frmMain.Text = "File: " + file_name.Replace(".visual", ".primitives")
+        frmMain.update_log("Component load end. It it made it to this. there were no errors.")
+
         Return True
     End Function
     Public Sub round_signed_to(ByRef n As Single, ByRef places As Integer)
