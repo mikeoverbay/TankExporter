@@ -1509,7 +1509,6 @@ all_done:
         tank_center_Z = (z_max + z_min) / 2.0
 
         Dim os As String = ""
-        'frmMain.Text = "File: " + file_name.Replace(".visual", ".primitives")
         frmMain.update_log("Component load end. It it made it to this. there were no errors.")
 
         Return True
@@ -2743,7 +2742,7 @@ get_visual:
             MsgBox("GL error :" + e.ToString, MsgBoxStyle.OkOnly, "Debug")
 
         End If
-        MODEL_LOADED = True
+        'MODEL_LOADED = True
 
     End Sub
     Public max_u, max_v, min_u, min_v As Single

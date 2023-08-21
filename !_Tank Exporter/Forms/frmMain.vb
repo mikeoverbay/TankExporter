@@ -6102,7 +6102,7 @@ fuckit:
         End If
 
 
-        MODEL_LOADED = True
+        'MODEL_LOADED = True
         If Not LOAD_ERROR Then
             'MODEL_LOADED = False
             'clean_house()
@@ -6294,6 +6294,8 @@ fuckit:
         m_set_vertex_winding_order.Enabled = True
         WORKING = False
         update_log("Exiting Processes Tank" + vbCrLf)
+        MODEL_LOADED = True
+
         Return True
     End Function
 
