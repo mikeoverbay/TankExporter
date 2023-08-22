@@ -1464,11 +1464,20 @@ next_m:
                 End If
                 Application.DoEvents()
                 make_lists(jj)
+
                 frmMain.update_log("Display list created " + jj.ToString)
+
                 _object(jj).find_center() 'must be after pre transform!
 
+                frmMain.update_log("_object(jj).find_center() ")
+
                 _object(jj).modified = False
+
+                frmMain.update_log("_object(jj).modified = False ")
                 GC.Collect()
+
+                frmMain.update_log("GC.Collect()")
+
                 _group(jj).table_entry_name = ordered_names(sg - sub_groups).indi_name
 
                 frmMain.update_log("object created " + jj.ToString)
