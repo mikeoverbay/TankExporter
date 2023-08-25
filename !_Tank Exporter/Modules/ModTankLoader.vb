@@ -26,6 +26,7 @@ Imports System.Drawing.Imaging
 Imports Skill.FbxSDK
 Imports SharpDX.Mathematics
 Imports SharpDX.Direct3D11
+Imports System.ComponentModel
 #End Region
 
 
@@ -2741,14 +2742,27 @@ get_visual:
         e = Gl.glGetError
 
         _object(I).main_display_list = Gl.glGenLists(1)
+        e = Gl.glGetError
+        If e > 0 Then
+            MsgBox("GL error a:" + e.ToString, MsgBoxStyle.OkOnly, "Debug")
 
+        End If
         Gl.glNewList(_object(I).main_display_list, Gl.GL_COMPILE)
+        e = Gl.glGetError
+        If e > 0 Then
+            MsgBox("GL error b:" + e.ToString, MsgBoxStyle.OkOnly, "Debug")
 
+        End If
         main_list(_object(I).count, I)
+        e = Gl.glGetError
+        If e > 0 Then
+            MsgBox("GL error c:" + e.ToString, MsgBoxStyle.OkOnly, "Debug")
+
+        End If
         Gl.glEndList()
         e = Gl.glGetError()
         If e > 0 Then
-            MsgBox("GL error :" + e.ToString, MsgBoxStyle.OkOnly, "Debug")
+            'MsgBox("GL error d:" + e.ToString, MsgBoxStyle.OkOnly, "Debug")
 
         End If
         'MODEL_LOADED = True
@@ -2781,41 +2795,52 @@ get_visual:
         min_v = 10000.0!
         Gl.glBegin(Gl.GL_TRIANGLES)
         'trans_vertex(jj)
+        Dim e = Gl.glGetError
         For i As UInt32 = 1 To cnt
             pre_transform(jj, i)
             '1
             Gl.glNormal3f(_object(jj).tris(i).n1.x, _object(jj).tris(i).n1.y, _object(jj).tris(i).n1.z) 'normal
             'Gl.glMultiTexCoord2f(0, _object(jj).tris(i).uv1.u, _object(jj).tris(i).uv1.v) 'uv1
-            Gl.glMultiTexCoord3f(1, _object(jj).tris(i).t1.x, _object(jj).tris(i).t1.y, _object(jj).tris(i).t1.z) 'tangent
-            Gl.glMultiTexCoord3f(2, _object(jj).tris(i).b1.x, _object(jj).tris(i).b1.y, _object(jj).tris(i).b1.z) ' bitangent
-            Gl.glMultiTexCoord2f(4, _object(jj).tris(i).uv1_2.u, _object(jj).tris(i).uv1_2.v) 'uv2
+            'Gl.glMultiTexCoord3f(1, _object(jj).tris(i).t1.x, _object(jj).tris(i).t1.y, _object(jj).tris(i).t1.z) 'tangent
+            'Gl.glMultiTexCoord3f(2, _object(jj).tris(i).b1.x, _object(jj).tris(i).b1.y, _object(jj).tris(i).b1.z) ' bitangent
+            'Gl.glMultiTexCoord2f(4, _object(jj).tris(i).uv1_2.u, _object(jj).tris(i).uv1_2.v) 'uv2
             'must have these for AMD!!!
             Gl.glTexCoord2f(_object(jj).tris(i).uv1.u, _object(jj).tris(i).uv1.v)
 
             Gl.glVertex3f(_object(jj).tris(i).v1.x, _object(jj).tris(i).v1.y, _object(jj).tris(i).v1.z) 'vertex
+            e = Gl.glGetError
+            If e > 0 Then
+                MsgBox("GL error 1:" + e.ToString, MsgBoxStyle.OkOnly, "Debug")
 
+            End If
+            'GoTo nope
             '2
             Gl.glNormal3f(_object(jj).tris(i).n2.x, _object(jj).tris(i).n2.y, _object(jj).tris(i).n2.z)
             'Gl.glMultiTexCoord2f(0, _object(jj).tris(i).uv2.u, _object(jj).tris(i).uv2.v) 'uv1
-            Gl.glMultiTexCoord3f(1, _object(jj).tris(i).t2.x, _object(jj).tris(i).t2.y, _object(jj).tris(i).t2.z)
-            Gl.glMultiTexCoord3f(2, _object(jj).tris(i).b2.x, _object(jj).tris(i).b2.y, _object(jj).tris(i).b2.z)
-            Gl.glMultiTexCoord2f(4, _object(jj).tris(i).uv2_2.u, _object(jj).tris(i).uv2_2.v) 'uv2
+            'Gl.glMultiTexCoord3f(1, _object(jj).tris(i).t2.x, _object(jj).tris(i).t2.y, _object(jj).tris(i).t2.z)
+            'Gl.glMultiTexCoord3f(2, _object(jj).tris(i).b2.x, _object(jj).tris(i).b2.y, _object(jj).tris(i).b2.z)
+            'Gl.glMultiTexCoord2f(4, _object(jj).tris(i).uv2_2.u, _object(jj).tris(i).uv2_2.v) 'uv2
             'must have these for AMD!!!
             Gl.glTexCoord2f(_object(jj).tris(i).uv2.u, _object(jj).tris(i).uv2.v)
 
             Gl.glVertex3f(_object(jj).tris(i).v2.x, _object(jj).tris(i).v2.y, _object(jj).tris(i).v2.z)
 
+            e = Gl.glGetError
+            If e > 0 Then
+                'MsgBox("GL error 2:" + e.ToString, MsgBoxStyle.OkOnly, "Debug")
+
+            End If
             '3
             Gl.glNormal3f(_object(jj).tris(i).n3.x, _object(jj).tris(i).n3.y, _object(jj).tris(i).n3.z)
             'Gl.glMultiTexCoord2f(0, _object(jj).tris(i).uv3.u, _object(jj).tris(i).uv3.v) 'uv1
-            Gl.glMultiTexCoord3f(1, _object(jj).tris(i).t3.x, _object(jj).tris(i).t3.y, _object(jj).tris(i).t3.z)
-            Gl.glMultiTexCoord3f(2, _object(jj).tris(i).b3.x, _object(jj).tris(i).b3.y, _object(jj).tris(i).b3.z)
-            Gl.glMultiTexCoord2f(4, _object(jj).tris(i).uv3_2.u, _object(jj).tris(i).uv3_2.v) 'uv2
+            'Gl.glMultiTexCoord3f(1, _object(jj).tris(i).t3.x, _object(jj).tris(i).t3.y, _object(jj).tris(i).t3.z)
+            'Gl.glMultiTexCoord3f(2, _object(jj).tris(i).b3.x, _object(jj).tris(i).b3.y, _object(jj).tris(i).b3.z)
+            'Gl.glMultiTexCoord2f(4, _object(jj).tris(i).uv3_2.u, _object(jj).tris(i).uv3_2.v) 'uv2
             'must have these for AMD!!!
             Gl.glTexCoord2f(_object(jj).tris(i).uv3.u, _object(jj).tris(i).uv3.v)
 
             Gl.glVertex3f(_object(jj).tris(i).v3.x, _object(jj).tris(i).v3.y, _object(jj).tris(i).v3.z)
-
+nope:
             get_uv_repetes(jj, i)
         Next
         Dim x_s = max_u - min_u

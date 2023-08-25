@@ -536,7 +536,10 @@ done:
 
         update_log("Loading required data..")
 
+        Dim functionlist = Gl.glGetString(Gl.GL_EXTENSIONS)
+        functionlist = functionlist.Replace(" ", vbCrLf)
 
+        'update_log(functionlist) ' uncomment to dump all suopported extentions
 
         load_type_images() ' get the tank type icons
 
