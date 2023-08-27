@@ -3,6 +3,7 @@ Imports System.IO
 Imports System.Data.SqlTypes
 
 Module modGlobals
+    Public AMD_ As Boolean = False
     Public UV2s() As vec2
     Public LOADING_FBX As Boolean = False
     '##################################

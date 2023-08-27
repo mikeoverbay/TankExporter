@@ -521,6 +521,11 @@ done:
 
         Dim glstr As String
         glstr = Gl.glGetString(Gl.GL_VENDOR)
+        If glstr.Contains("ATI") Or glstr.Contains("AMD") Then
+            AMD_ = True
+        Else
+            AMD_ = False
+        End If
         update_log("Vendor: " + glstr)
 
         glstr = Gl.glGetString(Gl.GL_VERSION)

@@ -1853,15 +1853,15 @@ whichone:
 
     Private Sub make_triangle(ByVal jj As Integer, ByVal i As Integer)
         Gl.glNormal3f(fbxgrp(jj).vertices(i).nx, fbxgrp(jj).vertices(i).ny, fbxgrp(jj).vertices(i).nz)
-        Gl.glMultiTexCoord2f(0, -fbxgrp(jj).vertices(i).u, fbxgrp(jj).vertices(i).v)
-        Gl.glMultiTexCoord3f(1, fbxgrp(jj).vertices(i).tx, fbxgrp(jj).vertices(i).ty, fbxgrp(jj).vertices(i).tz)
-        Gl.glMultiTexCoord3f(2, fbxgrp(jj).vertices(i).bnx, fbxgrp(jj).vertices(i).bny, fbxgrp(jj).vertices(i).bnz)
+        Gl.glMultiTexCoord2f(Gl.GL_TEXTURE0, -fbxgrp(jj).vertices(i).u, fbxgrp(jj).vertices(i).v)
+        Gl.glMultiTexCoord3f(Gl.GL_TEXTURE1, fbxgrp(jj).vertices(i).tx, fbxgrp(jj).vertices(i).ty, fbxgrp(jj).vertices(i).tz)
+        Gl.glMultiTexCoord3f(Gl.GL_TEXTURE2, fbxgrp(jj).vertices(i).bnx, fbxgrp(jj).vertices(i).bny, fbxgrp(jj).vertices(i).bnz)
         If fbxgrp(jj).has_Vcolor Then
-            Gl.glMultiTexCoord3f(3, CSng(fbxgrp(jj).vertices(i).index_1 / 255.0!), _
+            Gl.glMultiTexCoord3f(Gl.GL_TEXTURE3, CSng(fbxgrp(jj).vertices(i).index_1 / 255.0!), _
                                   CSng(fbxgrp(jj).vertices(i).index_2 / 255.0!), _
                                   CSng(fbxgrp(jj).vertices(i).index_3 / 255.0!))
         Else
-            Gl.glMultiTexCoord3f(3, 0.0!, 0.0!, 0.0!)
+            Gl.glMultiTexCoord3f(Gl.GL_TEXTURE3, 0.0!, 0.0!, 0.0!)
         End If
 
         Gl.glTexCoord2f(-fbxgrp(jj).vertices(i).u, fbxgrp(jj).vertices(i).v)

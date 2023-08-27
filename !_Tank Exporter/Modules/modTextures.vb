@@ -473,16 +473,16 @@ Module modTextures
             uv1c.x = _group(id).vertices(p3).u
             uv1c.y = _group(id).vertices(p3).v
 
-            Gl.glMultiTexCoord2f(1, uv2a.x, uv2a.y)
-            Gl.glMultiTexCoord2f(0, uv1a.x, uv1a.y)
+            Gl.glMultiTexCoord2f(Gl.GL_TEXTURE1, uv2a.x, uv2a.y)
+            Gl.glMultiTexCoord2f(Gl.GL_TEXTURE0, uv1a.x, uv1a.y)
             Gl.glVertex2f(uv2a.x, uv2a.y)
 
-            Gl.glMultiTexCoord2f(1, uv2b.x, uv2b.y)
-            Gl.glMultiTexCoord2f(0, uv1b.x, uv1b.y)
+            Gl.glMultiTexCoord2f(Gl.GL_TEXTURE1, uv2b.x, uv2b.y)
+            Gl.glMultiTexCoord2f(Gl.GL_TEXTURE0, uv1b.x, uv1b.y)
             Gl.glVertex2f(uv2b.x, uv2b.y)
 
-            Gl.glMultiTexCoord2f(1, uv2c.x, uv2c.y)
-            Gl.glMultiTexCoord2f(0, uv1c.x, uv1c.y)
+            Gl.glMultiTexCoord2f(Gl.GL_TEXTURE1, uv2c.x, uv2c.y)
+            Gl.glMultiTexCoord2f(Gl.GL_TEXTURE0, uv1c.x, uv1c.y)
             Gl.glVertex2f(uv2c.x, uv2c.y)
         Next
         Gl.glEnd()
@@ -506,16 +506,16 @@ Module modTextures
             uv1c.x = _group(id).vertices(p3).u
             uv1c.y = _group(id).vertices(p3).v
 
-            Gl.glMultiTexCoord2f(1, uv2a.x, uv2a.y)
-            Gl.glMultiTexCoord2f(0, uv1a.x, uv1a.y)
+            Gl.glMultiTexCoord2f(Gl.GL_TEXTURE1, uv2a.x, uv2a.y)
+            Gl.glMultiTexCoord2f(Gl.GL_TEXTURE0, uv1a.x, uv1a.y)
             Gl.glVertex2f(uv2a.x, uv2a.y)
 
-            Gl.glMultiTexCoord2f(1, uv2b.x, uv2b.y)
-            Gl.glMultiTexCoord2f(0, uv1b.x, uv1b.y)
+            Gl.glMultiTexCoord2f(Gl.GL_TEXTURE1, uv2b.x, uv2b.y)
+            Gl.glMultiTexCoord2f(Gl.GL_TEXTURE0, uv1b.x, uv1b.y)
             Gl.glVertex2f(uv2b.x, uv2b.y)
 
-            Gl.glMultiTexCoord2f(1, uv2c.x, uv2c.y)
-            Gl.glMultiTexCoord2f(0, uv1c.x, uv1c.y)
+            Gl.glMultiTexCoord2f(Gl.GL_TEXTURE1, uv2c.x, uv2c.y)
+            Gl.glMultiTexCoord2f(Gl.GL_TEXTURE0, uv1c.x, uv1c.y)
             Gl.glVertex2f(uv2c.x, uv2c.y)
         Next
         Gl.glEnd()
@@ -648,16 +648,16 @@ save_it:
             uv1c.x = _group(id).vertices(p3).u
             uv1c.y = _group(id).vertices(p3).v
 
-            Gl.glMultiTexCoord2f(1, uv2a.x, uv2a.y)
-            Gl.glMultiTexCoord2f(0, uv1a.x, uv1a.y)
+            Gl.glMultiTexCoord2f(Gl.GL_TEXTURE1, uv2a.x, uv2a.y)
+            Gl.glMultiTexCoord2f(Gl.GL_TEXTURE0, uv1a.x, uv1a.y)
             Gl.glVertex2f(uv2a.x, uv2a.y)
 
-            Gl.glMultiTexCoord2f(1, uv2b.x, uv2b.y)
-            Gl.glMultiTexCoord2f(0, uv1b.x, uv1b.y)
+            Gl.glMultiTexCoord2f(Gl.GL_TEXTURE1, uv2b.x, uv2b.y)
+            Gl.glMultiTexCoord2f(Gl.GL_TEXTURE0, uv1b.x, uv1b.y)
             Gl.glVertex2f(uv2b.x, uv2b.y)
 
-            Gl.glMultiTexCoord2f(1, uv2c.x, uv2c.y)
-            Gl.glMultiTexCoord2f(0, uv1c.x, uv1c.y)
+            Gl.glMultiTexCoord2f(Gl.GL_TEXTURE1, uv2c.x, uv2c.y)
+            Gl.glMultiTexCoord2f(Gl.GL_TEXTURE0, uv1c.x, uv1c.y)
             Gl.glVertex2f(uv2c.x, uv2c.y)
         Next
         Gl.glEnd()
@@ -681,16 +681,16 @@ save_it:
             uv1c.x = _group(id).vertices(p3).u
             uv1c.y = _group(id).vertices(p3).v
 
-            Gl.glMultiTexCoord2f(1, uv2a.x, uv2a.y)
-            Gl.glMultiTexCoord2f(0, uv1a.x, uv1a.y)
+            Gl.glMultiTexCoord2f(Gl.GL_TEXTURE1, uv2a.x, uv2a.y)
+            Gl.glMultiTexCoord2f(Gl.GL_TEXTURE0, uv1a.x, uv1a.y)
             Gl.glVertex2f(uv2a.x, uv2a.y)
 
-            Gl.glMultiTexCoord2f(1, uv2b.x, uv2b.y)
-            Gl.glMultiTexCoord2f(0, uv1b.x, uv1b.y)
+            Gl.glMultiTexCoord2f(Gl.GL_TEXTURE1, uv2b.x, uv2b.y)
+            Gl.glMultiTexCoord2f(Gl.GL_TEXTURE0, uv1b.x, uv1b.y)
             Gl.glVertex2f(uv2b.x, uv2b.y)
 
-            Gl.glMultiTexCoord2f(1, uv2c.x, uv2c.y)
-            Gl.glMultiTexCoord2f(0, uv1c.x, uv1c.y)
+            Gl.glMultiTexCoord2f(Gl.GL_TEXTURE1, uv2c.x, uv2c.y)
+            Gl.glMultiTexCoord2f(Gl.GL_TEXTURE0, uv1c.x, uv1c.y)
             Gl.glVertex2f(uv2c.x, uv2c.y)
         Next
         Gl.glEnd()
