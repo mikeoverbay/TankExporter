@@ -29,9 +29,7 @@ Module formitems
             SetStyle(ControlStyles.OptimizedDoubleBuffer, True)
             MyBase.OnCreateControl()
         End Sub
-
     End Class
-
 
     Public Class mytextbox
         Inherits TextBox

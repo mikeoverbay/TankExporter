@@ -286,6 +286,7 @@ Module modGlobals
     End Structure
 
     Public tier_list(1) As tnk_list
+    Public tank_result(1) As tnk_list
 
     Public Structure tnk_list
         Public tag As String
