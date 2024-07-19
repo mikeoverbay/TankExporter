@@ -1,0 +1,3 @@
+The End User License Agreement ("EULA") contains the terms and conditions that govern Your use of Aspose's products enclosed or otherwise accompanied herewith (individually and collectively, the "PRODUCT") (as linked to below) and imposes material limitations on Your License. You should read the EULA carefully. BY INSTALLING, DOWNLOADING, COPYING OR OTHERWISE USING THE PRODUCT, YOU AGREE TO BE BOUND BY THE TERMS OF THE ASPOSE EULA.
+
+You may obtain a copy of the Aspose EULA at: https://about.aspose.com/legal/eula

@@ -16,6 +16,10 @@ I created a fix for this but it takes a little effort to use it.</br>
 Read this Issue thread to get the fix and how to use it.</br>
 https://github.com/mikeoverbay/TankExporter/issues/23
 
+## version 140
+Added 3rd gui package. fixed a bug in FBX view.
+Please test and report any missing tanks or other bugs to issues.
+
 ## Version 137
 Fixed a bad bug in exporting the XML file for the tank.
 Also Fixed the Failed to Create FBO error. You may or may not of been seeing this error. TE needs atleast 2gig of video mem to run well. 
