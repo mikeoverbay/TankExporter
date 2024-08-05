@@ -49,6 +49,7 @@ Public Class frmMain
     Private itemDefXmlUncompressed() As Byte
     Private itemDefPathString As String = ""
     Private sorted As Boolean
+    Private isKeyDownDisable As Boolean = False
 
     Dim delay As Integer = 0
     Dim stepper As Integer = 0
@@ -66,8 +67,8 @@ Public Class frmMain
     Public gui_pkg_part_2 As Ionic.Zip.ZipFile
     Public gui_pkg_part_3 As Ionic.Zip.ZipFile
     Public scripts_pkg As Ionic.Zip.ZipFile
-    Dim treeviews(10) As TreeView
-    Public icons(10) As pngs
+    Dim treeviews(11) As TreeView
+    Public icons(11) As pngs
     Public view_status_string As String
     Public tank_mini_icons As New ImageList
     Public GMM_R, GMM_B As Single
@@ -91,7 +92,7 @@ Public Class frmMain
             Return name.CompareTo(other.name)
         End Function
     End Class
-    Public node_list(10) As t_array
+    Public node_list(11) As t_array
     Public Structure t_array
         Public item() As t_items_
     End Structure
@@ -112,6 +113,7 @@ Public Class frmMain
     Dim TreeView8 As New TreeView
     Dim TreeView9 As New TreeView
     Dim TreeView10 As New TreeView
+    Dim TreeView11 As New TreeView
     Dim spin_light As Boolean = False
 #End Region
 
@@ -151,6 +153,9 @@ Public Class frmMain
     End Sub
 
     Private Sub frmMain_KeyDown(sender As Object, e As KeyEventArgs) Handles Me.KeyDown
+        If isKeyDownDisable Then
+            Exit Sub
+        End If
         Dim tab = TC1.SelectedTab
         Dim c = tab.Controls
         Try
@@ -348,6 +353,14 @@ done:
         e.Handled = True
         If stop_updating Then draw_scene()
 
+    End Sub
+
+    Private Sub frmMain_DisableKeyDown()
+        isKeyDownDisable = True
+    End Sub
+
+    Private Sub frmMain_EnableKeyDown()
+        isKeyDownDisable = False
     End Sub
 
     Private Sub frmMain_KeyUp(sender As Object, e As KeyEventArgs) Handles Me.KeyUp
@@ -768,25 +781,25 @@ done:
         End If
 
         Application.DoEvents()
-        set_treeview(TreeView1)
+        set_treeview(TreeView1, TC1)
         Application.DoEvents()
-        set_treeview(TreeView2)
+        set_treeview(TreeView2, TC1)
         Application.DoEvents()
-        set_treeview(TreeView3)
+        set_treeview(TreeView3, TC1)
         Application.DoEvents()
-        set_treeview(TreeView4)
+        set_treeview(TreeView4, TC1)
         Application.DoEvents()
-        set_treeview(TreeView5)
+        set_treeview(TreeView5, TC1)
         Application.DoEvents()
-        set_treeview(TreeView6)
+        set_treeview(TreeView6, TC1)
         Application.DoEvents()
-        set_treeview(TreeView7)
+        set_treeview(TreeView7, TC1)
         Application.DoEvents()
-        set_treeview(TreeView8)
+        set_treeview(TreeView8, TC1)
         Application.DoEvents()
-        set_treeview(TreeView9)
+        set_treeview(TreeView9, TC1)
         Application.DoEvents()
-        set_treeview(TreeView10)
+        set_treeview(TreeView10, TC1)
         '-----------------------------
         Application.DoEvents()
         treeviews(1) = TreeView1
@@ -1608,10 +1621,11 @@ loaded_jump:
 
     End Sub
 
-    Private Sub set_treeview(ByRef tv As TreeView)
-        Dim st_index = TC1.SelectedIndex
-        Dim st = TC1.SelectedTab
-        update_log("Creating TreeView :" + st_index.ToString("00"))
+    Private Sub set_treeview(ByRef tv As TreeView, ByVal tc As TabControl)
+        Dim st_index = tc.SelectedIndex
+        tc.SelectedTab.Controls.Clear()
+        Dim st = tc.SelectedTab
+        update_log("creating treeview :" + st_index.ToString("00"))
         tv = New mytreeview
         tv.Font = font_holder.Font.Clone
         tv.ContextMenuStrip = conMenu
@@ -1625,7 +1639,7 @@ loaded_jump:
         tv.HideSelection = True
         st.Controls.Add(tv)
         If st_index < 9 Then
-            TC1.SelectedIndex = st_index + 1
+            tc.SelectedIndex = st_index + 1
         End If
         Application.DoEvents()
     End Sub
@@ -2025,6 +2039,7 @@ loaded_jump:
             'todo
         End If
 
+        Debug.Print("path :" + fpath)
         'Try
         get_tank_info_by_tier(i.ToString)
         ReDim node_list(i).item(tier_list.Length)
@@ -2089,6 +2104,53 @@ loaded_jump:
 
     End Sub
 
+    Private Function get_file_path(ByVal i As String) As String
+        Dim ext As String = "-part1.pkg"
+        If i < 5 Then
+            ext = ".pkg"
+        End If
+        Dim cnt As Integer = 0
+        Dim fpath = My.Settings.game_path + "/res/packages/vehicles_level_" + String.Format("{0:00}", i) + ext
+        If File.Exists(fpath) Then
+            update_log("Getting Tank data from: " + fpath)
+        Else
+            update_log("Could not find: " + fpath)
+        End If
+        Dim fpath_1 = My.Settings.game_path + "/res/packages/vehicles_level_" + String.Format("{0:00}", i) + "_hd" + ext
+        If File.Exists(fpath_1) Then
+            update_log("Getting Tank data from: " + fpath_1)
+        Else
+            'todo
+        End If
+        fpath = My.Settings.game_path + "/res/packages/vehicles_level_" + String.Format("{0:00}", i) + "-part2.pkg"
+        If File.Exists(fpath) Then
+            update_log("Getting Tank data from: " + fpath)
+        Else
+            'update_log("Could not find: " + fpath)
+            'Return
+        End If
+        fpath = My.Settings.game_path + "/res/packages/vehicles_level_" + String.Format("{0:00}", i) + "-part3.pkg"
+        If File.Exists(fpath) Then
+            update_log("Getting Tank data from: " + fpath)
+        Else
+            'update_log("Could not find: " + fpath)
+            'Return
+        End If
+        fpath_1 = My.Settings.game_path + "/res/packages/vehicles_level_" + String.Format("{0:00}", i) + "_hd-part2.pkg"
+        If File.Exists(fpath_1) Then
+            update_log("Getting Tank data from: " + fpath_1)
+        Else
+            'todo
+        End If
+        fpath_1 = My.Settings.game_path + "/res/packages/vehicles_level_" + String.Format("{0:00}", i) + "_hd-part3.pkg"
+        If File.Exists(fpath_1) Then
+            update_log("Getting Tank data from: " + fpath_1)
+        Else
+            'todo
+        End If
+        Return fpath
+    End Function
+
 
     Private Function get_nation(ByVal n As String) As String
         Select Case n
@@ -2118,7 +2180,36 @@ loaded_jump:
         Return "who knows what lurks in the minds of men"
     End Function
 
+    Private Sub searching_tanks(ByVal name As String)
+        ReDim tank_result(20)
+        Dim count As Integer = 0
+        Try
+            Dim q = From row In TankDataTable
+                    Where row.Field(Of String)("shortname").Contains(name)
+                    Select
+                        tier = row.Field(Of String)("tier"),
+                        tag = row.Field(Of String)("tag"),
+                        nation = row.Field(Of String)("nation"),
+                        type = row.Field(Of String)("type"),
+                        _name = row.Field(Of String)("shortname")
+                    Order By nation Descending
 
+            'Dim a = q(0).un.Split(":")
+            For Each item In q
+                tank_result(count).tag = item.tag
+                tank_result(count).username = item._name
+                tank_result(count).nation = item.nation
+                tank_result(count).tier = item.tier
+                tank_result(count).type = item.type
+                count += 1
+            Next
+            ReDim Preserve tank_result(count - 1)
+
+        Catch ex As Exception
+            MsgBox("Can't find in TankDataTable! index:" + count.ToString, MsgBoxStyle.Exclamation, "TankDataTable crash!")
+        End Try
+        Return
+    End Sub
 
 
     Private Sub get_tank_info_by_tier(ByVal t As String)
@@ -9779,6 +9870,154 @@ load_script:
         End If
         My.Settings.stop_Loading_set = False
         Me.Close()
+    End Sub
+
+    Private Sub searchBox_MouseLeave(sender As Object, e As EventArgs) Handles SearchBox.MouseLeave
+        If SearchBox.Text = "" Then
+            SearchBox.Text = "Type your tank"
+            pb1.Focus()
+            searchBox_clearResult()
+        End If
+    End Sub
+
+    Private Sub searchBox_Enter(sender As Object, e As KeyEventArgs) Handles SearchBox.KeyDown
+        If e.KeyCode = Keys.Enter Then
+
+            searching_tanks(SearchBox.Text)
+            Application.DoEvents()
+            set_treeview(TreeView11, TC2)
+            Application.DoEvents()
+            treeviews(11) = TreeView11
+
+            Application.DoEvents()
+            research_result_treeview(0, treeviews(11))
+            Dim l = node_list(11).item.Length - 2
+            ReDim Preserve node_list(11).item(l)
+            ReDim Preserve icons(11).img(l)
+
+            Application.DoEvents()
+            Application.DoEvents()
+            TC2.SelectedIndex = 0
+            Dim tn = treeviews(11)
+            'add the nodes crated to the treeviews on the form
+            tn.SuspendLayout()
+            tn.BeginUpdate()
+            For j = 0 To node_list(11).item.Length - 1
+                icons(11).img(j).img = node_list(11).item(j).icon
+                tn.Nodes.Add(node_list(11).item(j).node)
+            Next
+
+            For k = 0 To tn.Nodes.Count - 1
+                tn.Nodes(k).Text = num_3_places(tn.Nodes(k).Text)
+                icons(11).img(k).name = num_3_places(icons(11).img(k).name)
+            Next
+            tn.Sort()
+            Array.Sort(icons(11).img)
+            For k = 0 To tn.Nodes.Count - 1
+                tn.Nodes(k).Text = back_2_places(tn.Nodes(k).Text)
+                icons(11).img(k).name = back_2_places(icons(11).img(k).name)
+                Dim s = get_shortname(tn.Nodes(k))
+                log_text.AppendLine(pad_string(tn.Nodes(k).Text + ":") + s)
+            Next
+            'tn.Visible = True
+            tn.EndUpdate()
+            tn.ResumeLayout()
+        End If
+    End Sub
+
+    Private Sub research_result_treeview(ByVal i As Integer, ByRef tn As TreeView)
+        AddHandler tn.NodeMouseClick, AddressOf Me.tv_clicked
+        AddHandler tn.NodeMouseHover, AddressOf Me.tv_mouse_enter
+        AddHandler tn.MouseLeave, AddressOf Me.tv_mouse_leave
+        tn.BackColor = Color.DimGray
+        tn.CheckBoxes = False
+        tn.ItemHeight = 17
+        tn.HotTracking = True
+        tn.ShowRootLines = False
+        tn.ShowLines = False
+        tn.Margin = New Padding(0)
+        tn.BorderStyle = BorderStyle.None
+        ReDim node_list(11).item(tank_result.Length)
+        ReDim icons(11).img(tank_result.Length)
+        Dim cnt As Integer = 0
+        For Each t In tank_result
+            Dim n As New TreeNode
+            Select Case t.type ' icon types
+                Case "Heavy"
+                    n.SelectedImageIndex = 0
+                    n.StateImageIndex = 0
+                    n.ImageIndex = 0
+                Case "Medium"
+                    n.SelectedImageIndex = 2
+                    n.StateImageIndex = 2
+                    n.ImageIndex = 2
+                Case "Light"
+                    n.SelectedImageIndex = 4
+                    n.StateImageIndex = 4
+                    n.ImageIndex = 4
+                Case "Destoryer"
+                    n.SelectedImageIndex = 6
+                    n.StateImageIndex = 6
+                    n.ImageIndex = 6
+                Case "Artillary"
+                    n.SelectedImageIndex = 8
+                    n.StateImageIndex = 8
+                    n.ImageIndex = 8
+
+            End Select
+            n.Name = t.nation
+            n.Text = t.tag
+            n.Tag = get_file_path(t.tier) + ":" + "vehicles/" + get_nation(t.nation) + "/" + t.tag
+            node_list(11).item(cnt).name = t.tag
+            node_list(11).item(cnt).node = n
+            node_list(11).item(cnt).package = packages(t.tier).Name
+            icons(11).img(cnt) = New entry_
+            icons(11).img(cnt).img = get_tank_icon(n.Text).Clone
+            icons(11).img(cnt).name = t.tag
+            If icons(11).img(cnt) IsNot Nothing Then
+                node_list(11).item(cnt).icon = icons(11).img(cnt).img.Clone
+                node_list(11).item(cnt).icon.Tag = current_png_path
+                cnt += 1
+                TOTAL_TANKS_FOUND += 1
+            Else
+                update_log("!!!!! Missing Tank Icon PNG !!!!! :" + current_png_path)
+            End If
+
+        Next
+        'Catch ex As Exception
+        '    update_log("!!!!! Missing Tank Icon PNG !!!!! :" + current_png_path)
+        '    MsgBox("crashed getting type: Tier" + i.ToString + " Index" + cnt.ToString + vbCrLf +
+        '           " package " + fpath_1 + vbCrLf +
+        '           "png_path " + current_png_path, MsgBoxStyle.Exclamation, "Crashed!")
+        'End Try
+        ReDim Preserve node_list(11).item(cnt)
+
+        Application.DoEvents()
+        ReDim Preserve icons(11).img(cnt)
+        Application.DoEvents()
+        tn.Tag = 11
+    End Sub
+
+    Private Sub searchBox_MouseEnter(sender As Object, e As EventArgs) Handles SearchBox.MouseClick
+        If SearchBox.Text = "Type Your Tank" Or SearchBox.Text.Equals("") = False Then
+            frmMain_DisableKeyDown()
+            SearchBox.Text = ""
+            searchBox_showResult()
+        End If
+    End Sub
+
+    Private Sub searchBox_showResult()
+        TC1.Visible = False
+        TC2.Visible = True
+    End Sub
+
+    Private Sub searchBox_clearResult()
+        TC1.Visible = True
+        tc2.Visible = False
+    End Sub
+
+    Private Sub searchBox_LostFocus(sender As Object, e As EventArgs) Handles SearchBox.LostFocus
+        frmMain_EnableKeyDown()
     End Sub
 
     Private Sub m_clear_PythonLog_Click(sender As Object, e As EventArgs) Handles m_clear_PythonLog.Click
