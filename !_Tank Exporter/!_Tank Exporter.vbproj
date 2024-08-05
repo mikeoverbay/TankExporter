@@ -14,6 +14,8 @@
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <TargetFrameworkProfile />
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
@@ -24,8 +26,8 @@
     <UpdatePeriodically>false</UpdatePeriodically>
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
-    <ApplicationRevision>139</ApplicationRevision>
-    <ApplicationVersion>1.0.0.139</ApplicationVersion>
+    <ApplicationRevision>140</ApplicationRevision>
+    <ApplicationVersion>1.0.0.140</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
@@ -117,6 +119,9 @@
     <ApplicationIcon>tank.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Aspose.3D, Version=23.8.0.0, Culture=neutral, PublicKeyToken=f071c641d0b4582b, processorArchitecture=MSIL">
+      <HintPath>..\packages\Aspose.3D.23.8.0\lib\net46\Aspose.3D.dll</HintPath>
+    </Reference>
     <Reference Include="cttools, Version=1.0.4723.22902, Culture=neutral, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>.\cttools.dll</HintPath>
@@ -318,7 +323,9 @@
     </Compile>
     <Compile Include="Modules\blurFBO.vb" />
     <Compile Include="Modules\modBloom.vb" />
+    <Compile Include="Modules\mod_glTF.vb" />
     <Compile Include="Modules\modDecals.vb" />
+    <Compile Include="Modules\modFBX.vb" />
     <Compile Include="Modules\modShadow.vb" />
     <Compile Include="Modules\modToLists.vb" />
     <Compile Include="Modules\modTrackUtilites.vb" />
@@ -363,7 +370,6 @@
     </Compile>
     <Compile Include="Modules\modCamouflage.vb" />
     <Compile Include="Modules\modFBO.vb" />
-    <Compile Include="Modules\modFBX.vb" />
     <Compile Include="Modules\modGLbuttons.vb" />
     <Compile Include="Modules\modGlobals.vb" />
     <Compile Include="Modules\modMenu.vb" />

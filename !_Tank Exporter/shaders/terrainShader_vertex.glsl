@@ -11,7 +11,7 @@ out vec3 vertex;
 out float l_dist; // used to clip the shadow map
 void main(void){
 
-    TC1 = gl_MultiTexCoord0.xy * 6.0;
+    TC1 = gl_MultiTexCoord0.xy * 4.0;
     vertex = gl_Vertex.xyz;
     v_Normal = gl_NormalMatrix * gl_Normal;
     w_Normal = gl_Normal;

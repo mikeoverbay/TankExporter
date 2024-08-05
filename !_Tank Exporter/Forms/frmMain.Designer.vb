@@ -92,6 +92,11 @@ Partial Class frmMain
         Me.m_ExportExtract = New System.Windows.Forms.ToolStripMenuItem()
         Me.m_extract = New System.Windows.Forms.ToolStripMenuItem()
         Me.m_export_to_fbx = New System.Windows.Forms.ToolStripMenuItem()
+        Me.ToolStripSeparator32 = New System.Windows.Forms.ToolStripSeparator()
+        Me.m_export_to_glTF = New System.Windows.Forms.ToolStripMenuItem()
+        Me.m_export_to_FBX_2 = New System.Windows.Forms.ToolStripMenuItem()
+        Me.m_export_to_obj = New System.Windows.Forms.ToolStripMenuItem()
+        Me.m_export_to_collada = New System.Windows.Forms.ToolStripMenuItem()
         Me.ToolStripSeparator15 = New System.Windows.Forms.ToolStripSeparator()
         Me.m_view_res_mods_folder = New System.Windows.Forms.ToolStripMenuItem()
         Me.ToolStripSeparator6 = New System.Windows.Forms.ToolStripSeparator()
@@ -602,7 +607,7 @@ Partial Class frmMain
         '
         'm_ExportExtract
         '
-        Me.m_ExportExtract.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.m_extract, Me.m_export_to_fbx, Me.ToolStripSeparator15, Me.m_view_res_mods_folder, Me.ToolStripSeparator6, Me.m_clean_res_mods, Me.ToolStripSeparator17, Me.m_screen_cap})
+        Me.m_ExportExtract.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.m_extract, Me.m_export_to_fbx, Me.ToolStripSeparator32, Me.m_export_to_glTF, Me.m_export_to_FBX_2, Me.m_export_to_obj, Me.m_export_to_collada, Me.ToolStripSeparator15, Me.m_view_res_mods_folder, Me.ToolStripSeparator6, Me.m_clean_res_mods, Me.ToolStripSeparator17, Me.m_screen_cap})
         Me.m_ExportExtract.Enabled = False
         Me.m_ExportExtract.Name = "m_ExportExtract"
         Me.m_ExportExtract.Size = New System.Drawing.Size(94, 23)
@@ -619,6 +624,35 @@ Partial Class frmMain
         Me.m_export_to_fbx.Name = "m_export_to_fbx"
         Me.m_export_to_fbx.Size = New System.Drawing.Size(228, 22)
         Me.m_export_to_fbx.Text = "Export FBX"
+        '
+        'ToolStripSeparator32
+        '
+        Me.ToolStripSeparator32.Name = "ToolStripSeparator32"
+        Me.ToolStripSeparator32.Size = New System.Drawing.Size(225, 6)
+        '
+        'm_export_to_glTF
+        '
+        Me.m_export_to_glTF.Name = "m_export_to_glTF"
+        Me.m_export_to_glTF.Size = New System.Drawing.Size(228, 22)
+        Me.m_export_to_glTF.Text = "Export glTF"
+        '
+        'm_export_to_FBX_2
+        '
+        Me.m_export_to_FBX_2.Name = "m_export_to_FBX_2"
+        Me.m_export_to_FBX_2.Size = New System.Drawing.Size(228, 22)
+        Me.m_export_to_FBX_2.Text = "Export FBX ASPOSE"
+        '
+        'm_export_to_obj
+        '
+        Me.m_export_to_obj.Name = "m_export_to_obj"
+        Me.m_export_to_obj.Size = New System.Drawing.Size(228, 22)
+        Me.m_export_to_obj.Text = "Export OBJ"
+        '
+        'm_export_to_collada
+        '
+        Me.m_export_to_collada.Name = "m_export_to_collada"
+        Me.m_export_to_collada.Size = New System.Drawing.Size(228, 22)
+        Me.m_export_to_collada.Text = "Export Collada"
         '
         'ToolStripSeparator15
         '
@@ -1003,6 +1037,7 @@ Partial Class frmMain
         Me.decal_panel.Location = New System.Drawing.Point(276, 54)
         Me.decal_panel.Name = "decal_panel"
         Me.decal_panel.Size = New System.Drawing.Size(432, 382)
+
         Me.decal_panel.TabIndex = 5
         '
         'copy_Decal_btn
@@ -1220,7 +1255,9 @@ Partial Class frmMain
         Me.d_move_down.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center
         Me.d_move_down.FlatStyle = System.Windows.Forms.FlatStyle.Popup
         Me.d_move_down.Image = Global.Tank_Exporter.My.Resources.Resources.control_270
+
         Me.d_move_down.Location = New System.Drawing.Point(171, 165)
+
         Me.d_move_down.Name = "d_move_down"
         Me.d_move_down.Size = New System.Drawing.Size(20, 20)
         Me.d_move_down.TabIndex = 5
@@ -1234,6 +1271,7 @@ Partial Class frmMain
         Me.d_move_up.FlatStyle = System.Windows.Forms.FlatStyle.Popup
         Me.d_move_up.Image = Global.Tank_Exporter.My.Resources.Resources.control_090
         Me.d_move_up.Location = New System.Drawing.Point(171, 145)
+
         Me.d_move_up.Name = "d_move_up"
         Me.d_move_up.Size = New System.Drawing.Size(20, 20)
         Me.d_move_up.TabIndex = 4
@@ -1343,6 +1381,7 @@ Partial Class frmMain
         '
         Me.pb2.Anchor = System.Windows.Forms.AnchorStyles.None
         Me.pb2.Location = New System.Drawing.Point(12, 125)
+
         Me.pb2.Name = "pb2"
         Me.pb2.Size = New System.Drawing.Size(200, 100)
         Me.pb2.TabIndex = 3
@@ -1817,5 +1856,13 @@ Partial Class frmMain
     Friend WithEvents m_dump_tanks As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents m_enable_tarrain_decals As ToolStripMenuItem
     Friend WithEvents m_region_combo As ToolStripComboBox
+
     Friend WithEvents SearchBox As TextBox
+
+    Friend WithEvents m_export_to_collada As ToolStripMenuItem
+    Friend WithEvents ToolStripSeparator32 As ToolStripSeparator
+    Friend WithEvents m_export_to_glTF As ToolStripMenuItem
+    Friend WithEvents m_export_to_FBX_2 As ToolStripMenuItem
+    Friend WithEvents m_export_to_obj As ToolStripMenuItem
+
 End Class

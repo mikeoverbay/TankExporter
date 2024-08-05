@@ -65,6 +65,7 @@ Public Class frmMain
     Public shared_contents_build As New Ionic.Zip.ZipFile
     Public gui_pkg_part_1 As Ionic.Zip.ZipFile
     Public gui_pkg_part_2 As Ionic.Zip.ZipFile
+    Public gui_pkg_part_3 As Ionic.Zip.ZipFile
     Public scripts_pkg As Ionic.Zip.ZipFile
     Dim treeviews(11) As TreeView
     Public icons(11) As pngs
@@ -132,6 +133,7 @@ Public Class frmMain
             DisableOpenGL()
             gui_pkg_part_1.Dispose()
             gui_pkg_part_2.Dispose()
+            gui_pkg_part_3.Dispose()
             scripts_pkg.Dispose()
             'shared_pkg.Dispose()
             'shared_sandbox_pkg.Dispose()
@@ -483,6 +485,9 @@ done:
             System.IO.Directory.CreateDirectory(Temp_Storage)
         End If
 
+
+
+
         Dim f = File.Open(Temp_Storage + "\log_text.txt", FileMode.Create)
         f.Close()
         '====================================================================================================
@@ -632,6 +637,7 @@ done:
 
                 gui_pkg_part_1 = New Ionic.Zip.ZipFile(My.Settings.game_path + "\res\packages\gui-part1.pkg")
                 gui_pkg_part_2 = New Ionic.Zip.ZipFile(My.Settings.game_path + "\res\packages\gui-part2.pkg")
+                gui_pkg_part_3 = New Ionic.Zip.ZipFile(My.Settings.game_path + "\res\packages\gui-part3.pkg")
                 update_log("Loaded: " + My.Settings.game_path + "\res\packages\gui.pkg")
 
                 scripts_pkg = New Ionic.Zip.ZipFile(My.Settings.game_path + "\res\packages\scripts.pkg")
@@ -2408,6 +2414,21 @@ loaded_jump:
                 End If
             End If
         Next
+        For Each entry In gui_pkg_part_3
+            If entry.FileName.ToLower.Contains(name.ToLower) And entry.FileName.Contains("/icons/vehicle/") _
+            And Not entry.FileName.Contains("small") _
+            And Not entry.FileName.Contains("contour") _
+            And Not entry.FileName.Contains("unique") _
+            And Not entry.FileName.Contains("library") _
+                Then
+                Dim ms As New MemoryStream
+                entry.Extract(ms)
+                If ms IsNot Nothing Then
+                    current_png_path = entry.FileName
+                    Return get_png(ms).Clone
+                End If
+            End If
+        Next
         Return Nothing
     End Function
 
@@ -3300,8 +3321,8 @@ loaded_jump:
                         Gl.glPushMatrix()
                         Gl.glMultMatrixd(fbxgrp(jj).matrix)
                         If fbxgrp(jj).component_visible Then
-                            If _object(jj).main_display_list > 0 Then
-                                Gl.glCallList(_object(jj).main_display_list)
+                            If fbxgrp(jj).call_list > 0 Then
+                                Gl.glCallList(fbxgrp(jj).call_list)
                             End If
                         End If
                         Gl.glPopMatrix()
@@ -3327,8 +3348,8 @@ loaded_jump:
                         Gl.glPushMatrix()
                         Gl.glMultMatrixd(fbxgrp(jj).matrix)
                         If fbxgrp(jj).component_visible Then
-                            If _object(jj).main_display_list > 0 Then
-                                Gl.glCallList(_object(jj).main_display_list)
+                            If fbxgrp(jj).call_list > 0 Then
+                                Gl.glCallList(fbxgrp(jj).call_list)
                             End If
                         End If
                         Gl.glPopMatrix()
@@ -5792,15 +5813,15 @@ fuckit:
 
             Dim cn As Integer = 0
             For i = 0 To guns.Length - 2
-                If validate_path(guns(i)) = guns(i) Then
-                    Dim n = New TreeNode
+                'If validate_path(guns(i)) = guns(i) Then
+                Dim n = New TreeNode
 
                     n.Text = Path.GetFileNameWithoutExtension(guns(i))
                     If guns(i).Contains("_skin") Then n.Text += " (Skin)"
                     n.Tag = i
                     frmComponents.tv_guns.Nodes.Add(n)
                     cn += 1
-                End If
+                'End If
                 Application.DoEvents()
             Next
             frmComponents.tv_guns.SelectedNode = frmComponents.tv_guns.Nodes(0)
@@ -5808,14 +5829,14 @@ fuckit:
             '-------------------------------------------------------
             cn = 0
             For i = 0 To turrets.Length - 2
-                If validate_path(turrets(i)) = turrets(i) Then
-                    Dim n = New TreeNode
+                'If validate_path(turrets(i)) = turrets(i) Then
+                Dim n = New TreeNode
                     n.Text = Path.GetFileNameWithoutExtension(turrets(i))
                     If turrets(i).Contains("_skin") Then n.Text += " (Skin)"
                     n.Tag = i
                     frmComponents.tv_turrets.Nodes.Add(n)
                     cn += 1
-                End If
+                'End If
                 Application.DoEvents()
             Next
             Try
@@ -5828,14 +5849,14 @@ fuckit:
             '-------------------------------------------------------
             cn = 0
             For i = 0 To hulls.Length - 2
-                If validate_path(hulls(i)) = hulls(i) Then
-                    Dim n = New TreeNode
+                'If validate_path(hulls(i)) = hulls(i) Then
+                Dim n = New TreeNode
                     n.Text = Path.GetFileNameWithoutExtension(hulls(i))
                     If hulls(i).Contains("_skin") Then n.Text += " (Skin)"
                     n.Tag = i
                     frmComponents.tv_hulls.Nodes.Add(n)
                     cn += 1
-                End If
+                'End If
                 Application.DoEvents()
             Next
             frmComponents.tv_hulls.SelectedNode = frmComponents.tv_hulls.Nodes(0)
@@ -5844,14 +5865,14 @@ fuckit:
             '-------------------------------------------------------
             cn = 0
             For i = 0 To chassis.Length - 2
-                If validate_path(chassis(i)) = chassis(i) Then
-                    Dim n = New TreeNode
+                'If validate_path(chassis(i)) = chassis(i) Then
+                Dim n = New TreeNode
                     n.Text = Path.GetFileNameWithoutExtension(chassis(i))
                     If chassis(i).Contains("_skin") Then n.Text += " (Skin)"
                     n.Tag = i
                     frmComponents.tv_chassis.Nodes.Add(n)
                     cn += 1
-                End If
+                'End If
                 Application.DoEvents()
             Next
             frmComponents.tv_chassis.SelectedNode = frmComponents.tv_chassis.Nodes(0)
@@ -7070,14 +7091,19 @@ fuckit:
             Dim tank_sr_name = Path.GetFileName(public_icon_path)
             If frmExtract.gui_cb.Checked Then
                 Dim ic_160x100 = gui_pkg_part_1(public_icon_path)
-                If ic_160x100 Is Nothing Then
-                    ic_160x100 = gui_pkg_part_2(public_icon_path)
+                If ic_160x100 IsNot Nothing Then
+                    ic_160x100.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
                 End If
+                ic_160x100 = gui_pkg_part_2(public_icon_path)
+                If ic_160x100 IsNot Nothing Then
+                    ic_160x100.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
+                End If
+                ic_160x100 = gui_pkg_part_3(public_icon_path)
                 If ic_160x100 IsNot Nothing Then
                     ic_160x100.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
                 End If
                 Dim an = tank_sr_name.Split("-")
-                If an.Length > 1 Then
+                    If an.Length > 1 Then
                     tank_sr_name = an(1)
                 End If
                 Dim sss = public_icon_path.Replace(an(0) + "-", "")
@@ -7088,14 +7114,18 @@ fuckit:
                     srs = sss
                 End If
                 Dim ic_420x307 = gui_pkg_part_1(srs)
-                If ic_420x307 Is Nothing Then
-                    ic_420x307 = gui_pkg_part_2(srs)
+                    If ic_420x307 Is Nothing Then
+                        ic_420x307 = gui_pkg_part_2(srs)
+                        If ic_420x307 IsNot Nothing Then
+                            ic_420x307.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
+                        End If
+                        ic_420x307 = gui_pkg_part_3(srs)
+                        If ic_420x307 IsNot Nothing Then
+                            ic_420x307.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
+                        End If
+                    End If
                 End If
-                If ic_420x307 IsNot Nothing Then
-                    ic_420x307.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                End If
-            End If
-            If frmExtract.extract_item_def_cb.Checked Then
+                If frmExtract.extract_item_def_cb.Checked Then
                 Dim ts = itemDefXmlString
                 Try ' catch any exception thrown
 
@@ -8402,12 +8432,12 @@ skip_old_way:
 
     Private Sub m_export_to_fbx_Click(sender As Object, e As EventArgs) Handles m_export_to_fbx.Click
         If loaded_from_resmods Then
-            If MsgBox("You are about to write a FBX loaded from the res_mods folder!" + vbCrLf +
-                       "Doing so will corrupt the chassis if the markers have been modified." _
-                       , MsgBoxStyle.YesNo, "DANGER Will Robinson!") = MsgBoxResult.Yes Then
-            Else
-                Return
-            End If
+            'If MsgBox("You are about to write a FBX loaded from the res_mods folder!" + vbCrLf +
+            '           "Doing so will corrupt the chassis if the markers have been modified." _
+            '           , MsgBoxStyle.YesNo, "DANGER Will Robinson!") = MsgBoxResult.Yes Then
+            'Else
+            '    Return
+            'End If
         End If
         SaveFileDialog1.Filter = "AutoDesk (*.FBX)|*.fbx"
         SaveFileDialog1.Title = "Export FBX..."
@@ -10014,4 +10044,29 @@ load_script:
 
         My.Settings.Save()
     End Sub
+
+
+
+
+    Private Sub m_export_to_glTF_Click(sender As Object, e As EventArgs) Handles m_export_to_glTF.Click
+        EXPORT_TYPE = 1
+        make_glTF()
+
+    End Sub
+    Private Sub m_export_to_FBX_2_Click(sender As Object, e As EventArgs) Handles m_export_to_FBX_2.Click
+        EXPORT_TYPE = 2
+        make_glTF()
+
+    End Sub
+
+    Private Sub m_export_to_obj_Click(sender As Object, e As EventArgs) Handles m_export_to_obj.Click
+        EXPORT_TYPE = 3
+        make_glTF()
+
+    End Sub
+    Private Sub m_export_to_collada_Click(sender As Object, e As EventArgs) Handles m_export_to_collada.Click
+        EXPORT_TYPE = 4
+        make_glTF()
+    End Sub
+
 End Class

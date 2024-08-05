@@ -541,10 +541,6 @@ outofhere:
             layerElementTexture.DirectArray.Add(lTextures(_group(id).texture_id))
             layerElementNTexture.DirectArray.Add(lTextures_N(_group(id).texture_id))
             node_list(id).NodeAttribute = mymesh
-            Dim dr, ds, dt As New FbxVector4
-            dr.Set(0, 0, 0, 0)
-            ds.Set(1, 1, 1, 1)
-            dt.Set(0, 0, 0, 1)
 
             node_list(id).SetDefaultR(r_vector)
             node_list(id).SetDefaultT(t_vector)
@@ -887,17 +883,22 @@ outahere:
             If property_ IsNot Nothing Then
 
                 texture = property_.GetSrcObject(FbxTexture.ClassId, 0)
-                uv_offset.X = texture.TranslationU
-                uv_offset.Y = texture.TranslationV
-                uv_scaling.X = texture.ScaleU
-                uv_scaling.Y = texture.ScaleV
+                If texture IsNot Nothing Then
 
-                Dim fp = Path.GetDirectoryName(frmMain.OpenFileDialog1.FileName) + "\" + texture.RelativeFileName
-                fbxgrp(i).color_name = fix_texture_path(fp)
-                fbxgrp(i).color_Id = -1
-                frmMain.info_Label.Text = "Loading Texture: " + fbxgrp(i).color_name
-                Application.DoEvents()
-                fbxgrp(i).color_Id = get_fbx_texture(fbxgrp(i).color_name)
+                    uv_offset.X = texture.TranslationU
+                    uv_offset.Y = texture.TranslationV
+                    uv_scaling.X = texture.ScaleU
+                    uv_scaling.Y = texture.ScaleV
+
+                    Dim fp = Path.GetDirectoryName(frmMain.OpenFileDialog1.FileName) + "\" + texture.RelativeFileName
+                    fbxgrp(i).color_name = fix_texture_path(fp)
+                    fbxgrp(i).color_Id = -1
+                    frmMain.info_Label.Text = "Loading Texture: " + fbxgrp(i).color_name
+                    Application.DoEvents()
+                    fbxgrp(i).color_Id = get_fbx_texture(fbxgrp(i).color_name)
+                Else
+                    fbxgrp(i).color_Id = white_id
+                End If
             Else
                 fbxgrp(i).color_Id = white_id
 
@@ -912,18 +913,7 @@ outahere:
         Try
             'normal map... normal_name
             property_ = material.FindProperty(FbxSurfaceMaterial.SBump)
-            texture = property_.GetSrcObject(FbxTexture.ClassId, 0)
-            If texture IsNot Nothing Then
-                Dim fp = Path.GetDirectoryName(frmMain.OpenFileDialog1.FileName) + "\" + texture.RelativeFileName
-                fbxgrp(i).normal_name = fix_texture_path(fp)
-                frmMain.info_Label.Text = "Loading Texture: " + fbxgrp(i).normal_name
-                Application.DoEvents()
-                fbxgrp(i).normal_Id = -1
-                fbxgrp(i).normal_Id = get_fbx_texture(fbxgrp(i).normal_name)
-                fbxgrp(i).bumped = True
-                fbxgrp(i).texture_count = 2
-            Else
-                property_ = material.FindProperty(FbxSurfaceMaterial.SNormalMap)
+            If property_ IsNot Nothing Then
                 texture = property_.GetSrcObject(FbxTexture.ClassId, 0)
                 If texture IsNot Nothing Then
                     Dim fp = Path.GetDirectoryName(frmMain.OpenFileDialog1.FileName) + "\" + texture.RelativeFileName
@@ -934,25 +924,36 @@ outahere:
                     fbxgrp(i).normal_Id = get_fbx_texture(fbxgrp(i).normal_name)
                     fbxgrp(i).bumped = True
                     fbxgrp(i).texture_count = 2
-
                 Else
-                    Dim texture_n = fbxgrp(i).color_name.Replace("AM", "ANM")
-                    If File.Exists(texture_n) Then
-                        fbxgrp(i).normal_name = texture_n
-                        frmMain.info_Label.Text = "Loading Texture: " + texture_n
+                    property_ = material.FindProperty(FbxSurfaceMaterial.SNormalMap)
+                    texture = property_.GetSrcObject(FbxTexture.ClassId, 0)
+                    If texture IsNot Nothing Then
+                        Dim fp = Path.GetDirectoryName(frmMain.OpenFileDialog1.FileName) + "\" + texture.RelativeFileName
+                        fbxgrp(i).normal_name = fix_texture_path(fp)
+                        frmMain.info_Label.Text = "Loading Texture: " + fbxgrp(i).normal_name
                         Application.DoEvents()
                         fbxgrp(i).normal_Id = -1
-                        fbxgrp(i).normal_Id = get_fbx_texture(texture_n)
+                        fbxgrp(i).normal_Id = get_fbx_texture(fbxgrp(i).normal_name)
                         fbxgrp(i).bumped = True
                         fbxgrp(i).texture_count = 2
+
                     Else
-                        fbxgrp(i).bumped = False
-                        fbxgrp(i).texture_count = 1
+                        Dim texture_n = fbxgrp(i).color_name.Replace("AM", "ANM")
+                        If File.Exists(texture_n) Then
+                            fbxgrp(i).normal_name = texture_n
+                            frmMain.info_Label.Text = "Loading Texture: " + texture_n
+                            Application.DoEvents()
+                            fbxgrp(i).normal_Id = -1
+                            fbxgrp(i).normal_Id = get_fbx_texture(texture_n)
+                            fbxgrp(i).bumped = True
+                            fbxgrp(i).texture_count = 2
+                        Else
+                            fbxgrp(i).bumped = False
+                            fbxgrp(i).texture_count = 1
+                        End If
+
                     End If
-
                 End If
-
-
             End If
         Catch ex As Exception
             fbxgrp(i).normal_Id = white_id

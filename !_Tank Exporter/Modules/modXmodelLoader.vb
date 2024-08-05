@@ -1,4 +1,6 @@
 ﻿Imports System.IO
+Imports Aspose.ThreeD
+Imports Aspose.ThreeD.Utilities
 
 Module modXmodelLoader
     Public Sub load_x_models()
@@ -45,10 +47,9 @@ Module modXmodelLoader
         Return id
     End Function
 
-
-    Public vertices() As vec3
-    Public normals() As vec3
-    Public uvs() As vec2
+    Public vertices() As Vector4
+    Public normals() As Vector4
+    Public uvs() As Vector4
     Public indices() As _indice
     Public Structure model_
         Public componet() As componet_
@@ -192,9 +193,9 @@ Module modXmodelLoader
         txt = s.ReadLine ' this should be the number of vertices
         Dim brk = txt.Split(";")
         Dim vertice_count = CInt(brk(0))
-        ReDim vertices(vertice_count)
+        ReDim vertices(vertice_count - 1)
         For i = 0 To vertice_count - 1
-            vertices(i) = New vec3
+            vertices(i) = New Vector4
             txt = s.ReadLine
             brk = txt.Split(";")
             vertices(i).x = CSng(brk(0))
@@ -206,7 +207,7 @@ Module modXmodelLoader
         brk = txt.Split(";")
         Dim indice_count As Int32 = 0
         indice_count = CInt(brk(0))
-        ReDim indices(indice_count)
+        ReDim indices(indice_count - 1)
         For i = 0 To indice_count - 1
             indices(i) = New _indice
             txt = s.ReadLine
@@ -226,9 +227,9 @@ Module modXmodelLoader
         brk = txt.Split(";")
         Dim normal_count As Int32
         normal_count = CInt(brk(0))
-        ReDim normals(normal_count)
+        ReDim normals(normal_count - 1)
         For i = 0 To normal_count - 1
-            normals(i) = New vec3
+            normals(i) = New Vector4
             txt = s.ReadLine
             brk = txt.Split(";")
             normals(i).x = CSng(brk(0))
@@ -246,7 +247,7 @@ Module modXmodelLoader
         txt_coord_cnt = CInt(brk(0))
         ReDim uvs(txt_coord_cnt)
         For i = 0 To txt_coord_cnt - 1
-            uvs(i) = New vec2
+            uvs(i) = New Vector4
             txt = s.ReadLine
             brk = txt.Split(";")
             uvs(i).x = CSng(brk(0))
@@ -260,7 +261,7 @@ Module modXmodelLoader
             Dim f = File.Open(Temp_Storage + "\" + foutname + ".te", FileMode.OpenOrCreate, FileAccess.Write)
             Dim br As New BinaryWriter(f)
             br.Write(indice_count)
-            For i = 0 To indice_count
+            For i = 0 To indice_count - 1
                 a = indices(i).a
                 b = indices(i).b
                 c = indices(i).c
@@ -286,7 +287,7 @@ Module modXmodelLoader
         Gl.glBegin(Gl.GL_TRIANGLES)
 
         'create all the triangles.
-        For i = 0 To indice_count
+        For i = 0 To indice_count - 1
             a = indices(i).a
             b = indices(i).b
             c = indices(i).c
