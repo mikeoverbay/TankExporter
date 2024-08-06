@@ -36,7 +36,6 @@ Module WOT_Dev_interface
     Public in_shortnames As String
     Public in_nations As String
     Public in_types As String
-    'Public in_turrets As String
     Public tank_list(1) As tankitem_
     Public TankDataTable As New DataTable
     Public Structure tankitem_
@@ -46,7 +45,6 @@ Module WOT_Dev_interface
         Public nation As String
         Public type As String
         Public id As String
-        'Public turrets As String
     End Structure
     Public Sub get_tank_info_from_temp_folder()
 
@@ -62,13 +60,40 @@ Module WOT_Dev_interface
 
         'frmMain.info_Label.Text = "Building Tank Table..."
         'Application.DoEvents()
+        'fix 2024/8/6 defined column data types. 
+        Dim column1 As New DataColumn()
+        Dim column2 As New DataColumn()
+        Dim column3 As New DataColumn()
+        Dim column4 As New DataColumn()
+        Dim column5 As New DataColumn()
+        Dim column6 As New DataColumn()
 
-        TankDataTable.Columns.Add("tag")
-        TankDataTable.Columns.Add("shortname")
-        TankDataTable.Columns.Add("tier")
-        TankDataTable.Columns.Add("nation")
-        TankDataTable.Columns.Add("type")
-        TankDataTable.Columns.Add("id")
+        column1.DataType = System.Type.GetType("System.String")
+        column2.DataType = System.Type.GetType("System.String")
+        column3.DataType = System.Type.GetType("System.String")
+        column4.DataType = System.Type.GetType("System.String")
+        column5.DataType = System.Type.GetType("System.String")
+        column6.DataType = System.Type.GetType("System.String")
+
+        column1.ColumnName = "tag"
+        TankDataTable.Columns.Add(column1)
+
+        column2.ColumnName = "shortname"
+        TankDataTable.Columns.Add(column2)
+
+        column3.ColumnName = "tier"
+        TankDataTable.Columns.Add(column3)
+
+        column4.ColumnName = "nation"
+        TankDataTable.Columns.Add(column4)
+
+        column5.ColumnName = "type"
+        TankDataTable.Columns.Add(column5)
+
+        column6.ColumnName = "id"
+        TankDataTable.Columns.Add(column6)
+
+
         For Each q In tank_list
             If q.type IsNot Nothing Then
                 If q.path.Contains("G115_Typ_205B") Then
@@ -93,14 +118,7 @@ Module WOT_Dev_interface
             End If
 
         Next
-        'Dim tr1 As DataRow = TankDataTable.NewRow
-        'tr1("tag") = "G114_Skorpian"
-        'tr1("shortname") = "Skorpion"
-        'tr1("tier") = "8"
-        'tr1("nation") = "germany"
-        'tr1("type") = "Destoryer"
-        'tr1("id") = "111"
-        'TankDataTable.Rows.Add(tr1)
+
         TankDataTable.AcceptChanges()
     End Sub
     Public Function get_tank_info_from_api(ByRef id_num As String) As String
@@ -179,28 +197,47 @@ Module WOT_Dev_interface
         'save to temp_folder
         File.WriteAllText(Temp_Storage + "\in_types.txt", in_types)
 
-        'frmMain.info_Label.Text = "Getting Turrets..."
-        'Application.DoEvents()
-        'reader = New StreamReader(client.OpenRead(turrets))
-        'in_turrets = reader.ReadToEnd
-        ''save to temp_folder
-        'File.WriteAllText(Temp_Storage + "\in_turrets.txt", in_types)
+
 
         reader.Dispose()
 
 
         build_look_table()
 
-        'frmMain.info_Label.Text = "Building Tank Table..."
-        'Application.DoEvents()
-        TankDataTable = New DataTable
-        TankDataTable.Columns.Add("tag")
-        TankDataTable.Columns.Add("shortname")
-        TankDataTable.Columns.Add("tier")
-        TankDataTable.Columns.Add("nation")
-        TankDataTable.Columns.Add("type")
-        TankDataTable.Columns.Add("id")
-        'TankDataTable.Columns.Add("turrets")
+        'fix 2024/8/6 defined column data types. 
+        Dim column As New DataColumn()
+        Dim column1 As New DataColumn()
+        Dim column2 As New DataColumn()
+        Dim column3 As New DataColumn()
+        Dim column4 As New DataColumn()
+        Dim column5 As New DataColumn()
+        Dim column6 As New DataColumn()
+
+        column1.DataType = System.Type.GetType("System.String")
+        column2.DataType = System.Type.GetType("System.String")
+        column3.DataType = System.Type.GetType("System.String")
+        column4.DataType = System.Type.GetType("System.String")
+        column5.DataType = System.Type.GetType("System.String")
+        column6.DataType = System.Type.GetType("System.String")
+
+        column1.ColumnName = "tag"
+        TankDataTable.Columns.Add(column1)
+
+        column2.ColumnName = "shortname"
+        TankDataTable.Columns.Add(column2)
+
+        column3.ColumnName = "tier"
+        TankDataTable.Columns.Add(column3)
+
+        column4.ColumnName = "nation"
+        TankDataTable.Columns.Add(column4)
+
+        column5.ColumnName = "type"
+        TankDataTable.Columns.Add(column5)
+
+        column6.ColumnName = "id"
+        TankDataTable.Columns.Add(column6)
+
         For Each q In tank_list
             If q.type IsNot Nothing Then
                 Dim r = TankDataTable.NewRow

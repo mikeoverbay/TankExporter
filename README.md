@@ -16,6 +16,10 @@ I created a fix for this but it takes a little effort to use it.</br>
 Read this Issue thread to get the fix and how to use it.</br>
 https://github.com/mikeoverbay/TankExporter/issues/23
 
+## version 141
+Merged tank search function by TuNguyen227.
+I made a few chnages to his code.
+
 ## version 140
 Added 3rd gui package. fixed a bug in FBX view.
 Please test and report any missing tanks or other bugs to issues.

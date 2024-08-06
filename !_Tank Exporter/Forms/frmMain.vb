@@ -633,6 +633,7 @@ done:
             Application.DoEvents()
             MM.Enabled = False ' Dont let the user click anything while we are loading data!
             TC1.Enabled = False
+            TC2.Enabled = False
             Try
 
                 gui_pkg_part_1 = New Ionic.Zip.ZipFile(My.Settings.game_path + "\res\packages\gui-part1.pkg")
@@ -883,6 +884,7 @@ done:
         '###################################
         MM.Enabled = True
         TC1.Enabled = True
+        SearchBox.Enabled = True
         '###################################
         pick_timer.Start()
 
@@ -2181,11 +2183,13 @@ loaded_jump:
     End Function
 
     Private Sub searching_tanks(ByVal name As String)
-        ReDim tank_result(20)
+
+        ReDim tank_result(40)
         Dim count As Integer = 0
+
         Try
             Dim q = From row In TankDataTable
-                    Where row.Field(Of String)("shortname").Contains(name)
+                    Where row.Field(Of String)("tag").ToLower.Contains(SearchBox.Text.ToLower)
                     Select
                         tier = row.Field(Of String)("tier"),
                         tag = row.Field(Of String)("tag"),
@@ -2202,6 +2206,10 @@ loaded_jump:
                 tank_result(count).tier = item.tier
                 tank_result(count).type = item.type
                 count += 1
+                If count = 41 Then 'over flow check
+                    ReDim Preserve tank_result(count - 1)
+                    Return
+                End If
             Next
             ReDim Preserve tank_result(count - 1)
 
@@ -5816,11 +5824,11 @@ fuckit:
                 'If validate_path(guns(i)) = guns(i) Then
                 Dim n = New TreeNode
 
-                    n.Text = Path.GetFileNameWithoutExtension(guns(i))
-                    If guns(i).Contains("_skin") Then n.Text += " (Skin)"
-                    n.Tag = i
-                    frmComponents.tv_guns.Nodes.Add(n)
-                    cn += 1
+                n.Text = Path.GetFileNameWithoutExtension(guns(i))
+                If guns(i).Contains("_skin") Then n.Text += " (Skin)"
+                n.Tag = i
+                frmComponents.tv_guns.Nodes.Add(n)
+                cn += 1
                 'End If
                 Application.DoEvents()
             Next
@@ -5831,11 +5839,11 @@ fuckit:
             For i = 0 To turrets.Length - 2
                 'If validate_path(turrets(i)) = turrets(i) Then
                 Dim n = New TreeNode
-                    n.Text = Path.GetFileNameWithoutExtension(turrets(i))
-                    If turrets(i).Contains("_skin") Then n.Text += " (Skin)"
-                    n.Tag = i
-                    frmComponents.tv_turrets.Nodes.Add(n)
-                    cn += 1
+                n.Text = Path.GetFileNameWithoutExtension(turrets(i))
+                If turrets(i).Contains("_skin") Then n.Text += " (Skin)"
+                n.Tag = i
+                frmComponents.tv_turrets.Nodes.Add(n)
+                cn += 1
                 'End If
                 Application.DoEvents()
             Next
@@ -5851,11 +5859,11 @@ fuckit:
             For i = 0 To hulls.Length - 2
                 'If validate_path(hulls(i)) = hulls(i) Then
                 Dim n = New TreeNode
-                    n.Text = Path.GetFileNameWithoutExtension(hulls(i))
-                    If hulls(i).Contains("_skin") Then n.Text += " (Skin)"
-                    n.Tag = i
-                    frmComponents.tv_hulls.Nodes.Add(n)
-                    cn += 1
+                n.Text = Path.GetFileNameWithoutExtension(hulls(i))
+                If hulls(i).Contains("_skin") Then n.Text += " (Skin)"
+                n.Tag = i
+                frmComponents.tv_hulls.Nodes.Add(n)
+                cn += 1
                 'End If
                 Application.DoEvents()
             Next
@@ -5867,11 +5875,11 @@ fuckit:
             For i = 0 To chassis.Length - 2
                 'If validate_path(chassis(i)) = chassis(i) Then
                 Dim n = New TreeNode
-                    n.Text = Path.GetFileNameWithoutExtension(chassis(i))
-                    If chassis(i).Contains("_skin") Then n.Text += " (Skin)"
-                    n.Tag = i
-                    frmComponents.tv_chassis.Nodes.Add(n)
-                    cn += 1
+                n.Text = Path.GetFileNameWithoutExtension(chassis(i))
+                If chassis(i).Contains("_skin") Then n.Text += " (Skin)"
+                n.Tag = i
+                frmComponents.tv_chassis.Nodes.Add(n)
+                cn += 1
                 'End If
                 Application.DoEvents()
             Next
@@ -7072,6 +7080,7 @@ fuckit:
             End If
             Dim p As String = ""
             TC1.Enabled = False
+            TC2.Enabled = False
             If Not file_name.Contains(":") Then ' fix the name if it has no package info
                 file_name = "0:1:" + file_name.Replace("\", "/")
             End If
@@ -7103,7 +7112,7 @@ fuckit:
                     ic_160x100.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
                 End If
                 Dim an = tank_sr_name.Split("-")
-                    If an.Length > 1 Then
+                If an.Length > 1 Then
                     tank_sr_name = an(1)
                 End If
                 Dim sss = public_icon_path.Replace(an(0) + "-", "")
@@ -7114,18 +7123,18 @@ fuckit:
                     srs = sss
                 End If
                 Dim ic_420x307 = gui_pkg_part_1(srs)
-                    If ic_420x307 Is Nothing Then
-                        ic_420x307 = gui_pkg_part_2(srs)
-                        If ic_420x307 IsNot Nothing Then
-                            ic_420x307.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                        End If
-                        ic_420x307 = gui_pkg_part_3(srs)
-                        If ic_420x307 IsNot Nothing Then
-                            ic_420x307.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                        End If
+                If ic_420x307 Is Nothing Then
+                    ic_420x307 = gui_pkg_part_2(srs)
+                    If ic_420x307 IsNot Nothing Then
+                        ic_420x307.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
+                    End If
+                    ic_420x307 = gui_pkg_part_3(srs)
+                    If ic_420x307 IsNot Nothing Then
+                        ic_420x307.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
                     End If
                 End If
-                If frmExtract.extract_item_def_cb.Checked Then
+            End If
+            If frmExtract.extract_item_def_cb.Checked Then
                 Dim ts = itemDefXmlString
                 Try ' catch any exception thrown
 
@@ -7378,6 +7387,7 @@ skip_old_way:
         WORKING = False
 
         TC1.Enabled = True
+        SearchBox.Enabled = True
     End Sub
 
     Private Sub search_and_extract(ByRef package As ZipFile, ByRef search_name As String)
@@ -7516,6 +7526,7 @@ skip_old_way:
         CRASH_MODE = False
         PRIMITIVES_MODE = False
         TC1.Enabled = False
+        TC2.Enabled = False
         m_show_fbx.Visible = False
         m_show_fbx.Checked = False
         current_tank_name = file_name
@@ -7525,6 +7536,7 @@ skip_old_way:
         If Not process_tank(False) Then
             'canceled or an error
             TC1.Enabled = True
+            SearchBox.Enabled = True
             find_icon_image(TANK_NAME)
             Return
         End If
@@ -7532,6 +7544,7 @@ skip_old_way:
 
         m_ExportExtract.Enabled = True
         TC1.Enabled = True
+        SearchBox.Enabled = True
         m_build_wotmod.Enabled = True
         m_load_textures.Enabled = True
         m_load_textures.Checked = True
@@ -7540,6 +7553,7 @@ skip_old_way:
         CRASH_MODE = True
         PRIMITIVES_MODE = False
         TC1.Enabled = False
+        TC2.Enabled = False
         m_show_fbx.Visible = False
         m_show_fbx.Checked = False
         current_tank_name = file_name
@@ -7547,6 +7561,7 @@ skip_old_way:
         process_tank(False) 'false .. don't save the binary tank file
         m_ExportExtract.Enabled = True
         TC1.Enabled = True
+        SearchBox.Enabled = True
         find_icon_image(TANK_NAME)
         m_load_textures.Enabled = True
         m_load_textures.Checked = True
@@ -8096,6 +8111,7 @@ skip_old_way:
         PRIMITIVES_MODE = False
         MM.Enabled = False
         TC1.Enabled = False
+        TC2.Enabled = False
         info_Label.Parent = pb1
         info_Label.Text = "Select Tank to import...."
         info_Label.Visible = True
@@ -8105,6 +8121,7 @@ skip_old_way:
         MM.Enabled = True
         m_ExportExtract.Enabled = True
         TC1.Enabled = True
+        SearchBox.Enabled = True
     End Sub
 
     Private Sub m_show_fbx_CheckedChanged(sender As Object, e As EventArgs) Handles m_show_fbx.CheckedChanged
@@ -8618,6 +8635,7 @@ skip_old_way:
         PRIMITIVES_MODE = False
         MM.Enabled = False
         TC1.Enabled = False
+        TC2.Enabled = False
         info_Label.Parent = pb1
         info_Label.Text = "Select Tank to import...."
         info_Label.Visible = True
@@ -8627,6 +8645,7 @@ skip_old_way:
         MM.Enabled = True
         m_ExportExtract.Enabled = True
         TC1.Enabled = True
+        SearchBox.Enabled = True
         If PRIMITIVES_MODE Then
             m_load_textures.Checked = False
             m_load_textures.Enabled = False
@@ -9881,9 +9900,13 @@ load_script:
     End Sub
 
     Private Sub searchBox_Enter(sender As Object, e As KeyEventArgs) Handles SearchBox.KeyDown
-        If e.KeyCode = Keys.Enter Then
+        If SearchBox.Text.Length = 0 Then
+            Return
+        End If
 
-            searching_tanks(SearchBox.Text)
+        If e.KeyCode = Keys.Enter Then
+            Dim ts As String = SearchBox.Text
+            searching_tanks(ts)
             Application.DoEvents()
             set_treeview(TreeView11, TC2)
             Application.DoEvents()
@@ -10013,7 +10036,7 @@ load_script:
 
     Private Sub searchBox_clearResult()
         TC1.Visible = True
-        tc2.Visible = False
+        TC2.Visible = False
     End Sub
 
     Private Sub searchBox_LostFocus(sender As Object, e As EventArgs) Handles SearchBox.LostFocus
