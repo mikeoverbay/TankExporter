@@ -633,7 +633,7 @@ done:
             Application.DoEvents()
             MM.Enabled = False ' Dont let the user click anything while we are loading data!
             TC1.Enabled = False
-            TC2.Enabled = False
+            SearchBox.Enabled = False
             Try
 
                 gui_pkg_part_1 = New Ionic.Zip.ZipFile(My.Settings.game_path + "\res\packages\gui-part1.pkg")
@@ -7080,7 +7080,7 @@ fuckit:
             End If
             Dim p As String = ""
             TC1.Enabled = False
-            TC2.Enabled = False
+            SearchBox.Enabled = False
             If Not file_name.Contains(":") Then ' fix the name if it has no package info
                 file_name = "0:1:" + file_name.Replace("\", "/")
             End If
@@ -7526,7 +7526,7 @@ skip_old_way:
         CRASH_MODE = False
         PRIMITIVES_MODE = False
         TC1.Enabled = False
-        TC2.Enabled = False
+        SearchBox.Enabled = False
         m_show_fbx.Visible = False
         m_show_fbx.Checked = False
         current_tank_name = file_name
@@ -7553,7 +7553,7 @@ skip_old_way:
         CRASH_MODE = True
         PRIMITIVES_MODE = False
         TC1.Enabled = False
-        TC2.Enabled = False
+        SearchBox.Enabled = False
         m_show_fbx.Visible = False
         m_show_fbx.Checked = False
         current_tank_name = file_name
@@ -8111,7 +8111,7 @@ skip_old_way:
         PRIMITIVES_MODE = False
         MM.Enabled = False
         TC1.Enabled = False
-        TC2.Enabled = False
+        SearchBox.Enabled = False
         info_Label.Parent = pb1
         info_Label.Text = "Select Tank to import...."
         info_Label.Visible = True
@@ -8635,7 +8635,7 @@ skip_old_way:
         PRIMITIVES_MODE = False
         MM.Enabled = False
         TC1.Enabled = False
-        TC2.Enabled = False
+        SearchBox.Enabled = False
         info_Label.Parent = pb1
         info_Label.Text = "Select Tank to import...."
         info_Label.Visible = True
