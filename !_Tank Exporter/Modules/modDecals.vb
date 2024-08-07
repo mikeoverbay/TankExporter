@@ -803,6 +803,10 @@ Module modDecals
         Next
         frmMain.d_current_line = tc
 
+        'frmMain.d_list_tb.Location = New Point(0, 141)
+
+        'frmMain.d_list_tb.Width = 227
+
         Dim sp = frmMain.d_list_tb.GetFirstCharIndexFromLine(tc) ' get prev line
         frmMain.d_list_tb.SelectionStart = sp
         frmMain.d_list_tb.Select(frmMain.d_list_tb.GetFirstCharIndexOfCurrentLine(),
