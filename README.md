@@ -23,10 +23,10 @@ Added a new FBX exporter. Its under Export/Extract.
 I added glTF exporting. This exports the textures in node shading but you'll need to edit the nodes after. I attached a image of how it needs to be done. Pay attinion to vaules in the Math nodes!
 
 blender settings to export a FBX Tank Exporter can read.
-<a><img src="http://tnsmhouse.com/gitimages/blenderfbxsettings.png" title=" " /></a>
+<a><img src="https://tnmshouse.com/gitimages/blenderfbxsettings.png" title=" " /></a>
 
 blender node setup for glTF Tank Exporter can read.
-<a><img src="http://tnsmhouse.com/gitimages/nodelayoutgltf.png" title=" " /></a>
+<a><img src="https://tnmshouse.com/gitimages/nodelayoutgltf.png" title=" " /></a>
 
 
 ## version 141
@@ -39,7 +39,7 @@ Please test and report any missing tanks or other bugs to issues.
 
 ## Version 137
 Fixed a bad bug in exporting the XML file for the tank.
-Also Fixed the Failed to Create FBO error. You may or may not of been seeing this error. TE needs atleast 2gig of video mem to run well. 
+Also Fixed the Failed to Create FBO error. You may or may not of been seeing this error. TE needs at least 2gig of video mem to run well. 
 
 ## Version 134
 More fixes to compatiblity wiht AMD cards. A few bug fixes.
