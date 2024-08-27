@@ -23,10 +23,10 @@ Added a new FBX exporter. Its under Export/Extract.
 I added glTF exporting. This exports the textures in node shading but you'll need to edit the nodes after. I attached a image of how it needs to be done. Pay attinion to vaules in the Math nodes!
 
 blender settings to export a FBX Tank Exporter can read.
-<a><img src="https://imgur.com/a/JTbR8F0.png" title="source: imgur.com" /></a>
+<a><img src="http://tnsmhouse.com/gitimages/blenderfbxsettings.png" title=" " /></a>
 
 blender node setup for glTF Tank Exporter can read.
-<a><img src="https://imgur.com/a/brgx7yw.png" title="source: imgur.com" /></a>
+<a><img src="http://tnsmhouse.com/gitimages/nodelayoutgltf.png" title=" " /></a>
 
 
 ## version 141
