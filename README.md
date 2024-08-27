@@ -20,7 +20,7 @@ https://github.com/mikeoverbay/TankExporter/issues/23
 I did Lots of work.
 Fixed issues with exporting to blender.
 Added a new FBX exporter. Its under Export/Extract.
-I added glTF exporting. This exports the textures in node shading but you'll need to edit the nodes after. I attached a image of how it needs to be done. Pay attinion to vaules in the Math nodes!
+I added glTF exporting. This exports the textures in node shading but you'll need to edit the nodes after. I attached a image of how it needs to be done. Pay attention to values in the Math nodes!
 
 blender settings to export a FBX Tank Exporter can read.
 <a><img src="https://tnmshouse.com/gitimages/blenderfbxsettings.png" title=" " /></a>
