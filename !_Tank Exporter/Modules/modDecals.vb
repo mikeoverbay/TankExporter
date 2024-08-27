@@ -430,12 +430,17 @@ Module modDecals
     End Sub
     Public Sub load_this_Decal(ByVal j As Integer)
         If decal_textures(j).colorMap_Id = 0 Then
-            Dim name As String = decal_textures(j).full_path
-            decal_textures(j).colorMap_Id = load_dds_file(name)
-            Dim ts = name.Replace("_AM.dds", "_NM.dds")
-            decal_textures(j).normalMap_Id = load_dds_file(ts)
-            ts = name.Replace("_AM.dds", "_GMM.dds")
-            decal_textures(j).gmmMap_id = load_dds_file(ts)
+            Try
+
+                Dim name As String = decal_textures(j).full_path
+                decal_textures(j).colorMap_Id = load_dds_file(name)
+                Dim ts = name.Replace("_AM.dds", "_NM.dds")
+                decal_textures(j).normalMap_Id = load_dds_file(ts)
+                ts = name.Replace("_AM.dds", "_GMM.dds")
+                decal_textures(j).gmmMap_id = load_dds_file(ts)
+            Catch ex As Exception
+
+            End Try
         End If
 
 

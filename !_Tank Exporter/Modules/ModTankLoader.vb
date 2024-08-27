@@ -531,13 +531,7 @@ Module ModTankLoader
         ' 3 = Turret
         ' 4 = Gun
         ' 5 Segment
-        'Hack to remove _skins from british tank
-        'C:\Games\World_of_Tanks\res_mods\1.1.0.1\vehicles\british\GB93_Caernarvon_AX\_skins\RoyalCorps\normal\lod0
-        'If file_name.Contains("/_skin") And Not frmComponents.look_for_skins_cb.Checked Then
-        '    Dim s_parts = file_name.Split("/")
-        '    file_name = s_parts(0) + "/" + s_parts(1) + "/" + s_parts(2) + "/" + s_parts(5) + "/" + s_parts(6) + "/" + s_parts(7)
 
-        'End If
         If InStr(Path.GetFileNameWithoutExtension(file_name), "Chassis") > 0 Then
             xmlget_mode = 1
         End If
@@ -569,15 +563,6 @@ Module ModTankLoader
             Return False
         End If
         file_name = old_file_name.Replace("model", "primitives_processed")
-
-
-        '============================'============================
-        'this gets all the entries in the xml file..
-        'IE.. bone and wheel locations
-        'NOT LONGER LOADING THIS!
-        'If xmlget_mode = 1 Then
-        '    praseVisualXml()
-        'End If
 
 
         'Some tanks have the primuitive used stored in the visual files.
@@ -1104,7 +1089,18 @@ next_m:
                         _group(k).vertices(cnt).nz = tbuf(i).nz
                     Else
                         _group(k).vertices(cnt).n = tbuf(i).n
+                        Dim v3 As vect3
+                        If BPVT_mode Then
+                            v3 = unpackNormal_8_8_8(tbuf(i).n)   ' unpack normals
+                        Else
+                            v3 = unpackNormal(tbuf(i).n)   ' unpack normals
+                        End If
+                        _group(k).vertices(cnt).nx = v3.x
+                        _group(k).vertices(cnt).ny = v3.y
+                        _group(k).vertices(cnt).nz = v3.z
                     End If
+
+
                     _group(k).vertices(cnt).u = tbuf(i).u
                     _group(k).vertices(cnt).v = tbuf(i).v
                     round_signed_to(_group(k).vertices(cnt).u, 4)
@@ -2167,7 +2163,7 @@ get_visual:
         Dim sp1 = TheXML_String.Split(delim, StringSplitOptions.None)
         If loop_count > sp1.Length - 1 Then
             MsgBox("We have a problem!" + vbCrLf + "There are more models than entries in the Visual." +
-                   vbCrLf + "I can load them but with not texture info!")
+                   vbCrLf + "I can load them but with no texture info!")
             Return ""
         End If
 

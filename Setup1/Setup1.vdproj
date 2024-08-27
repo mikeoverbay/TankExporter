@@ -357,6 +357,18 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_396D97A7108FCFC3B1C75ECDEF9C03C6"
+        "OwnerKey" = "8:_AA28C9E466C263A5CDC8C8AC93C76A1E"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_396D97A7108FCFC3B1C75ECDEF9C03C6"
+        "OwnerKey" = "8:_D88F02B810ED4918A9E68229BD46788B"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_398A410803054D8AAD561466679F1ADF"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -879,12 +891,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_8CBCB1A5E0C9DDA6A2C794C48E213FC6"
-        "OwnerKey" = "8:_D88F02B810ED4918A9E68229BD46788B"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_8F06A824CDA44D8F8B59E38F08998BF9"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -1007,6 +1013,18 @@
         {
         "MsmKey" = "8:_A65699200AE7401D936130879438EEF1"
         "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_AA28C9E466C263A5CDC8C8AC93C76A1E"
+        "OwnerKey" = "8:_D1EB0120737E025C3572083D49A8A856"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_AA28C9E466C263A5CDC8C8AC93C76A1E"
+        "OwnerKey" = "8:_D88F02B810ED4918A9E68229BD46788B"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -1263,6 +1281,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_D1EB0120737E025C3572083D49A8A856"
+        "OwnerKey" = "8:_D88F02B810ED4918A9E68229BD46788B"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_D2DCD2F13C5E49D4AA2D757571B00014"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -1283,6 +1307,18 @@
         {
         "MsmKey" = "8:_D9D6C0D06A8341DBADDF4C7767041C84"
         "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_DA86D6D47B27201B18CFA9A0FA95B907"
+        "OwnerKey" = "8:_AA28C9E466C263A5CDC8C8AC93C76A1E"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_DA86D6D47B27201B18CFA9A0FA95B907"
+        "OwnerKey" = "8:_D88F02B810ED4918A9E68229BD46788B"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -1540,7 +1576,25 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_8CBCB1A5E0C9DDA6A2C794C48E213FC6"
+        "OwnerKey" = "8:_D1EB0120737E025C3572083D49A8A856"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_AA28C9E466C263A5CDC8C8AC93C76A1E"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_DA86D6D47B27201B18CFA9A0FA95B907"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_396D97A7108FCFC3B1C75ECDEF9C03C6"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -1630,7 +1684,7 @@
         "DisplayName" = "8:Release"
         "IsDebugOnly" = "11:FALSE"
         "IsReleaseOnly" = "11:TRUE"
-        "OutputFilename" = "8:..\\Tank_Exporter_141.msi"
+        "OutputFilename" = "8:..\\Tank_Exporter_142.msi"
         "PackageFilesAs" = "3:2"
         "PackageFileSize" = "3:-2147483648"
         "CabType" = "3:1"
@@ -1692,7 +1746,7 @@
                 {
                 "Name" = "8:.NET Framework"
                 "Message" = "8:[VSDNETMSG]"
-                "FrameworkVersion" = "8:v4.5      "
+                "FrameworkVersion" = "8:v4.5       "
                 "AllowLaterVersions" = "11:FALSE"
                 "InstallUrl" = "8:http://go.microsoft.com/fwlink/?LinkId=395269"
                 }
@@ -2840,6 +2894,37 @@
             "Register" = "3:1"
             "Exclude" = "11:FALSE"
             "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_396D97A7108FCFC3B1C75ECDEF9C03C6"
+            {
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:System.Buffers, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL"
+                "ScatterAssemblies"
+                {
+                    "_396D97A7108FCFC3B1C75ECDEF9C03C6"
+                    {
+                    "Name" = "8:System.Buffers.dll"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:System.Buffers.dll"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_9BBCA850C4D847C495C4D74DD189C10E"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_398A410803054D8AAD561466679F1ADF"
@@ -4546,37 +4631,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_8CBCB1A5E0C9DDA6A2C794C48E213FC6"
-            {
-            "AssemblyRegister" = "3:1"
-            "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:Aspose.3D, Version=23.8.0.0, Culture=neutral, PublicKeyToken=f071c641d0b4582b, processorArchitecture=MSIL"
-                "ScatterAssemblies"
-                {
-                    "_8CBCB1A5E0C9DDA6A2C794C48E213FC6"
-                    {
-                    "Name" = "8:Aspose.3D.dll"
-                    "Attributes" = "3:512"
-                    }
-                }
-            "SourcePath" = "8:Aspose.3D.dll"
-            "TargetName" = "8:"
-            "Tag" = "8:"
-            "Folder" = "8:_9BBCA850C4D847C495C4D74DD189C10E"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:TRUE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8F06A824CDA44D8F8B59E38F08998BF9"
             {
             "SourcePath" = "8:..\\!_Tank Exporter\\ILU.dll"
@@ -5006,6 +5060,37 @@
             "Register" = "3:1"
             "Exclude" = "11:FALSE"
             "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_AA28C9E466C263A5CDC8C8AC93C76A1E"
+            {
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:System.Memory, Version=4.0.1.2, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL"
+                "ScatterAssemblies"
+                {
+                    "_AA28C9E466C263A5CDC8C8AC93C76A1E"
+                    {
+                    "Name" = "8:System.Memory.dll"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:System.Memory.dll"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_9BBCA850C4D847C495C4D74DD189C10E"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_AAA850A524A24F3EB44B04C003F8DFBA"
@@ -5881,6 +5966,37 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_D1EB0120737E025C3572083D49A8A856"
+            {
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:Aspose.3D, Version=24.7.1.0, Culture=neutral, PublicKeyToken=f071c641d0b4582b, processorArchitecture=MSIL"
+                "ScatterAssemblies"
+                {
+                    "_D1EB0120737E025C3572083D49A8A856"
+                    {
+                    "Name" = "8:Aspose.3D.dll"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:Aspose.3D.dll"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_9BBCA850C4D847C495C4D74DD189C10E"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D2DCD2F13C5E49D4AA2D757571B00014"
             {
             "SourcePath" = "8:..\\!_Tank Exporter\\html\\Images\\JLD_16.jpg"
@@ -5939,6 +6055,37 @@
             "Register" = "3:1"
             "Exclude" = "11:FALSE"
             "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_DA86D6D47B27201B18CFA9A0FA95B907"
+            {
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:System.Numerics.Vectors, Version=4.1.4.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL"
+                "ScatterAssemblies"
+                {
+                    "_DA86D6D47B27201B18CFA9A0FA95B907"
+                    {
+                    "Name" = "8:System.Numerics.Vectors.dll"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:System.Numerics.Vectors.dll"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_9BBCA850C4D847C495C4D74DD189C10E"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_DB7E6ECFB9E0450EB0D9F8E6511DF58C"
@@ -6882,15 +7029,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Tank Exporter"
-        "ProductCode" = "8:{854725D6-848F-4FF6-BD9E-743ED60CD80C}"
-        "PackageCode" = "8:{CF563297-C496-4D4E-8EA7-6DF11A042549}"
+        "ProductCode" = "8:{AF999BF2-C244-4B3A-87F7-3BCAD1299897}"
+        "PackageCode" = "8:{A67C61B1-E73D-4E5C-BF11-482BCA7A1769}"
         "UpgradeCode" = "8:{6ABAF23A-CB3D-4411-B78A-4855B5B5A0CD}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:1.0.141"
+        "ProductVersion" = "8:1.0.142"
         "Manufacturer" = "8:Coffee_"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
@@ -7442,7 +7589,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_D88F02B810ED4918A9E68229BD46788B"
             {
-            "SourcePath" = "8:..\\!_Tank Exporter\\obj\\x86\\Debug\\!_Tank Exporter.exe"
+            "SourcePath" = "8:..\\!_Tank Exporter\\obj\\x86\\Release\\!_Tank Exporter.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_9BBCA850C4D847C495C4D74DD189C10E"

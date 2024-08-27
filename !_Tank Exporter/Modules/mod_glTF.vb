@@ -6,10 +6,18 @@ Imports Aspose.ThreeD.Utilities
 Imports Aspose.ThreeD.Shading
 Imports System.Net.WebRequestMethods
 Imports System.IO
-Imports SharpDX.Direct3D11
+Imports Skill.FbxSDK.FbxAxisSystem
+'Imports SharpDX.Direct3D11
+'Imports Skill.FbxSDK
+'Imports bpy
+'Imports Skill.FbxSDK
 
 Module mod_glTF
     Public EXPORT_TYPE As Integer = 1
+    Public Function RadiansToDegrees(radians As Double) As Double
+        Return radians * (180.0 / Math.PI)
+    End Function
+
     Public Sub make_glTF()
 
         Dim ar() As String
@@ -19,6 +27,7 @@ Module mod_glTF
             ar = TANK_NAME.Split(":")
         End If
         file_name = current_tank_name
+        frmMain.SaveFileDialog1.InitialDirectory = My.Settings.fbx_path
         Select Case EXPORT_TYPE
             Case 1
                 frmMain.SaveFileDialog1.Filter = "glTF|*.glTF"
@@ -58,7 +67,9 @@ Module mod_glTF
         export_fbx_textures(False) 'export all textures
 
         Dim scene_ As New Scene()
+
         For item = 1 To object_count
+            Dim off = _group(item).startVertex_
 
             Dim model_name = _group(item).name.Replace("/", "\")
             model_name = model_name.Replace(":", "~")
@@ -66,42 +77,44 @@ Module mod_glTF
             model_name = model_name.Replace("primitives_processed", "pri")
             model_name = model_name.Replace("\lod0\", "\l\")
 
-            Dim m As New Mesh
-            Dim mmode As MappingMode
-            mmode = 0 'PolygonVertex
-            For i = 0 To _group(item).indicies.Length - 1
+            Dim m As New Mesh 'create mesh
+            m.Name = model_name
 
-                m.CreatePolygon(_group(item).indicies(i).v1, _group(item).indicies(i).v2, _group(item).indicies(i).v3)
+            'create mesh pirmitive face indice set
+            For i As UInt32 = 1 To _group(item).nPrimitives_
+                m.CreatePolygon(_group(item).indicies(i).v1 - off, _group(item).indicies(i).v2 - off,
+                                _group(item).indicies(i).v3 - off)
             Next
 
             Dim norm As New VertexElementNormal
-            ReDim normals(_group(item).vertices.Length - 2)
-            For i = 0 To _group(item).vertices.Length - 2
-                normals(i).x = _group(item).vertices(i).nx
-                normals(i).y = _group(item).vertices(i).ny
-                normals(i).x = _group(item).vertices(i).nz
+            ReDim normals(_group(item).nVertices_ - 1)
+            For i As UInt32 = 0 To _group(item).nVertices_ - 1
+                normals(i).X = _group(item).vertices(i).nx
+                normals(i).Y = _group(item).vertices(i).ny
+                If _group(item).color_name IsNot Nothing Then
+                    If _group(item).color_name.ToLower.Contains("track") Then
+                        normals(i).Y *= 1.0F
+                    End If
+                End If
+                normals(i).Z = _group(item).vertices(i).nz
             Next
             norm.SetData(normals)
             m.AddElement(norm)
 
             Dim uvs_1 As New VertexElementUV()
-            ReDim uvs(_group(item).vertices.Length - 2)
-            For i = 0 To _group(item).vertices.Length - 2
-                uvs(i).x = _group(item).vertices(i).u
-                uvs(i).y = -_group(item).vertices(i).v
+            ReDim uvs(_group(item).nVertices_ - 1)
+            For i = 0 To _group(item).nVertices_ - 1
+                uvs(i).X = _group(item).vertices(i).u
+                uvs(i).Y = -_group(item).vertices(i).v
             Next
             uvs_1.SetData(uvs)
             m.AddElement(uvs_1)
 
-
-
-
-
             If _group(item).has_uv2 = 1 Then
-                ReDim uvs(_group(item).vertices.Length - 2)
-                For i = 0 To _group(item).vertices.Length - 2
-                    uvs(i).x = _group(item).vertices(i).u2
-                    uvs(i).y = -_group(item).vertices(i).v2
+                ReDim uvs(_group(item).nVertices_ - 1)
+                For i As UInt32 = 0 To _group(item).nVertices_ - 1
+                    uvs(i).X = _group(item).vertices(i).u2
+                    uvs(i).Y = -_group(item).vertices(i).v2
                 Next
 
                 Dim vElement2 As New VertexElementUV()
@@ -111,148 +124,211 @@ Module mod_glTF
             End If
 
             Dim vcolor As New VertexElementVertexColor
-            ReDim normals(_group(item).vertices.Length - 2)
-            For i = 0 To _group(item).vertices.Length - 2
-                normals(i).x = _group(item).vertices(i).index_1
-                normals(i).y = _group(item).vertices(i).index_2
-                normals(i).x = _group(item).vertices(i).index_3
-                normals(i).w = _group(item).vertices(i).index_4
+            ReDim normals(_group(item).nVertices_ - 1)
+            For i As UInt32 = 0 To _group(item).nVertices_ - 1
+                normals(i).X = _group(item).vertices(i).index_1
+                normals(i).Y = _group(item).vertices(i).index_2
+                normals(i).X = _group(item).vertices(i).index_3
+                normals(i).W = _group(item).vertices(i).index_4
             Next
             vcolor.SetData(normals)
 
             m.AddElement(vcolor)
 
-            ReDim vertices(_group(item).vertices.Length - 2)
-
-            For i = 0 To _group(item).vertices.Length - 2
+            For i As UInt32 = 0 To _group(item).nVertices_ - 1
                 Dim v As Vector4
-                v.x = _group(item).vertices(i).x
-                v.y = _group(item).vertices(i).y
-                v.z = _group(item).vertices(i).z
-
+                v.X = _group(item).vertices(i).x
+                v.Y = _group(item).vertices(i).y
+                v.Z = _group(item).vertices(i).z
                 m.ControlPoints.Add(v)
             Next
-
-            m.ControlPoints.AddRange(vertices)
-            Dim uvscale As Vector2
-            uvscale.x = 6.0
-            uvscale.y = 6.0
-
             Dim co As Vector3
-            co.x = 0.6
-            co.y = 0.6
-            co.z = 0.6
+            co.X = 0.6
+            co.Y = 0.6
+            co.Z = 0.6
+            'Some turrets dont exist but are still used for translations.
+            'If the are only a matrix transform, they have no textures!
             Dim m1 As New Object
+            If _group(item).color_name IsNot Nothing Then
 
-            Dim tx As New Texture(save_path + "\" + Path.GetFileName(_group(item).color_name).Replace(".dds", ".png"))
-            tx.FileName = tx.Name
-            tx.SetProperty("mix vertex color", 0.0)
 
-            Dim txn As New Texture(save_path + "\" + Path.GetFileName(_group(item).normal_name).Replace(".dds", ".png"))
-            txn.FileName = txn.Name
+                ' Set up the base color texture
+                Dim tx As New Texture(save_path + "\" + Path.GetFileName(_group(item).color_name).Replace(".dds", ".png"))
+                tx.FileName = tx.Name
+                tx.MagFilter = TextureFilter.Linear
+                tx.MinFilter = TextureFilter.Linear
+                tx.MipFilter = TextureFilter.Anisotropic
+                tx.EnableMipMap = True
 
-            '  tx.UVScale() = uvscale
-            tx.MagFilter = TextureFilter.Linear
-            tx.MinFilter = TextureFilter.Linear
-            tx.MipFilter = TextureFilter.Anisotropic
-            tx.EnableMipMap = True
+                'tx.SetProperty("mix vertex color", 0.0)
 
-            ' txn.UVScale() = uvscale
-            txn.SetProperty("Strength", 1.0)
-            txn.MagFilter = TextureFilter.Linear
-            txn.MinFilter = TextureFilter.Linear
-            txn.MipFilter = TextureFilter.Anisotropic
-            txn.EnableMipMap = True
+                ' Set up the normal texture
+                Dim txn As New Texture(save_path + "\" + Path.GetFileName(_group(item).normal_name).Replace(".dds", ".png"))
+                txn.FileName = txn.Name
+                txn.MagFilter = TextureFilter.Linear
+                txn.MinFilter = TextureFilter.Linear
+                txn.MipFilter = TextureFilter.Anisotropic
+                txn.EnableMipMap = True
 
-            Select Case EXPORT_TYPE
-                Case 2, 3, 4
-                    m1 = New LambertMaterial("")
-                    m1.SetTexture(Material.MapDiffuse, tx)
-                    m1.SetTexture(Material.MapNormal, txn)
-                    Exit Select
-                Case 1
-                    m1 = New PbrMaterial(co)
-                    Dim txgm As New Texture(save_path + "\" + Path.GetFileName(_group(item).metalGMM_name).Replace(".dds", ".png"))
-                    txgm.FileName = txgm.Name
-                    txgm.UVScale() = uvscale
-                    txgm.SetProperty("Strength", 1.0)
-                    txgm.MagFilter = TextureFilter.Linear
-                    txgm.MinFilter = TextureFilter.Linear
-                    txgm.MipFilter = TextureFilter.Anisotropic
-                    txgm.EnableMipMap = True
 
-                    m1.AlbedoTexture() = tx
-                    m1.NormalTexture() = txn
-                    m1.MetallicRoughness() = txgm
+                ' Set up the metallic-roughness texture
+                Dim txgm As New Texture(save_path + "\" + Path.GetFileName(_group(item).metalGMM_name).Replace(".dds", ".png"))
+                txgm.FileName = txgm.Name
+                'txgm.SetProperty("Strength", 1.0)
+                txgm.MagFilter = TextureFilter.Linear
+                txgm.MinFilter = TextureFilter.Linear
+                txgm.MipFilter = TextureFilter.Anisotropic
+                txgm.EnableMipMap = True
+                txgm.SetProperty("color invert", 0.0)
+                ' Set up the AO texture
+                Dim txao As New Texture
+                If _group(item).ao_name IsNot Nothing Then
 
-                    m1.MetallicFactor = 1.0
-                    m1.RoughnessFactor = 1.0
-                    Exit Select
+                    txao = New Texture(save_path + "\" + Path.GetFileName(_group(item).ao_name.Replace(".dds", ".png")))
+                    txao.FileName = txgm.Name
+                    'txao.SetProperty("Strength", 1.0)
+                    txao.MagFilter = TextureFilter.Linear
+                    txao.MinFilter = TextureFilter.Linear
+                    txao.MipFilter = TextureFilter.Anisotropic
+                    txao.EnableMipMap = True
+                    txao.SetProperty("color invert", 0.0)
+                End If
 
-            End Select
-            m1.Name = "Material00" + item.ToString
-            'Dim txao As New Texture
-            If Not _group(item).ao_name Is Nothing Then
-                'txao = New Texture(save_path + "/" + Path.GetFileName(_group(item).ao_name).Replace(".dds", ".png"))
+                Select Case EXPORT_TYPE
+                    Case 2, 3, 4
+                        m1 = New LambertMaterial()
+                        m1.SetTexture(Material.MapDiffuse, tx)
+                        m1.SetTexture(Material.MapNormal, txn)
+                        m1.AmbientColor = New Vector3(0.3, 0.3, 0.3)
+                        m1.DiffuseColor = New Vector3(0.7, 0.7, 0.7)
 
-                'txao.FileName = txao.Name
+                        Exit Select
+                    Case 1
+                        ' Create a PBR material with a base color
+                        m1 = New PbrMaterial(co)
+                        m1.SetProperty("DoubleSided ", True)
+
+                        ' Assign textures to the PBR material
+                        m1.AlbedoTexture = tx
+                        m1.NormalTexture = txn
+                        m1.MetallicRoughness = txgm
+                        If _group(item).ao_name IsNot Nothing Then
+                            m1.OcclusionTexture = txao
+                        End If
+                        ' Set PBR material properties
+                        m1.MetallicFactor = 0.9
+                        m1.RoughnessFactor = 0.9
+
+                        Exit Select
+
+                End Select
+                m1.Name = "Material00" + item.ToString
+                m1.SetProperty("Specular", 0.05)
+                m1.SetProperty("Shininess", 0.1)
+            Else
+                'm1 = New LambertMaterial()
+                'm1.AmbientColor = New Vector3(0.3, 0.3, 0.3)
+                'm1.DiffuseColor = New Vector3(0.7, 0.7, 0.7)
+
+
+
             End If
-
-
-            m1.SetProperty("Specular", 0.05)
-            m1.SetProperty("Shininess", 0.0)
-
-            m.Name = model_name
-
-            Dim base As Node = scene_.RootNode.CreateChildNode(model_name, m)
+            Dim base = scene_.RootNode.CreateChildNode(model_name, m)
             base.Name = model_name
-            base.Transform.TransformMatrix = Matrix4.Identity
-            Dim mat As Matrix4
 
-            mat.m00 = _object(item).matrix(0)
-            mat.m01 = _object(item).matrix(1)
-            mat.m02 = _object(item).matrix(2)
-            mat.m03 = _object(item).matrix(3)
+            If _group(item).color_name IsNot Nothing Then
+                base.Material = m1
 
-            mat.m10 = _object(item).matrix(4)
-            mat.m11 = _object(item).matrix(5)
-            mat.m12 = _object(item).matrix(6)
-            mat.m13 = _object(item).matrix(7)
-
-            mat.m20 = _object(item).matrix(8)
-            mat.m21 = _object(item).matrix(9)
-            mat.m22 = _object(item).matrix(10)
-            mat.m23 = _object(item).matrix(11)
-
-            mat.m30 = _object(item).matrix(12)
-            mat.m31 = _object(item).matrix(13)
-            mat.m32 = _object(item).matrix(14)
-            mat.m33 = _object(item).matrix(15)
-            Dim rq As Quaternion
-            Dim tv As Vector3
-            Dim sv As Vector3
-            mat.Decompose(tv, sv, rq)
-            round_error(rq.x)
-            round_error(rq.y)
-            round_error(rq.z)
-            round_error(rq.w)
-            sv.x *= -1
-            tv.x *= -1
-
-            If _object(item).name.ToLower.Contains("gun") Then
-                sv.y *= -1
-                sv.z *= -1
-            End If
-            If _object(item).name.ToLower.Contains("chassis") Then
-                sv.y *= -1
-                sv.z *= -1
             End If
 
             base.Entity = m
-            base.Material = m1
-            base.Transform.SetRotation(rq.w, rq.x, rq.y, rq.z)
-            base.Transform.SetTranslation(tv.x, tv.y, tv.z)
-            base.Transform.SetScale(sv.x, sv.y, sv.z)
+
+
+            Dim mat As Matrix4
+            Dim tMatrix(16) As Double
+            For i As UInt32 = 0 To 15
+                tMatrix(i) = _object(item).matrix(i)
+            Next
+
+            mat.m00 = tMatrix(0)
+            mat.m01 = tMatrix(1)
+            mat.m02 = tMatrix(2)
+            mat.m03 = tMatrix(3)
+
+            mat.m10 = tMatrix(4)
+            mat.m11 = tMatrix(5)
+            mat.m12 = tMatrix(6)
+            mat.m13 = tMatrix(7)
+
+            mat.m20 = tMatrix(8)
+            mat.m21 = tMatrix(9)
+            mat.m22 = tMatrix(10)
+            mat.m23 = tMatrix(11)
+
+            mat.m30 = tMatrix(12)
+            mat.m31 = tMatrix(13)
+            mat.m32 = tMatrix(14)
+            mat.m33 = tMatrix(15)
+
+
+            'Apply the matrix to the node
+            If EXPORT_TYPE = 2 Then
+
+
+
+                'mat.m00 = tMatrix(0) * -1.0
+                Dim rs As Quaternion
+                Dim ts, ss As Vector3
+                Dim err = mat.Decompose(ts, ss, rs)
+                rs.Normalize()
+                Dim r_v = New Vector4(rs.X, 0.0, rs.Z, 0)
+                Dim t_v = New Vector3(-ts.X, ts.Y, ts.Z)
+                Dim s_v = New Vector3(-ss.X, ss.Y, ss.Z)
+                If _group(item).color_name IsNot Nothing Then
+
+                    If _group(item).color_name.ToLower.Contains("chassis") Then
+                        s_v.Z *= -1.0
+                        s_v.Y *= -1.0
+                    End If
+                    If _group(item).color_name.ToLower.Contains("tracks") Then
+                        s_v.Z *= -1.0
+                        s_v.Y *= -1.0
+                    End If
+                    If _group(item).color_name.ToLower.Contains("gun") Then
+                        s_v.Z *= -1.0
+                        s_v.Y *= -1.0
+                    End If
+                End If
+                base.Transform.Scaling = s_v
+                base.Transform.Translation = t_v
+                base.Transform.Rotation = rs
+                ' Convert quaternion to Euler angles
+                Dim eulerAngles As Vector3 = rs.EulerAngles()
+
+                ' Check for NaN values and handle them
+                If Double.IsNaN(eulerAngles.X) Then eulerAngles.X = 0.0
+                If Double.IsNaN(eulerAngles.Y) Then eulerAngles.Y = 0.0
+                If Double.IsNaN(eulerAngles.Z) Then eulerAngles.Z = 0.0
+
+                'base.Transform.TransformMatrix = mat
+                ' Set the Euler angles to the node
+                'base.Transform.EulerAngles = eulerAngles
+
+            Else
+                mat.m00 = tMatrix(0) * -1.0
+                If _object(item).name.ToLower.Contains("turret") Then
+                    mat.m02 *= -1
+                    mat.m12 *= -1
+                    mat.m20 *= -1
+                    mat.m21 *= -1
+
+                End If
+
+                base.Transform.TransformMatrix = mat
+            End If
+
+
+
             scene_.RootNode.ChildNodes.Add(base)
 
             Debug.WriteLine(m.Name)
@@ -265,7 +341,7 @@ Module mod_glTF
                 scene_.Save(out_path, FileFormat.GLTF2)
                 Exit Select
             Case 2
-                scene_.Save(out_path, FileFormat.FBX7700Binary)
+                scene_.Save(out_path, FileFormat.FBX7300Binary)
                 Exit Select
             Case 3
                 scene_.Save(out_path, FileFormat.WavefrontOBJ)

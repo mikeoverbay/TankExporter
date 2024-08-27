@@ -16,6 +16,19 @@ I created a fix for this but it takes a little effort to use it.</br>
 Read this Issue thread to get the fix and how to use it.</br>
 https://github.com/mikeoverbay/TankExporter/issues/23
 
+## Version 142
+I did Lots of work.
+Fixed issues with exporting to blender.
+Added a new FBX exporter. Its under Export/Extract.
+I added glTF exporting. This exports the textures in node shading but you'll need to edit the nodes after. I attached a image of how it needs to be done. Pay attinion to vaules in the Math nodes!
+
+blender settings to export a FBX Tank Exporter can read.
+<a><img src="https://i.imgur.com/JTbR8F0.png" title="source: imgur.com" /></a>
+
+blender node setup for glTF Tank Exporter can read.
+<a><img src="https://i.imgur.com/brgx7yw.png" title="source: imgur.com" /></a>
+
+
 ## version 141
 Merged tank search function by TuNguyen227.
 I made a few chnages to his code.

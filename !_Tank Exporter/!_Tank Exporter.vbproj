@@ -26,8 +26,8 @@
     <UpdatePeriodically>false</UpdatePeriodically>
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
-    <ApplicationRevision>141</ApplicationRevision>
-    <ApplicationVersion>1.0.0.141</ApplicationVersion>
+    <ApplicationRevision>142</ApplicationRevision>
+    <ApplicationVersion>1.0.0.142</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
@@ -119,8 +119,8 @@
     <ApplicationIcon>tank.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Aspose.3D, Version=23.8.0.0, Culture=neutral, PublicKeyToken=f071c641d0b4582b, processorArchitecture=MSIL">
-      <HintPath>..\packages\Aspose.3D.23.8.0\lib\net46\Aspose.3D.dll</HintPath>
+    <Reference Include="Aspose.3D, Version=24.7.1.0, Culture=neutral, PublicKeyToken=f071c641d0b4582b, processorArchitecture=MSIL">
+      <HintPath>..\packages\Aspose.3D.24.7.1\lib\net46\Aspose.3D.dll</HintPath>
     </Reference>
     <Reference Include="cttools, Version=1.0.4723.22902, Culture=neutral, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>

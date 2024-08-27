@@ -620,8 +620,10 @@ done:
             If File.Exists(My.Settings.game_path + "\paths_backup.xml") Then
                 File.Delete(My.Settings.game_path + "\paths_backup.xml")
             End If
-            If MsgBox("The game has updated to version: " + pathsxml + vbCrLf + "You need update the res_mods Path.", MsgBoxStyle.YesNo, "Game Update!") = MsgBoxResult.Yes Then
-                m_res_mods_path.PerformClick()
+            If MsgBox("The game has updated to version: " + pathsxml + vbCrLf + "Update resmods path to match?.", MsgBoxStyle.YesNo, "Game Update!") = MsgBoxResult.Yes Then
+                My.Settings.res_mods_path = Path.GetDirectoryName(My.Settings.res_mods_path) + "\" + pathsxml
+                File.WriteAllText(Temp_Storage + "\res_mods_Path.txt", My.Settings.res_mods_path)
+                My.Settings.Save()
             End If
         End If
         '====================================================================================================
@@ -8025,7 +8027,6 @@ skip_old_way:
         ReDim textures(0)
         frmFBX.ShowDialog(Me)
 
-
     End Sub
 
     Private Sub m_load_textures_CheckedChanged(sender As Object, e As EventArgs) Handles m_load_textures.CheckedChanged
@@ -8381,6 +8382,9 @@ skip_old_way:
     End Sub
 
     Private Sub m_delete_Click(sender As Object, e As EventArgs) Handles m_delete.Click
+
+        m_delete.Enabled = False
+
         If decal_matrix_list.Length < 2 Then Return
         Dim t_l(decal_matrix_list.Length - 2) As decal_matrix_list_
         Dim ta = d_list_tb.Text.Split(vbLf)
@@ -8433,11 +8437,14 @@ skip_old_way:
                 decal_matrix_list(new_line).get_decals_transform_info()
 
             Catch ex As Exception
+                m_delete.Enabled = True
                 Return
             End Try
             d_current_line = new_line
             d_sel_Len = d_list_tb.Lines(new_line).Length
         End If
+        m_delete.Enabled = True
+
     End Sub
 
 
@@ -8522,7 +8529,7 @@ skip_old_way:
     End Sub
 
     Private Sub m_donate_Click(sender As Object, e As EventArgs) Handles m_donate.Click
-        Process.Start(Application.StartupPath + "\html\donate.html")
+        'Process.Start(Application.StartupPath + "\html\donate.html")
 
     End Sub
 
@@ -8780,10 +8787,13 @@ outta_here:
         Else
             Dim d = d_list_tb.SelectedText.Split(":")
             current_decal = CInt(d(1))
-            decal_matrix_list(current_decal).get_decals_transform_info()
-            d_sel_Len = d_list_tb.Lines(a).Length
-            d_current_line = a
-            decal_matrix_list(current_decal).get_decals_transform_info()
+            Try
+                decal_matrix_list(current_decal).get_decals_transform_info()
+                d_sel_Len = d_list_tb.Lines(a).Length
+                d_current_line = a
+                decal_matrix_list(current_decal).get_decals_transform_info()
+            Catch ex As Exception
+            End Try
         End If
 
     End Sub

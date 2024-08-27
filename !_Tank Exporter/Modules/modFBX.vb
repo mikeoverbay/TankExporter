@@ -88,11 +88,8 @@ Module modFBX
         Dim i As UInt32 = 0
         Dim start_index As Integer = 0
         Dim start_vertex As Integer = 0
-        Dim tfp As String = "C:\"
-        If File.Exists(Temp_Storage + "\Fbx_in_folder.txt") Then
-            tfp = File.ReadAllText(Temp_Storage + "\Fbx_in_folder.txt")
-        End If
-        frmMain.OpenFileDialog1.InitialDirectory = tfp
+
+        frmMain.OpenFileDialog1.InitialDirectory = My.Settings.fbx_path
         frmMain.OpenFileDialog1.Filter = "AutoDesk (*.FBX)|*.fbx"
         frmMain.OpenFileDialog1.Title = "Import FBX..."
         If frmMain.OpenFileDialog1.FileName = "OpenFileDialog1" Then
@@ -101,11 +98,11 @@ Module modFBX
         If Not frmMain.OpenFileDialog1.ShowDialog = Forms.DialogResult.OK Then
             Return
         End If
-        File.WriteAllText(Temp_Storage + "\Fbx_in_folder.txt", Path.GetDirectoryName(frmMain.OpenFileDialog1.FileName))
         frmComponentView.clear_fbx_list()
         frmReverseVertexWinding.clear_group_list()
 
         My.Settings.fbx_path = Path.GetDirectoryName(frmMain.OpenFileDialog1.FileName)
+        My.Settings.Save()
         frmMain.clean_house()
         remove_loaded_fbx()
 
@@ -890,14 +887,16 @@ outahere:
                     uv_scaling.X = texture.ScaleU
                     uv_scaling.Y = texture.ScaleV
 
-                    Dim fp = Path.GetDirectoryName(frmMain.OpenFileDialog1.FileName) + "\" + texture.RelativeFileName
-                    fbxgrp(i).color_name = fix_texture_path(fp)
+                    fbxgrp(i).color_name = texture.Name
+                    If fbxgrp(i).color_name.Contains("base") Then
+                        fbxgrp(i).color_name = texture.FileName
+                    End If
                     fbxgrp(i).color_Id = -1
-                    frmMain.info_Label.Text = "Loading Texture: " + fbxgrp(i).color_name
-                    Application.DoEvents()
-                    fbxgrp(i).color_Id = get_fbx_texture(fbxgrp(i).color_name)
-                Else
-                    fbxgrp(i).color_Id = white_id
+                        frmMain.info_Label.Text = "Loading Texture: " + Path.GetFileName(fbxgrp(i).color_name)
+                        Application.DoEvents()
+                        fbxgrp(i).color_Id = get_fbx_texture(fbxgrp(i).color_name)
+                    Else
+                        fbxgrp(i).color_Id = white_id
                 End If
             Else
                 fbxgrp(i).color_Id = white_id
@@ -916,8 +915,11 @@ outahere:
             If property_ IsNot Nothing Then
                 texture = property_.GetSrcObject(FbxTexture.ClassId, 0)
                 If texture IsNot Nothing Then
-                    Dim fp = Path.GetDirectoryName(frmMain.OpenFileDialog1.FileName) + "\" + texture.RelativeFileName
-                    fbxgrp(i).normal_name = fix_texture_path(fp)
+                    fbxgrp(i).normal_name = texture.Name
+                    If fbxgrp(i).normal_name.Contains("base") Then
+                        fbxgrp(i).normal_name = texture.FileName
+                    End If
+
                     frmMain.info_Label.Text = "Loading Texture: " + fbxgrp(i).normal_name
                     Application.DoEvents()
                     fbxgrp(i).normal_Id = -1
@@ -928,8 +930,11 @@ outahere:
                     property_ = material.FindProperty(FbxSurfaceMaterial.SNormalMap)
                     texture = property_.GetSrcObject(FbxTexture.ClassId, 0)
                     If texture IsNot Nothing Then
-                        Dim fp = Path.GetDirectoryName(frmMain.OpenFileDialog1.FileName) + "\" + texture.RelativeFileName
-                        fbxgrp(i).normal_name = fix_texture_path(fp)
+
+                        fbxgrp(i).normal_name = texture.Name
+                        If fbxgrp(i).normal_name.Contains("normal") Then
+                            fbxgrp(i).normal_name = texture.FileName
+                        End If
                         frmMain.info_Label.Text = "Loading Texture: " + fbxgrp(i).normal_name
                         Application.DoEvents()
                         fbxgrp(i).normal_Id = -1
@@ -2306,10 +2311,7 @@ whichone:
                 m_(i, k) = data((i * 4) + k)
             Next
         Next
-        'm_(0, 0) *= -1.0
-        'm_(2, 0) *= -1.0
-        'm_(2, 0) *= -1.0
-        'm_(2, 2) *= -1.0
+
         m_.Decompose(scale, rot, trans)
         round_error(rot.X)
         round_error(rot.Y)
