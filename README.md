@@ -17,16 +17,19 @@ Read this Issue thread to get the fix and how to use it.</br>
 https://github.com/mikeoverbay/TankExporter/issues/23
 
 ## Version 142
-I did Lots of work.
+I did Lots of work. Updated the decal layoyt in the UI.
 Fixed issues with exporting to blender.
 Added a new FBX exporter. Its under Export/Extract.
-I added glTF exporting. This exports the textures in node shading but you'll need to edit the nodes after. I attached a image of how it needs to be done. Pay attention to values in the Math nodes!
+I added glTF exporting. glTF is a much better way of doing things in apps that supoort it, I do not have an importer yet. Soon hopefully.
+it creates the texture folder and converts the normap maps just like the FBX exporter but doesn't ask questions. It is wrote to work with blender.
+the Expoter sets up node shading but you'll need to edit the nodes after.
+I attached a image of how it needs to be done. 
 
-blender settings to export a FBX Tank Exporter can read.
+Blender settings to export a FBX Tank Exporter can read.
 <a><img src="https://tnmshouse.com/gitimages/blenderfbxsettings.png" title=" " /></a>
 
 blender node setup for glTF Tank Exporter can read.
-<a><img src="https://tnmshouse.com/gitimages/nodelayoutgltf.png" title=" " /></a>
+<a><img src="https://tnmshouse.com/gitimages/layout.png" title=" " /></a>
 
 
 ## version 141

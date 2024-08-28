@@ -520,7 +520,6 @@
       <LastGenOutput>Settings.Designer.vb</LastGenOutput>
     </None>
     <None Include="packages.config" />
-    <None Include="README.md" />
     <None Include="resources\arrow.x">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
