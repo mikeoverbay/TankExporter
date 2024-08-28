@@ -6201,6 +6201,7 @@ fuckit:
             If turrets(0) IsNot Nothing Then
                 file_name = turrets(frmComponents.tv_turrets.SelectedNode.Tag)
                 LOAD_ERROR = LOAD_ERROR And build_primitive_data(True) ' -- turret
+
                 update_log("loaded turret" + vbCrLf)
 
                 If stop_updating Then draw_scene()

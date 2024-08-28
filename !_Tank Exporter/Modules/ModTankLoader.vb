@@ -1813,6 +1813,7 @@ look_again:
                     End If
                 End If
             End If
+            filename = filename.Replace("Turret_02", "Turret_01")
 
             e = search_shared_pkgs(filename)
             If e IsNot Nothing Then
