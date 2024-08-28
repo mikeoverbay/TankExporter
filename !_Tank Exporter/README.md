@@ -25,10 +25,11 @@ it creates the texture folder and converts the normap maps just like the FBX exp
 the Expoter sets up node shading but you'll need to edit the nodes after.
 I attached a image of how it needs to be done. 
 
-blender settings to export a FBX Tank Exporter can read.
+Blender settings to export a FBX Tank Exporter can read.
 <a><img src="https://tnmshouse.com/gitimages/blenderfbxsettings.png" title=" " /></a>
 
 blender node setup for glTF Tank Exporter can read.
+<a><img src="https://tnmshouse.com/gitimages/layout.png" title=" " /></a>
 
 
 ## version 141
