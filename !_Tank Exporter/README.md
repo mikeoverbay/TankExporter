@@ -29,7 +29,7 @@ blender settings to export a FBX Tank Exporter can read.
 <a><img src="https://tnmshouse.com/gitimages/blenderfbxsettings.png" title=" " /></a>
 
 blender node setup for glTF Tank Exporter can read.
-<a><img src="https://tnmshouse.com/gitimages/nodelayoutgltf.png" title=" " /></a>
+<a><img src="https://tnmshouse.com/gitimages/layout.png" title=" " /></a>
 
 
 ## version 141
