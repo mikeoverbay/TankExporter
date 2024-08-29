@@ -16,6 +16,10 @@ I created a fix for this but it takes a little effort to use it.</br>
 Read this Issue thread to get the fix and how to use it.</br>
 https://github.com/mikeoverbay/TankExporter/issues/23
 
+## Version 143
+Fixed the tank colors in the shader. Update the help files.
+Tried to fix camo tiling on the turret.
+
 ## Version 142
 I did Lots of work. Updated the decal layoyt in the UI.
 Fixed issues with exporting to blender.

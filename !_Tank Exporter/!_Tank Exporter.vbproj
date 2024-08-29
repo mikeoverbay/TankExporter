@@ -26,8 +26,8 @@
     <UpdatePeriodically>false</UpdatePeriodically>
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
-    <ApplicationRevision>142</ApplicationRevision>
-    <ApplicationVersion>1.0.0.142</ApplicationVersion>
+    <ApplicationRevision>143</ApplicationRevision>
+    <ApplicationVersion>1.0.0.143</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
@@ -698,9 +698,6 @@
     <Content Include="html\addingmodels.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="html\editingchassis.html">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Include="html\exporting.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -909,9 +906,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="html\vertexcolors.html">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="html\visualmarkers.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="html\wotmod.html" />

@@ -7,10 +7,7 @@ Imports Aspose.ThreeD.Shading
 Imports System.Net.WebRequestMethods
 Imports System.IO
 Imports Skill.FbxSDK.FbxAxisSystem
-'Imports SharpDX.Direct3D11
-'Imports Skill.FbxSDK
-'Imports bpy
-'Imports Skill.FbxSDK
+
 
 Module mod_glTF
     Public EXPORT_TYPE As Integer = 1
@@ -225,12 +222,6 @@ Module mod_glTF
                 m1.Name = "Material00" + item.ToString
                 m1.SetProperty("Specular", 0.05)
                 m1.SetProperty("Shininess", 0.1)
-            Else
-                'm1 = New LambertMaterial()
-                'm1.AmbientColor = New Vector3(0.3, 0.3, 0.3)
-                'm1.DiffuseColor = New Vector3(0.7, 0.7, 0.7)
-
-
 
             End If
             Dim base = scene_.RootNode.CreateChildNode(model_name, m)
@@ -274,9 +265,6 @@ Module mod_glTF
             'Apply the matrix to the node
             If EXPORT_TYPE = 2 Then
 
-
-
-                'mat.m00 = tMatrix(0) * -1.0
                 Dim rs As Quaternion
                 Dim ts, ss As Vector3
                 Dim err = mat.Decompose(ts, ss, rs)
@@ -310,9 +298,6 @@ Module mod_glTF
                 If Double.IsNaN(eulerAngles.Y) Then eulerAngles.Y = 0.0
                 If Double.IsNaN(eulerAngles.Z) Then eulerAngles.Z = 0.0
 
-                'base.Transform.TransformMatrix = mat
-                ' Set the Euler angles to the node
-                'base.Transform.EulerAngles = eulerAngles
 
             Else
                 mat.m00 = tMatrix(0) * -1.0

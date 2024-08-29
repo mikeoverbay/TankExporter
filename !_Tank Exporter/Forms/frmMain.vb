@@ -5736,8 +5736,8 @@ fuckit:
             gun_tile(cnt).z = CSng(gt(2))
             gun_tile(cnt).w = CSng(gt(3))
 
-            turret_tile(cnt).x = CSng(ht(0))
-            turret_tile(cnt).y = CSng(ht(1))
+            turret_tile(cnt).x = 1.0
+            turret_tile(cnt).y = 1.0
             turret_tile(cnt).z = CSng(ht(2))
             turret_tile(cnt).w = CSng(ht(3))
 
