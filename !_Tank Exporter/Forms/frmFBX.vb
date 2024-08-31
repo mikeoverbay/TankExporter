@@ -24,7 +24,7 @@ Public Class frmFBX
                 End If
                 File.Copy(Temp_Storage + "\camouflage.png", FBX_Texture_path)
             End If
-            export_fbx_textures(ACTIVECAMO) 'export all textures
+            export_fbx_textures(ACTIVECAMO, 0) 'export all textures
         End If
         If PRIMITIVES_MODE Then
             export_primitive_fbx_textures() 'export all textures

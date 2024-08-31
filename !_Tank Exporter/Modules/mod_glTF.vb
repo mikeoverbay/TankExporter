@@ -57,7 +57,7 @@ Module mod_glTF
 
         Dim name As String = Path.GetFileName(ar(0))
         Dim save_path = Path.GetDirectoryName(My.Settings.fbx_path) + "\" + name
-        export_fbx_textures(False) 'export all textures
+        export_fbx_textures(False, 1) 'export all textures
 
         Dim scene_ As New Scene()
 

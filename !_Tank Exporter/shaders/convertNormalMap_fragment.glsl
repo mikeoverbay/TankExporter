@@ -19,7 +19,7 @@ vec4 m = texture2D(map,TC1);
     tn.xy = tn.ga*2.0-1.0;
     tn.z =  sqrt(1.0 - clamp( ((tn.x*tn.x) + (tn.y*tn.y)) ,-1.0,1.0) );
 
-    if (flip_y == 1 ) { tn.t *=-1.0; }
+    if (flip_y == 1 ) { tn.y *=-1.0; }
 
 	if (convert == 1)
 	{

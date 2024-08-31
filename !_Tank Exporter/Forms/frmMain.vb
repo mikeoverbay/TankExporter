@@ -8731,7 +8731,7 @@ skip_old_way:
                     process_tank(True)
                     Application.DoEvents()
                     file_name = tnode.Tag
-                    export_fbx_textures(False)
+                    export_fbx_textures(False, 0)
                     export_fbx()
                     If EXPORT_CAMOUFLAGE Then
                         export_camo()

@@ -153,14 +153,14 @@ Module modTextures
                             abs_name += "empty_NM_" + i.ToString
                             .normal_name = "empty_NM_" + i.ToString
                         End If
-                        save_fbx_texture(.normal_Id, abs_name, True, alpha_enabled)
+                        save_fbx_texture(.normal_Id, abs_name, True, alpha_enabled, 0)
                         'Albeto
                         abs_name = FBX_Texture_path + "\" + Path.GetFileNameWithoutExtension(.color_name)
                         If abs_name = FBX_Texture_path + "\" Then
                             abs_name += "empty_AM_" + i.ToString
                             .color_name = "empty_AM_" + i.ToString
                         End If
-                        save_fbx_texture(.color_Id, abs_name, False, alpha_enabled)
+                        save_fbx_texture(.color_Id, abs_name, False, alpha_enabled, 0)
                     End If
                 End If
             End With
@@ -215,7 +215,7 @@ Module modTextures
         stop_updating = False
 
     End Sub
-    Public Sub export_fbx_textures(ByVal AC As Boolean)
+    Public Sub export_fbx_textures(ByVal AC As Boolean, flipy As Byte)
         'If PRIMITIVES_MODE Then Return
         Dim ar() As String
         If PRIMITIVES_MODE Then
@@ -251,20 +251,20 @@ Module modTextures
                     Next
                     save_fbx_textureCamouflaged(.c_id, .ao_id, SELECTED_CAMO_BUTTON, abs_name, part)
                 Else
-                    save_fbx_texture(.c_id, abs_name, False, alpha_enabled)
+                    save_fbx_texture(.c_id, abs_name, False, alpha_enabled, flipy)
                 End If
                 'normal
                 abs_name = FBX_Texture_path + "\" + Path.GetFileNameWithoutExtension(.n_name)
-                save_fbx_texture(.n_id, abs_name, True, alpha_enabled)
+                save_fbx_texture(.n_id, abs_name, True, alpha_enabled, flipy)
                 'ao
                 abs_name = FBX_Texture_path + "\" + Path.GetFileNameWithoutExtension(.ao_name)
-                save_fbx_texture(.ao_id, abs_name, False, 0)
+                save_fbx_texture(.ao_id, abs_name, False, alpha_enabled, flipy)
                 'gmm
                 abs_name = FBX_Texture_path + "\" + Path.GetFileNameWithoutExtension(.gmm_name)
-                save_fbx_texture(.gmm_id, abs_name, False, 0)
+                save_fbx_texture(.gmm_id, abs_name, False, alpha_enabled, flipy)
                 'detail
                 abs_name = FBX_Texture_path + "\" + Path.GetFileNameWithoutExtension(.detail_name)
-                save_fbx_texture(.detail_id, abs_name, False, 0)
+                save_fbx_texture(.detail_id, abs_name, False, alpha_enabled, flipy)
 
             End With
 
@@ -726,7 +726,7 @@ save_it:
     End Sub
 
 
-    Public Sub save_fbx_texture(ByVal id As Integer, ByVal save_path As String, ByVal n_map As Boolean, alpha_enabled As Integer)
+    Public Sub save_fbx_texture(ByVal id As Integer, ByVal save_path As String, ByVal n_map As Boolean, alpha_enabled As Integer, flipy As Byte)
         If id = -1 Then Return
         frmMain.info_Label.Text = "Exporting : " + save_path + ".png"
         If File.Exists(save_path + ".png") Then ' stop saving exiting FBX textures.. It crashes 3DS Max
@@ -766,7 +766,7 @@ save_it:
         Gl.glTexEnvi(Gl.GL_TEXTURE_ENV, Gl.GL_TEXTURE_ENV_MODE, Gl.GL_REPLACE)
 
         Gl.glUseProgram(shader_list.convertNormalMap_shader)
-
+        Gl.glUniform1i(convertMap_flip_y, flipy)
         Gl.glUniform1i(convertMap_convert, 0)
         Gl.glUniform1i(convertMap_alpha_enabled, alpha_enabled)
 
