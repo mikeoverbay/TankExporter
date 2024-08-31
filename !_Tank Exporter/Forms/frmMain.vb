@@ -1339,7 +1339,7 @@ done:
             Case 1
                 acolor = "82 72 51 0" 'uk
             Case 2
-                acolor = "61 62 42 0" ' china
+                acolor = "61 62 42 0" 'china
             Case 3
                 acolor = "15 36 36 0" 'czech
             Case 4

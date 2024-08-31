@@ -11,10 +11,6 @@ Imports Skill.FbxSDK.FbxAxisSystem
 
 Module mod_glTF
     Public EXPORT_TYPE As Integer = 1
-    Public Function RadiansToDegrees(radians As Double) As Double
-        Return radians * (180.0 / Math.PI)
-    End Function
-
     Public Sub make_glTF()
 
         Dim ar() As String
@@ -66,6 +62,9 @@ Module mod_glTF
         Dim scene_ As New Scene()
 
         For item = 1 To object_count
+            If item = 23 Then
+                Stop
+            End If
             Dim off = _group(item).startVertex_
 
             Dim model_name = _group(item).name.Replace("/", "\")
@@ -148,19 +147,21 @@ Module mod_glTF
             Dim m1 As New Object
             If _group(item).color_name IsNot Nothing Then
 
-
                 ' Set up the base color texture
-                Dim tx As New Texture(save_path + "\" + Path.GetFileName(_group(item).color_name).Replace(".dds", ".png"))
+                Dim arr = _group(item).color_name.Split("\")
+                Dim DnF = name + "\" + arr(arr.Length - 1)
+                Dim tx As New Texture(DnF.Replace(".dds", ".png"))
                 tx.FileName = tx.Name
                 tx.MagFilter = TextureFilter.Linear
                 tx.MinFilter = TextureFilter.Linear
                 tx.MipFilter = TextureFilter.Anisotropic
                 tx.EnableMipMap = True
 
-                'tx.SetProperty("mix vertex color", 0.0)
 
                 ' Set up the normal texture
-                Dim txn As New Texture(save_path + "\" + Path.GetFileName(_group(item).normal_name).Replace(".dds", ".png"))
+                arr = _group(item).normal_name.Split("\")
+                DnF = name + "\" + arr(arr.Length - 1)
+                Dim txn As New Texture(DnF.Replace(".dds", ".png"))
                 txn.FileName = txn.Name
                 txn.MagFilter = TextureFilter.Linear
                 txn.MinFilter = TextureFilter.Linear
@@ -169,26 +170,26 @@ Module mod_glTF
 
 
                 ' Set up the metallic-roughness texture
-                Dim txgm As New Texture(save_path + "\" + Path.GetFileName(_group(item).metalGMM_name).Replace(".dds", ".png"))
+                arr = _group(item).metalGMM_name.Split("\")
+                DnF = name + "\" + arr(arr.Length - 1)
+                Dim txgm As New Texture(DnF.Replace(".dds", ".png"))
                 txgm.FileName = txgm.Name
-                'txgm.SetProperty("Strength", 1.0)
                 txgm.MagFilter = TextureFilter.Linear
                 txgm.MinFilter = TextureFilter.Linear
                 txgm.MipFilter = TextureFilter.Anisotropic
                 txgm.EnableMipMap = True
-                txgm.SetProperty("color invert", 0.0)
                 ' Set up the AO texture
                 Dim txao As New Texture
                 If _group(item).ao_name IsNot Nothing Then
 
-                    txao = New Texture(save_path + "\" + Path.GetFileName(_group(item).ao_name.Replace(".dds", ".png")))
-                    txao.FileName = txgm.Name
-                    'txao.SetProperty("Strength", 1.0)
+                    arr = _group(item).ao_name.Split("\")
+                    DnF = name + "\" + arr(arr.Length - 1)
+                    txao = New Texture(DnF.Replace(".dds", ".png"))
+                    txao.FileName = txao.Name
                     txao.MagFilter = TextureFilter.Linear
                     txao.MinFilter = TextureFilter.Linear
                     txao.MipFilter = TextureFilter.Anisotropic
                     txao.EnableMipMap = True
-                    txao.SetProperty("color invert", 0.0)
                 End If
 
                 Select Case EXPORT_TYPE
@@ -202,8 +203,8 @@ Module mod_glTF
                         Exit Select
                     Case 1
                         ' Create a PBR material with a base color
+
                         m1 = New PbrMaterial(co)
-                        m1.SetProperty("DoubleSided ", True)
 
                         ' Assign textures to the PBR material
                         m1.AlbedoTexture = tx
@@ -302,10 +303,12 @@ Module mod_glTF
             Else
                 mat.m00 = tMatrix(0) * -1.0
                 If _object(item).name.ToLower.Contains("turret") Then
-                    mat.m02 *= -1
-                    mat.m12 *= -1
-                    mat.m20 *= -1
-                    mat.m21 *= -1
+                    mat.m30 = tMatrix(12) * -1.0
+                    'mat.m00 = tMatrix(0) * -1.0
+                    'mat.m02 *= -1
+                    'mat.m12 *= -1
+                    'mat.m20 *= -1
+                    'mat.m21 *= -1
 
                 End If
 
