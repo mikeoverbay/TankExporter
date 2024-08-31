@@ -354,7 +354,7 @@ void main(void) {
     // The albedo may be defined from a base texture or a flat color
     vec4 baseColor = color;
 
-    baseColor.rgb = mix(baseColor.rgb, baseColor.rgb * armorcolor.rgb, AO.a);
+    baseColor.rgb = mix(baseColor.rgb, baseColor.rgb * armorcolor.rgb, GMM.b);
 
     vec3 f0 = vec3(0.04);
     vec3 diffuseColor = baseColor.rgb * (vec3(1.0) - f0);
