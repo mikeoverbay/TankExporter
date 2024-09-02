@@ -8585,10 +8585,11 @@ skip_old_way:
         If Not build_primitive_data(False) Then
             MsgBox("Primitive failed to open!", MsgBoxStyle.Exclamation, "Load Error!")
             PRIMITIVES_MODE = False
+            MODEL_LOADED = False
             m_load_textures.Checked = True
             Return
         End If
-
+        MODEL_LOADED = True
         TANK_NAME = Path.GetFileName(file_name)
         Me.Text = TANK_NAME
         m_hide_show_components.Enabled = True
