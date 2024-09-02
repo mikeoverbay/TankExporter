@@ -525,10 +525,8 @@ done:
         G_Buffer.init()
         pb1.Visible = False
         '---------------------------------------------------------------------------------------------------------------------
-        m_export_tank_list.Visible = False
         m_load_file.Visible = False
         m_save.Visible = False
-        m_clear_selected_tanks.Visible = False
         m_build_wotmod.Enabled = False
         m_hide_show_components.Enabled = False
         m_set_vertex_winding_order.Enabled = False
@@ -757,6 +755,15 @@ done:
         End If
 
 
+        '====================================================================================================
+        'get xml lookup table
+        If Not Load_partList() Then
+            MsgBox("unable to find look up XMLdata.xml", MsgBoxStyle.Critical, "Missing File!")
+            update_log("XMLdata.file not found" + vbCrLf)
+        Else
+            update_log("XMLdata.file found and xmlPartList built" + vbCrLf)
+
+        End If
         '====================================================================================================
         tank_label.Parent = iconbox
         tank_label.Text = ""
@@ -2081,7 +2088,7 @@ loaded_jump:
             node_list(i).item(cnt).node = n
             node_list(i).item(cnt).package = packages(i).Name
             icons(i).img(cnt) = New entry_
-            icons(i).img(cnt).img = get_tank_icon(n.Text).Clone
+            icons(i).img(cnt).img = get_tank_icon(n.Text + ".").Clone
             icons(i).img(cnt).name = t.tag
             If icons(i).img(cnt) IsNot Nothing Then
                 node_list(i).item(cnt).icon = icons(i).img(cnt).img.Clone
@@ -2109,50 +2116,27 @@ loaded_jump:
     End Sub
 
     Private Function get_file_path(ByVal i As String) As String
-        Dim ext As String = "-part1.pkg"
-        If i < 5 Then
-            ext = ".pkg"
-        End If
-        Dim cnt As Integer = 0
-        Dim fpath = My.Settings.game_path + "/res/packages/vehicles_level_" + String.Format("{0:00}", i) + ext
-        If File.Exists(fpath) Then
-            update_log("Getting Tank data from: " + fpath)
-        Else
-            update_log("Could not find: " + fpath)
-        End If
-        Dim fpath_1 = My.Settings.game_path + "/res/packages/vehicles_level_" + String.Format("{0:00}", i) + "_hd" + ext
-        If File.Exists(fpath_1) Then
-            update_log("Getting Tank data from: " + fpath_1)
-        Else
-            'todo
-        End If
-        fpath = My.Settings.game_path + "/res/packages/vehicles_level_" + String.Format("{0:00}", i) + "-part2.pkg"
-        If File.Exists(fpath) Then
-            update_log("Getting Tank data from: " + fpath)
-        Else
-            'update_log("Could not find: " + fpath)
-            'Return
-        End If
-        fpath = My.Settings.game_path + "/res/packages/vehicles_level_" + String.Format("{0:00}", i) + "-part3.pkg"
-        If File.Exists(fpath) Then
-            update_log("Getting Tank data from: " + fpath)
-        Else
-            'update_log("Could not find: " + fpath)
-            'Return
-        End If
-        fpath_1 = My.Settings.game_path + "/res/packages/vehicles_level_" + String.Format("{0:00}", i) + "_hd-part2.pkg"
-        If File.Exists(fpath_1) Then
-            update_log("Getting Tank data from: " + fpath_1)
-        Else
-            'todo
-        End If
-        fpath_1 = My.Settings.game_path + "/res/packages/vehicles_level_" + String.Format("{0:00}", i) + "_hd-part3.pkg"
-        If File.Exists(fpath_1) Then
-            update_log("Getting Tank data from: " + fpath_1)
-        Else
-            'todo
-        End If
-        Return fpath
+        Dim ext As String = If(i < 5, ".pkg", "-part1.pkg")
+        Dim basePath As String = My.Settings.game_path + "/res/packages/vehicles_level_" + String.Format("{0:00}", i)
+        Dim filePaths As New List(Of String) From {
+        basePath + ext,
+        basePath + "_hd" + ext,
+        basePath + "-part2.pkg",
+        basePath + "-part3.pkg",
+        basePath + "_hd-part2.pkg",
+        basePath + "_hd-part3.pkg"
+    }
+
+        For Each fpath In filePaths
+            If File.Exists(fpath) Then
+                update_log("Getting Tank data from: " + fpath)
+            Else
+                update_log("Could not find: " + fpath)
+            End If
+        Next
+
+        ' Return the last checked path or modify as needed
+        Return filePaths.Last()
     End Function
 
 
@@ -2393,52 +2377,26 @@ loaded_jump:
     End Function
 
     Private Function get_tank_icon(ByVal name As String) As Bitmap
+        Dim lowerName As String = name.ToLower()
+        Dim allEntries = gui_pkg_part_1.Concat(gui_pkg_part_2).Concat(gui_pkg_part_3)
 
-        For Each entry In gui_pkg_part_1
-            If entry.FileName.ToLower.Contains(name.ToLower) And entry.FileName.Contains("/icons/vehicle/") _
-            And Not entry.FileName.Contains("small") _
-            And Not entry.FileName.Contains("contour") _
-            And Not entry.FileName.Contains("unique") _
-            And Not entry.FileName.Contains("library") _
-                Then
-                Dim ms As New MemoryStream
-                entry.Extract(ms)
-                If ms IsNot Nothing Then
-                    current_png_path = entry.FileName
-                    Return get_png(ms).Clone
-                End If
+        Dim filteredEntries = From entry In allEntries
+                              Where entry.FileName.ToLower().Contains(lowerName) _
+                          And entry.FileName.Contains("/icons/vehicle/") _
+                          And Not entry.FileName.Contains("small") _
+                          And Not entry.FileName.Contains("contour") _
+                          And Not entry.FileName.Contains("unique") _
+                          And Not entry.FileName.Contains("library")
+
+        For Each entry In filteredEntries
+            Dim ms As New MemoryStream()
+            entry.Extract(ms)
+            If ms IsNot Nothing Then
+                current_png_path = entry.FileName
+                Return get_png(ms).Clone()
             End If
         Next
-        For Each entry In gui_pkg_part_2
-            If entry.FileName.ToLower.Contains(name.ToLower) And entry.FileName.Contains("/icons/vehicle/") _
-            And Not entry.FileName.Contains("small") _
-            And Not entry.FileName.Contains("contour") _
-            And Not entry.FileName.Contains("unique") _
-            And Not entry.FileName.Contains("library") _
-                Then
-                Dim ms As New MemoryStream
-                entry.Extract(ms)
-                If ms IsNot Nothing Then
-                    current_png_path = entry.FileName
-                    Return get_png(ms).Clone
-                End If
-            End If
-        Next
-        For Each entry In gui_pkg_part_3
-            If entry.FileName.ToLower.Contains(name.ToLower) And entry.FileName.Contains("/icons/vehicle/") _
-            And Not entry.FileName.Contains("small") _
-            And Not entry.FileName.Contains("contour") _
-            And Not entry.FileName.Contains("unique") _
-            And Not entry.FileName.Contains("library") _
-                Then
-                Dim ms As New MemoryStream
-                entry.Extract(ms)
-                If ms IsNot Nothing Then
-                    current_png_path = entry.FileName
-                    Return get_png(ms).Clone
-                End If
-            End If
-        Next
+
         Return Nothing
     End Function
 
@@ -10103,4 +10061,31 @@ load_script:
         make_glTF()
     End Sub
 
+
+    ' Function to open a web page
+    Public Sub OpenWebPage(ByVal url As String)
+        Try
+            Process.Start(url)
+        Catch ex As Exception
+            MessageBox.Show("Failed to open the web page: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+        End Try
+    End Sub
+
+    Private Sub m_forums_Click(sender As Object, e As EventArgs) Handles m_forums.Click
+        Dim url As String = "https://tnmshouse.com"
+        OpenWebPage(url)
+    End Sub
+
+    Private Sub m_hide_right_plane_Click(sender As Object, e As EventArgs) Handles m_hide_right_plane.Click
+
+        SplitContainer1.Panel2Collapsed = Not SplitContainer1.Panel2Collapsed
+        G_Buffer.init()
+
+        relocate_season_Bottons()
+        relocate_camobuttons()
+        relocate_tankbuttons()
+        relocate_texturebuttons()
+
+        Application.DoEvents()
+    End Sub
 End Class

@@ -446,6 +446,16 @@ Module ModTankLoader
 
 #End Region
     Public Function search_shared_pkgs(ss As String) As ZipEntry
+        Dim pkName = Find_entry(ss)
+        If Not String.IsNullOrEmpty(pkName) Then
+            Using zipf As ZipFile = New ZipFile(Path.GetDirectoryName(shared_pkg_search_list(0)) + "\" + pkName)
+                Dim entry As ZipEntry = zipf(ss)
+                If entry IsNot Nothing Then
+                    Return entry
+                End If
+            End Using
+        End If
+
         For Each f In shared_pkg_search_list
             Using zipf As New ZipFile(f)
                 For Each entry In zipf

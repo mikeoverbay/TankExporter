@@ -26,8 +26,8 @@
     <UpdatePeriodically>false</UpdatePeriodically>
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
-    <ApplicationRevision>143</ApplicationRevision>
-    <ApplicationVersion>1.0.0.143</ApplicationVersion>
+    <ApplicationRevision>144</ApplicationRevision>
+    <ApplicationVersion>1.0.0.144</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
@@ -323,6 +323,7 @@
     </Compile>
     <Compile Include="Modules\blurFBO.vb" />
     <Compile Include="Modules\modBloom.vb" />
+    <Compile Include="Modules\mod_FindTankParts.vb" />
     <Compile Include="Modules\mod_glTF.vb" />
     <Compile Include="Modules\modDecals.vb" />
     <Compile Include="Modules\modFBX.vb" />
@@ -936,6 +937,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="resources\upton_BnW.jpg" />
+    <Content Include="resources\XMLdata\TheItemList.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Templates\dummy_AO.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

@@ -1457,6 +1457,16 @@ save_it:
         If Not frmExtract.ext_gun.Checked And ss.Contains("gun") Then
             Return True
         End If
+        Dim pkName = Find_entry(ss)
+        If Not String.IsNullOrEmpty(pkName) Then
+            Using zipf As ZipFile = New ZipFile(Path.GetDirectoryName(shared_pkg_search_list(0)) + "\" + pkName)
+                Dim entry As ZipEntry = zipf(ss)
+                If entry IsNot Nothing Then
+                    entry.Extract(My.Settings.res_mods_path + "\", ExtractExistingFileAction.DoNotOverwrite)
+                    Return True
+                End If
+            End Using
+        End If
 
         For Each f In tank_pkg_search_list
             Using zipf As New ZipFile(f)
@@ -1495,7 +1505,15 @@ save_it:
         If Not frmExtract.ext_gun.Checked And ss.Contains("gun") Then
             Return Nothing
         End If
-
+        Dim pkName = Find_entry(ss)
+        If Not String.IsNullOrEmpty(pkName) Then
+            Using zipf As ZipFile = New ZipFile(Path.GetDirectoryName(shared_pkg_search_list(0)) + "\" + pkName)
+                Dim entry As ZipEntry = zipf(ss)
+                If entry IsNot Nothing Then
+                    Return entry
+                End If
+            End Using
+        End If
         For Each f In tank_pkg_search_list
             Using zipf As New ZipFile(f)
                 For Each entry In zipf
@@ -1520,6 +1538,27 @@ save_it:
         'This does NOT overwrite existing files.
         Dim pp = p.Replace(My.Settings.res_mods_path + "\", "") ' strip res_mods path off head of file name
         Dim ss = pp.ToLower.Replace("\", "/")
+
+        Dim pkName = Find_entry(ss)
+        If Not String.IsNullOrEmpty(pkName) Then
+            Using zipf As ZipFile = New ZipFile(Path.GetDirectoryName(shared_pkg_search_list(0)) + "\" + pkName)
+                Dim entry As ZipEntry = zipf(ss)
+                If entry IsNot Nothing Then
+                    entry.Extract(My.Settings.res_mods_path + "\", ExtractExistingFileAction.DoNotOverwrite)
+                    Return True
+                End If
+            End Using
+        End If
+
+        If Not String.IsNullOrEmpty(pkName) Then
+            Using zipf As ZipFile = New ZipFile(Path.GetDirectoryName(shared_pkg_search_list(0)) + "\" + pkName)
+                Dim entry As ZipEntry = zipf(ss)
+                If entry IsNot Nothing Then
+                    entry.Extract(My.Settings.res_mods_path + "\", ExtractExistingFileAction.DoNotOverwrite)
+                    Return True
+                End If
+            End Using
+        End If
         For Each f In pkg_search_list
             Using zipf As New ZipFile(f)
                 For Each entry In zipf

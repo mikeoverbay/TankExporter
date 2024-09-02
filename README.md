@@ -16,6 +16,15 @@ I created a fix for this but it takes a little effort to use it.</br>
 Read this Issue thread to get the fix and how to use it.</br>
 https://github.com/mikeoverbay/TankExporter/issues/23
 
+## Version 144
+Fixed the wrong tank icon being shown for some tanks. IE Type59
+Added a button to hide the right tank selection window.
+Speed up tank loading by adding a prebuilt data table.
+Added a button to load the forums in your defaut web browser.
+Made the rendering a little bit more like the game.
+Fixed a few minor bugs.
+
+
 ## Version 143
 Fixed the tank colors in the shader. Update the help files.
 Tried to fix camo tiling on the turret.
@@ -35,6 +44,7 @@ Blender settings to export a FBX Tank Exporter can read.
 blender node setup for glTF Tank Exporter can read.
 <a><img src="https://tnmshouse.com/gitimages/layout.png" title=" " /></a>
 
+[Join The Forums](https://tnmshouse.com)
 
 ## version 141
 Merged tank search function by TuNguyen227.

@@ -304,12 +304,6 @@ Module mod_glTF
                 mat.m00 = tMatrix(0) * -1.0
                 If _object(item).name.ToLower.Contains("turret") Then
                     mat.m30 = tMatrix(12) * -1.0
-                    'mat.m00 = tMatrix(0) * -1.0
-                    'mat.m02 *= -1
-                    'mat.m12 *= -1
-                    'mat.m20 *= -1
-                    'mat.m21 *= -1
-
                 End If
 
                 base.Transform.TransformMatrix = mat
