@@ -30,7 +30,6 @@ _ReSharper*/
 *.vssscc
 $tf*/
 /.vs
-/!_Tank Exporter.sln - Shortcut.lnk
-/!_Tank Exporter/Forms/frmMain.vb
-/!_Tank Exporter/Forms/frmMain.resx
-/!_Tank Exporter/Forms/frmMain.Designer.vb
+
+
+*.msi
