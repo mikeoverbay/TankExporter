@@ -753,7 +753,10 @@ Public Class frmTextureViewer
 
     Private Sub m_save_image_Click(sender As Object, e As EventArgs) Handles m_save_image.Click
         ToolStrip1.Enabled = False
-        frmMain.update_thread.Suspend()
+
+        ' Signal the update thread to pause
+        updateEvent.Reset()
+
         Dim top_most = m_top_most.Checked
         m_top_most.Checked = False
         frmScaleUVexport.doit = False 'set flag
@@ -761,13 +764,15 @@ Public Class frmTextureViewer
         m_top_most.Checked = top_most
         If frmScaleUVexport.doit = False Then ' exited form?
             ToolStrip1.Enabled = True
-            frmMain.update_thread.Resume()
+            ' Resume the update thread by setting the event
+            updateEvent.Set()
             Return
         End If
         'My.Settings.Save()
         If Not SaveFileDialog1.ShowDialog = Forms.DialogResult.OK Then
             ToolStrip1.Enabled = True
-            frmMain.update_thread.Resume()
+            ' Resume the update thread by setting the event
+            updateEvent.Set()
 
             Return
         End If
@@ -818,8 +823,8 @@ Public Class frmTextureViewer
         draw()
         draw()
         ToolStrip1.Enabled = True
-        frmMain.update_thread.Resume()
-
+        ' Resume the update thread by setting the event
+        updateEvent.Set()
     End Sub
     Public Function buffer_to_IL_ID() As Integer
 

@@ -32,6 +32,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
 
 Module modDecals
     Public current_decal As Integer = -1
+    Public cur_selected_decal As Integer = -1
     Public picked_decal As Integer = 0
     Public decal_order() As Integer
 
@@ -431,7 +432,6 @@ Module modDecals
     Public Sub load_this_Decal(ByVal j As Integer)
         If decal_textures(j).colorMap_Id = 0 Then
             Try
-
                 Dim name As String = decal_textures(j).full_path
                 decal_textures(j).colorMap_Id = load_dds_file(name)
                 Dim ts = name.Replace("_AM.dds", "_NM.dds")
@@ -442,47 +442,17 @@ Module modDecals
 
             End Try
         End If
-
-
-
     End Sub
     Public Sub load_decal_textures()
         If My.Settings.stop_loading_decals Then Return
 
-        Dim dPath As String = decal_path + "\maps\decals_pbs\"
+        Dim dPath As String = decal_path + "\resources\decals\"
         Dim dir_info() As String = Nothing
         Try
             dir_info = Directory.GetFiles(dPath)
         Catch ex As Exception
-            If MsgBox("It looks like the decals folder is missing" + vbCrLf + "from the wot_temp folder!" + vbCrLf +
-                       "I will clear all the data and restart Tank" + vbCrLf + "Exorter to rebuild the missing folder." + vbCrLf +
-                       "Continue?", MsgBoxStyle.YesNo, "Decal Folder is Missing!") = MsgBoxResult.Yes Then
-                _Started = False
-                While frmMain.update_thread.IsAlive
-                    Application.DoEvents()
-                End While
-                Dim f As DirectoryInfo = New DirectoryInfo(Temp_Storage)
-                GC.Collect()
-                GC.WaitForFullGCComplete()
-                If f.Exists Then
-                    For Each fi In f.GetFiles
-                        If fi.Name.Contains("Path.txt") Then
-                        Else
-                            fi.Delete()
-
-                        End If
-                    Next
-                End If
-                Try
-                    f.Delete()
-                Catch ex2 As Exception
-                End Try
-                DisableOpenGL()
-                Application.Restart()
-                End
-            Else
-                End
-            End If
+            MsgBox("decals not found", vbCritical, "missing decals")
+            End
         End Try
         Dim f_cnt = dir_info.Count
         Dim c_names(f_cnt) As String

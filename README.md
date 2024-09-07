@@ -1,6 +1,7 @@
 # Tank Exporter
 
 ## A tool to export Tanks from World of Tanks.
+You will need to[Join The Forums](https://tnmshouse.com) to get the app! 
 <a><img src="https://i.imgur.com/OZTVPZr.png" title="source: imgur.com" /></a>
 
 ## This is an ongoing project by me.. Coffee_
@@ -18,6 +19,17 @@ https://github.com/mikeoverbay/TankExporter/issues/23
 
 [Join The Forums](https://tnmshouse.com)
 
+## version 145
+Fixed loading primtives directly. Shaders are broken for atlas textureing. Thanks WG for changing everything again.
+Addded a decal viewer for working with making a decal layout for the terrian.
+
+Speed up loading the tanks.
+This is used to load the tank data much faster than searching all the pkg files.
+
+Fixed tanks that are on the API server for common test but not in the released version of the game. It will show a thump nail telling you its a common test and un loadable. Trying will hang the app :)
+
+Added a tool to rebuild the "look up XML" if its out of data. You only needed to use it when they change the tanks.
+I added the decal textures to the build so they don't go missing because of windows auto cleaing up the temp folder.
 
 ## Version 144
 Fixed the wrong tank icon being shown for some tanks. IE Type59

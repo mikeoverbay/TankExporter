@@ -1,11 +1,8 @@
 ﻿#Region "imports"
-Imports System.Configuration
+
 Imports System.Globalization
 Imports System.IO
 Imports System.Math
-Imports System.Runtime.CompilerServices
-Imports System.Runtime.InteropServices
-Imports System.Runtime.Remoting.Messaging
 Imports System.Text
 Imports System.Threading
 Imports System.Windows
@@ -570,7 +567,7 @@ done:
         '====================================================================================================
         ' Setup loaction for tank data.. sucks to do it this way but UAC wont allow it any other way.
         'I'M SAVING ALL CODE RELATED TO THE OLD TANK LIST IN CASE I WORK ON TERRA AGAIN!
-        decal_path = Temp_Storage
+        decal_path = Application.StartupPath
 
         TankListTempFolder = Temp_Storage + "\tanklist\"
         If Not System.IO.Directory.Exists(TankListTempFolder) Then
@@ -639,7 +636,7 @@ done:
                 gui_pkg_part_1 = New Ionic.Zip.ZipFile(My.Settings.game_path + "\res\packages\gui-part1.pkg")
                 gui_pkg_part_2 = New Ionic.Zip.ZipFile(My.Settings.game_path + "\res\packages\gui-part2.pkg")
                 gui_pkg_part_3 = New Ionic.Zip.ZipFile(My.Settings.game_path + "\res\packages\gui-part3.pkg")
-                update_log("Loaded: " + My.Settings.game_path + "\res\packages\gui.pkg")
+                update_log("Loaded: " + My.Settings.game_path + "\res\packages\gui.pkgs")
 
                 scripts_pkg = New Ionic.Zip.ZipFile(My.Settings.game_path + "\res\packages\scripts.pkg")
                 update_log("Loaded: " + My.Settings.game_path + "\res\packages\scripts.pkg")
@@ -655,6 +652,8 @@ done:
                 My.Settings.Save()
                 End
             End Try
+
+
             '====================================================================================================
             'MsgBox("I LOADED required pkg files!", MsgBoxStyle.Exclamation, "Error!")
             'Try
@@ -670,89 +669,6 @@ done:
             '====================================================================================================
 
         End If
-        If Not My.Settings.stop_loading_decals Then
-
-            Directory.CreateDirectory(decal_path)
-            Dim arc = Ionic.Zip.ZipFile.Read(My.Settings.game_path + "\res\packages\shared_content-part1.pkg")
-            Try
-
-                info_Label.Text = "getting decals from shared_content pkgs"
-                For Each entry In arc
-
-                    If entry.FileName.ToLower.Contains("decals_pbs") Then
-                        entry.Extract(decal_path, ExtractExistingFileAction.OverwriteSilently)
-                        Application.DoEvents()
-                    End If
-                Next
-                arc = Ionic.Zip.ZipFile.Read(My.Settings.game_path + "\res\packages\shared_content-part2.pkg")
-                For Each entry In arc
-
-                    If entry.FileName.ToLower.Contains("decals_pbs") Then
-                        entry.Extract(decal_path, ExtractExistingFileAction.OverwriteSilently)
-                        Application.DoEvents()
-                    End If
-                Next
-                arc = Ionic.Zip.ZipFile.Read(My.Settings.game_path + "\res\packages\shared_content-part3.pkg")
-                For Each entry In arc
-
-                    If entry.FileName.ToLower.Contains("decals_pbs") Then
-                        entry.Extract(decal_path, ExtractExistingFileAction.OverwriteSilently)
-                        Application.DoEvents()
-                    End If
-                Next
-                arc = Ionic.Zip.ZipFile.Read(My.Settings.game_path + "\res\packages\208_bf_epic_normandy.pkg")
-                For Each entry In arc
-
-                    If entry.FileName.ToLower.Contains("decals_pbs") Then
-                        entry.Extract(decal_path, ExtractExistingFileAction.OverwriteSilently)
-                        Application.DoEvents()
-                    End If
-                Next
-                arc = Ionic.Zip.ZipFile.Read(My.Settings.game_path + "\res\packages\07_lakeville.pkg")
-                For Each entry In arc
-
-                    If entry.FileName.ToLower.Contains("decals_pbs") Then
-                        entry.Extract(decal_path, ExtractExistingFileAction.OverwriteSilently)
-                        Application.DoEvents()
-                    End If
-                Next
-                arc = Ionic.Zip.ZipFile.Read(My.Settings.game_path + "\res\packages\19_monastery.pkg")
-                For Each entry In arc
-
-                    If entry.FileName.ToLower.Contains("decals_pbs") Then
-                        entry.Extract(decal_path, ExtractExistingFileAction.OverwriteSilently)
-                        Application.DoEvents()
-                    End If
-                Next
-                '---------------------
-                arc = Ionic.Zip.ZipFile.Read(My.Settings.game_path + "\res\packages\shared_content_hd-part1.pkg")
-                For Each entry In arc
-
-                    If entry.FileName.ToLower.Contains("decals_pbs") Then
-                        entry.Extract(decal_path, ExtractExistingFileAction.OverwriteSilently)
-                        Application.DoEvents()
-                    End If
-                Next
-                arc = Ionic.Zip.ZipFile.Read(My.Settings.game_path + "\res\packages\shared_content_hd-part2.pkg")
-                For Each entry In arc
-
-                    If entry.FileName.ToLower.Contains("decals_pbs") Then
-                        entry.Extract(decal_path, ExtractExistingFileAction.OverwriteSilently)
-                        Application.DoEvents()
-                    End If
-                Next
-
-                arc = Ionic.Zip.ZipFile.Read(My.Settings.game_path + "\res\packages\shared_content_hd-part3.pkg")
-                For Each entry In arc
-
-                    If entry.FileName.ToLower.Contains("decals_pbs") Then
-                        entry.Extract(decal_path, ExtractExistingFileAction.OverwriteSilently)
-                        Application.DoEvents()
-                    End If
-                Next
-            Catch ex As Exception
-            End Try
-        End If
 
 
         '====================================================================================================
@@ -764,6 +680,7 @@ done:
             update_log("XMLdata.file found and xmlPartList built" + vbCrLf)
 
         End If
+
         '====================================================================================================
         tank_label.Parent = iconbox
         tank_label.Text = ""
@@ -2396,7 +2313,15 @@ loaded_jump:
                 Return get_png(ms).Clone()
             End If
         Next
+        update_log("***************** Tankl Icon Missing: " + name)
+        Dim fPath As String = Application.StartupPath + "\resources\blue.png"
+        Dim fileBytes As Byte() = File.ReadAllBytes(fPath)
+        Dim ms2 As New MemoryStream(fileBytes)
 
+        If ms2 IsNot Nothing Then
+            current_png_path = fPath
+            Return get_png(ms2).Clone
+        End If
         Return Nothing
     End Function
 
@@ -5246,6 +5171,7 @@ fuckit:
         Dim y_scaler As Single = 1.0!
         Dim l_radius As Single = 0.0!
         While _Started
+            updateEvent.WaitOne()
             need_update()
             'scale light based on mode
             If PRIMITIVES_MODE Then
@@ -5616,6 +5542,7 @@ fuckit:
 
         Application.DoEvents()
         If t.Tables.Count = 0 Then
+            WORKING = False
             Return False
         End If
         '-----------------------------------
@@ -7575,7 +7502,10 @@ skip_old_way:
     End Sub
 
     Public Sub find_icon_image(ByVal in_s As String)
-
+        'hack
+        If in_s Is Nothing Then
+            Return
+        End If
         '1
         For Each n As TreeNode In TreeView1.Nodes
             If in_s.Contains(n.Text + ":") Then
@@ -8317,27 +8247,28 @@ skip_old_way:
     End Sub
 
     Private Sub m_sel_texture_Click(sender As Object, e As EventArgs) Handles m_sel_texture.Click
-        If current_decal < 0 Then Return
-        If t_list Is Nothing Then ' create text box and fill it with all the texture names if it hasn't been created already.
-            t_list = New TextBox
-            t_list.Multiline = True
-            t_list.Parent = decal_panel
-            t_list.Width = d_list_tb.Width
-            t_list.Height = d_list_tb.Height
-            t_list.Location = d_list_tb.Location
-            t_list.Anchor = AnchorStyles.Bottom Or AnchorStyles.Top Or AnchorStyles.Left Or AnchorStyles.Right
-            t_list.ForeColor = d_list_tb.ForeColor
-            t_list.BackColor = d_list_tb.BackColor
-            t_list.Font = d_list_tb.Font
-            t_list.ScrollBars = ScrollBars.Vertical
-            For j = 0 To decal_textures.Length - 1
-                t_list.Text += decal_textures(j).colorMap_name + " :" + j.ToString + vbCrLf
-            Next
-            AddHandler t_list.Click, AddressOf handle_t_click
+        ' Create and show the showDecals form
+
+        Dim decalsForm As showDecals = showDecals.GetInstance()
+        cur_selected_decal = current_decal
+        decalsForm.AppCalled = False
+        Dim id As Integer = decalsForm.ShowDialogAndGetImageId()
+        If id > -1 Then
+            current_decal_lable.Text = current_decal.ToString
+            Try
+                load_this_Decal(id)
+                decal_matrix_list(current_decal).decal_texture = decal_textures(id).colorMap_name
+                decal_matrix_list(current_decal).texture_id = decal_textures(id).colorMap_Id
+                decal_matrix_list(current_decal).normal_id = decal_textures(id).normalMap_Id
+                decal_matrix_list(current_decal).gmm_id = decal_textures(id).gmmMap_id
+                d_texture_name.Text = decal_matrix_list(current_decal).decal_texture
+            Catch ex As Exception
+            End Try
+        Else
+            Return
         End If
-        t_list.BringToFront()
-        d_list_tb.SendToBack()
-        current_decal_lable.Text = current_decal.ToString
+
+
     End Sub
 
     Private Sub m_delete_Click(sender As Object, e As EventArgs) Handles m_delete.Click
@@ -8488,7 +8419,7 @@ skip_old_way:
     End Sub
 
     Private Sub m_donate_Click(sender As Object, e As EventArgs) Handles m_donate.Click
-        'Process.Start(Application.StartupPath + "\html\donate.html")
+        Process.Start("https://www.paypal.com/donate/?hosted_button_id=HVRUCWXVKRJ26")
 
     End Sub
 
@@ -8865,7 +8796,7 @@ outta_here:
             d_current_line = 0
         Else
             Dim d = t_list.SelectedText.Split(":")
-            Dim id = CInt(d(1))
+            Dim id = current_decal
             load_this_Decal(id)
             decal_matrix_list(current_decal).decal_texture = decal_textures(id).colorMap_name
             decal_matrix_list(current_decal).texture_id = decal_textures(id).colorMap_Id
@@ -10088,5 +10019,9 @@ load_script:
         relocate_texturebuttons()
 
         Application.DoEvents()
+    End Sub
+
+    Private Sub m_rebuild_XML_Click(sender As Object, e As EventArgs) Handles m_rebuild_XML.Click
+        frmXMLbuilder.ShowDialog()
     End Sub
 End Class

@@ -360,7 +360,7 @@ found_it:
     End Sub
 
     Public Sub write_chassis_primitives(id)
-        Dim i, j As UInt32
+        Dim i As UInt32
         If False Then ' set true to write out comparision file
 
             Dim tb As New StringBuilder
@@ -390,7 +390,6 @@ found_it:
             Return
         End If
 
-        Dim tsa() As Char
         Dim dummy As UInt32 = 0
         'Return
         Dim table(20000) As Byte

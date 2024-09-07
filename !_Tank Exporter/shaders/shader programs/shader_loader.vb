@@ -688,7 +688,7 @@ Module shader_loader
     End Sub
     Public textureNormalBuilder_atlasAM, textureNormalBuilder_atlasBlend As Integer
     Public textureNormalBuilder_repeat, textureNormalBuilder_atlasSize, textureNormalBuilder_indexes As Integer
-    Public textureNormalBuilder_convert, textureNormalBuilder_flip_y As Integer
+    Public textureNormalBuilder_convert As Integer
     '==============================================================================================================
     Public Sub set_textureNormalBuilder_variables()
         textureNormalBuilder_atlasAM = Gl.glGetUniformLocation(shader_list.textureNormalBuilder_shader, "atlasMap")
@@ -699,7 +699,6 @@ Module shader_loader
         textureNormalBuilder_indexes = Gl.glGetUniformLocation(shader_list.textureNormalBuilder_shader, "atlas_indexes")
 
         textureNormalBuilder_convert = Gl.glGetUniformLocation(shader_list.textureNormalBuilder_shader, "convert")
-        textureNormalBuilder_flip_y = Gl.glGetUniformLocation(shader_list.textureNormalBuilder_shader, "flip_y")
 
     End Sub
 

@@ -216,7 +216,7 @@ Module modTextures
 
     End Sub
     Public Sub export_fbx_textures(ByVal AC As Boolean, flipy As Byte)
-        'If PRIMITIVES_MODE Then Return
+
         Dim ar() As String
         If PRIMITIVES_MODE Then
             ar = Path.GetFileNameWithoutExtension(frmMain.OpenFileDialog1.FileName).Split("~")
@@ -590,12 +590,6 @@ save_it:
             Gl.glUniform1i(textureNormalBuilder_convert, 1)
         Else
             Gl.glUniform1i(textureNormalBuilder_convert, 0)
-        End If
-
-        If frmFBX.flip_normal_cb.Checked Then
-            Gl.glUniform1i(textureNormalBuilder_flip_y, 1)
-        Else
-            Gl.glUniform1i(textureNormalBuilder_flip_y, 0)
         End If
 
         Gl.glActiveTexture(Gl.GL_TEXTURE0 + 0)

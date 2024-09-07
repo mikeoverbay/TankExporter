@@ -211,9 +211,10 @@ Module modFBO
         Public Function init() As Boolean
             If Not _Started Then Return False
             pan_location = 0
-            If frmMain.update_thread.IsAlive Then
-                frmMain.update_thread.Suspend()
-            End If
+
+            ' Signal the update thread to pause
+            updateEvent.Reset()
+
             Threading.Thread.Sleep(50)
             Dim SCR_WIDTH, SCR_HEIGHT As Integer
             getsize(SCR_WIDTH, SCR_HEIGHT)
@@ -256,9 +257,9 @@ Module modFBO
 
 
             Gl.glBindFramebufferEXT(Gl.GL_FRAMEBUFFER_EXT, 0)
-            If frmMain.update_thread.IsAlive Then
-                frmMain.update_thread.Resume()
-            End If
+
+            ' Resume the update thread by setting the event
+            updateEvent.Set()
 
             Return True
         End Function

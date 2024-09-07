@@ -9,7 +9,6 @@ uniform vec4 atlas_indexes; // cell selection in Atlas X,Y,Z and A
 uniform vec2 image_size;
 
 uniform int convert;
-uniform int flip_y;
 
 uniform vec2 UV_tiling; //how many times the texture repetes
 
@@ -119,7 +118,7 @@ void main(void){
     tn.xy = tn.ga*2.0-1.0;
     tn.z =  sqrt(1.0 - clamp( ((tn.x*tn.x) + (tn.y*tn.y)) ,-1.0,1.0) );
 
-    if (flip_y==1) { tn.y *= -1.0; }
+    tn.y *= -1.0;
 
 	if (convert == 1)
 	{

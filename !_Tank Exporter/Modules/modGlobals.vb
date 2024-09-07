@@ -3,6 +3,9 @@ Imports System.IO
 Imports System.Data.SqlTypes
 
 Module modGlobals
+    Public updateEvent As New Threading.ManualResetEvent(True) ' Starts in signaled state
+
+
     Public AMD_ As Boolean = False
     Public UV2s() As vec2
     Public LOADING_FBX As Boolean = False
@@ -42,8 +45,8 @@ Module modGlobals
     Public tank_pkg_search_list() As String
     Public shared_pkg_search_list() As String
 
-
     Public atlas_images_coords() As atlas_image_data_
+
     'Public atlas_textures_ids As atlas_texture_ids_
     'Public am_atlas_index_array() As int_coords_
 
