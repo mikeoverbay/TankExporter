@@ -24,7 +24,7 @@
         name = name.Replace("\", "/")
         If xmlPartList IsNot Nothing Then
             For Each row As DataRow In xmlPartList.Rows
-                If row("filename").ToString() = name Then
+                If row("filename").ToString().ToLower = name.ToLower Then
                     Return row("package").ToString()
                 End If
             Next

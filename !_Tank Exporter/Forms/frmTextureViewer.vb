@@ -83,9 +83,9 @@ Public Class frmTextureViewer
                 If current_vertex > 0 Then
                     If frmMain.m_show_fbx.Checked Then
                         Dim cv As Integer = CInt((current_vertex - 1) * 3)
-                        Dim p1 = fbxgrp(current_tank_part).indicies(cv + 0).v1
-                        Dim p2 = fbxgrp(current_tank_part).indicies(cv + 1).v1
-                        Dim p3 = fbxgrp(current_tank_part).indicies(cv + 1).v1
+                        Dim p1 = fbxgrp(current_tank_part).indices(cv + 0).v1
+                        Dim p2 = fbxgrp(current_tank_part).indices(cv + 1).v1
+                        Dim p3 = fbxgrp(current_tank_part).indices(cv + 1).v1
                         Dim v1 = fbxgrp(current_tank_part).vertices(p1)
                         Dim v2 = fbxgrp(current_tank_part).vertices(p2)
                         Dim v3 = fbxgrp(current_tank_part).vertices(p3)
@@ -425,9 +425,9 @@ Public Class frmTextureViewer
             g = (t And &HFF00) >> 8
             b = (t And &HFF0000) >> 16
             Gl.glColor3ub(r, g, b)
-            Dim p1 = fbxgrp(current_tank_part).indicies(i + 0).v1
-            Dim p2 = fbxgrp(current_tank_part).indicies(i + 1).v1
-            Dim p3 = fbxgrp(current_tank_part).indicies(i + 2).v1
+            Dim p1 = fbxgrp(current_tank_part).indices(i + 0).v1
+            Dim p2 = fbxgrp(current_tank_part).indices(i + 1).v1
+            Dim p3 = fbxgrp(current_tank_part).indices(i + 2).v1
             Dim v1 = fbxgrp(current_tank_part).vertices(p1)
             Dim v2 = fbxgrp(current_tank_part).vertices(p2)
             Dim v3 = fbxgrp(current_tank_part).vertices(p3)
@@ -534,9 +534,9 @@ Public Class frmTextureViewer
 
         Gl.glBegin(Gl.GL_TRIANGLES)
         For i As UInt32 = 0 To cnt * 3 - 1 Step 3
-            Dim p1 = fbxgrp(current_tank_part).indicies(i + 0).v1
-            Dim p2 = fbxgrp(current_tank_part).indicies(i + 1).v1
-            Dim p3 = fbxgrp(current_tank_part).indicies(i + 2).v1
+            Dim p1 = fbxgrp(current_tank_part).indices(i + 0).v1
+            Dim p2 = fbxgrp(current_tank_part).indices(i + 1).v1
+            Dim p3 = fbxgrp(current_tank_part).indices(i + 2).v1
             Dim v1 = fbxgrp(current_tank_part).vertices(p1)
             Dim v2 = fbxgrp(current_tank_part).vertices(p2)
             Dim v3 = fbxgrp(current_tank_part).vertices(p3)
@@ -611,9 +611,9 @@ Public Class frmTextureViewer
         Dim u2 As New uv_
         Dim u3 As New uv_
         Dim cv As Integer = CInt((current_vertex - 1) * 3)
-        Dim p1 = fbxgrp(current_tank_part).indicies(cv + 0).v1
-        Dim p2 = fbxgrp(current_tank_part).indicies(cv + 1).v1
-        Dim p3 = fbxgrp(current_tank_part).indicies(cv + 2).v1
+        Dim p1 = fbxgrp(current_tank_part).indices(cv + 0).v1
+        Dim p2 = fbxgrp(current_tank_part).indices(cv + 1).v1
+        Dim p3 = fbxgrp(current_tank_part).indices(cv + 2).v1
         Dim v1 = fbxgrp(current_tank_part).vertices(p1)
         Dim v2 = fbxgrp(current_tank_part).vertices(p2)
         Dim v3 = fbxgrp(current_tank_part).vertices(p3)

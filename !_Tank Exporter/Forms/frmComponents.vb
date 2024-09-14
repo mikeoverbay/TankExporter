@@ -32,7 +32,7 @@ Public Class frmComponents
     End Sub
 
     Private Sub cancel_btn_Click(sender As Object, e As EventArgs) Handles cancel_btn.Click
-        CONTINUE_LOADING = False
+        WORKING = False
         Me.Close()
     End Sub
 

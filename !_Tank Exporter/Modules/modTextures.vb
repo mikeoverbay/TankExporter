@@ -455,10 +455,10 @@ Module modTextures
         Gl.glPolygonMode(Gl.GL_FRONT_AND_BACK, Gl.GL_LINE)
         Gl.glLineWidth(6)
         Gl.glBegin(Gl.GL_TRIANGLES)
-        For j = 1 To _group(id).indicies.Length - 1
-            p1 = _group(id).indicies(j).v1 - _group(id).startVertex_
-            p2 = _group(id).indicies(j).v2 - _group(id).startVertex_
-            p3 = _group(id).indicies(j).v3 - _group(id).startVertex_
+        For j = 1 To _group(id).indices.Length - 1
+            p1 = _group(id).indices(j).v1 - _group(id).startVertex_
+            p2 = _group(id).indices(j).v2 - _group(id).startVertex_
+            p3 = _group(id).indices(j).v3 - _group(id).startVertex_
             uv2a.x = _group(id).vertices(p1).u2
             uv2a.y = _group(id).vertices(p1).v2
             uv2b.x = _group(id).vertices(p2).u2
@@ -488,10 +488,10 @@ Module modTextures
         Gl.glEnd()
         Gl.glPolygonMode(Gl.GL_FRONT_AND_BACK, Gl.GL_FILL)
         Gl.glBegin(Gl.GL_TRIANGLES)
-        For j = 1 To _group(id).indicies.Length - 1
-            p1 = _group(id).indicies(j).v1 - _group(id).startVertex_
-            p2 = _group(id).indicies(j).v2 - _group(id).startVertex_
-            p3 = _group(id).indicies(j).v3 - _group(id).startVertex_
+        For j = 1 To _group(id).indices.Length - 1
+            p1 = _group(id).indices(j).v1 - _group(id).startVertex_
+            p2 = _group(id).indices(j).v2 - _group(id).startVertex_
+            p3 = _group(id).indices(j).v3 - _group(id).startVertex_
             uv2a.x = _group(id).vertices(p1).u2
             uv2a.y = _group(id).vertices(p1).v2
             uv2b.x = _group(id).vertices(p2).u2
@@ -624,10 +624,10 @@ save_it:
         Gl.glPolygonMode(Gl.GL_FRONT_AND_BACK, Gl.GL_LINE)
         Gl.glLineWidth(6)
         Gl.glBegin(Gl.GL_TRIANGLES)
-        For j = 1 To _group(id).indicies.Length - 1
-            p1 = _group(id).indicies(j).v1 - _group(id).startVertex_
-            p2 = _group(id).indicies(j).v2 - _group(id).startVertex_
-            p3 = _group(id).indicies(j).v3 - _group(id).startVertex_
+        For j = 1 To _group(id).indices.Length - 1
+            p1 = _group(id).indices(j).v1 - _group(id).startVertex_
+            p2 = _group(id).indices(j).v2 - _group(id).startVertex_
+            p3 = _group(id).indices(j).v3 - _group(id).startVertex_
             uv2a.x = _group(id).vertices(p1).u2
             uv2a.y = _group(id).vertices(p1).v2
             uv2b.x = _group(id).vertices(p2).u2
@@ -657,10 +657,10 @@ save_it:
         Gl.glEnd()
         Gl.glPolygonMode(Gl.GL_FRONT_AND_BACK, Gl.GL_FILL)
         Gl.glBegin(Gl.GL_TRIANGLES)
-        For j = 1 To _group(id).indicies.Length - 1
-            p1 = _group(id).indicies(j).v1 - _group(id).startVertex_
-            p2 = _group(id).indicies(j).v2 - _group(id).startVertex_
-            p3 = _group(id).indicies(j).v3 - _group(id).startVertex_
+        For j = 1 To _group(id).indices.Length - 1
+            p1 = _group(id).indices(j).v1 - _group(id).startVertex_
+            p2 = _group(id).indices(j).v2 - _group(id).startVertex_
+            p3 = _group(id).indices(j).v3 - _group(id).startVertex_
             uv2a.x = _group(id).vertices(p1).u2
             uv2a.y = _group(id).vertices(p1).v2
             uv2b.x = _group(id).vertices(p2).u2
@@ -977,13 +977,24 @@ save_it:
 
     Public Sub build_textures(ByVal id As Integer)
         'If PRIMITIVES_MODE Then Return
-        Dim diffuse As String = _group(id).color_name
-        Dim normal As String = _group(id).normal_name
-        Dim metal As String = _group(id).metalGMM_name
-        Dim ao_name As String = _group(id).ao_name
-        Dim colorIdMap As String = _group(id).colorIDmap
+        Dim diffuse As String = _group(id).color_name.Replace(".dds", "_hd.dds")
+        Dim normal As String = _group(id).normal_name.Replace(".dds", "_hd.dds")
+        Dim metal As String = _group(id).metalGMM_name.Replace(".dds", "_hd.dds")
+
+        Dim ao_name As String = ""
+        If Not String.IsNullOrEmpty(_group(id).ao_name) Then
+            ao_name = _group(id).ao_name.Replace(".dds", "_hd.dds")
+        End If
+
+        Dim colorIdMap As String = ""
+        If Not String.IsNullOrEmpty(_group(id).colorIDmap) Then
+            colorIdMap = _group(id).colorIDmap.Replace(".dds", "_hd.dds")
+        End If
         Dim detail_name As String = _group(id).detail_name
-        Dim g_det_name As String = _group(id).g_detailMap
+        Dim g_det_name As String = ""
+        If Not String.IsNullOrEmpty(_group(id).g_detailMap) Then
+            g_det_name = _group(id).g_detailMap.Replace(".dds", "_hd.dds")
+        End If
         'This stops loading textures already loaded....
         '===========================================================================================
         If PRIMITIVES_MODE Then 'only if loaded a stand alone
@@ -1024,12 +1035,17 @@ save_it:
 
         Dim n_id, c_id, m_id, ao_id, detail_id, g_det_id As Integer
 
-        c_id = get_texture_id(diffuse)
-        n_id = get_texture_id(normal)
-        m_id = get_texture_id(metal)
-        ao_id = get_texture_id(ao_name)
-        detail_id = get_texture_id(detail_name)
-        g_det_id = get_texture_id(g_det_name)
+        c_id = get_texture_id(diffuse, id)
+        n_id = get_texture_id(normal, id)
+        m_id = get_texture_id(metal, id)
+        ao_id = get_texture_id(ao_name, id)
+        detail_id = get_texture_id(detail_name, id)
+        g_det_id = get_texture_id(g_det_name, id)
+
+        _group(id).color_name = diffuse
+        _group(id).normal_name = normal
+        _group(id).metalGMM_name = metal
+        _group(id).ao_name = ao_name 
 
 
         i = textures.Length - 1
@@ -1570,14 +1586,14 @@ save_it:
         Return False
     End Function
 
-    Public Function get_texture_id(name As String) As Integer
+    Public Function get_texture_id(name As String, g_id As Integer) As Integer
         Dim id As Integer
         If name Is Nothing Then name = ""
         Dim ent As Ionic.Zip.ZipEntry = Nothing
         If name = "" Then Return -1
         If My.Settings.res_mods_path.Contains("res_mods") Then
             'GoTo skip_hd
-            Dim r_path = My.Settings.res_mods_path + "\" + name.Replace(".dds", "_hd.dds")
+            Dim r_path = My.Settings.res_mods_path + "\" + name
             Dim r_pathSD = My.Settings.res_mods_path + "\" + name
             If name.Contains("res_mods") Then
                 r_path = name
@@ -1599,22 +1615,30 @@ save_it:
         End If
         'No texture found in res_mods so..... try PKG files
         Try 'look in HD packages
-            ent = frmMain.packages_HD(current_tank_package)(name.Replace(".dds", "_hd.dds")) ' look in tank package
+
+            Dim pkName = Find_entry(name)
+            If Not String.IsNullOrEmpty(pkName) Then
+                Using zipf As ZipFile = New ZipFile(Path.GetDirectoryName(shared_pkg_search_list(0)) + "\" + pkName)
+                    ent = zipf(name)
+                End Using
+            End If
+
+            ent = frmMain.packages_HD(current_tank_package)(name) ' look in tank package
         Catch ex As Exception
         End Try
         If ent Is Nothing Then
             Try 'look in HD packages
                 If current_tank_package > 4 Then
-                    ent = frmMain.packages_HD_2(current_tank_package)(name.Replace(".dds", "_hd.dds")) ' look in tank package
+                    ent = frmMain.packages_HD_2(current_tank_package)(name) ' look in tank package
                 End If
             Catch ex As Exception
             End Try
         End If
         If ent Is Nothing Then ' look in shared content
-            ent = search_shared_pkgs(name.Replace(".dds", "_hd.dds")) ' look in tank package
+            ent = search_shared_pkgs(name) ' look in tank package
         End If
         If PRIMITIVES_MODE Then
-            id = get_DDS_search_option(name.Replace(".dds", "_hd.dds"))
+            id = get_DDS_search_option(name)
             If id > 0 Then
                 log_text.AppendLine("loaded HD from PKG : " + Path.GetFileName(name))
                 Return id
@@ -1626,7 +1650,7 @@ save_it:
             End If
         End If
         If ent Is Nothing Then
-            ent = find_tank_and_return_entry_in_pkgs(name.Replace(".dds", "_hd.dds"))
+            ent = find_tank_and_return_entry_in_pkgs(name)
         End If
         If ent IsNot Nothing Then
             'it was found as HD abouve

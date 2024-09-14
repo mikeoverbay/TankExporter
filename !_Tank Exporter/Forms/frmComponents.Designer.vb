@@ -126,6 +126,7 @@ Partial Class frmComponents
         '
         'cancel_btn
         '
+        Me.cancel_btn.DialogResult = System.Windows.Forms.DialogResult.Cancel
         Me.cancel_btn.Location = New System.Drawing.Point(73, 233)
         Me.cancel_btn.Name = "cancel_btn"
         Me.cancel_btn.Size = New System.Drawing.Size(75, 23)
@@ -135,9 +136,11 @@ Partial Class frmComponents
         '
         'frmComponents
         '
+        Me.AcceptButton = Me.continue_bt
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.Color.FromArgb(CType(CType(33, Byte), Integer), CType(CType(33, Byte), Integer), CType(CType(33, Byte), Integer))
+        Me.CancelButton = Me.cancel_btn
         Me.ClientSize = New System.Drawing.Size(302, 266)
         Me.Controls.Add(Me.cancel_btn)
         Me.Controls.Add(Me.Label4)

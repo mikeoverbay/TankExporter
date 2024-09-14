@@ -427,25 +427,25 @@ found_it:
                     Dim n = System.Text.Encoding.Default.GetBytes("list")
                     ReDim Preserve n(63) 'pad by resizing
                     br.Write(n) ' save string as padded binary
-                    br.Write((_group(pnt_id).indicies.Length - 1) * 3)
+                    br.Write((_group(pnt_id).indices.Length - 1) * 3)
                     br.Write(1) ' write group count
                     'write indices
-                    For i = 1 To _group(pnt_id).indicies.Length - 1
+                    For i = 1 To _group(pnt_id).indices.Length - 1
                         If Not frmWritePrimitive.flipWindingOrder_cb.Checked Then
-                            br.Write(Convert.ToUInt16(_group(pnt_id).indicies(i).v2))
-                            br.Write(Convert.ToUInt16(_group(pnt_id).indicies(i).v1))
-                            br.Write(Convert.ToUInt16(_group(pnt_id).indicies(i).v3))
+                            br.Write(Convert.ToUInt16(_group(pnt_id).indices(i).v2))
+                            br.Write(Convert.ToUInt16(_group(pnt_id).indices(i).v1))
+                            br.Write(Convert.ToUInt16(_group(pnt_id).indices(i).v3))
                         Else
-                            br.Write(Convert.ToUInt16(_group(pnt_id).indicies(i).v1))
-                            br.Write(Convert.ToUInt16(_group(pnt_id).indicies(i).v2))
-                            br.Write(Convert.ToUInt16(_group(pnt_id).indicies(i).v3))
+                            br.Write(Convert.ToUInt16(_group(pnt_id).indices(i).v1))
+                            br.Write(Convert.ToUInt16(_group(pnt_id).indices(i).v2))
+                            br.Write(Convert.ToUInt16(_group(pnt_id).indices(i).v3))
                         End If
                     Next
 
                     'Write entry for each model in this group
                     'tracks and chassis only have ONE per entry
                     br.Write(CInt(0)) ' indices start index
-                    br.Write(CUInt(_group(pnt_id).indicies.Length - 1)) ' indice count
+                    br.Write(CUInt(_group(pnt_id).indices.Length - 1)) ' indice count
                     br.Write(CInt(0)) ' vertices start index
                     br.Write(CUInt(_group(pnt_id).nVertices_))
 
@@ -1465,7 +1465,7 @@ no_UV2EVER:
                     Dim comp As comp_ = fbxgrp(pnter).comp
 
                     For j = 0 To comp.vert_cnt - 1
-                        'p = fbxgrp(pnter).indicies(j).
+                        'p = fbxgrp(pnter).indices(j).
                         br.Write(comp.vertices(j).u2)
                         br.Write(comp.vertices(j).v2)
                         tbr.Write(comp.vertices(j).u2)

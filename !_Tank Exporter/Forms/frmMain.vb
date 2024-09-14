@@ -1,10 +1,11 @@
 ﻿#Region "imports"
-
+Imports System.Net
 Imports System.Globalization
 Imports System.IO
 Imports System.Math
 Imports System.Text
 Imports System.Threading
+Imports System.Threading.Tasks
 Imports System.Windows
 Imports System.Xml
 Imports Ionic.Zip
@@ -114,8 +115,49 @@ Public Class frmMain
     Dim spin_light As Boolean = False
 #End Region
 
+    Function CompareTextFromWeb(url As String, compareString As String, timeoutSeconds As Integer) As Boolean
+        Using client As New WebClient()
+            Try
+                ' Set a timeout for the request
+                Dim request As HttpWebRequest = DirectCast(WebRequest.Create(url), HttpWebRequest)
+                request.Timeout = timeoutSeconds * 1000 ' Convert to milliseconds
 
+                ' Fetch text from the web
+                Dim fetchedText As String = client.DownloadString(url)
 
+                ' Compare the fetched text with the existing string
+                If fetchedText.Trim() = compareString.Trim() Then
+                    Return True ' They match
+                Else
+                    ShowUpdateMessage()
+                End If
+            Catch ex As WebException
+                ' Handle timeout or other web-related exceptions
+                If ex.Status = WebExceptionStatus.Timeout Then
+                    Console.WriteLine("Request timed out.")
+                Else
+                    Console.WriteLine($"Error: {ex.Message}")
+                End If
+                Return False
+            Catch ex As Exception
+                ' Handle general exceptions
+                Console.WriteLine($"Error: {ex.Message}")
+                Return False
+            End Try
+            Return False
+        End Using
+    End Function
+    Sub ShowUpdateMessage()
+        ' Show a message box with Yes/No options
+        Dim result As DialogResult = MessageBox.Show("New update available. Do you want to update?", "Update Available", MessageBoxButtons.YesNo, MessageBoxIcon.Information)
+
+        ' If the user clicks Yes, open the web page
+        If result = DialogResult.Yes Then
+            ' Replace with your update URL
+            Process.Start(New ProcessStartInfo("http://example.com/update") With {.UseShellExecute = True})
+            End
+        End If
+    End Sub
     Private Sub frmMain_FormClosing(sender As Object, e As FormClosingEventArgs) Handles Me.FormClosing
         _Started = False
         Try
@@ -452,6 +494,18 @@ done:
         Dim nonInvariantCulture As System.Globalization.CultureInfo = New CultureInfo("en-US")
         nonInvariantCulture.NumberFormat.NumberDecimalSeparator = "."
         System.Threading.Thread.CurrentThread.CurrentCulture = nonInvariantCulture
+
+        Dim url As String = "http://tnmshouse.com/updateflag/updateflag.txt" ' URL of the text file
+        Dim arr = Application.ProductVersion.Split(".")
+        Dim compareString As String = arr(3)    ' String to compare
+        Dim timeoutSeconds As Integer = 5                  ' Timeout duration in seconds
+
+        ' Call the function to compare the text
+        If CompareTextFromWeb(url, compareString, timeoutSeconds) Then
+
+        Else
+            Console.WriteLine("The text does not match or an error occurred.")
+        End If
 
 
         tank_label.Text = ""
@@ -2206,7 +2260,7 @@ loaded_jump:
     Dim public_icon_path As String
     Private Sub tv_clicked(ByVal sender As Object, ByVal e As TreeNodeMouseClickEventArgs)
         Dim tn = DirectCast(sender, TreeView)
-        If e.Button = Forms.MouseButtons.Right Then
+        If e.Button = Forms.MouseButtons.Right Or Forms.MouseButtons.Left Then
             file_name = e.Node.Tag
             iconbox.Visible = True
             iconbox.BackgroundImage = icons(tn.Tag).img(e.Node.Index).img
@@ -2218,19 +2272,7 @@ loaded_jump:
             Application.DoEvents()
             Return
         End If
-        'Dim ts = tanklist.Text
-        'tn.SelectedNode = Nothing
-        'tn.SelectedNode = e.Node
-        'If ts.Contains(tn.SelectedNode.Text) Then
-        '    tn.SelectedNode.ForeColor = Color.Black
-        '    ts = Replace(ts, tn.SelectedNode.Text + vbCrLf, "")
-        'Else
-        '    tn.SelectedNode.ForeColor = Color.White
-        '    ts += tn.SelectedNode.Text + vbCrLf
-        'End If
-        'tanklist.Text = ts
-        'tn.SelectedNode = Nothing
-        'tn.Parent.Focus()
+
 
     End Sub
     Dim old_backgound_icon As System.Drawing.Bitmap
@@ -2437,9 +2479,9 @@ loaded_jump:
         Gl.glBegin(Gl.GL_TRIANGLES)
         For i As UInt32 = 1 To _group(id).nPrimitives_ - 1
             '-----------------
-            Dim v1 = _group(id).indicies(i).v1
-            Dim v2 = _group(id).indicies(i).v2
-            Dim v3 = _group(id).indicies(i).v3
+            Dim v1 = _group(id).indices(i).v1
+            Dim v2 = _group(id).indices(i).v2
+            Dim v3 = _group(id).indices(i).v3
             '--
             vt1.x = _group(id).vertices(v1).x
             vt1.y = _group(id).vertices(v1).y
@@ -3686,9 +3728,9 @@ nothing_else:
 
                     Gl.glMultMatrixd(fbxgrp(current_part).matrix)
                     Gl.glBegin(Gl.GL_TRIANGLES)
-                    Dim p1 = fbxgrp(current_part).indicies(current_vertex - 1).v1
-                    Dim p2 = fbxgrp(current_part).indicies(current_vertex - 1).v2
-                    Dim p3 = fbxgrp(current_part).indicies(current_vertex - 1).v3
+                    Dim p1 = fbxgrp(current_part).indices(current_vertex - 1).v1
+                    Dim p2 = fbxgrp(current_part).indices(current_vertex - 1).v2
+                    Dim p3 = fbxgrp(current_part).indices(current_vertex - 1).v3
                     Dim v1 = fbxgrp(current_part).vertices(p1)
                     Dim v2 = fbxgrp(current_part).vertices(p2)
                     Dim v3 = fbxgrp(current_part).vertices(p3)
@@ -4315,9 +4357,9 @@ fuckit:
                 Gl.glPushMatrix()
                 Gl.glMultMatrixd(fbxgrp(current_tank_part).matrix)
                 Gl.glBegin(Gl.GL_TRIANGLES)
-                Dim p1 = fbxgrp(current_tank_part).indicies(tv + 0).v1
-                Dim p2 = fbxgrp(current_tank_part).indicies(tv + 1).v1
-                Dim p3 = fbxgrp(current_tank_part).indicies(tv + 2).v1
+                Dim p1 = fbxgrp(current_tank_part).indices(tv + 0).v1
+                Dim p2 = fbxgrp(current_tank_part).indices(tv + 1).v1
+                Dim p3 = fbxgrp(current_tank_part).indices(tv + 2).v1
                 Dim v1 = fbxgrp(current_tank_part).vertices(p1)
                 Dim v2 = fbxgrp(current_tank_part).vertices(p2)
                 Dim v3 = fbxgrp(current_tank_part).vertices(p3)
@@ -4614,9 +4656,9 @@ fuckit:
     Private Sub set_v_values(ByRef part As Integer, ByVal index As Integer)
         Dim ind As _indice
         If m_show_fbx.Checked Then
-            ind.a = fbxgrp(current_part).indicies(index - 1).v1
-            ind.b = fbxgrp(current_part).indicies(index - 1).v2
-            ind.c = fbxgrp(current_part).indicies(index - 1).v3
+            ind.a = fbxgrp(current_part).indices(index - 1).v1
+            ind.b = fbxgrp(current_part).indices(index - 1).v2
+            ind.c = fbxgrp(current_part).indices(index - 1).v3
             With fbxgrp(part).vertices(ind.a)
                 v1 = New vertice_
                 v1.index_1 = .index_1
@@ -4631,9 +4673,9 @@ fuckit:
                     " Weight: " + v1.weight_1.ToString("00") + " " + v1.weight_2.ToString("00") + " " + v1.weight_3.ToString("00") + " " + v1.weight_4.ToString("00")
             End With
         Else
-            ind.a = _group(current_part).indicies(index).v1
-            ind.b = _group(current_part).indicies(index).v2
-            ind.c = _group(current_part).indicies(index).v3
+            ind.a = _group(current_part).indices(index).v1
+            ind.b = _group(current_part).indices(index).v2
+            ind.c = _group(current_part).indices(index).v3
             With _group(part).vertices(ind.a)
                 v1 = New vertice_
                 v1.index_1 = .index_1
@@ -5482,8 +5524,7 @@ fuckit:
     '##################################################################################
     Public Function process_tank(ByVal save_tank As Boolean) As Boolean
         'need to set these before loading anyhing
-        clean_house()
-        remove_loaded_fbx()
+
         WORKING = True
         '===================================
 
@@ -5784,17 +5825,21 @@ fuckit:
             End If
             '-------------------------------------------------------
             ' SHOW FORM
-            WORKING = False
-            CONTINUE_LOADING = True
-            frmComponents.ShowDialog(Me)
+            Dim results = frmComponents.ShowDialog(Me)
+            If Not WORKING Then
+                Return False
+            End If
             update_log("After frmComponents.ShowDialog" + vbCrLf)
 
-            WORKING = True
+
+        End If
             If frmFBX.Visible Then
                 frmFBX.Location = Me.Location
             End If
-        End If
+        clean_house()
+        remove_loaded_fbx()
 
+        WORKING = True
         '-------------------------------------------------------
         'Array.Sort(guns)
         'Array.Sort(turrets)
@@ -5884,9 +5929,7 @@ fuckit:
                 nation_string = "italy"
         End Select
         TANK_NAME = "vehicles\" + ar(1) + "\" + ar(2) + ":" + current_tank_package.ToString
-        If Not CONTINUE_LOADING Then
-            Return False
-        End If
+
         '===================================
         Dim d = custom_tables(CURRENT_DATA_SET).Copy
         '===================================
@@ -7038,37 +7081,7 @@ fuckit:
                             End Using
                         End Using
                     End If
-                    'prep_tanks_xml(itemDefXmlString)
-                    'itemDefXmlString = itemDefXmlString.Replace("  ", vbTab)
-                    'itemDefXmlString = itemDefXmlString.Replace("><", ">" + vbCrLf + "<")
-                    'itemDefXmlString = itemDefXmlString.Replace("<xmlref>", "<!--<xmlref>")
-                    'itemDefXmlString = itemDefXmlString.Replace("</xmlref>", "</xmlref>-->")
 
-                    'itemDefXmlString = itemDefXmlString.Replace("rect1x4direction",
-                    '                                            "rect1x4 direction")
-
-                    'itemDefXmlString = itemDefXmlString.Replace("squaredirection",
-                    '                                            "square direction")
-
-                    'itemDefXmlString = itemDefXmlString.Replace("rightformfactor",
-                    '                                            "right formfactor")
-                    'itemDefXmlString = itemDefXmlString.Replace("rightformfactor",
-                    '                                            "right formfactor")
-
-                    'itemDefXmlString = itemDefXmlString.Replace("rect1x3direction",
-                    '                                            "rect1x3 direction")
-
-                    'itemDefXmlString = itemDefXmlString.Replace("rect1x2direction",
-                    '                                            "rect1x2 direction")
-
-                    'itemDefXmlString = itemDefXmlString.Replace("rect1x6direction",
-                    '                                            "rect1x6 direction")
-
-                    'If Not Directory.Exists(Path.GetDirectoryName(ip)) Then
-                    '    Directory.CreateDirectory(Path.GetDirectoryName(ip))
-                    'End If
-                    'itemDefXmlString = itemDefXmlString.Replace("map_nation", Path.GetFileNameWithoutExtension(ip) + ".xml")
-                    'File.WriteAllText(ip, itemDefXmlString, Encoding.ASCII)
                 Catch ex As Exception
                     itemDefXmlString = ts
                     MsgBox(file_name + vbCrLf + ex.Message, MsgBoxStyle.Critical, "Shit!!")
@@ -8420,7 +8433,6 @@ skip_old_way:
 
     Private Sub m_donate_Click(sender As Object, e As EventArgs) Handles m_donate.Click
         Process.Start("https://www.paypal.com/donate/?hosted_button_id=HVRUCWXVKRJ26")
-
     End Sub
 
     Private Sub m_view_res_mods_folder_Click(sender As Object, e As EventArgs) Handles m_view_res_mods_folder.Click
@@ -9974,7 +9986,11 @@ load_script:
 
     Private Sub m_export_to_glTF_Click(sender As Object, e As EventArgs) Handles m_export_to_glTF.Click
         EXPORT_TYPE = 1
-        make_glTF()
+        Try
+            write_glTF()
+        Catch ex As Exception
+            MsgBox("failed to export GLB: " + ex.Message, MsgBoxStyle.Critical, "export failed")
+        End Try
 
     End Sub
     Private Sub m_export_to_FBX_2_Click(sender As Object, e As EventArgs) Handles m_export_to_FBX_2.Click
@@ -9989,8 +10005,8 @@ load_script:
 
     End Sub
     Private Sub m_export_to_collada_Click(sender As Object, e As EventArgs) Handles m_export_to_collada.Click
-        EXPORT_TYPE = 4
-        make_glTF()
+
+        write_glTF()
     End Sub
 
 
@@ -10006,6 +10022,14 @@ load_script:
     Private Sub m_forums_Click(sender As Object, e As EventArgs) Handles m_forums.Click
         Dim url As String = "https://tnmshouse.com"
         OpenWebPage(url)
+    End Sub
+
+    Private Sub m_import_GLB_Click(sender As Object, e As EventArgs) Handles m_import_GLB.Click
+        open_glTF()
+    End Sub
+
+    Private Sub m_export_STL_Click(sender As Object, e As EventArgs) Handles m_export_STL.Click
+        ExportBinarySTL()
     End Sub
 
     Private Sub m_hide_right_plane_Click(sender As Object, e As EventArgs) Handles m_hide_right_plane.Click

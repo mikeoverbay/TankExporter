@@ -1092,11 +1092,11 @@ outahere:
         ReDim fbxgrp(fbx_idx).cPoints(cp_cnt)
         mesh.ControlPoints.CopyTo(fbxgrp(fbx_idx).cPoints, 0)
         ReDim Preserve fbxgrp(fbx_idx).vertices(polycnt * 3)
-        ReDim Preserve fbxgrp(fbx_idx).indicies(polycnt * 3)
+        ReDim Preserve fbxgrp(fbx_idx).indices(polycnt * 3)
         Dim vertexId As Integer = 0
         For k = 0 To polycnt * 3 - 1
             fbxgrp(fbx_idx).vertices(k) = New vertice_
-            fbxgrp(fbx_idx).indicies(k) = New uvect3
+            fbxgrp(fbx_idx).indices(k) = New uvect3
         Next
 
         Dim colorLayer1 As FbxLayerElementVertexColor = mesh.GetLayer(0).VertexColors
@@ -1120,7 +1120,7 @@ outahere:
                 If cp_index > max_cp_index Then max_cp_index = cp_index
                 'Debug.WriteLine(vertexId.ToString + " " + cp_index.ToString)
                 Dim vertex As FbxVector4 = fbxgrp(fbx_idx).cPoints(cp_index)
-                fbxgrp(fbx_idx).indicies(vertexId).v1 = vertexId
+                fbxgrp(fbx_idx).indices(vertexId).v1 = vertexId
                 '===============================================================================
                 'normals
                 Dim normal As New FbxVector4
@@ -1250,7 +1250,7 @@ outahere:
             Next
         Next
         ReDim Preserve fbxgrp(fbx_idx).vertices(vertexId - 1)
-        ReDim Preserve fbxgrp(fbx_idx).indicies(vertexId - 1)
+        ReDim Preserve fbxgrp(fbx_idx).indices(vertexId - 1)
         fbxgrp(fbx_idx).nVertices_ = max_cp_index + 1
 
         'check_winding_order(fbx_idx)
@@ -1377,12 +1377,12 @@ outahere:
             fbx_in.vertices(j).tz = fbx_out.vertices(j).tz
 
         Next
-        ReDim fbx_in.indicies(fbx_out.indicies.Length - 1)
-        For j = 0 To fbx_out.indicies.Length - 1
-            fbx_in.indicies(j) = New uvect3
-            fbx_in.indicies(j).v1 = fbx_out.indicies(j).v1
-            'fbx_in.indicies(j).v2 = fbx_out.indicies(j).v2
-            'fbx_in.indicies(j).v3 = fbx_out.indicies(j).v3
+        ReDim fbx_in.indices(fbx_out.indices.Length - 1)
+        For j = 0 To fbx_out.indices.Length - 1
+            fbx_in.indices(j) = New uvect3
+            fbx_in.indices(j).v1 = fbx_out.indices(j).v1
+            'fbx_in.indices(j).v2 = fbx_out.indices(j).v2
+            'fbx_in.indices(j).v3 = fbx_out.indices(j).v3
         Next
 
     End Sub
@@ -1588,16 +1588,16 @@ outahere:
                     flg = True : GoTo whichOne
                 End If
                 Try
-                    For j As UInt32 = 0 To _group(i).indicies.Length - 2
-                        Dim p1 = _group(i).indicies(j + 1).v1 - _group(i).startVertex_
-                        Dim p2 = _group(i).indicies(j + 1).v2 - _group(i).startVertex_
-                        Dim p3 = _group(i).indicies(j + 1).v3 - _group(i).startVertex_
+                    For j As UInt32 = 0 To _group(i).indices.Length - 2
+                        Dim p1 = _group(i).indices(j + 1).v1 - _group(i).startVertex_
+                        Dim p2 = _group(i).indices(j + 1).v2 - _group(i).startVertex_
+                        Dim p3 = _group(i).indices(j + 1).v3 - _group(i).startVertex_
                         Dim vg_1 = _group(i).vertices(p1)
                         Dim vg_2 = _group(i).vertices(p2)
                         Dim vg_3 = _group(i).vertices(p3)
-                        Dim f1 = fbxgrp(i).indicies((j * 3) + 0).v1
-                        Dim f2 = fbxgrp(i).indicies((j * 3) + 1).v1
-                        Dim f3 = fbxgrp(i).indicies((j * 3) + 2).v1
+                        Dim f1 = fbxgrp(i).indices((j * 3) + 0).v1
+                        Dim f2 = fbxgrp(i).indices((j * 3) + 1).v1
+                        Dim f3 = fbxgrp(i).indices((j * 3) + 2).v1
                         Dim vf_1 = fbxgrp(i).vertices(f1)
                         Dim vf_2 = fbxgrp(i).vertices(f2)
                         Dim vf_3 = fbxgrp(i).vertices(f3)
@@ -1746,9 +1746,9 @@ whichone:
             Gl.glBegin(Gl.GL_TRIANGLES)
             For k As UInt32 = 0 To fbxgrp(i).nPrimitives_ * 3 - 1 Step 3
 
-                Dim p1 = fbxgrp(i).indicies(k + 0).v1
-                Dim p2 = fbxgrp(i).indicies(k + 1).v1
-                Dim p3 = fbxgrp(i).indicies(k + 2).v1
+                Dim p1 = fbxgrp(i).indices(k + 0).v1
+                Dim p2 = fbxgrp(i).indices(k + 1).v1
+                Dim p3 = fbxgrp(i).indices(k + 2).v1
                 Dim v1 = fbxgrp(i).vertices(p1)
                 Dim v2 = fbxgrp(i).vertices(p2)
                 Dim v3 = fbxgrp(i).vertices(p3)
@@ -1806,9 +1806,9 @@ whichone:
 
         For k As UInt32 = 0 To fbxgrp(i).nPrimitives_ * 3 - 1 Step 3
 
-            Dim p1 = fbxgrp(i).indicies(k + 0).v1
-            Dim p2 = fbxgrp(i).indicies(k + 1).v1
-            Dim p3 = fbxgrp(i).indicies(k + 2).v1
+            Dim p1 = fbxgrp(i).indices(k + 0).v1
+            Dim p2 = fbxgrp(i).indices(k + 1).v1
+            Dim p3 = fbxgrp(i).indices(k + 2).v1
             Dim v1, v2, v3 As SharpDX.Vector3
             v1.X = fbxgrp(i).vertices(p1).x
             v1.Y = fbxgrp(i).vertices(p1).y
@@ -1852,7 +1852,7 @@ whichone:
     Public Sub make_fbx_display_lists(ByVal cnt As Integer, ByVal jj As Integer)
         Gl.glBegin(Gl.GL_TRIANGLES)
         For z As UInt32 = 0 To (cnt) - 1
-            make_triangle(jj, fbxgrp(jj).indicies(z).v1)
+            make_triangle(jj, fbxgrp(jj).indices(z).v1)
         Next
         Gl.glEnd()
     End Sub
@@ -1900,9 +1900,9 @@ whichone:
         Dim cnt = fbxgrp(id).nPrimitives_
         Dim p1, p2, p3 As UInt32
         For i As UInt32 = 0 To cnt - 1
-            p1 = fbxgrp(id).indicies(i).v1
-            p2 = fbxgrp(id).indicies(i).v2
-            p3 = fbxgrp(id).indicies(i).v3
+            p1 = fbxgrp(id).indices(i).v1
+            p2 = fbxgrp(id).indices(i).v2
+            p3 = fbxgrp(id).indices(i).v3
             Dim tan, bn As vect3
             Dim v1, v2, v3 As vect3
             Dim u1, u2, u3 As vect3
@@ -1945,9 +1945,9 @@ whichone:
         Dim cnt = fbxgrp(id).nPrimitives_ * 3
         Dim p1, p2, p3 As UInt32
         For i As UInt32 = 0 To cnt - 1 Step 3
-            p1 = fbxgrp(id).indicies(i).v1
-            p2 = fbxgrp(id).indicies(i + 1).v1
-            p3 = fbxgrp(id).indicies(i + 2).v1
+            p1 = fbxgrp(id).indices(i).v1
+            p2 = fbxgrp(id).indices(i + 1).v1
+            p3 = fbxgrp(id).indices(i + 2).v1
             Dim tan, bn As vect3
             Dim v1, v2, v3 As vect3
             Dim u1, u2, u3 As vect3
@@ -2365,9 +2365,9 @@ whichone:
         'time to assign the normals to each control point.
 
         For I = 1 To _group(id).nPrimitives_
-            Dim v1 = _group(id).indicies(I).v1
-            Dim v2 = _group(id).indicies(I).v2
-            Dim v3 = _group(id).indicies(I).v3
+            Dim v1 = _group(id).indices(I).v1
+            Dim v2 = _group(id).indices(I).v2
+            Dim v3 = _group(id).indices(I).v3
             v = unpackNormal(_group(id).vertices(v1 - off).n, _group(id).BPVT_mode)
             v4.X = v.nx
             v4.Y = v.ny
@@ -2400,7 +2400,7 @@ whichone:
             colorLayer1.Reference_Mode = FbxLayerElement.ReferenceMode.Direct
             Dim color As New FbxColor
             For I = 1 To _group(id).nPrimitives_
-                Dim indi = _group(id).indicies(I)
+                Dim indi = _group(id).indices(I)
                 color.Red = CDbl(_group(id).vertices(indi.v1 - off).index_1 / 255)
                 color.Green = CDbl(_group(id).vertices(indi.v1 - off).index_2 / 255)
                 color.Blue = CDbl(_group(id).vertices(indi.v1 - off).index_3 / 255)
@@ -2486,21 +2486,21 @@ whichone:
             myMesh.BeginPolygon(-1, -1, -1, False)
 
             j = 0
-            pos = _group(id).indicies(n).v1 - off
+            pos = _group(id).indices(n).v1 - off
             myMesh.AddPolygon(pos)
             UVDiffuseLayer.IndexArray.SetAt(pos, j)
             If _group(id).has_uv2 = 1 Then
                 UV2Layer.IndexArray.SetAt(pos, j)
             End If
             j += 1
-            pos = _group(id).indicies(n).v2 - off
+            pos = _group(id).indices(n).v2 - off
             myMesh.AddPolygon(pos)
             UVDiffuseLayer.IndexArray.SetAt(pos, j)
             If _group(id).has_uv2 = 1 Then
                 UV2Layer.IndexArray.SetAt(pos, j)
             End If
             j += 1
-            pos = _group(id).indicies(n).v3 - off
+            pos = _group(id).indices(n).v3 - off
             myMesh.AddPolygon(pos)
             UVDiffuseLayer.IndexArray.SetAt(pos, j)
             If _group(id).has_uv2 = 1 Then
@@ -2554,9 +2554,9 @@ whichone:
         'time to assign the normals to each control point.
 
         For I = 1 To _group(id).nPrimitives_
-            Dim v1 = _group(id).indicies(I).v1
-            Dim v2 = _group(id).indicies(I).v2
-            Dim v3 = _group(id).indicies(I).v3
+            Dim v1 = _group(id).indices(I).v1
+            Dim v2 = _group(id).indices(I).v2
+            Dim v3 = _group(id).indices(I).v3
             v = unpackNormal(_group(id).vertices(v1 - off).n, _group(id).BPVT_mode)
             v4.X = v.nx
             v4.Y = v.ny
@@ -2590,7 +2590,7 @@ whichone:
             colorLayer1.Reference_Mode = FbxLayerElement.ReferenceMode.Direct
             Dim color As New FbxColor
             For I = 1 To _group(id).nPrimitives_
-                Dim indi = _group(id).indicies(I)
+                Dim indi = _group(id).indices(I)
                 color.Red = CDbl(_group(id).vertices(indi.v1 - off).index_1 / 255)
                 color.Green = CDbl(_group(id).vertices(indi.v1 - off).index_2 / 255)
                 color.Blue = CDbl(_group(id).vertices(indi.v1 - off).index_3 / 255)
@@ -2671,15 +2671,15 @@ whichone:
             myMesh.BeginPolygon(-1, -1, -1, False)
 
             j = 0
-            pos = _group(id).indicies(n).v1 - off
+            pos = _group(id).indices(n).v1 - off
             myMesh.AddPolygon(pos)
             UVDiffuseLayer.IndexArray.SetAt(pos, j)
             j += 1
-            pos = _group(id).indicies(n).v2 - off
+            pos = _group(id).indices(n).v2 - off
             myMesh.AddPolygon(pos)
             UVDiffuseLayer.IndexArray.SetAt(pos, j)
             j += 1
-            pos = _group(id).indicies(n).v3 - off
+            pos = _group(id).indices(n).v3 - off
             myMesh.AddPolygon(pos)
             UVDiffuseLayer.IndexArray.SetAt(pos, j)
             n += 1

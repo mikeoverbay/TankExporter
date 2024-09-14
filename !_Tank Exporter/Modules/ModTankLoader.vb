@@ -1,32 +1,18 @@
 ﻿#Region "imports"
-Imports System.Windows
-Imports System.Windows.Forms
-Imports System.Drawing
-Imports System.Drawing.Drawing2D
-Imports System.Net
+
 Imports System.Text
 Imports System.IO
 Imports System.Xml
-Imports System.Web
-Imports Tao.OpenGl
-Imports Tao.Platform.Windows
-Imports Tao.FreeGlut
-Imports Tao.FreeGlut.Glut
+
 Imports Microsoft.VisualBasic.Strings
 Imports System.Math
-Imports System.Object
-Imports System.Threading
-Imports System.Data
-Imports Tao.DevIl
-Imports System.Runtime.InteropServices
-Imports System.Runtime.CompilerServices
-Imports System.Collections.Generic
+Imports SharpGLTF
+
 Imports Ionic.Zip
 Imports System.Drawing.Imaging
 Imports Skill.FbxSDK
-Imports SharpDX.Mathematics
-Imports SharpDX.Direct3D11
-Imports System.ComponentModel
+Imports System.Numerics
+
 #End Region
 
 
@@ -107,10 +93,10 @@ Module ModTankLoader
         Public index_2 As Byte
         Public index_3 As Byte
         Public index_4 As Byte
-        Public weight_1 As Byte
-        Public weight_2 As Byte
-        Public weight_3 As Byte
-        Public weight_4 As Byte
+        Public weight_1 As Single
+        Public weight_2 As Single
+        Public weight_3 As Single
+        Public weight_4 As Single
         Public nx, ny, nz As Single
         Public tx, ty, tz As Single
         Public bnx, bny, bnz As Single
@@ -118,7 +104,7 @@ Module ModTankLoader
         Public bn As UInt32
         Public u2 As Single
         Public v2 As Single
-        Public r, g, b, a As Byte
+        Public r, g, b, a As Single
     End Class
     Structure primGroup
         Public startIndex_ As Long
@@ -307,6 +293,10 @@ Module ModTankLoader
     End Class
     Public _group() As _grps
     Public Structure _grps
+        Public indices() As uvect3
+        Public vertices() As vertice_
+        Public vertColor() As Vector4
+        Public weight0() As Vector4
         Public comp As comp_
         Public cPoints() As FbxVector4
         Public vertex_pick_list As Integer
@@ -351,8 +341,6 @@ Module ModTankLoader
         Public hasColorID As Integer
         Public bumped As Boolean
         Public blend_only As Boolean
-        Public indicies() As uvect3
-        Public vertices() As vertice_
         Public bsp2_data() As Byte
         Public color_data() As Byte
         Public bsp2_material_data() As Byte
@@ -379,7 +367,7 @@ Module ModTankLoader
         Public tank_part As String
 
         Public skinned As Boolean
-
+        Public long_tank_name As String
         Public is_atlas_type As Integer
         Public g_atlas_size As vect4
         Public g_atlas_indexs As vect4
@@ -565,6 +553,9 @@ Module ModTankLoader
         If CRASH_MODE Then
             file_name = file_name.Replace("/normal/", "/crash/")
         End If
+        Dim long_name = Path.GetDirectoryName(file_name)
+        Dim l2 = Path.GetDirectoryName(long_name)
+        long_name = Path.GetDirectoryName(l2)
         '============================'============================
         'open visual
         Dim old_file_name = file_name
@@ -584,6 +575,7 @@ Module ModTankLoader
             file_name &= ".primitives_processed"
         End If
         frmMain.update_log("tank component name: " + file_name)
+        Dim tank_long_name = long_name
         '####################################################################################
         'Since I wrote this, The order has been fucking backwards!
         'This fixes that major screwup with out affecting existing
@@ -998,6 +990,8 @@ next_m:
             Dim p As Integer = 6
             For k As UInt32 = object_start To big_l
 
+                _group(k).long_tank_name = long_name
+
                 _group(k).bsp2_id = -1
 
                 _group(k).BPVT_mode = BPVT_mode
@@ -1059,26 +1053,26 @@ next_m:
                     tbuf(i).u = vb_reader.ReadSingle
                     tbuf(i).v = vb_reader.ReadSingle
                     If vh.header_text = "BPVTxyznuviiiww" Then
-                        tbuf(i).index_1 = vb_reader.ReadByte()
-                        tbuf(i).index_2 = vb_reader.ReadByte()
-                        tbuf(i).index_3 = vb_reader.ReadByte()
-                        tbuf(i).index_4 = vb_reader.ReadByte()
-                        tbuf(i).weight_1 = vb_reader.ReadByte()
-                        tbuf(i).weight_2 = vb_reader.ReadByte()
-                        tbuf(i).weight_3 = vb_reader.ReadByte()
-                        tbuf(i).weight_4 = vb_reader.ReadByte()
+                        tbuf(i).r = CSng(vb_reader.ReadByte() / 255.0!)
+                        tbuf(i).g = CSng(vb_reader.ReadByte() / 255.0!)
+                        tbuf(i).b = CSng(vb_reader.ReadByte() / 255.0!)
+                        tbuf(i).a = CSng(vb_reader.ReadByte() / 255.0!)
+                        tbuf(i).weight_1 = CSng(vb_reader.ReadByte() / 255.0!)
+                        tbuf(i).weight_2 = CSng(vb_reader.ReadByte() / 255.0!)
+                        tbuf(i).weight_3 = CSng(vb_reader.ReadByte() / 255.0!)
+                        tbuf(i).weight_4 = CSng(vb_reader.ReadByte() / 255.0!)
                         'no tangent and bitangent on BPVTxyznuviiiww type vertex
                     Else
 
                         If stride = 37 Or stride = 40 Then
-                            tbuf(i).index_1 = vb_reader.ReadByte()
-                            tbuf(i).index_2 = vb_reader.ReadByte()
-                            tbuf(i).index_3 = vb_reader.ReadByte()
-                            tbuf(i).index_4 = vb_reader.ReadByte()
-                            tbuf(i).weight_1 = vb_reader.ReadByte()
-                            tbuf(i).weight_2 = vb_reader.ReadByte()
-                            tbuf(i).weight_3 = vb_reader.ReadByte()
-                            tbuf(i).weight_4 = vb_reader.ReadByte()
+                            tbuf(i).r = CSng(vb_reader.ReadByte() / 255.0!)
+                            tbuf(i).g = CSng(vb_reader.ReadByte() / 255.0!)
+                            tbuf(i).b = CSng(vb_reader.ReadByte() / 255.0!)
+                            tbuf(i).a = CSng(vb_reader.ReadByte() / 255.0!)
+                            tbuf(i).weight_1 = CSng(vb_reader.ReadByte() / 255.0!)
+                            tbuf(i).weight_2 = CSng(vb_reader.ReadByte() / 255.0!)
+                            tbuf(i).weight_3 = CSng(vb_reader.ReadByte() / 255.0!)
+                            tbuf(i).weight_4 = CSng(vb_reader.ReadByte() / 255.0!)
                             tbuf(i).t = vb_reader.ReadUInt32
                             tbuf(i).bn = vb_reader.ReadUInt32
                         Else
@@ -1116,10 +1110,10 @@ next_m:
                     round_signed_to(_group(k).vertices(cnt).u, 4)
                     round_signed_to(_group(k).vertices(cnt).v, 4)
 
-                    _group(k).vertices(cnt).index_1 = tbuf(i).index_1
-                    _group(k).vertices(cnt).index_2 = tbuf(i).index_2
-                    _group(k).vertices(cnt).index_3 = tbuf(i).index_3
-                    _group(k).vertices(cnt).index_4 = tbuf(i).index_4
+                    _group(k).vertices(cnt).r = tbuf(i).r
+                    _group(k).vertices(cnt).g = tbuf(i).g
+                    _group(k).vertices(cnt).b = tbuf(i).b
+                    _group(k).vertices(cnt).a = tbuf(i).a
                     _group(k).vertices(cnt).weight_1 = tbuf(i).weight_1
                     _group(k).vertices(cnt).weight_2 = tbuf(i).weight_2
                     _group(k).vertices(cnt).weight_3 = tbuf(i).weight_3
@@ -1279,7 +1273,7 @@ next_m:
                 _object(jj).ID = jj
                 cnt = pGroups(jj - object_start).nPrimitives_
                 'redim indices size
-                ReDim Preserve _group(jj).indicies(cnt)
+                ReDim Preserve _group(jj).indices(cnt)
                 ' get indices offset
                 ib_reader.BaseStream.Seek(pGroups(jj - object_start).startIndex_ * ind_scale + 72, SeekOrigin.Begin)
                 ReDim Preserve _object(jj).tris(cnt)
@@ -1310,20 +1304,20 @@ next_m:
                         p3 = ib_reader.ReadUInt32
                     End If
                     'save the vertex pointers
-                    _group(jj).indicies(i) = New uvect3
+                    _group(jj).indices(i) = New uvect3
                     '_group(jj).is_carraige = False
 
                     'this needs to be sorted out for primitives
                     Dim i1, i2, i3 As Integer
                     i1 = p1 : i2 = p2 : i3 = p3
                     If file_name.ToLower.Contains("hull") Or file_name.ToLower.Contains("turret") Or PRIMITIVES_MODE Then
-                        _group(jj).indicies(i).v1 = p2
-                        _group(jj).indicies(i).v2 = p1
-                        _group(jj).indicies(i).v3 = p3
+                        _group(jj).indices(i).v1 = p2
+                        _group(jj).indices(i).v2 = p1
+                        _group(jj).indices(i).v3 = p3
                     Else
-                        _group(jj).indicies(i).v1 = p1
-                        _group(jj).indicies(i).v2 = p2
-                        _group(jj).indicies(i).v3 = p3
+                        _group(jj).indices(i).v1 = p1
+                        _group(jj).indices(i).v2 = p2
+                        _group(jj).indices(i).v3 = p3
                     End If
                     'If _group(jj).skinned And PRIMITIVES_MODE Then
                     '    p1 = i2

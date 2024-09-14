@@ -78,8 +78,8 @@ Module mod_glTF
 
             'create mesh pirmitive face indice set
             For i As UInt32 = 1 To _group(item).nPrimitives_
-                m.CreatePolygon(_group(item).indicies(i).v1 - off, _group(item).indicies(i).v2 - off,
-                                _group(item).indicies(i).v3 - off)
+                m.CreatePolygon(_group(item).indices(i).v1 - off, _group(item).indices(i).v2 - off,
+                                _group(item).indices(i).v3 - off)
             Next
 
             Dim norm As New VertexElementNormal

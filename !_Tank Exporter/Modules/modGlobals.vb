@@ -55,7 +55,6 @@ Module modGlobals
 
     'Public GBMT_atlas_render_index_array() As single_coords_
     'Public GBMT_atlas_index_array() As int_coords_
-    Public CONTINUE_LOADING As Boolean
     Public WORKING As Boolean
     Public WRITE_FBX_NOW As Boolean
     Public EXPORT_CAMOUFLAGE As Boolean
