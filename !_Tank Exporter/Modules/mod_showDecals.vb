@@ -2,8 +2,9 @@
 Imports System.Drawing
 Imports System.Drawing.Imaging
 Imports System.IO
+Imports System.Runtime.InteropServices
 Imports System.Windows.Forms
-
+Imports Tao.DevIl
 Public Class CustomListView
     Inherits ListView
 
@@ -19,12 +20,14 @@ Public Class CustomListView
 
 
 End Class
+
 Public Class showDecals
+
     Inherits Form
 
     Private Shared instance As showDecals = Nothing
-    Public listView As New CustomListView
-    Private pictureBox As PictureBox
+    Public myListView As New CustomListView
+    Private myPictureBox As PictureBox
     Private pathLabel As Label
     Private acceptBut As Button
     Private cancelBut As Button
@@ -46,27 +49,32 @@ Public Class showDecals
     End Sub
 
     Private Sub InitializeCustomComponents()
-        Me.Width = 600 ' Make the form 3 times wider
-        Me.Height = 800 ' Make the form 3 times wider
+        Me.FormBorderStyle = FormBorderStyle.SizableToolWindow
+        Me.Width = 600
+        Me.Height = CInt(Width * 0.816)
         Me.TopMost = True ' Keep the form on top
+        formAspectRatio = 0.816
 
-        With listView
+        With myListView
             .View = View.LargeIcon
             .Dock = DockStyle.Left
             .Width = 200
             .BackColor = Color.FromArgb(255, 255, 255) ' Dark background color
             .ForeColor = Color.FromArgb(0, 0, 0) ' Light text color
         End With
-        listView.Sorting = SortOrder.None  ' Ensure no sorting is applied
+        myListView.Sorting = SortOrder.None  ' Ensure no sorting is applied
 
-        AddHandler listView.SelectedIndexChanged, AddressOf ListView_SelectedIndexChanged
-        AddHandler listView.Paint, AddressOf ListView_Paint
+        AddHandler myListView.SelectedIndexChanged, AddressOf myListView_SelectedIndexChanged
+        AddHandler myListView.Paint, AddressOf myListView_Paint
+        AddHandler Me.SizeChanged, AddressOf Form_SizeChanged
 
-        pictureBox = New PictureBox With {
-            .Dock = DockStyle.Fill,
+        myPictureBox = New PictureBox With {
+            .Dock = DockStyle.None,
+            .Location = New Point(myListView.Width, 0),
+            .Size = New Size(Me.ClientSize.Width - myListView.Width, Me.ClientSize.Height - 90),
             .SizeMode = PictureBoxSizeMode.Zoom,
-            .BackColor = Color.FromArgb(30, 30, 30) ' Dark background color
-        }
+            .BackColor = Color.FromArgb(64, 64, 64) ' Dark background color
+            }
 
         pathLabel = New Label With {
             .Dock = DockStyle.Bottom,
@@ -90,11 +98,14 @@ Public Class showDecals
         }
         AddHandler cancelBut.Click, AddressOf cancelBut_Click
 
-        Me.Controls.Add(listView)
-        Me.Controls.Add(pictureBox)
+        Me.Controls.Add(myListView)
+        Me.Controls.Add(myPictureBox)
         Me.Controls.Add(pathLabel)
         Me.Controls.Add(acceptBut)
         Me.Controls.Add(cancelBut)
+
+        ' Anchor the PictureBox to all sides after everything is initialized
+        myPictureBox.Anchor = AnchorStyles.Top Or AnchorStyles.Bottom Or AnchorStyles.Left Or AnchorStyles.Right
 
         ShowLoadingPopupAndLoadImages() ' Replace with your actual path
     End Sub
@@ -107,11 +118,32 @@ Public Class showDecals
         LoadDdsImages()
 
         loadingForm.Close()
-    End Sub
 
+    End Sub
+    ' Handle form resizing while maintaining aspect ratio
+    ' Handle form resizing while maintaining aspect ratio
+    Private Sub Form_SizeChanged(sender As Object, e As EventArgs)
+        ' Temporarily remove the SizeChanged handler to avoid recursion issues
+        RemoveHandler Me.SizeChanged, AddressOf Form_SizeChanged
+
+        ' Calculate the new aspect ratio
+        Dim newAspectRatio As Double = Me.Width / Me.Height
+
+        ' Adjust dimensions to maintain the correct aspect ratio
+        If newAspectRatio > formAspectRatio Then
+            ' Width is too large relative to height; adjust width
+            Me.Width = CInt(Me.Height / formAspectRatio)
+        ElseIf newAspectRatio < formAspectRatio Then
+            ' Height is too large relative to width; adjust height
+            Me.Height = CInt(Me.Width * formAspectRatio)
+        End If
+
+        ' Re-add the SizeChanged handler
+        AddHandler Me.SizeChanged, AddressOf Form_SizeChanged
+    End Sub
     Private Sub LoadDdsImages()
         updateEvent.Reset()
-        listView.SuspendLayout()
+        myListView.SuspendLayout()
         For Each item In decal_textures
             If item.full_path.ToLower.Contains("am.dds") Then
                 If item.colorMap_Id = 0 Then
@@ -119,136 +151,185 @@ Public Class showDecals
                 End If
                 If item.colorMap_Id > 0 Then
 
-                    Dim bm = ConvertTextureToBitmap(item.colorMap_Id)
+                    Dim bm = ConvertAndRescaleTexture(item.colorMap_Id)
                     If bm Is Nothing Then
                         Continue For
                     End If
                     Dim vl_item = New ListViewItem With {
                    .Text = item.colorMap_name,
                    .Tag = item.full_path, ' Store the file path in the Tag property
-                   .ImageIndex = listView.Items.Count
+                   .ImageIndex = myListView.Items.Count
                }
-                    listView.Items.Add(vl_item)
-                    If listView.LargeImageList Is Nothing Then
-                        listView.LargeImageList = New ImageList() With {
+                    myListView.Items.Add(vl_item)
+                    If myListView.LargeImageList Is Nothing Then
+                        myListView.LargeImageList = New ImageList() With {
                             .ImageSize = New Size(110, 110) ' Set the icon size to 90x90
                         }
                     End If
                     If vl_item IsNot Nothing Then
                         preloadedImages(item.full_path) = bm
 
-                        listView.LargeImageList.Images.Add(bm)
+                        myListView.LargeImageList.Images.Add(bm)
                     End If
                 End If
             End If
         Next
-        listView.ResumeLayout()
+        myListView.ResumeLayout()
         updateEvent.Set()
 
     End Sub
-    Private Function ConvertTextureToBitmap(textureId As Integer) As Bitmap
-        ' Bind the texture
+    Public Function ConvertAndRescaleTexture(textureId As Integer, Optional scaleFactor As Double = 0.25) As Bitmap
+        ' Step 1: Bind the OpenGL texture
         Gl.glBindTexture(Gl.GL_TEXTURE_2D, textureId)
 
-        ' Get the width of the texture
+        ' Step 2: Retrieve the width and height of the OpenGL texture
         Dim width As Integer
-        Gl.glGetTexLevelParameteriv(Gl.GL_TEXTURE_2D, 0, Gl.GL_TEXTURE_WIDTH, width)
-
-        ' Get the height of the texture
         Dim height As Integer
+        Dim depth As Integer = 1 ' For 2D textures, depth is 1
+
+        Gl.glGetTexLevelParameteriv(Gl.GL_TEXTURE_2D, 0, Gl.GL_TEXTURE_WIDTH, width)
         Gl.glGetTexLevelParameteriv(Gl.GL_TEXTURE_2D, 0, Gl.GL_TEXTURE_HEIGHT, height)
 
-        ' Allocate memory for the pixel data
-        Dim pixelData(width * height * 4 - 1) As Byte ' 4 bytes per pixel (RGBA)
+        ' Step 3: Generate an iLL image ID and bind it
+        Dim texID As UInt32 = Ilu.iluGenImage()   ' Generate an iLL image ID
+        Il.ilBindImage(texID)
 
-        ' Read the pixel data from the texture
-        Gl.glGetTexImage(Gl.GL_TEXTURE_2D, 0, Gl.GL_BGRA, Gl.GL_UNSIGNED_BYTE, pixelData)
+        ' Step 4: Allocate memory for the texture data
+        Dim textureDataSize As Integer = width * height * 4 ' 4 bytes per pixel (RGBA)
+        Dim textureData As IntPtr = Marshal.AllocHGlobal(textureDataSize)
 
-        ' Create a Bitmap from the pixel data
-        Dim bitmap = Nothing
         Try
-            bitmap = New System.Drawing.Bitmap(width, height, PixelFormat.Format32bppArgb)
+            ' Step 5: Retrieve the texture data from OpenGL
+            Gl.glGetTexImage(Gl.GL_TEXTURE_2D, 0, Gl.GL_BGRA, Gl.GL_UNSIGNED_BYTE, textureData)
 
-        Catch ex As Exception
-            Return Nothing
+            ' Step 6: Load the texture data into iLL
+            Il.ilTexImage(width, height, depth, 4, Il.IL_BGRA, Il.IL_UNSIGNED_BYTE, textureData)
+
+            ' Step 7: Apply scaling in iLL
+            Dim newWidth As Integer = CInt(width * scaleFactor)
+            Dim newHeight As Integer = CInt(height * scaleFactor)
+            Ilu.iluScale(newWidth, newHeight, 1) ' Scale the image
+
+            ' Step 8: Allocate memory for the rescaled pixel data
+            Dim scaledPixelDataSize As Integer = newWidth * newHeight * 4 ' 4 bytes per pixel (RGBA)
+            Dim scaledPixelData As IntPtr = Marshal.AllocHGlobal(scaledPixelDataSize)
+
+            Try
+                ' Get the rescaled pixel data from iLL
+                Il.ilCopyPixels(0, 0, 0, newWidth, newHeight, 1, Il.IL_BGRA, Il.IL_UNSIGNED_BYTE, scaledPixelData)
+
+                ' Step 9: Create a Bitmap from the scaled pixel data
+                Dim bitmap As New System.Drawing.Bitmap(newWidth, newHeight, PixelFormat.Format32bppArgb)
+                Dim rect As New Rectangle(0, 0, newWidth, newHeight)
+                Dim bitmapData As BitmapData = bitmap.LockBits(rect, ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb)
+
+                ' Convert iLL image format to match the Bitmap
+                Il.ilConvertImage(Il.IL_BGRA, Il.IL_UNSIGNED_BYTE)
+
+                ' Copy the data from IntPtr to a managed byte array
+                Dim pixelData As Byte() = New Byte(scaledPixelDataSize - 1) {}
+                Marshal.Copy(scaledPixelData, pixelData, 0, scaledPixelDataSize)
+
+                ' Copy the data to the Bitmap
+                System.Runtime.InteropServices.Marshal.Copy(pixelData, 0, bitmapData.Scan0, pixelData.Length)
+                bitmap.UnlockBits(bitmapData)
+
+                Return bitmap
+            Finally
+                ' Clean up scaledPixelData
+                Marshal.FreeHGlobal(scaledPixelData)
+            End Try
+        Finally
+            ' Clean up textureData
+            Marshal.FreeHGlobal(textureData)
+            ' Unbind the iLL image and OpenGL texture
+            Gl.glBindTexture(Gl.GL_TEXTURE_2D, 0)    ' Unbind OpenGL texture
+            Il.ilBindImage(0)                        ' Unbind iLL image
         End Try
-        ' Lock the bitmap's bits
-        Dim bmpData As BitmapData = bitmap.LockBits(New Rectangle(0, 0, width, height), ImageLockMode.WriteOnly, bitmap.PixelFormat)
-
-        ' Copy the pixel data into the bitmap
-        System.Runtime.InteropServices.Marshal.Copy(pixelData, 0, bmpData.Scan0, pixelData.Length)
-
-        ' Unlock the bits
-        bitmap.UnlockBits(bmpData)
-
-        ' Unbind the texture
-        Gl.glBindTexture(Gl.GL_TEXTURE_2D, 0)
-
-        Return bitmap
     End Function
 
 
-    Private Sub ListView_SelectedIndexChanged(sender As Object, e As EventArgs)
+    Private Sub myListView_SelectedIndexChanged(sender As Object, e As EventArgs)
 
         Try
             ' Clear the current selection and select the desired item
 
-            If listView.SelectedItems.Count > 0 Then
+            If myListView.SelectedItems.Count > 0 Then
 
-                Dim selectedItem = listView.SelectedItems(0)
-                pictureBox.Image = preloadedImages(selectedItem.Tag.ToString())
+                Dim selectedItem = myListView.SelectedItems(0)
+                myPictureBox.Image = preloadedImages(selectedItem.Tag.ToString())
                 pathLabel.Text = selectedItem.Tag.ToString() ' Display the image path
                 cur_selected_decal = selectedItem.ImageIndex ' Store the selected image ID
 
-                ' Invalidate the ListView to trigger a repaint
-                listView.Invalidate()
+                ' Invalidate the myListView to trigger a repaint
+                myListView.Invalidate()
             End If
         Finally
         End Try
     End Sub
-    Private Sub ListView_Paint(sender As Object, e As PaintEventArgs)
+    Private Sub myListView_Paint(sender As Object, e As PaintEventArgs)
         ' Temporarily remove the SelectedIndexChanged event handler
-        RemoveHandler listView.SelectedIndexChanged, AddressOf ListView_SelectedIndexChanged
-        'Call the base class's OnPaint method to ensure regular drawing logic is executed
+        RemoveHandler myListView.SelectedIndexChanged, AddressOf myListView_SelectedIndexChanged
+        ' Call the base class's OnPaint method to ensure regular drawing logic is executed
         MyBase.OnPaint(e)
         Application.DoEvents()
-        'listView.SelectedItems.Clear()
-        'listView.Items(cur_selected_decal).Selected = True
 
         ' Draw each item
-        For Each item As ListViewItem In listView.Items
-            Dim itemRect = listView.GetItemRect(item.Index)
-            Dim imageRect = New Rectangle(itemRect.Left, itemRect.Top, 80, 80) ' Adjust the size and position as needed
+        For Each item As ListViewItem In myListView.Items
+            Dim itemRect = myListView.GetItemRect(item.Index)
+            Dim imageSize As New Size(120, 120) ' Target size of the image container
+            Dim imageRect As Rectangle ' Final destination rectangle for the image
 
-            ' Draw the image
-            If listView.LargeImageList IsNot Nothing AndAlso item.ImageIndex >= 0 AndAlso item.ImageIndex < listView.LargeImageList.Images.Count Then
-                e.Graphics.DrawImage(listView.LargeImageList.Images(item.ImageIndex), imageRect)
+            ' Draw the image with proper aspect ratio
+            If myListView.LargeImageList IsNot Nothing AndAlso item.ImageIndex >= 0 AndAlso item.ImageIndex < myListView.LargeImageList.Images.Count Then
+                Dim img = myListView.LargeImageList.Images(item.ImageIndex)
+
+                ' Calculate the aspect ratio of the original image
+                Dim aspectRatio As Single = img.Width / img.Height
+                Dim containerAspectRatio As Single = imageSize.Width / imageSize.Height
+
+                ' Adjust the image rectangle to maintain the correct aspect ratio
+                If aspectRatio > containerAspectRatio Then
+                    ' Image is wider, fit to width
+                    Dim scaledHeight As Integer = CInt(imageSize.Width / aspectRatio)
+                    imageRect = New Rectangle(itemRect.Left, itemRect.Top + (imageSize.Height - scaledHeight) \ 2, imageSize.Width, scaledHeight)
+                Else
+                    ' Image is taller, fit to height
+                    Dim scaledWidth As Integer = CInt(imageSize.Height * aspectRatio)
+                    imageRect = New Rectangle(itemRect.Left + (imageSize.Width - scaledWidth) \ 2, itemRect.Top, scaledWidth, imageSize.Height)
+                End If
+
+                ' Draw the image in the calculated rectangle
+                e.Graphics.DrawImage(img, imageRect)
             End If
 
-            ' Draw the index ID and tag string name
-            Dim indexText As String = item.Index.ToString("D3") ' Format index as three digits
-            Dim textRect As New Rectangle(itemRect.Left, itemRect.Bottom - 50, itemRect.Width, 40) ' Adjust the position as needed
+            ' Add the 3-place padded ID number in the bottom right corner
+            Dim idText As String = item.Index.ToString("D3") ' 3-place padded ID number
+            Dim textFont As New Font("Arial", 8, FontStyle.Bold)
+            Dim textColor As Color = Color.Black
+            Dim textBrush As New SolidBrush(textColor)
+            Dim textPosition As New Point(itemRect.Right - 30, itemRect.Bottom - 20) ' Adjust position to bottom right
 
-            Using textBrush As New SolidBrush(Color.Black)
-                e.Graphics.DrawString($"{indexText}. {item.Text.ToString()}", listView.Font, textBrush, textRect)
-            End Using
+            e.Graphics.DrawString(idText, textFont, textBrush, textPosition)
 
-            ' Draw the rectangle
+            ' Draw the rectangle for selection
             If item.Selected Then
                 ' Draw a red rectangle around the selected item
                 Using redPen As New Pen(Color.Red, 2)
                     e.Graphics.DrawRectangle(redPen, itemRect.Left, itemRect.Top, itemRect.Width, itemRect.Height)
                 End Using
             Else
-                ' Draw a grey rectangle around the other items
+                ' Draw a grey rectangle around other items
                 Using greyPen As New Pen(Color.Gray, 1)
                     e.Graphics.DrawRectangle(greyPen, itemRect.Left, itemRect.Top, itemRect.Width, itemRect.Height)
                 End Using
             End If
         Next
+
+        ' Logic for selecting the correct image
         If Not AppCalled Then
-            listView.SelectedItems.Clear()
-            For Each item As ListViewItem In listView.Items
+            myListView.SelectedItems.Clear()
+            For Each item As ListViewItem In myListView.Items
                 ' Check if the item's Tag matches the desired tag name
                 If item.Tag IsNot Nothing AndAlso item.Tag.ToString().Contains(frmMain.d_texture_name.Text) Then
                     ' Select the item
@@ -260,17 +341,21 @@ Public Class showDecals
                     Exit For
                 End If
             Next
-            Dim selectedItem = listView.SelectedItems(0)
-            pictureBox.Image = preloadedImages(selectedItem.Tag.ToString())
-            pathLabel.Text = selectedItem.Tag.ToString() ' Display the image path
-            AppCalled = True
-            listView.Invalidate()
+
+            Try
+                Dim selectedItem = myListView.SelectedItems(0)
+                myPictureBox.Image = preloadedImages(selectedItem.Tag.ToString())
+                pathLabel.Text = selectedItem.Tag.ToString() ' Display the image path
+                AppCalled = True
+                myListView.Invalidate()
+            Catch ex As Exception
+            End Try
         End If
+
         ' Re-add the SelectedIndexChanged event handler
-        AddHandler listView.SelectedIndexChanged, AddressOf ListView_SelectedIndexChanged
+        AddHandler myListView.SelectedIndexChanged, AddressOf myListView_SelectedIndexChanged
         GC.Collect()
         GC.WaitForPendingFinalizers()
-
     End Sub
     Private Sub acceptBut_Click(sender As Object, e As EventArgs)
         Me.DialogResult = DialogResult.OK
@@ -293,11 +378,11 @@ Public Class showDecals
 
     ' Method to select and display the image based on the provided ID
     Private Sub SelectAndDisplayImage(imageId As Integer)
-        If imageId >= 0 AndAlso imageId < listView.Items.Count Then
-            listView.Items(imageId).Selected = True
-            listView.EnsureVisible(imageId)
-            pictureBox.Image = preloadedImages(listView.Items(imageId).Tag.ToString())
-            pathLabel.Text = listView.Items(imageId).Tag.ToString()
+        If imageId >= 0 AndAlso imageId < myListView.Items.Count Then
+            myListView.Items(imageId).Selected = True
+            myListView.EnsureVisible(imageId)
+            myPictureBox.Image = preloadedImages(myListView.Items(imageId).Tag.ToString())
+            pathLabel.Text = myListView.Items(imageId).Tag.ToString()
             cur_selected_decal = imageId
         Else
             Console.WriteLine($"Invalid imageId: {imageId}")
@@ -336,7 +421,7 @@ Public Class LoadingForm
 
     Public Sub New()
         Me.Text = "Loading"
-        Me.Size = New Size(300, 100)
+        Me.Size = New Size(250, 75)
         Me.StartPosition = FormStartPosition.CenterScreen
 
         loadingLabel = New Label With {
@@ -344,7 +429,7 @@ Public Class LoadingForm
             .Dock = DockStyle.Fill,
             .TextAlign = ContentAlignment.MiddleCenter
         }
-
+        Me.FormBorderStyle = FormBorderStyle.FixedToolWindow
         Me.Controls.Add(loadingLabel)
     End Sub
 End Class

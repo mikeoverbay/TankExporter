@@ -42,8 +42,8 @@ Module modFBX
         Public new_objects As Boolean
     End Structure
     Public Sub remove_loaded_fbx()
-        If FBX_LOADED Then
-            FBX_LOADED = False
+        'If FBX_LOADED Then
+        FBX_LOADED = False
             For ii = 1 To fbxgrp.Length - 2
                 Gl.glDeleteTextures(1, fbxgrp(ii).color_Id)
                 Gl.glFinish()
@@ -61,7 +61,7 @@ Module modFBX
             ReDim fbxgrp(0)
             GC.Collect() 'clean up garbage
             GC.WaitForFullGCComplete()
-        End If
+        'End If
     End Sub
 
     Private Sub displayMatrix(m As FbxXMatrix, ByVal name As String)
@@ -1260,17 +1260,9 @@ outahere:
         Return True
     End Function
 
-    Private Function fix_texture_path(s As String) As String
-        If s.ToLower.Contains("vehicles") Then
-            s = s.Replace("vehicles", "~")
-            Dim a = s.Split("~")
-            s = My.Settings.res_mods_path + "\vehicles" + a(1)
-            Return s
-        End If
-        Return s
-    End Function
 
-    Private Sub process_fbx_data()
+
+    Public Sub process_fbx_data()
         'we need to reorder the FBX read by its ID tag
         Dim total = fbxgrp.Length
         ReDim t_fbx(total)
@@ -1278,7 +1270,7 @@ outahere:
         Dim pnt(30) As Integer
         'move to right locations....
         For i = 1 To fbxgrp.Length - 1
-            If fbxgrp(i).name.ToLower.Contains("vehicle") Then
+            If fbxgrp(i).name.ToLower.Contains("vehicles") Then
 
                 Dim n = fbxgrp(i).name
                 Dim a = n.Split("~")
@@ -1288,9 +1280,9 @@ outahere:
 
             End If
         Next
-        'move any new items to the end.
+        'sort tank parts and move any new items to the end.
         For i = 1 To fbxgrp.Length - 1
-            If Not fbxgrp(i).name.ToLower.Contains("vehicle") Then
+            If Not fbxgrp(i).name.ToLower.Contains("vehicles") Then
                 move_fbx_entry(t_fbx(last), fbxgrp(i), last, i)
                 last += 1
             End If
@@ -1381,8 +1373,8 @@ outahere:
         For j = 0 To fbx_out.indices.Length - 1
             fbx_in.indices(j) = New uvect3
             fbx_in.indices(j).v1 = fbx_out.indices(j).v1
-            'fbx_in.indices(j).v2 = fbx_out.indices(j).v2
-            'fbx_in.indices(j).v3 = fbx_out.indices(j).v3
+            fbx_in.indices(j).v2 = fbx_out.indices(j).v2
+            fbx_in.indices(j).v3 = fbx_out.indices(j).v3
         Next
 
     End Sub
@@ -1519,12 +1511,45 @@ outahere:
             End If
             frmMain.info_Label.Text = "Loading Tank Component: " + file_name
             Application.DoEvents()
-            file_name = file_name.Replace(".primitives", ".model")
+            Dim fp = Path.GetDirectoryName(file_name)
+            Dim fnm = Path.GetFileName(file_name)
+
+
+            Select Case True
+                Case fnm.ToLower.Contains("chass")
+                    fnm = "Chassis.model"
+                    Exit Select
+                Case fnm.ToLower.Contains("hull")
+                    fnm = "Hull.model"
+                    Exit Select
+                Case fnm.ToLower.Contains("turr")
+                    Dim arr = fnm.Split(".")
+                    fnm = arr(0) + ".model"
+                    Exit Select
+                Case fnm.ToLower.Contains("gun")
+                    Dim arr = fnm.Split(".")
+                    fnm = arr(0) + ".model"
+                    'fnm = "chassis.model_processed"
+                    Exit Select
+
+            End Select
+            file_name = fp + "\" + fnm
+            file_name = file_name.Replace("\l\", "\lod0\")
             Dim ta = file_name.Split("\normal")
-            current_tank_package = m_groups(i).package_id(kk)
-            TANK_NAME = ta(0) + ":" + current_tank_package.ToString
+            TANK_NAME = ta(0)
             frmMain.Text = "File: " + ta(0)
-            Dim success = build_primitive_data(True)
+            LOADING_FBX = True
+            Dim success As Boolean = False
+            If file_name.ToLower.Contains("chassis") Then
+                success = build_primitive_data(False)
+            Else
+                success = build_primitive_data(True)
+            End If
+            If Not success Then
+                MsgBox("Fail loading original model", MsgBoxStyle.Exclamation, "Load failure!")
+                remove_loaded_fbx()
+                frmMain.clean_house()
+            End If
         Next
         '---------------------------------------------------------------------------------------------------
         'get the xml for this tank.
@@ -1582,88 +1607,7 @@ outahere:
                 g_new = True
             End If
         Else
-            For i = 1 To object_count
-                flg = False
-                If _group(i).nVertices_ <> fbxgrp(i).nVertices_ Then 'polygons removed or added?
-                    flg = True : GoTo whichOne
-                End If
-                Try
-                    For j As UInt32 = 0 To _group(i).indices.Length - 2
-                        Dim p1 = _group(i).indices(j + 1).v1 - _group(i).startVertex_
-                        Dim p2 = _group(i).indices(j + 1).v2 - _group(i).startVertex_
-                        Dim p3 = _group(i).indices(j + 1).v3 - _group(i).startVertex_
-                        Dim vg_1 = _group(i).vertices(p1)
-                        Dim vg_2 = _group(i).vertices(p2)
-                        Dim vg_3 = _group(i).vertices(p3)
-                        Dim f1 = fbxgrp(i).indices((j * 3) + 0).v1
-                        Dim f2 = fbxgrp(i).indices((j * 3) + 1).v1
-                        Dim f3 = fbxgrp(i).indices((j * 3) + 2).v1
-                        Dim vf_1 = fbxgrp(i).vertices(f1)
-                        Dim vf_2 = fbxgrp(i).vertices(f2)
-                        Dim vf_3 = fbxgrp(i).vertices(f3)
-                        '
 
-                        'check every verts x,y and z for non match
-                        'p1 -----------------------------------------
-                        If vg_1.x <> vf_1.x Then
-                            flg = True
-                        End If
-                        If vg_1.y <> vf_1.y Then
-                            flg = True
-                        End If
-                        If vg_1.z <> vf_1.z Then
-                            flg = True
-                        End If
-                        'p2 -----------------------------------------
-                        If vg_2.x <> vf_2.x Then
-                            flg = True
-                        End If
-                        If vg_2.y <> vf_2.y Then
-                            flg = True
-                        End If
-                        If vg_2.z <> vf_2.z Then
-                            flg = True
-                        End If
-                        'p3 -----------------------------------------
-                        If vg_3.x <> vf_3.x Then
-                            flg = True
-                        End If
-                        If vg_3.y <> vf_3.y Then
-                            flg = True
-                        End If
-                        If vg_3.z <> vf_3.z Then
-                            flg = True
-                        End If
-                    Next
-                Catch ex As Exception
-
-                End Try
-
-whichone:
-                If flg Then ' if true than either the count is different or the vertices are changed
-                    If _group(i).name.ToLower.Contains("chassis") Then
-                        'check if the treads have been changed. The can NOT 
-                        If _group(i).color_name.ToLower.Contains("tracks") And CB Then
-                            'MsgBox("It appears you have removed or added" + vbCrLf + _
-                            '       " vertices to the rubber band tracks!" + vbCrLf + _
-                            '       "You can ignore this warning!!", _
-                            '       MsgBoxStyle.Exclamation, "Oh My..")
-                        Else
-                            CB = True
-
-                        End If
-                    End If
-                    If _group(i).name.ToLower.Contains("hull") Then
-                        HB = True
-                    End If
-                    If _group(i).name.ToLower.Contains("turret") Then
-                        TB = True
-                    End If
-                    If _group(i).name.ToLower.Contains("gun") Then
-                        GB = True
-                    End If
-                End If
-            Next
 
         End If
         For i = 1 To fbxgrp.Length - 1
@@ -1744,15 +1688,14 @@ whichone:
             Gl.glNewList(cpl, Gl.GL_COMPILE)
             a = i + 10
             Gl.glBegin(Gl.GL_TRIANGLES)
-            For k As UInt32 = 0 To fbxgrp(i).nPrimitives_ * 3 - 1 Step 3
-
-                Dim p1 = fbxgrp(i).indices(k + 0).v1
-                Dim p2 = fbxgrp(i).indices(k + 1).v1
-                Dim p3 = fbxgrp(i).indices(k + 2).v1
+            For k As UInt32 = 0 To fbxgrp(i).nPrimitives_ - 1
+                Dim p1 = fbxgrp(i).indices(k).v1
+                Dim p2 = fbxgrp(i).indices(k).v2
+                Dim p3 = fbxgrp(i).indices(k).v3
                 Dim v1 = fbxgrp(i).vertices(p1)
                 Dim v2 = fbxgrp(i).vertices(p2)
                 Dim v3 = fbxgrp(i).vertices(p3)
-                Dim t = CInt((k / 3) + 1)
+                Dim t = CInt(k + 1)
                 r = t And &HFF
                 g = (t And &HFF00) >> 8
                 b = (t And &HFF0000) >> 16
@@ -1764,6 +1707,7 @@ whichone:
             Gl.glEnd()
             Gl.glEndList()
         Next
+
         'create pick lists
         For i = 1 To object_count
             Dim cpl = Gl.glGenLists(1)
@@ -1853,6 +1797,8 @@ whichone:
         Gl.glBegin(Gl.GL_TRIANGLES)
         For z As UInt32 = 0 To (cnt) - 1
             make_triangle(jj, fbxgrp(jj).indices(z).v1)
+            make_triangle(jj, fbxgrp(jj).indices(z).v2)
+            make_triangle(jj, fbxgrp(jj).indices(z).v3)
         Next
         Gl.glEnd()
     End Sub
@@ -1863,9 +1809,9 @@ whichone:
         Gl.glMultiTexCoord3f(Gl.GL_TEXTURE1, fbxgrp(jj).vertices(i).tx, fbxgrp(jj).vertices(i).ty, fbxgrp(jj).vertices(i).tz)
         Gl.glMultiTexCoord3f(Gl.GL_TEXTURE2, fbxgrp(jj).vertices(i).bnx, fbxgrp(jj).vertices(i).bny, fbxgrp(jj).vertices(i).bnz)
         If fbxgrp(jj).has_Vcolor Then
-            Gl.glMultiTexCoord3f(Gl.GL_TEXTURE3, CSng(fbxgrp(jj).vertices(i).index_1 / 255.0!), _
-                                  CSng(fbxgrp(jj).vertices(i).index_2 / 255.0!), _
-                                  CSng(fbxgrp(jj).vertices(i).index_3 / 255.0!))
+            Gl.glMultiTexCoord3f(Gl.GL_TEXTURE3, CSng(fbxgrp(jj).vertices(i).r),
+                                                 CSng(fbxgrp(jj).vertices(i).g),
+                                                 CSng(fbxgrp(jj).vertices(i).b))
         Else
             Gl.glMultiTexCoord3f(Gl.GL_TEXTURE3, 0.0!, 0.0!, 0.0!)
         End If

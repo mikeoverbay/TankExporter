@@ -70,7 +70,7 @@ Module WorkFBO
             Dim Status = Gl.glCheckFramebufferStatusEXT(Gl.GL_FRAMEBUFFER_EXT)
 
             If Status <> Gl.GL_FRAMEBUFFER_COMPLETE_EXT Then
-                'MsgBox("Failed to create Worker_fbo", MsgBoxStyle.Critical, "Not good!")
+                MsgBox("Failed to create Worker fbo", MsgBoxStyle.Critical, "Not good!")
 
             End If
 

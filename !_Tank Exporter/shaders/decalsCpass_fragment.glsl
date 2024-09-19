@@ -213,26 +213,31 @@ vec3 lightColor[3];
     lightColor[2] = vec3 (0.5);
 
  //=========================================================
-    // Calculate UVs
+// Calculate UVs
     vec2 UV = postProjToScreen(positionSS);
-    // sample the Depth from the Depthsampler
+
+    // Sample the Depth from the Depthsampler
     float Depth = texture2D(depthMap, UV).x * 2.0 - 1.0;
-    // Calculate Worldposition by recreating it out of the coordinates and depth-sample
+
+    // Calculate World Position by recreating it out of the coordinates and depth-sample
     vec4 ScreenPosition;
     ScreenPosition.xy = UV * 2.0 - 1.0;
-    ScreenPosition.z = (Depth);
-    ScreenPosition.w = 1.0f;
-    // Transform position from screen space to world space
-    vec4 WorldPosition = matPrjInv * ScreenPosition ;
-    WorldPosition.xyz /= WorldPosition.w;
-    WorldPosition.w = 1.0f;
-    // transform to decal original and size.
-    vec3 world = vec3(WorldPosition); // this is world space!
+    ScreenPosition.z = Depth;
+    ScreenPosition.w = 1.0;
 
-    float l_dist = sqrt(world.x*world.x + world.z*world.z);//used to clip the shadow map
+    // Transform position from screen space to world space
+    vec4 WorldPosition = matPrjInv * ScreenPosition;
+    WorldPosition.xyz /= WorldPosition.w;
+    WorldPosition.w = 1.0;
+
+    // Transform to decal original and size
+    vec3 world = vec3(WorldPosition); // This is world space!
+
+    float l_dist = sqrt(world.x * world.x + world.z * world.z); // Used to clip the shadow map
 
     WorldPosition = invDecal_mat * WorldPosition;
-    clip (WorldPosition.xyz);
+    clip(WorldPosition.xyz);
+
     /*==================================================*/
     //Get texture UVs
     //get 1/2 pixel

@@ -419,15 +419,15 @@ Public Class frmTextureViewer
         Dim cnt = fbxgrp(current_tank_part).nPrimitives_
 
         Gl.glBegin(Gl.GL_TRIANGLES)
-        For i As UInt32 = 0 To cnt * 3 - 1 Step 3
-            Dim t = CInt((i / 3) + 1)
+        For i As UInt32 = 0 To cnt - 1
+            Dim t = i + 1
             r = t And &HFF
             g = (t And &HFF00) >> 8
             b = (t And &HFF0000) >> 16
             Gl.glColor3ub(r, g, b)
             Dim p1 = fbxgrp(current_tank_part).indices(i + 0).v1
-            Dim p2 = fbxgrp(current_tank_part).indices(i + 1).v1
-            Dim p3 = fbxgrp(current_tank_part).indices(i + 2).v1
+            Dim p2 = fbxgrp(current_tank_part).indices(i + 0).v2
+            Dim p3 = fbxgrp(current_tank_part).indices(i + 0).v3
             Dim v1 = fbxgrp(current_tank_part).vertices(p1)
             Dim v2 = fbxgrp(current_tank_part).vertices(p2)
             Dim v3 = fbxgrp(current_tank_part).vertices(p3)
@@ -533,10 +533,10 @@ Public Class frmTextureViewer
         Gl.glScalef(rect_size.X, rect_size.Y, 1.0F)
 
         Gl.glBegin(Gl.GL_TRIANGLES)
-        For i As UInt32 = 0 To cnt * 3 - 1 Step 3
+        For i As UInt32 = 0 To cnt - 1
             Dim p1 = fbxgrp(current_tank_part).indices(i + 0).v1
-            Dim p2 = fbxgrp(current_tank_part).indices(i + 1).v1
-            Dim p3 = fbxgrp(current_tank_part).indices(i + 2).v1
+            Dim p2 = fbxgrp(current_tank_part).indices(i + 0).v2
+            Dim p3 = fbxgrp(current_tank_part).indices(i + 0).v3
             Dim v1 = fbxgrp(current_tank_part).vertices(p1)
             Dim v2 = fbxgrp(current_tank_part).vertices(p2)
             Dim v3 = fbxgrp(current_tank_part).vertices(p3)

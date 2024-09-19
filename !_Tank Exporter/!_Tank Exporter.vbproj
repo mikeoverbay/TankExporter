@@ -122,6 +122,9 @@
     <Reference Include="Aspose.3D, Version=24.7.1.0, Culture=neutral, PublicKeyToken=f071c641d0b4582b, processorArchitecture=MSIL">
       <HintPath>..\packages\Aspose.3D.24.7.1\lib\net46\Aspose.3D.dll</HintPath>
     </Reference>
+    <Reference Include="AssimpNet, Version=4.1.0.0, Culture=neutral, PublicKeyToken=0d51b391f59f42a6, processorArchitecture=MSIL">
+      <HintPath>..\packages\AssimpNet.4.1.0\lib\net40\AssimpNet.dll</HintPath>
+    </Reference>
     <Reference Include="cttools, Version=1.0.4723.22902, Culture=neutral, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>.\cttools.dll</HintPath>
@@ -210,6 +213,9 @@
     <Reference Include="Tao.Platform.Windows, Version=1.0.0.5, Culture=neutral, PublicKeyToken=701104b2da67a104, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>.\Tao.Platform.Windows.dll</HintPath>
+    </Reference>
+    <Reference Include="VJson, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\VJson.0.9.10\lib\netstandard2.0\VJson.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -365,10 +371,10 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Modules\blurFBO.vb" />
+    <Compile Include="Modules\get_FBX.vb" />
     <Compile Include="Modules\get_glTF.vb" />
     <Compile Include="Modules\modBloom.vb" />
     <Compile Include="Modules\mod_FindTankParts.vb" />
-    <Compile Include="Modules\mod_glTF.vb" />
     <Compile Include="Modules\modDecals.vb" />
     <Compile Include="Modules\modFBX.vb" />
     <Compile Include="Modules\modShadow.vb" />
@@ -376,6 +382,7 @@
     <Compile Include="Modules\modTrackUtilites.vb" />
     <Compile Include="Modules\modUpton.vb" />
     <Compile Include="Modules\modVisualParser.vb" />
+    <Compile Include="Modules\mod_glTF.vb" />
     <Compile Include="Modules\mod_showDecals.vb">
       <SubType>Component</SubType>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -383,6 +390,7 @@
     <Compile Include="Modules\put_glTF.vb" />
     <Compile Include="Modules\put_STL.vb" />
     <Compile Include="Modules\WorkFBO.vb" />
+    <Compile Include="Modules\put_VglTF.vb" />
     <Compile Include="Settings.vb" />
     <Compile Include="shaders\shader programs\frmShaderEditor.Designer.vb">
       <DependentUpon>frmShaderEditor.vb</DependentUpon>
@@ -2637,6 +2645,13 @@
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
+  <Import Project="..\packages\AssimpNet.4.1.0\build\AssimpNet.targets" Condition="Exists('..\packages\AssimpNet.4.1.0\build\AssimpNet.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\AssimpNet.4.1.0\build\AssimpNet.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\AssimpNet.4.1.0\build\AssimpNet.targets'))" />
+  </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

@@ -1,126 +1,48 @@
-﻿//fbx_fragment.glsl
-//Used to light all FBX imports
-#version 130
-uniform sampler2D colorMap;
-uniform sampler2D normalMap;
-uniform sampler2D specularMap;
-uniform float A_level;
-uniform float S_level;
-uniform float T_level;
-uniform int is_GAmap;
-uniform int alphaTest;
-uniform int enableVcolor;
-uniform int bumped;
-in vec2 TC1;
-in vec3 n;
-in vec3 vVertex;
-in vec3 Vcolor;
-//in vec3 lightDirection;
-in mat3 TBN;
+﻿#version 130
 
-out vec4 color_out;
+uniform sampler2D colorMap;  // Base color map
+uniform sampler2D normalMap; // Normal map
+uniform vec3 lightColor[3];  // Array for the colors of 3 lights
+uniform vec3 lightPos[3];    // Array for the positions of 3 lights
+uniform float S_level;       // Specular level
+uniform float A_level;       // Ambient level
+
+in vec2 TC1;                 // Texture coordinates
+in vec3 vVertex;             // Vertex position in world space
+in mat3 TBN;                 // Tangent, Bitangent, Normal matrix (TBN)
+
+out vec4 color_out;          // Final output color
 
 void main(void) {
+    // Sample the normal map and flip the Y component
+    if (texture2D(normalMap, TC1.st).a < 0.5)discard;
+    vec3 bump = texture2D(normalMap, TC1.st).xyz * 2.0 - 1.0;
+    bump.y *= -1.0;  // Flip the Y component of the normal
+    vec3 perturbedNormal = normalize(TBN * bump);
+    vec4 baseColor = texture2D(colorMap, TC1.st);
 
-//--------------------------------
-vec4   cc = vec4(0.0);
-vec3   lightDirection;
-vec4   detailBump;
-vec3   bump;
-vec3   bumpD;
-vec3   PN_D;
-float  alpha;
-vec4   color;
-float  a;
-//float  spec_l = 1.0;
-float  specPower = 60.0;
-vec4   Ispec1 = vec4(0.0);
-vec4   Idiff1 = vec4(0.0);
-vec4   sum = vec4(0.0);
-//--------------------------------
+    vec3 finalColor = vec3(0.0);
 
-// Load textures
-    vec4 base        = texture2D(colorMap,  TC1.st);
-    vec4 bumpMap     = texture2D(normalMap, TC1.st);
-    vec4 specMap     = texture2D(specularMap,    TC1.st);
-//--------------------------------
-    color = base;
-    float factor = 1.0;
-    a = base.a;
+    // Loop over the 3 lights
+    for (int i = 0; i < 3; i++) {
+        vec3 lightDir = normalize(lightPos[i] - vVertex);
+        vec3 viewDir = normalize(-vVertex); // Assuming the view direction is from the camera at the origin
 
-if (is_GAmap == 0 )
-    {
-        bump = bumpMap.xyz * 2.0 - 1.0;
-        bump       = normalize(bump);
-        bump.y *= - 1.0;
-        a=bumpMap.a;//alpha is in alpha channel of converted normal maps.
-    } else {
-        a=bumpMap.r;
-        bumpMap.ag = bumpMap.ag *2.0 - 1.0;
-        bump.xy    = bumpMap.ag;
-        bump.z     = sqrt(1.0 - dot(bumpMap.ga, bumpMap.ga));
-        bump       = normalize(bump);
-        bump.y *= - 1.0;
+        // Diffuse lighting
+        float diff = max(dot(perturbedNormal, lightDir), 0.0);
+        vec3 diffuseColor = diff * lightColor[i];
+
+        // Specular lighting
+        vec3 reflectDir = reflect(-lightDir, perturbedNormal);
+        float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32.0); // Specular exponent (shininess)
+        vec3 specularColor = S_level * spec * lightColor[i] * 4.0;
+
+        finalColor += (diffuseColor + specularColor) * baseColor.rgb * 0.6;
     }
 
-    //AO     = vec4(1.0);
-    //GMM = vec2 (1.0);
-//==================================
+    // Ambient term
+    vec3 ambientColor = baseColor.rgb * A_level;
 
-    if (alphaTest == int(1)) { if (a < 0.5) {discard;} }
-    vec3 E = normalize(-vVertex);    // we are in Eye Coordinates, so EyePos is (0,0,0)  
-    vec3 PN = normalize(TBN * bump); // Get the perturbed normal
-    if ((bumpMap.x + bumpMap.y + bumpMap.z )==3.0)
-        {
-        PN = normalize(n);
-        color.rgb *= vec3(0.7);
-        }
-    vec4 Iamb     = color * A_level ; //calculate Ambient Term:  
-    // loop thru lights and calc lighting.
-    vec3 norm = normalize(n);
-    if ( ! (bumped == 1)) {
-
-    for (int i = 0 ; i < 3 ; i++)
-        {
-        vec3 L = normalize(gl_LightSource[i].position.xyz - vVertex);   
-        vec3 R = normalize(reflect(-L,norm));  
-        //calculate Diffuse Term:  
-        Idiff1 = color * max(dot(norm,L), 0.0);//color light level
-        Idiff1 = clamp(Idiff1, 0.0, 1.0);     
-
-        // calculate Specular Term:
-        Ispec1 = vec4(0.3) * pow(max(dot(R,E),0.0),specPower);
-        Ispec1 = clamp(Ispec1, 0.0, 1.0); 
-
-        vec4 IspecMix = clamp(mix(Ispec1,vec4(0.33),specMap.r),0.0,1.0) * 2.0 * S_level;
-        sum += clamp(Idiff1 +  IspecMix, 0.0, 1.0);
-
-       } //next light
-    }
-    else
-    {
-        for (int i = 0 ; i < 3 ; i++)
-        {
-        vec3 L = normalize(gl_LightSource[i].position.xyz - vVertex);   
-        vec3 R = normalize(reflect(-L,PN));  
-        //calculate Diffuse Term:  
-        Idiff1 = color * max(dot(PN,L), 0.0);//color light level
-        Idiff1 = clamp(Idiff1, 0.0, 1.0);     
-
-        // calculate Specular Term:
-        Ispec1 = vec4(0.3) * pow(max(dot(R,E),0.0),specPower);
-        Ispec1 = clamp(Ispec1, 0.0, 1.0); 
-
-        vec4 IspecMix = clamp(mix(Ispec1,vec4(0.33),specMap.r),0.0,1.0) * 2.0 * S_level;
-        sum += clamp(Idiff1 +  IspecMix, 0.0, 1.0);
-
-        } //next light
-
-    }
-gl_FragColor = (Iamb + sum) * T_level;   // write mixed Color:  
-if (enableVcolor == 1)
-{
-    gl_FragColor.rgb = (gl_FragColor.rgb * 0.0) + clamp(Vcolor.rgb * 2.0,0.0,1.0);
+    // Final color output
+    color_out = vec4(finalColor + ambientColor, baseColor.a); // Preserve alpha from the base color
 }
-}
-

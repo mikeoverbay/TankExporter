@@ -39,6 +39,7 @@ Partial Class frmMain
         Me.m_save = New System.Windows.Forms.ToolStripMenuItem()
         Me.ToolStripSeparator7 = New System.Windows.Forms.ToolStripSeparator()
         Me.m_Import_FBX = New System.Windows.Forms.ToolStripMenuItem()
+        Me.m_import_2016_fbx = New System.Windows.Forms.ToolStripMenuItem()
         Me.m_import_GLB = New System.Windows.Forms.ToolStripMenuItem()
         Me.m_tangent_normalMaps = New System.Windows.Forms.ToolStripMenuItem()
         Me.ToolStripSeparator8 = New System.Windows.Forms.ToolStripSeparator()
@@ -57,6 +58,7 @@ Partial Class frmMain
         Me.m_show_log = New System.Windows.Forms.ToolStripMenuItem()
         Me.m_Open_game_folder = New System.Windows.Forms.ToolStripMenuItem()
         Me.ToolStripSeparator4 = New System.Windows.Forms.ToolStripSeparator()
+        Me.m_region_combo = New System.Windows.Forms.ToolStripComboBox()
         Me.ToolStripSeparator11 = New System.Windows.Forms.ToolStripSeparator()
         Me.M_Path = New System.Windows.Forms.ToolStripMenuItem()
         Me.m_res_mods_path = New System.Windows.Forms.ToolStripMenuItem()
@@ -92,10 +94,11 @@ Partial Class frmMain
         Me.M_Exit = New System.Windows.Forms.ToolStripMenuItem()
         Me.m_ExportExtract = New System.Windows.Forms.ToolStripMenuItem()
         Me.m_extract = New System.Windows.Forms.ToolStripMenuItem()
-        Me.m_export_to_fbx = New System.Windows.Forms.ToolStripMenuItem()
         Me.ToolStripSeparator32 = New System.Windows.Forms.ToolStripSeparator()
         Me.m_export_to_glTF = New System.Windows.Forms.ToolStripMenuItem()
         Me.m_export_to_FBX_2 = New System.Windows.Forms.ToolStripMenuItem()
+        Me.m_export_to_fbx = New System.Windows.Forms.ToolStripMenuItem()
+        Me.m_export_STL = New System.Windows.Forms.ToolStripMenuItem()
         Me.m_export_to_obj = New System.Windows.Forms.ToolStripMenuItem()
         Me.m_export_to_collada = New System.Windows.Forms.ToolStripMenuItem()
         Me.ToolStripSeparator15 = New System.Windows.Forms.ToolStripSeparator()
@@ -191,8 +194,7 @@ Partial Class frmMain
         Me.ToolStripMenuItem1 = New System.Windows.Forms.ToolStripMenuItem()
         Me.SaveFileDialog1 = New System.Windows.Forms.SaveFileDialog()
         Me.OpenFileDialog1 = New System.Windows.Forms.OpenFileDialog()
-        Me.m_region_combo = New System.Windows.Forms.ToolStripComboBox()
-        Me.m_export_STL = New System.Windows.Forms.ToolStripMenuItem()
+        Me.m_2016_fbx = New System.Windows.Forms.ToolStripMenuItem()
         Me.MM.SuspendLayout()
         CType(Me.SplitContainer1, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SplitContainer1.Panel1.SuspendLayout()
@@ -232,7 +234,7 @@ Partial Class frmMain
         '
         'm_file
         '
-        Me.m_file.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.m_test, Me.m_load_file, Me.m_save, Me.ToolStripSeparator7, Me.m_Import_FBX, Me.m_import_GLB, Me.m_tangent_normalMaps, Me.ToolStripSeparator8, Me.m_import_primitives_fbx, Me.ToolStripSeparator29, Me.m_remove_fbx, Me.ToolStripSeparator1, Me.m_write_primitive, Me.m_write_non_tank_primitive, Me.ToolStripSeparator18, Me.m_build_wotmod, Me.ToolStripSeparator9, Me.m_load_primitive, Me.ToolStripSeparator28, Me.m_edit_visual, Me.m_show_log, Me.m_Open_game_folder, Me.ToolStripSeparator4, Me.m_region_combo, Me.ToolStripSeparator11, Me.M_Path, Me.m_res_mods_path, Me.ToolStripSeparator2, Me.m_rebuild_XML, Me.m_clear_temp_folder_data, Me.m_reload_api_data, Me.ToolStripSeparator3, Me.m_UI_settings, Me.ToolStripSeparator31, Me.m_dump_tanks, Me.m_enable_tarrain_decals, Me.ToolStripSeparator19, Me.M_Exit})
+        Me.m_file.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.m_test, Me.m_load_file, Me.m_save, Me.ToolStripSeparator7, Me.m_import_2016_fbx, Me.m_Import_FBX, Me.m_import_GLB, Me.m_tangent_normalMaps, Me.ToolStripSeparator8, Me.m_import_primitives_fbx, Me.ToolStripSeparator29, Me.m_remove_fbx, Me.ToolStripSeparator1, Me.m_write_primitive, Me.m_write_non_tank_primitive, Me.ToolStripSeparator18, Me.m_build_wotmod, Me.ToolStripSeparator9, Me.m_load_primitive, Me.ToolStripSeparator28, Me.m_edit_visual, Me.m_show_log, Me.m_Open_game_folder, Me.ToolStripSeparator4, Me.m_region_combo, Me.ToolStripSeparator11, Me.M_Path, Me.m_res_mods_path, Me.ToolStripSeparator2, Me.m_rebuild_XML, Me.m_clear_temp_folder_data, Me.m_reload_api_data, Me.ToolStripSeparator3, Me.m_UI_settings, Me.ToolStripSeparator31, Me.m_dump_tanks, Me.m_enable_tarrain_decals, Me.ToolStripSeparator19, Me.M_Exit})
         Me.m_file.Name = "m_file"
         Me.m_file.Size = New System.Drawing.Size(90, 23)
         Me.m_file.Text = "&File / Settings"
@@ -306,7 +308,13 @@ Partial Class frmMain
         '
         Me.m_Import_FBX.Name = "m_Import_FBX"
         Me.m_Import_FBX.Size = New System.Drawing.Size(230, 22)
-        Me.m_Import_FBX.Text = "Import FBX"
+        Me.m_Import_FBX.Text = "Import 2006.1 FBX"
+        '
+        'm_import_2016_fbx
+        '
+        Me.m_import_2016_fbx.Name = "m_import_2016_fbx"
+        Me.m_import_2016_fbx.Size = New System.Drawing.Size(230, 22)
+        Me.m_import_2016_fbx.Text = "Import 2013 FBX"
         '
         'm_import_GLB
         '
@@ -413,6 +421,13 @@ Partial Class frmMain
         '
         Me.ToolStripSeparator4.Name = "ToolStripSeparator4"
         Me.ToolStripSeparator4.Size = New System.Drawing.Size(227, 6)
+        '
+        'm_region_combo
+        '
+        Me.m_region_combo.Items.AddRange(New Object() {"NA", "EU", "RU", "ASIA"})
+        Me.m_region_combo.Name = "m_region_combo"
+        Me.m_region_combo.Size = New System.Drawing.Size(121, 23)
+        Me.m_region_combo.Text = "NA"
         '
         'ToolStripSeparator11
         '
@@ -615,7 +630,7 @@ Partial Class frmMain
         '
         'm_ExportExtract
         '
-        Me.m_ExportExtract.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.m_extract, Me.m_export_to_fbx, Me.ToolStripSeparator32, Me.m_export_to_glTF, Me.m_export_to_FBX_2, Me.m_export_STL, Me.m_export_to_obj, Me.m_export_to_collada, Me.ToolStripSeparator15, Me.m_view_res_mods_folder, Me.ToolStripSeparator6, Me.m_clean_res_mods, Me.ToolStripSeparator17, Me.m_screen_cap})
+        Me.m_ExportExtract.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.m_extract, Me.ToolStripSeparator32, Me.m_export_to_glTF, Me.m_2016_fbx, Me.m_export_to_FBX_2, Me.m_export_to_fbx, Me.m_export_STL, Me.m_export_to_obj, Me.m_export_to_collada, Me.ToolStripSeparator15, Me.m_view_res_mods_folder, Me.ToolStripSeparator6, Me.m_clean_res_mods, Me.ToolStripSeparator17, Me.m_screen_cap})
         Me.m_ExportExtract.Enabled = False
         Me.m_ExportExtract.Name = "m_ExportExtract"
         Me.m_ExportExtract.Size = New System.Drawing.Size(94, 23)
@@ -626,12 +641,6 @@ Partial Class frmMain
         Me.m_extract.Name = "m_extract"
         Me.m_extract.Size = New System.Drawing.Size(228, 22)
         Me.m_extract.Text = "Extract to res_mods folder"
-        '
-        'm_export_to_fbx
-        '
-        Me.m_export_to_fbx.Name = "m_export_to_fbx"
-        Me.m_export_to_fbx.Size = New System.Drawing.Size(228, 22)
-        Me.m_export_to_fbx.Text = "Export 2006.1 FBX"
         '
         'ToolStripSeparator32
         '
@@ -648,7 +657,19 @@ Partial Class frmMain
         '
         Me.m_export_to_FBX_2.Name = "m_export_to_FBX_2"
         Me.m_export_to_FBX_2.Size = New System.Drawing.Size(228, 22)
-        Me.m_export_to_FBX_2.Text = "Export 2016 FBX"
+        Me.m_export_to_FBX_2.Text = "Export 2013 FBX"
+        '
+        'm_export_to_fbx
+        '
+        Me.m_export_to_fbx.Name = "m_export_to_fbx"
+        Me.m_export_to_fbx.Size = New System.Drawing.Size(228, 22)
+        Me.m_export_to_fbx.Text = "Export 2006.1 FBX"
+        '
+        'm_export_STL
+        '
+        Me.m_export_STL.Name = "m_export_STL"
+        Me.m_export_STL.Size = New System.Drawing.Size(228, 22)
+        Me.m_export_STL.Text = "Export STL"
         '
         'm_export_to_obj
         '
@@ -1378,7 +1399,7 @@ Partial Class frmMain
         'pb2
         '
         Me.pb2.Anchor = System.Windows.Forms.AnchorStyles.None
-        Me.pb2.Location = New System.Drawing.Point(29, 125)
+        Me.pb2.Location = New System.Drawing.Point(33, 125)
         Me.pb2.Name = "pb2"
         Me.pb2.Size = New System.Drawing.Size(200, 100)
         Me.pb2.TabIndex = 3
@@ -1453,7 +1474,7 @@ Partial Class frmMain
         Me.TC1.Location = New System.Drawing.Point(0, 23)
         Me.TC1.Name = "TC1"
         Me.TC1.SelectedIndex = 0
-        Me.TC1.Size = New System.Drawing.Size(22, 499)
+        Me.TC1.Size = New System.Drawing.Size(22, 511)
         Me.TC1.SizeMode = System.Windows.Forms.TabSizeMode.Fixed
         Me.TC1.TabIndex = 0
         '
@@ -1463,7 +1484,7 @@ Partial Class frmMain
         Me.TabPage1.Location = New System.Drawing.Point(4, 25)
         Me.TabPage1.Name = "TabPage1"
         Me.TabPage1.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage1.Size = New System.Drawing.Size(14, 470)
+        Me.TabPage1.Size = New System.Drawing.Size(14, 482)
         Me.TabPage1.TabIndex = 0
         Me.TabPage1.Text = "1"
         '
@@ -1473,7 +1494,7 @@ Partial Class frmMain
         Me.TabPage2.Location = New System.Drawing.Point(4, 25)
         Me.TabPage2.Name = "TabPage2"
         Me.TabPage2.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage2.Size = New System.Drawing.Size(14, 470)
+        Me.TabPage2.Size = New System.Drawing.Size(14, 482)
         Me.TabPage2.TabIndex = 1
         Me.TabPage2.Text = "2"
         '
@@ -1483,7 +1504,7 @@ Partial Class frmMain
         Me.TabPage3.Location = New System.Drawing.Point(4, 25)
         Me.TabPage3.Name = "TabPage3"
         Me.TabPage3.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage3.Size = New System.Drawing.Size(14, 470)
+        Me.TabPage3.Size = New System.Drawing.Size(14, 482)
         Me.TabPage3.TabIndex = 2
         Me.TabPage3.Text = "3"
         '
@@ -1493,7 +1514,7 @@ Partial Class frmMain
         Me.TabPage4.Location = New System.Drawing.Point(4, 25)
         Me.TabPage4.Name = "TabPage4"
         Me.TabPage4.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage4.Size = New System.Drawing.Size(14, 470)
+        Me.TabPage4.Size = New System.Drawing.Size(14, 482)
         Me.TabPage4.TabIndex = 3
         Me.TabPage4.Text = "4"
         '
@@ -1503,7 +1524,7 @@ Partial Class frmMain
         Me.TabPage5.Location = New System.Drawing.Point(4, 25)
         Me.TabPage5.Name = "TabPage5"
         Me.TabPage5.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage5.Size = New System.Drawing.Size(14, 470)
+        Me.TabPage5.Size = New System.Drawing.Size(14, 482)
         Me.TabPage5.TabIndex = 4
         Me.TabPage5.Text = "5"
         '
@@ -1513,7 +1534,7 @@ Partial Class frmMain
         Me.TabPage6.Location = New System.Drawing.Point(4, 25)
         Me.TabPage6.Name = "TabPage6"
         Me.TabPage6.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage6.Size = New System.Drawing.Size(14, 470)
+        Me.TabPage6.Size = New System.Drawing.Size(14, 482)
         Me.TabPage6.TabIndex = 5
         Me.TabPage6.Text = "6"
         '
@@ -1523,7 +1544,7 @@ Partial Class frmMain
         Me.TabPage7.Location = New System.Drawing.Point(4, 25)
         Me.TabPage7.Name = "TabPage7"
         Me.TabPage7.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage7.Size = New System.Drawing.Size(14, 470)
+        Me.TabPage7.Size = New System.Drawing.Size(14, 482)
         Me.TabPage7.TabIndex = 6
         Me.TabPage7.Text = "7"
         '
@@ -1533,7 +1554,7 @@ Partial Class frmMain
         Me.TabPage8.Location = New System.Drawing.Point(4, 25)
         Me.TabPage8.Name = "TabPage8"
         Me.TabPage8.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage8.Size = New System.Drawing.Size(14, 470)
+        Me.TabPage8.Size = New System.Drawing.Size(14, 482)
         Me.TabPage8.TabIndex = 7
         Me.TabPage8.Text = "8"
         '
@@ -1543,7 +1564,7 @@ Partial Class frmMain
         Me.TabPage9.Location = New System.Drawing.Point(4, 25)
         Me.TabPage9.Name = "TabPage9"
         Me.TabPage9.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage9.Size = New System.Drawing.Size(14, 470)
+        Me.TabPage9.Size = New System.Drawing.Size(14, 482)
         Me.TabPage9.TabIndex = 8
         Me.TabPage9.Text = "9"
         '
@@ -1553,7 +1574,7 @@ Partial Class frmMain
         Me.TabPage10.Location = New System.Drawing.Point(4, 25)
         Me.TabPage10.Name = "TabPage10"
         Me.TabPage10.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage10.Size = New System.Drawing.Size(14, 470)
+        Me.TabPage10.Size = New System.Drawing.Size(14, 482)
         Me.TabPage10.TabIndex = 9
         Me.TabPage10.Text = "10"
         '
@@ -1567,7 +1588,7 @@ Partial Class frmMain
         Me.TC2.Location = New System.Drawing.Point(0, 23)
         Me.TC2.Name = "TC2"
         Me.TC2.SelectedIndex = 0
-        Me.TC2.Size = New System.Drawing.Size(22, 499)
+        Me.TC2.Size = New System.Drawing.Size(22, 511)
         Me.TC2.TabIndex = 0
         Me.TC2.Visible = False
         '
@@ -1577,7 +1598,7 @@ Partial Class frmMain
         Me.TabPage11.Location = New System.Drawing.Point(4, 25)
         Me.TabPage11.Name = "TabPage11"
         Me.TabPage11.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage11.Size = New System.Drawing.Size(14, 470)
+        Me.TabPage11.Size = New System.Drawing.Size(14, 482)
         Me.TabPage11.TabIndex = 0
         Me.TabPage11.Text = "Result"
         '
@@ -1653,18 +1674,11 @@ Partial Class frmMain
         '
         Me.OpenFileDialog1.FileName = "OpenFileDialog1"
         '
-        'm_region_combo
+        'm_2016_fbx
         '
-        Me.m_region_combo.Items.AddRange(New Object() {"NA", "EU", "RU", "ASIA"})
-        Me.m_region_combo.Name = "m_region_combo"
-        Me.m_region_combo.Size = New System.Drawing.Size(121, 23)
-        Me.m_region_combo.Text = "NA"
-        '
-        'm_export_STL
-        '
-        Me.m_export_STL.Name = "m_export_STL"
-        Me.m_export_STL.Size = New System.Drawing.Size(228, 22)
-        Me.m_export_STL.Text = "Export STL"
+        Me.m_2016_fbx.Name = "m_2016_fbx"
+        Me.m_2016_fbx.Size = New System.Drawing.Size(228, 22)
+        Me.m_2016_fbx.Text = "Export 2016 FBX"
         '
         'frmMain
         '
@@ -1880,4 +1894,6 @@ Partial Class frmMain
     Friend WithEvents m_rebuild_XML As ToolStripMenuItem
     Friend WithEvents m_import_GLB As ToolStripMenuItem
     Friend WithEvents m_export_STL As ToolStripMenuItem
+    Friend WithEvents m_import_2016_fbx As ToolStripMenuItem
+    Friend WithEvents m_2016_fbx As ToolStripMenuItem
 End Class

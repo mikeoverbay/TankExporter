@@ -230,7 +230,6 @@ Module modTextures
             System.IO.Directory.CreateDirectory(FBX_Texture_path)
         End If
         Dim abs_name As String = ""
-        frmMain.info_Label.Visible = True
         G_Buffer.init()
         stop_updating = True
         Threading.Thread.Sleep(100)
@@ -241,6 +240,11 @@ Module modTextures
             With textures(i)
                 'color
                 abs_name = FBX_Texture_path + "\" + Path.GetFileNameWithoutExtension(.c_name)
+                If File.Exists(abs_name + ".png") Then
+                    stop_updating = False
+                    Return ' we are not wasting time on this.
+                End If
+                frmMain.info_Label.Visible = True
                 If AC And Not .c_name.Contains("chassis") And Not .c_name.Contains("track") Then
                     Dim part As Integer = 0
                     For k = 1 To object_count
@@ -249,6 +253,8 @@ Module modTextures
                             Exit For
                         End If
                     Next
+
+
                     save_fbx_textureCamouflaged(.c_id, .ao_id, SELECTED_CAMO_BUTTON, abs_name, part)
                 Else
                     save_fbx_texture(.c_id, abs_name, False, alpha_enabled, flipy)

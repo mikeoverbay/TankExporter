@@ -377,6 +377,18 @@ Namespace My
                 Me("STL_path") = value
             End Set
         End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("")>  _
+        Public Property aspose_path() As String
+            Get
+                Return CType(Me("aspose_path"),String)
+            End Get
+            Set
+                Me("aspose_path") = value
+            End Set
+        End Property
     End Class
 End Namespace
 

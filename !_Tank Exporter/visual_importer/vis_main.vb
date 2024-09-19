@@ -405,30 +405,13 @@ remove_more:
             TheXML_String = ts + da_arry(da_arry.Length - 1)
         End If
         fileS.Position = 0
-        'Try
-        '    xmldataset.ReadXml(fileS)
 
-        'Catch ex As Exception
-        '    MsgBox("Please report this bug." + ex.Message, MsgBoxStyle.Exclamation, "packed XML file Error...")
-        'End Try
-        'Dim sw As New StringWriter
-        'Dim xtw As New XmlTextWriter(sw)
-        'xtw.Formatting = Formatting.Indented
-        'xtw.IndentChar = vbTab
-        'xtw.Indentation = 1
-        'data_set.WriteTo(xtw)
-        'xtw.Flush()
         fbr.Close()
         fbw.Close()
         fileS.Close()
         fileS.Dispose()
 
-        'Dim f As String = File.ReadAllText("C:\wot_temp\InnerXml.xml")
-        'f = f.Replace(vbCrLf, vbLf)
 
-        'muted .. to slow
-        'File.WriteAllText("C:\wot_temp\InnerXml.xml", f)
-        'frmMain.WebBrowser1.DocumentStream = TransformXML(f, My.Resources.xml_format)
     End Sub
 
     Public Sub ReadPrimitiveFile(ByVal file As String)

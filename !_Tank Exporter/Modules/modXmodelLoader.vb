@@ -1,6 +1,9 @@
 ﻿Imports System.IO
-Imports Aspose.ThreeD
-Imports Aspose.ThreeD.Utilities
+Imports System.Net.WebRequestMethods
+Imports Skill.FbxSDK.FbxAxisSystem
+Imports Assimp
+Imports SharpDX
+
 
 Module modXmodelLoader
     Public Sub load_x_models()
@@ -258,7 +261,7 @@ Module modXmodelLoader
         Dim a, b, c As Integer
         If False Then 'set true to write binary file 
 
-            Dim f = File.Open(Temp_Storage + "\" + foutname + ".te", FileMode.OpenOrCreate, FileAccess.Write)
+            Dim f = System.IO.File.Open(Temp_Storage + "\" + foutname + ".te", FileMode.OpenOrCreate, FileAccess.Write)
             Dim br As New BinaryWriter(f)
             br.Write(indice_count)
             For i = 0 To indice_count - 1

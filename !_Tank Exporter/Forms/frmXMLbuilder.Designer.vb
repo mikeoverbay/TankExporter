@@ -62,9 +62,9 @@ Partial Class frmXMLbuilder
         Me.Label1.ForeColor = System.Drawing.SystemColors.ControlLightLight
         Me.Label1.Location = New System.Drawing.Point(12, 66)
         Me.Label1.Name = "Label1"
-        Me.Label1.Size = New System.Drawing.Size(57, 20)
+        Me.Label1.Size = New System.Drawing.Size(34, 20)
         Me.Label1.TabIndex = 3
-        Me.Label1.Text = "Label1"
+        Me.Label1.Text = "File"
         '
         'Label2
         '
@@ -73,9 +73,9 @@ Partial Class frmXMLbuilder
         Me.Label2.ForeColor = System.Drawing.SystemColors.ControlLight
         Me.Label2.Location = New System.Drawing.Point(11, 9)
         Me.Label2.Name = "Label2"
-        Me.Label2.Size = New System.Drawing.Size(57, 20)
+        Me.Label2.Size = New System.Drawing.Size(71, 20)
         Me.Label2.TabIndex = 4
-        Me.Label2.Text = "Label2"
+        Me.Label2.Text = "Package"
         '
         'unique
         '
@@ -91,7 +91,7 @@ Partial Class frmXMLbuilder
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.BackColor = System.Drawing.Color.FromArgb(33, 33, 33)
+        Me.BackColor = System.Drawing.Color.FromArgb(CType(CType(33, Byte), Integer), CType(CType(33, Byte), Integer), CType(CType(33, Byte), Integer))
         Me.ClientSize = New System.Drawing.Size(521, 138)
         Me.Controls.Add(Me.unique)
         Me.Controls.Add(Me.Label2)

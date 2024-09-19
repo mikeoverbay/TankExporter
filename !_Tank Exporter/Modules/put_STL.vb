@@ -84,6 +84,9 @@ Module put_STL
                             index.v1 = index.v2
                             index.v2 = dx
                         End If
+                        index.v1 -= offset
+                        index.v2 -= offset
+                        index.v3 -= offset
 
                         Dim v1 As FVector3
                         v1.X = _group(item).vertices(index.v1).x + v.X + sep_off

@@ -13,15 +13,22 @@ Imports Microsoft.VisualBasic.Strings
 Imports SharpDX.Direct3D11
 Imports SharpDX.DXGI
 Imports Tao.FreeGlut.Glut
+Imports Aspose.ThreeD
+Imports Aspose.ThreeD.Render
+Imports Tank_Exporter.shader_loader
+Imports Aspose.ThreeD.Profiles
+
+
+
 #End Region
 
 Public Class frmMain
     Protected Overrides Sub OnClientSizeChanged(e As EventArgs)
         If Not _Started Then Return
         If Not allow_mouse Then Return
-        G_Buffer.init()
-        draw_scene()
+        'draw_scene()
         MyBase.OnClientSizeChanged(e)
+        G_Buffer.init()
     End Sub
 #Region "variables"
     Private allow_mouse As Boolean = False
@@ -442,6 +449,10 @@ done:
         If Not _Started Then Return
         If stop_updating Then draw_scene()
         w_changing = False
+        If gBufferFBO = 0 Then
+            G_Buffer.init()
+        End If
+
     End Sub
 
     Private Sub me_size_changed()
@@ -475,8 +486,8 @@ done:
         relocate_texturebuttons()
         OLD_WINDOW_HEIGHT = pb1.Height
         'End If
-        G_Buffer.init()
-        draw_scene()
+        'G_Buffer.init()
+        'draw_scene()
     End Sub
 
 
@@ -572,8 +583,6 @@ done:
         Ilu.iluInit()
         Ilut.ilutInit()
         EnableOpenGL()
-        shadow_fbo.make_shadow_fbo()
-        G_Buffer.init()
         pb1.Visible = False
         '---------------------------------------------------------------------------------------------------------------------
         m_load_file.Visible = False
@@ -886,6 +895,8 @@ done:
         Application.DoEvents()
         AddHandler Me.SizeChanged, AddressOf me_size_changed
         window_state = Me.WindowState
+
+        'G_Buffer.init()
 
         allow_mouse = True
         My.Settings.Save()
@@ -3212,7 +3223,7 @@ loaded_jump:
                 Gl.glUniform1i(fbx_colorMap, 0)
                 Gl.glUniform1i(fbx_normalMap, 1)
                 Gl.glUniform1i(fbx_specularMap, 2)
-                Gl.glUniform1f(fbx_specular, S_level) ' convert to 0.0 to 1.0
+                Gl.glUniform1f(fbx_specular, S_level)
                 Gl.glUniform1f(fbx_ambient, A_level)
                 Gl.glUniform1f(fbx_level, T_level)
                 If VertexColor_cb.Checked Then
@@ -3232,6 +3243,27 @@ loaded_jump:
                         Else
                             Gl.glUniform1i(fbx_bumped, 0)
                         End If
+                        Dim Lscale = T_level
+                        Dim lightPositions As Single() = {
+                                    position0(0), position0(1), position0(2),  ' 
+                                    position1(0), position1(1), position1(2),  ' 
+                                    position2(0), position2(1), position2(2)   '
+                                    }
+                        Dim lightColors As Single() = {
+                                        Lscale, Lscale, Lscale,  ' Light 0 color (white)
+                                        Lscale, Lscale, Lscale,  ' Light 1 color (gray)
+                                        Lscale, Lscale, Lscale   ' Light 2 color (darker gray)
+                                        }
+
+                        ' Get uniform locations
+                        Dim lightPosLoc As Integer = Gl.glGetUniformLocation(shader_list.fbx_shader, "lightPos")
+                        Dim lightColorLoc As Integer = Gl.glGetUniformLocation(shader_list.fbx_shader, "lightColor")
+
+                        ' Pass light positions and colors to the shader
+                        Gl.glUniform3fv(lightPosLoc, 3, lightPositions)
+                        Gl.glUniform3fv(lightColorLoc, 3, lightColors)
+
+                        Gl.glUniform3fv(Gl.glGetUniformLocation(shader_list.fbx_shader, "lightColor"), 3, lightColors)
                         Gl.glUniform1i(fbx_alphatest, fbxgrp(jj).alphaTest)
                         If m_load_textures.Checked Then
                             Gl.glColor3f(0.5, 0.5, 0.5)
@@ -3239,8 +3271,6 @@ loaded_jump:
                             Gl.glBindTexture(Gl.GL_TEXTURE_2D, fbxgrp(jj).color_Id)
                             Gl.glActiveTexture(Gl.GL_TEXTURE0 + 1)
                             Gl.glBindTexture(Gl.GL_TEXTURE_2D, fbxgrp(jj).normal_Id)
-                            Gl.glActiveTexture(Gl.GL_TEXTURE0 + 2)
-                            Gl.glBindTexture(Gl.GL_TEXTURE_2D, fbxgrp(jj).specular_id)
                         End If
                         Gl.glPushMatrix()
                         Gl.glMultMatrixd(fbxgrp(jj).matrix)
@@ -3771,10 +3801,19 @@ nothing_else:
                 Gl.glPolygonMode(Gl.GL_FRONT_AND_BACK, Gl.GL_LINE)
                 'Gl.glDisable(Gl.GL_DEPTH_TEST)
                 For j = 0 To decal_matrix_list.Length - 2
-                    If j = current_decal Then
-                        Gl.glColor3f(1.0, 0.0, 0.0)
+
+                    If mouse_pick_cb.Checked Then
+                        If picked_decal = j Then
+                            Gl.glColor3f(1.0, 0.0, 0.0)
+                        Else
+                            Gl.glColor3f(1.0, 1.0, 1.0)
+                        End If
                     Else
-                        Gl.glColor3f(1.0, 1.0, 1.0)
+                        If j = current_decal Then
+                            Gl.glColor3f(1.0, 0.0, 0.0)
+                        Else
+                            Gl.glColor3f(1.0, 1.0, 1.0)
+                        End If
                     End If
                     Gl.glPushMatrix()
                     decal_matrix_list(j).transform()
@@ -4825,7 +4864,7 @@ fuckit:
         'End If
         mouse.x = e.X
         mouse.y = e.Y
-        If mouse_pick_cb.Checked Then
+        If mouse_pick_cb.Checked And e.Button = MouseButtons.Left Then
             If picked_decal > -1 Then
                 current_decal = picked_decal
                 picked_decal = -1
@@ -5833,9 +5872,9 @@ fuckit:
 
 
         End If
-            If frmFBX.Visible Then
-                frmFBX.Location = Me.Location
-            End If
+        If frmFBX.Visible Then
+            frmFBX.Location = Me.Location
+        End If
         clean_house()
         remove_loaded_fbx()
 
@@ -9987,13 +10026,14 @@ load_script:
     Private Sub m_export_to_glTF_Click(sender As Object, e As EventArgs) Handles m_export_to_glTF.Click
         EXPORT_TYPE = 1
         Try
-            write_glTF()
+            make_glTF()
         Catch ex As Exception
             MsgBox("failed to export GLB: " + ex.Message, MsgBoxStyle.Critical, "export failed")
         End Try
 
     End Sub
     Private Sub m_export_to_FBX_2_Click(sender As Object, e As EventArgs) Handles m_export_to_FBX_2.Click
+        fbx_vers = FileFormat.FBX7300Binary
         EXPORT_TYPE = 2
         make_glTF()
 
@@ -10002,13 +10042,17 @@ load_script:
     Private Sub m_export_to_obj_Click(sender As Object, e As EventArgs) Handles m_export_to_obj.Click
         EXPORT_TYPE = 3
         make_glTF()
-
     End Sub
     Private Sub m_export_to_collada_Click(sender As Object, e As EventArgs) Handles m_export_to_collada.Click
-
-        write_glTF()
+        EXPORT_TYPE = 4
+        make_glTF()
     End Sub
 
+    Private Sub m_2016_fbx_Click(sender As Object, e As EventArgs) Handles m_2016_fbx.Click
+        fbx_vers = FileFormat.FBX7500Binary
+        EXPORT_TYPE = 2
+        make_glTF()
+    End Sub
 
     ' Function to open a web page
     Public Sub OpenWebPage(ByVal url As String)
@@ -10032,6 +10076,12 @@ load_script:
         ExportBinarySTL()
     End Sub
 
+    Private Sub m_import_2016_fbx_Click(sender As Object, e As EventArgs) Handles m_import_2016_fbx.Click
+        Open_2016_fbx()
+
+    End Sub
+
+
     Private Sub m_hide_right_plane_Click(sender As Object, e As EventArgs) Handles m_hide_right_plane.Click
 
         SplitContainer1.Panel2Collapsed = Not SplitContainer1.Panel2Collapsed
@@ -10047,5 +10097,10 @@ load_script:
 
     Private Sub m_rebuild_XML_Click(sender As Object, e As EventArgs) Handles m_rebuild_XML.Click
         frmXMLbuilder.ShowDialog()
+    End Sub
+
+    Private Sub frmMain_Shown(sender As Object, e As EventArgs) Handles Me.Shown
+        draw_scene()
+
     End Sub
 End Class

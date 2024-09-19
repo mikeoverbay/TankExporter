@@ -130,13 +130,14 @@ Module put_glTF
             If Not _group(item).has_uv2 = 1 Then
                 Dim vertices As New List(Of VertexBuilder(Of VertexPositionNormal, VertexColor1Texture1, VertexEmpty))()
                 For i As UInt32 = 0 To _group(item).nVertices_ - 1
+                    Dim color1 = New Vector4(_group(item).vertices(i).r, _group(item).vertices(i).g, _group(item).vertices(i).b, _group(item).vertices(i).a)
                     Dim v As New VertexBuilder(Of VertexPositionNormal, VertexColor1Texture1, VertexEmpty)(
             New VertexPositionNormal(
                 New Vector3(_group(item).vertices(i).x, _group(item).vertices(i).y, _group(item).vertices(i).z),
                 New Vector3(_group(item).vertices(i).nx, _group(item).vertices(i).ny, _group(item).vertices(i).nz)
             ),
             New VertexColor1Texture1(
-                New Vector4(_group(item).vertices(i).r, _group(item).vertices(i).g, _group(item).vertices(i).b, _group(item).vertices(i).a),
+                color1,
                 New Vector2(_group(item).vertices(i).u, _group(item).vertices(i).v)
             )
         )
@@ -152,16 +153,17 @@ Module put_glTF
         )
                 Next
             Else
-                Dim vertices As New List(Of VertexBuilder(Of VertexPositionNormal, VertexColor2Texture2, VertexEmpty))()
+                Dim vertices As New List(Of VertexBuilder(Of VertexPositionNormal, VertexColor1Texture2, VertexEmpty))()
                 For i As UInt32 = 0 To _group(item).nVertices_ - 1
-                    Dim v As New VertexBuilder(Of VertexPositionNormal, VertexColor2Texture2, VertexEmpty)(
-            New VertexPositionNormal(
+                    Dim color1 = New Vector4(_group(item).vertices(i).r, _group(item).vertices(i).g, _group(item).vertices(i).b, _group(item).vertices(i).a)
+                    Dim color2 = New Vector4(_group(item).vertices(i).index_1, _group(item).vertices(i).index_2, _group(item).vertices(i).index_3, _group(item).vertices(i).index_4)
+                    Dim v As New VertexBuilder(Of VertexPositionNormal, VertexColor1Texture2, VertexEmpty)(
+           New VertexPositionNormal(
                 New Vector3(_group(item).vertices(i).x, _group(item).vertices(i).y, _group(item).vertices(i).z),
                 New Vector3(_group(item).vertices(i).nx, _group(item).vertices(i).ny, _group(item).vertices(i).nz)
             ),
-            New VertexColor2Texture2(
-                New Vector4(_group(item).vertices(i).r, _group(item).vertices(i).g, _group(item).vertices(i).b, _group(item).vertices(i).a),
-                New Vector4(_group(item).vertices(i).index_1, _group(item).vertices(i).index_2, _group(item).vertices(i).index_3, _group(item).vertices(i).index_4),
+            New VertexColor1Texture2(
+                color1,
                 New Vector2(_group(item).vertices(i).u, _group(item).vertices(i).v),
                 New Vector2(_group(item).vertices(i).u2, _group(item).vertices(i).v2)
             )
@@ -222,6 +224,7 @@ Module put_glTF
             Dim affineTransform As AffineTransform = AffineTransform.CreateDecomposed(matrix)
 
             ' Attach the extras data to the empty node
+
             MyMeshBuilder.Extras = jsonExtras
 
             ' Add the node to the scene

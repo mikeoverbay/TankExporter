@@ -108,7 +108,7 @@ Public Class frmXMLbuilder
             fb.AppendLine("</items>")
         Next
         fb.AppendLine("</FileList>")
-        File.WriteAllText(Application.StartupPath + "\resources\XMLdata\TheItemList.xml", fb.ToString)
+        IO.File.WriteAllText(Application.StartupPath + "\resources\XMLdata\TheItemList.xml", fb.ToString)
         'File.WriteAllText("C:\!_Tank Exporter\!_Tank Exporter\resources\XMLdata\TheItemListIcons.xml", fb.ToString)
         'Process.Start(temp_path + "TheItemList.xml")
         go_btn.Enabled = True

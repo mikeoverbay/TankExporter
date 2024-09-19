@@ -4,15 +4,17 @@ Imports Aspose.ThreeD
 Imports Aspose.ThreeD.Entities
 Imports Aspose.ThreeD.Utilities
 Imports Aspose.ThreeD.Shading
-Imports System.Net.WebRequestMethods
+'Imports System.Net.WebRequestMethods
 Imports System.IO
-Imports Skill.FbxSDK.FbxAxisSystem
+Imports Aspose.ThreeD.Formats
+'Imports Skill.FbxSDK.FbxAxisSystem
 
 
 Module mod_glTF
     Public EXPORT_TYPE As Integer = 1
     Public Sub make_glTF()
-
+        Dim normals() As Aspose.ThreeD.Utilities.Vector4
+        Dim uvs() As Aspose.ThreeD.Utilities.Vector4
         Dim ar() As String
         If PRIMITIVES_MODE Then
             ar = Path.GetFileNameWithoutExtension(frmMain.OpenFileDialog1.FileName).Split("~")
@@ -23,9 +25,9 @@ Module mod_glTF
         frmMain.SaveFileDialog1.InitialDirectory = My.Settings.fbx_path
         Select Case EXPORT_TYPE
             Case 1
-                frmMain.SaveFileDialog1.Filter = "glTF|*.glTF"
-                frmMain.SaveFileDialog1.Title = "Save glTF.."
-                frmMain.SaveFileDialog1.FileName = Path.GetFileName(ar(0)) + ".glTF"
+                frmMain.SaveFileDialog1.Filter = "GLB|*.glb"
+                frmMain.SaveFileDialog1.Title = "Save GLB.."
+                frmMain.SaveFileDialog1.FileName = Path.GetFileName(ar(0)) + ".glb"
                 Exit Select
             Case 2
                 frmMain.SaveFileDialog1.Filter = "FBX|*.fbx"
@@ -57,9 +59,10 @@ Module mod_glTF
 
         Dim name As String = Path.GetFileName(ar(0))
         Dim save_path = Path.GetDirectoryName(My.Settings.fbx_path) + "\" + name
-        export_fbx_textures(False, 1) 'export all textures
+        export_fbx_textures(False, 0) 'export all textures
 
         Dim scene_ As New Scene()
+        scene_.Name = TANK_NAME
 
         For item = 1 To object_count
             If item = 23 Then
@@ -75,11 +78,12 @@ Module mod_glTF
 
             Dim m As New Mesh 'create mesh
             m.Name = model_name
+            Dim base = scene_.RootNode.CreateChildNode(model_name)
 
             'create mesh pirmitive face indice set
-            For i As UInt32 = 1 To _group(item).nPrimitives_
+            For i As UInteger = 1 To _group(item).nPrimitives_
                 m.CreatePolygon(_group(item).indices(i).v1 - off, _group(item).indices(i).v2 - off,
-                                _group(item).indices(i).v3 - off)
+                                  _group(item).indices(i).v3 - off)
             Next
 
             Dim norm As New VertexElementNormal
@@ -87,11 +91,13 @@ Module mod_glTF
             For i As UInt32 = 0 To _group(item).nVertices_ - 1
                 normals(i).X = _group(item).vertices(i).nx
                 normals(i).Y = _group(item).vertices(i).ny
-                If _group(item).color_name IsNot Nothing Then
-                    If _group(item).color_name.ToLower.Contains("track") Then
-                        normals(i).Y *= 1.0F
-                    End If
-                End If
+                'If _group(item).color_name IsNot Nothing Then
+                '    If _group(item).color_name.ToLower.Contains("track") Or
+                '        _group(item).color_name.ToLower.Contains("turret") Or
+                '        _group(item).color_name.ToLower.Contains("hull") Then
+                '        normals(i).Y *= -1.0F
+                '    End If
+                'End If
                 normals(i).Z = _group(item).vertices(i).nz
             Next
             norm.SetData(normals)
@@ -122,15 +128,25 @@ Module mod_glTF
             Dim vcolor As New VertexElementVertexColor
             ReDim normals(_group(item).nVertices_ - 1)
             For i As UInt32 = 0 To _group(item).nVertices_ - 1
+                normals(i).X = _group(item).vertices(i).r
+                normals(i).Y = _group(item).vertices(i).g
+                normals(i).X = _group(item).vertices(i).b
+                normals(i).W = _group(item).vertices(i).a
+            Next
+            vcolor.SetData(normals)
+
+            m.AddElement(vcolor)
+            Dim vcolor2 As New VertexElementVertexColor
+            ReDim normals(_group(item).nVertices_ - 1)
+            For i As UInt32 = 0 To _group(item).nVertices_ - 1
                 normals(i).X = _group(item).vertices(i).index_1
                 normals(i).Y = _group(item).vertices(i).index_2
                 normals(i).X = _group(item).vertices(i).index_3
                 normals(i).W = _group(item).vertices(i).index_4
             Next
-            vcolor.SetData(normals)
+            vcolor2.SetData(normals)
 
-            m.AddElement(vcolor)
-
+            m.AddElement(vcolor2)
             For i As UInt32 = 0 To _group(item).nVertices_ - 1
                 Dim v As Vector4
                 v.X = _group(item).vertices(i).x
@@ -144,14 +160,15 @@ Module mod_glTF
             co.Z = 0.6
             'Some turrets dont exist but are still used for translations.
             'If the are only a matrix transform, they have no textures!
-            Dim m1 As New Object
+
             If _group(item).color_name IsNot Nothing Then
 
                 ' Set up the base color texture
                 Dim arr = _group(item).color_name.Split("\")
                 Dim DnF = name + "\" + arr(arr.Length - 1)
                 Dim tx As New Texture(DnF.Replace(".dds", ".png"))
-                tx.FileName = tx.Name
+                tx.FileName = save_path + "\" + Path.GetFileName(tx.Name)
+                'tx.Name = tx.FileName
                 tx.MagFilter = TextureFilter.Linear
                 tx.MinFilter = TextureFilter.Linear
                 tx.MipFilter = TextureFilter.Anisotropic
@@ -162,7 +179,8 @@ Module mod_glTF
                 arr = _group(item).normal_name.Split("\")
                 DnF = name + "\" + arr(arr.Length - 1)
                 Dim txn As New Texture(DnF.Replace(".dds", ".png"))
-                txn.FileName = txn.Name
+                txn.FileName = save_path + "\" + Path.GetFileName(txn.Name)
+                'txn.Name = txn.FileName
                 txn.MagFilter = TextureFilter.Linear
                 txn.MinFilter = TextureFilter.Linear
                 txn.MipFilter = TextureFilter.Anisotropic
@@ -173,40 +191,50 @@ Module mod_glTF
                 arr = _group(item).metalGMM_name.Split("\")
                 DnF = name + "\" + arr(arr.Length - 1)
                 Dim txgm As New Texture(DnF.Replace(".dds", ".png"))
-                txgm.FileName = txgm.Name
+                txgm.FileName = save_path + "\" + Path.GetFileName(txgm.Name)
+                'txgm.Name = txgm.FileName
                 txgm.MagFilter = TextureFilter.Linear
                 txgm.MinFilter = TextureFilter.Linear
                 txgm.MipFilter = TextureFilter.Anisotropic
                 txgm.EnableMipMap = True
                 ' Set up the AO texture
                 Dim txao As New Texture
+
+
                 If _group(item).ao_name IsNot Nothing Then
 
                     arr = _group(item).ao_name.Split("\")
                     DnF = name + "\" + arr(arr.Length - 1)
                     txao = New Texture(DnF.Replace(".dds", ".png"))
-                    txao.FileName = txao.Name
+                    txao.FileName = save_path + "\" + Path.GetFileName(txao.Name)
+                    'txao.Name = txao.FileName
                     txao.MagFilter = TextureFilter.Linear
                     txao.MinFilter = TextureFilter.Linear
                     txao.MipFilter = TextureFilter.Anisotropic
                     txao.EnableMipMap = True
                 End If
 
+                If EXPORT_TYPE = 1 Then
+                Else
+                End If
                 Select Case EXPORT_TYPE
                     Case 2, 3, 4
-                        m1 = New LambertMaterial()
-                        m1.SetTexture(Material.MapDiffuse, tx)
-                        m1.SetTexture(Material.MapNormal, txn)
-                        m1.AmbientColor = New Vector3(0.3, 0.3, 0.3)
-                        m1.DiffuseColor = New Vector3(0.7, 0.7, 0.7)
+                        Dim m2 = New LambertMaterial("material_" + item.ToString)
+                        scene_.RootNode.Materials.Add(m2)
 
+                        m2.Name = "Material00" + item.ToString
+
+                        m2.SetTexture(Material.MapDiffuse, tx)
+                        m2.SetTexture(Material.MapNormal, txn)
+                        m2.AmbientColor = New Vector3(0.3, 0.3, 0.3)
+                        m2.DiffuseColor = New Vector3(0.7, 0.7, 0.7)
+                        base.Material = (scene_.RootNode.Materials(item - 1))
                         Exit Select
                     Case 1
                         ' Create a PBR material with a base color
-
-                        m1 = New PbrMaterial(co)
-
                         ' Assign textures to the PBR material
+                        Dim m1 = New PbrMaterial(co)
+                        scene_.RootNode.Materials.Add(m1)
                         m1.AlbedoTexture = tx
                         m1.NormalTexture = txn
                         m1.MetallicRoughness = txgm
@@ -216,26 +244,23 @@ Module mod_glTF
                         ' Set PBR material properties
                         m1.MetallicFactor = 0.9
                         m1.RoughnessFactor = 0.9
-
+                        m1.Name = "Material00" + item.ToString
+                        m1.SetProperty("Specular", 0.05)
+                        m1.SetProperty("Shininess", 0.1)
+                        base.Material = (scene_.RootNode.Materials(item - 1))
                         Exit Select
 
                 End Select
-                m1.Name = "Material00" + item.ToString
-                m1.SetProperty("Specular", 0.05)
-                m1.SetProperty("Shininess", 0.1)
-
             End If
-            Dim base = scene_.RootNode.CreateChildNode(model_name, m)
-            base.Name = model_name
 
             If _group(item).color_name IsNot Nothing Then
-                base.Material = m1
 
             End If
 
-            base.Entity = m
 
 
+            base.Name = model_name
+            'base.Entity = m
             Dim mat As Matrix4
             Dim tMatrix(16) As Double
             For i As UInt32 = 0 To 15
@@ -264,7 +289,7 @@ Module mod_glTF
 
 
             'Apply the matrix to the node
-            If EXPORT_TYPE = 2 Then
+            If EXPORT_TYPE = 2 Or EXPORT_TYPE = 3 Then
 
                 Dim rs As Quaternion
                 Dim ts, ss As Vector3
@@ -310,8 +335,8 @@ Module mod_glTF
             End If
 
 
-
-            scene_.RootNode.ChildNodes.Add(base)
+            ' Ensure the material is added to the root node's materials collection
+            base.AddEntity(m)
 
             Debug.WriteLine(m.Name)
         Next
@@ -320,10 +345,19 @@ Module mod_glTF
         ' Export the scn to a 3D format (e.g., FBX)
         Select Case EXPORT_TYPE
             Case 1
-                scene_.Save(out_path, FileFormat.GLTF2)
+                Dim save_options As New GltfSaveOptions(FileFormat.GLTF2_Binary)
+                save_options.FileName = out_path
+                save_options.EmbedAssets = True
+                save_options.ExportTextures = False
+                save_options.SaveExtras = True
+                scene_.Save(save_options.FileName, save_options)
                 Exit Select
             Case 2
-                scene_.Save(out_path, FileFormat.FBX7300Binary)
+                Dim save_options As New FbxSaveOptions(fbx_vers)
+                save_options.EmbedTextures = False
+                save_options.VideoForTexture = True
+                save_options.GenerateVertexElementMaterial = True
+                scene_.Save(out_path, fbx_vers)
                 Exit Select
             Case 3
                 scene_.Save(out_path, FileFormat.WavefrontOBJ)

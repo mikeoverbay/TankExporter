@@ -4,7 +4,8 @@ Imports System.Data.SqlTypes
 
 Module modGlobals
     Public updateEvent As New Threading.ManualResetEvent(True) ' Starts in signaled state
-
+    Public fbx_vers As Aspose.ThreeD.FileFormat
+    Public formAspectRatio As Double
 
     Public AMD_ As Boolean = False
     Public UV2s() As vec2

@@ -6,10 +6,8 @@ Imports System.Xml
 
 Imports Microsoft.VisualBasic.Strings
 Imports System.Math
-Imports SharpGLTF
 
 Imports Ionic.Zip
-Imports System.Drawing.Imaging
 Imports Skill.FbxSDK
 Imports System.Numerics
 
@@ -600,49 +598,22 @@ Module ModTankLoader
             File_len = r.Length
             loaded_from_resmods = True
         Else
-            'no.. get the file from the package...
-            If current_tank_package = 0 Then 'trap excep thrown by stand alone primitive load.
+
+            Dim entry = find_tank_and_return_entry_in_pkgs(file_name)
+            If entry Is Nothing Then
                 frmMain.update_log("File Not Found in package.." + file_name + vbCrLf)
                 Return False
-            End If
-            Dim entry As ZipEntry = frmMain.packages(current_tank_package)(file_name)
-            If entry IsNot Nothing Then
-                entry.Extract(r)
             Else
-                Try
-                    entry = frmMain.packages_2(current_tank_package)(file_name)
-                    If entry Is Nothing Then
-                        entry = frmMain.packages_3(current_tank_package)(file_name)
-
-                    End If
-                Catch ex As Exception
-                End Try
-                If entry IsNot Nothing Then
-                    entry.Extract(r)
-                Else
-                    entry = search_shared_pkgs(file_name)
-                    If entry IsNot Nothing Then
-                        entry.Extract(r)
-                    Else
-                        'last ditch try searching all packages for the model
-                        entry = find_tank_and_return_entry_in_pkgs(file_name)
-                        If entry Is Nothing Then
-                            frmMain.update_log("File Not Found in package.." + file_name + vbCrLf)
-                            Return False
-                        Else
-                            entry.Extract(r)
-                        End If
-                    End If
-                End If
+                entry.Extract(r)
             End If
-            r.Position = 0
-            File_len = r.Length
+        End If
+        r.Position = 0
+        File_len = r.Length
             ReDim buf(File_len)
             For i = 0 To File_len - 1
                 buf(i) = b_reader.ReadByte
             Next
             frmMain.update_log("Buf filled")
-        End If
 
         r.Dispose()
         '####################################################################################
@@ -1456,8 +1427,8 @@ next_m:
                     End If
 
                 Next
-
-                ReDim _group(jj).matrix(16)
+                'EchoOpenGLMatrix(_object(jj).matrix)
+                'ReDim _group(jj).matrix(16)
                 loop_count += 1
 
                 If compute_tangents Then
@@ -1794,34 +1765,13 @@ look_again:
                     GoTo check_res_mods
                 End If
             End If
-            Dim e As ZipEntry = frmMain.packages(current_tank_package)(filename)
+
+
+            Dim e = search_shared_pkgs(filename)
             If e IsNot Nothing Then
                 e.Extract(mstream)
             Else
-
-                Try
-                    e = frmMain.packages_3(current_tank_package)(filename)
-                Catch ex As Exception
-                End Try
-                If e IsNot Nothing Then
-                    e.Extract(mstream)
-                Else
-                    e = frmMain.packages_2(current_tank_package)(filename)
-                    If e IsNot Nothing Then
-                        e.Extract(mstream)
-                    Else
-                        If filename.Contains("Turret_01") Then
-                            filename = filename.Replace("Turret_01", "Turret_02")
-                            GoTo look_again
-                        End If
-                    End If
-                End If
-            End If
-            filename = filename.Replace("Turret_02", "Turret_01")
-
-            e = search_shared_pkgs(filename)
-            If e IsNot Nothing Then
-                e.Extract(mstream)
+                Return False
             End If
 
             openXml_stream(mstream, "")
@@ -1838,50 +1788,24 @@ look_again:
                     Select s = row.Field(Of String)("nodefullVisual")
 
             filename = q(0) + ".visual_processed"
-            file_name = q(0) + ".primitives_processed"
 get_visual:
             mstream = New MemoryStream
-            e = frmMain.packages(current_tank_package)(filename)
+            e = search_shared_pkgs(filename)
             If e IsNot Nothing Then
                 e.Extract(mstream)
-            Else
-                Try
-                    e = frmMain.packages_2(current_tank_package)(filename)
-                Catch ex As Exception
-                End Try
-                If e IsNot Nothing Then
-                    e.Extract(mstream)
-                Else
-                    Try
-                        e = frmMain.packages_3(current_tank_package)(filename)
+                openXml_stream(mstream, "")
+                Return True
 
-                    Catch ex As Exception
-                        e = Nothing
-                    End Try
-                    If e IsNot Nothing Then
-                        e.Extract(mstream)
-                    Else
-                        e = search_shared_pkgs(filename)
-                        If e IsNot Nothing Then
-                            e.Extract(mstream)
-                        Else
-                            Try
-                                e = frmMain.packages_2(11)(filename)
-                            Catch ex As Exception
-                            End Try
-                            If e IsNot Nothing Then
-                                e.Extract(mstream)
-                            End If
-                        End If
-                    End If
-                End If
+            Else
+                MsgBox("visual file not found: " + vbCrLf + filename, MsgBoxStyle.Critical, "Can't find file ")
+                Return False
             End If
-            openXml_stream(mstream, "")
         Catch ex As Exception
+            MsgBox("visual file not found: " + vbCrLf + filename, MsgBoxStyle.Critical, "Can't find file ")
             Return False
         End Try
+        Return False
 
-        Return True
     End Function
 
 
@@ -2792,6 +2716,9 @@ get_visual:
 
     End Sub
     Private Sub main_list(ByVal cnt As UInteger, ByVal jj As UInt32)
+        'Debug.WriteLine("make list ================================")
+        'EchoOpenGLMatrix(_object(jj).matrix)
+        'Debug.WriteLine("make list ================================")
         min_u = 10000.0!
         min_v = 10000.0!
         Gl.glBegin(Gl.GL_TRIANGLES)
