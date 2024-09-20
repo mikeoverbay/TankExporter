@@ -891,8 +891,7 @@ done:
         l_rot = PI * 0.25 + PI * 2
         pb1.Visible = True
 
-        Startup_Timer.Enabled = True
-        Application.DoEvents()
+
         AddHandler Me.SizeChanged, AddressOf me_size_changed
         window_state = Me.WindowState
 
@@ -901,7 +900,8 @@ done:
         allow_mouse = True
         My.Settings.Save()
         time_flasher.Start()
-
+        Startup_Timer.Enabled = True
+        Application.DoEvents()
         'test
         'Wgl.wglMakeCurrent(pb1_hDC, pb1_hRC)
         'Dim droid = Gl.glGenLists(1)
@@ -8149,9 +8149,7 @@ skip_old_way:
         Next
         If fbxgrp.Length > 1 Then
             For i = 1 To fbxgrp.Length - 1
-                Dim ar = _object(i).name.Split(":")
-                Dim fn = Path.GetFileName(ar(0))
-                If fn.ToLower.Contains("gun") Then
+                If fbxgrp(i).name.ToLower.Contains("gun") Then
                     fbxgrp(i).visible = gun_cb.Checked
                 End If
             Next
@@ -10026,7 +10024,7 @@ load_script:
     Private Sub m_export_to_glTF_Click(sender As Object, e As EventArgs) Handles m_export_to_glTF.Click
         EXPORT_TYPE = 1
         Try
-            make_glTF()
+            write_glTF()
         Catch ex As Exception
             MsgBox("failed to export GLB: " + ex.Message, MsgBoxStyle.Critical, "export failed")
         End Try
@@ -10101,6 +10099,7 @@ load_script:
 
     Private Sub frmMain_Shown(sender As Object, e As EventArgs) Handles Me.Shown
         draw_scene()
+        shadow_fbo.reset_shadowFbo()
 
     End Sub
 End Class

@@ -27,6 +27,7 @@
     End Sub
 
     Private Sub CheckedChanged(sender As RadioButton, e As EventArgs) Handles RadioButton1.CheckedChanged
+        If Not _Started Then Return
         If sender.Checked = False Then Return
         Dim val = CInt(sender.Tag)
         Select Case val
@@ -40,7 +41,7 @@
                 shadowMapSize = 512
         End Select
         My.Settings.shadow_quality = shadowMapSize.ToString
-        shadow_fbo.reset_shadowFbo()
+        'shadow_fbo.reset_shadowFbo()
     End Sub
 
 End Class

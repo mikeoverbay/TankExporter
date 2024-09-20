@@ -127,10 +127,11 @@ Module put_glTF
             ' Create a mesh primitive and assign the material
             Dim prim = MyMeshBuilder.UsePrimitive(MyMaterialBuilder)
 
-            If Not _group(item).has_uv2 = 1 Then
+            If Not _group(item).has_uv2 = 1 And _group(item).has_color = 1 Then
                 Dim vertices As New List(Of VertexBuilder(Of VertexPositionNormal, VertexColor1Texture1, VertexEmpty))()
                 For i As UInt32 = 0 To _group(item).nVertices_ - 1
                     Dim color1 = New Vector4(_group(item).vertices(i).r, _group(item).vertices(i).g, _group(item).vertices(i).b, _group(item).vertices(i).a)
+                    Dim color2 = New Vector4(_group(item).vertices(i).ir, _group(item).vertices(i).ig, _group(item).vertices(i).ib, _group(item).vertices(i).ia)
                     Dim v As New VertexBuilder(Of VertexPositionNormal, VertexColor1Texture1, VertexEmpty)(
             New VertexPositionNormal(
                 New Vector3(_group(item).vertices(i).x, _group(item).vertices(i).y, _group(item).vertices(i).z),
@@ -152,18 +153,19 @@ Module put_glTF
             vertices(_group(item).indices(i).v3 - off)
         )
                 Next
-            Else
-                Dim vertices As New List(Of VertexBuilder(Of VertexPositionNormal, VertexColor1Texture2, VertexEmpty))()
+            ElseIf _group(item).has_uv2 = 1 Then
+                Dim vertices As New List(Of VertexBuilder(Of VertexPositionNormal, VertexColor2Texture2, VertexEmpty))()
                 For i As UInt32 = 0 To _group(item).nVertices_ - 1
                     Dim color1 = New Vector4(_group(item).vertices(i).r, _group(item).vertices(i).g, _group(item).vertices(i).b, _group(item).vertices(i).a)
-                    Dim color2 = New Vector4(_group(item).vertices(i).index_1, _group(item).vertices(i).index_2, _group(item).vertices(i).index_3, _group(item).vertices(i).index_4)
-                    Dim v As New VertexBuilder(Of VertexPositionNormal, VertexColor1Texture2, VertexEmpty)(
+                    Dim color2 = New Vector4(_group(item).vertices(i).ir, _group(item).vertices(i).ig, _group(item).vertices(i).ib, _group(item).vertices(i).ia)
+                    Dim v As New VertexBuilder(Of VertexPositionNormal, VertexColor2Texture2, VertexEmpty)(
            New VertexPositionNormal(
                 New Vector3(_group(item).vertices(i).x, _group(item).vertices(i).y, _group(item).vertices(i).z),
                 New Vector3(_group(item).vertices(i).nx, _group(item).vertices(i).ny, _group(item).vertices(i).nz)
             ),
-            New VertexColor1Texture2(
+            New VertexColor2Texture2(
                 color1,
+                color2,
                 New Vector2(_group(item).vertices(i).u, _group(item).vertices(i).v),
                 New Vector2(_group(item).vertices(i).u2, _group(item).vertices(i).v2)
             )
@@ -180,8 +182,32 @@ Module put_glTF
             vertices(_group(item).indices(i).v3 - off)
         )
                 Next
-            End If
+            ElseIf Not _group(item).has_color = 1 Then
+                Dim vertices As New List(Of VertexBuilder(Of VertexPositionNormal, VertexTexture1, VertexEmpty))()
+                For i As UInt32 = 0 To _group(item).nVertices_ - 1
+                    Dim color1 = New Vector4(_group(item).vertices(i).r, _group(item).vertices(i).g, _group(item).vertices(i).b, _group(item).vertices(i).a)
+                    Dim v As New VertexBuilder(Of VertexPositionNormal, VertexTexture1, VertexEmpty)(
+           New VertexPositionNormal(
+                New Vector3(_group(item).vertices(i).x, _group(item).vertices(i).y, _group(item).vertices(i).z),
+                New Vector3(_group(item).vertices(i).nx, _group(item).vertices(i).ny, _group(item).vertices(i).nz)
+            ),
+            New VertexTexture1(
+                New Vector2(_group(item).vertices(i).u, _group(item).vertices(i).v)
+)
+        )
+                    ' Add the vertex to the list
+                    vertices.Add(v)
+                Next
 
+                ' Create mesh primitive face indices
+                For i As UInt32 = 1 To _group(item).nPrimitives_
+                    prim.AddTriangle(
+            vertices(_group(item).indices(i).v1 - off),
+            vertices(_group(item).indices(i).v2 - off),
+            vertices(_group(item).indices(i).v3 - off)
+        )
+                Next
+            End If
 
 
             ' Create a node and add the mesh to it

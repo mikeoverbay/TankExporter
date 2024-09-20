@@ -983,7 +983,7 @@ found_section:
         ReDim fbx_uv2s(1000000)
         obj_cnt = m_groups(ID).cnt
         Try
-            r = New FileStream(My.Settings.res_mods_path + "\" + m_groups(ID).f_name(0), FileMode.Create, FileAccess.Write)
+            r = New FileStream(My.Settings.res_mods_path + "\" + m_groups(ID).f_name(0).Replace(".model", ".primitives_processed"), FileMode.OpenOrCreate, FileAccess.Write)
         Catch e As Exception
             MsgBox("I could not open """ + My.Settings.res_mods_path + "\" + m_groups(ID).f_name(0) + """!" + vbCrLf +
                     "The Root folder is there but there are no  .primitive_processed files." + vbCrLf _
@@ -1042,7 +1042,7 @@ found_section:
         br.Write(tsa) ' string
         offset += tsa.Length + 24 ' adjust table start by this entry length
         l = (br.BaseStream.Position) Mod 4L
-        Console.Write("ind_pnt" + vbTab + "base {0} , mod-4 {1} " + vbCrLf, br.BaseStream.Position, (br.BaseStream.Position) Mod 4L)
+        Debug.WriteLine("ind_pnt" + vbTab + "base {0} , mod-4 {1} " + vbCrLf, br.BaseStream.Position, (br.BaseStream.Position) Mod 4L)
         If l > 0 Then ' pad to int aligmenment
             For i = 1 To 4 - l
                 br.Write(b)
@@ -1066,7 +1066,7 @@ found_section:
         br.Write(tsa)
         offset += tsa.Length + 24
         l = (br.BaseStream.Position) Mod 4L
-        Console.Write("vts_pnt" + vbTab + "base {0} , mod-4 {1} " + vbCrLf, br.BaseStream.Position, (br.BaseStream.Position) Mod 4L)
+        Debug.WriteLine("vts_pnt" + vbTab + "base {0} , mod-4 {1} " + vbCrLf, br.BaseStream.Position, (br.BaseStream.Position) Mod 4L)
         If l > 0 Then
             For i = 1 To 4 - l
                 br.Write(b)
@@ -1209,7 +1209,7 @@ no_UV2EVER:
         f = f.Replace("SceneRoot", "Scene Root")
         Dim fn As String = m_groups(ID).f_name(0)
         fn = fn.Replace(".primitives", ".visual")
-        File.WriteAllText(My.Settings.res_mods_path + "\" + fn.Replace(".primitives", ".visual"), f)
+        File.WriteAllText(My.Settings.res_mods_path + "\" + fn.Replace(".model", ".visual_processed"), f)
 
 
     End Sub
@@ -1309,6 +1309,7 @@ no_UV2EVER:
         Dim parent = m_groups(id).list(0)
         br.Write(total_verts)
         For i = 1 To obj_cnt
+            create_TBNS(i)
             pnter = m_groups(id).list(i - 1)
             '-------------------------------------------------------------
             Application.DoEvents()
@@ -1318,6 +1319,7 @@ no_UV2EVER:
             For k = 0 To j
                 'r.Close()
                 'Return
+                Dim n As vect3
                 If fbxgrp(pnter).is_new_model Then
                     Dim v As New vect3
                     v.x = comp.vertices(k).x
@@ -1335,42 +1337,6 @@ no_UV2EVER:
                         v.z -= fbxgrp(parent).matrix(14)
 
                     End If
-                    'sucks but we have to transform N, T and Bt
-                    ' N --------------------------------------------------
-                    Dim n As vect3
-                    n.x = comp.vertices(k).nx
-                    n.y = comp.vertices(k).ny
-                    n.z = comp.vertices(k).nz
-
-                    If id = 4 Then
-                        n = gun_new_rotate_transform(n, fbxgrp(pnter).matrix)
-                    Else
-                        n = rotate_transform(n, fbxgrp(pnter).matrix)
-                    End If
-                    comp.vertices(k).n = packnormalFBX888_writePrimitive(toFBXv(n))
-                    ' T --------------------------------------------------
-                    n.x = comp.vertices(k).tx
-                    n.y = comp.vertices(k).ty
-                    n.z = comp.vertices(k).tz
-
-                    If id = 4 Then
-                        n = gun_new_rotate_transform(n, fbxgrp(pnter).matrix)
-                    Else
-                        n = rotate_transform(n, fbxgrp(pnter).matrix)
-                    End If
-                    'fbxgrp(pnter).vertices(k).t = packnormalFBX888(toFBXv(n))
-                    ' Tb --------------------------------------------------
-                    n.x = comp.vertices(k).bnx
-                    n.y = comp.vertices(k).bny
-                    n.z = comp.vertices(k).bnz
-
-                    If id = 4 Then
-                        n = gun_new_rotate_transform(n, fbxgrp(pnter).matrix)
-                    Else
-                        n = rotate_transform(n, fbxgrp(pnter).matrix)
-                    End If
-                    'fbxgrp(pnter).vertices(k).bn = packnormalFBX888(toFBXv(n))
-
 
                     br.Write(v.x)
                     br.Write(v.y)
@@ -1388,6 +1354,36 @@ no_UV2EVER:
 
                     End If
                 End If
+
+                'sucks but we have to transform N, T and Bt
+                n.x = comp.vertices(k).nx
+                n.y = comp.vertices(k).ny
+                n.z = comp.vertices(k).nz
+                Dim tn As vect3
+                tn.x = comp.vertices(k).tx
+                tn.y = comp.vertices(k).ty
+                tn.z = comp.vertices(k).tz
+
+                Dim tb As vect3
+                tb.x = comp.vertices(k).bnx
+                tb.y = comp.vertices(k).bny
+                tb.z = comp.vertices(k).bnz
+
+
+                If fbxgrp(i).name.ToLower.Contains("turret") And Not fbxgrp(i).is_new_model Then
+                    n = gun_new_rotate_transform(n, fbxgrp(pnter).matrix)
+                    tn = gun_new_rotate_transform(tn, fbxgrp(pnter).matrix)
+                    tb = gun_new_rotate_transform(tb, fbxgrp(pnter).matrix)
+                Else
+                    n = rotate_transform(n, fbxgrp(pnter).matrix)
+
+                End If
+
+                comp.vertices(k).n = packnormalFBX888_writePrimitive(toFBXv(n))
+                comp.vertices(k).t = packnormalFBX888_writePrimitive(toFBXv(tn))
+                comp.vertices(k).bn = packnormalFBX888_writePrimitive(toFBXv(tb))
+                'n = rotate_transform(n, fbxgrp(pnter).matrix)
+
                 br.Write(comp.vertices(k).n)
                 br.Write(comp.vertices(k).u)
                 br.Write(comp.vertices(k).v)
@@ -1416,7 +1412,7 @@ no_UV2EVER:
         Next
         Dim l As Long = (br.BaseStream.Position) Mod 4L
         Vpadding = l
-        Console.Write("vt raw" + vbTab + "base {0} , mod-4 {1} " + vbCrLf, br.BaseStream.Position, (br.BaseStream.Position) Mod 4L)
+        Debug.WriteLine("vt raw" + vbTab + "base {0} , mod-4 {1} " + vbCrLf, br.BaseStream.Position, (br.BaseStream.Position) Mod 4L)
         If l > 0 Then
             For i = 1 To 4 - l
                 br.Write(b)
@@ -1613,7 +1609,7 @@ no_UV2EVER:
         Next
         l = (br.BaseStream.Position) Mod 4L
         Ipadding = l
-        Console.Write("indices" + vbTab + "base {0} , mod-4 {1} " + vbCrLf, br.BaseStream.Position, (br.BaseStream.Position) Mod 4L)
+        Debug.WriteLine("indices" + vbTab + "base {0} , mod-4 {1} " + vbCrLf, br.BaseStream.Position, (br.BaseStream.Position) Mod 4L)
         If l > 0 Then
             For i = 1 To 4 - l
                 br.Write(b)

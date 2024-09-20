@@ -21,6 +21,7 @@ Imports System.Data
 Imports Skill.FbxSDK
 Imports Skill.FbxSDK.IO
 Imports cttools
+Imports System.Data.Common
 #End Region
 
 
@@ -39,50 +40,70 @@ Module modToLists
 
 
     Public Function compact_primitive(ByVal fbx_id As Integer, ByRef comp As comp_) As comp_
-        comp = New comp_
-        ReDim comp.vertices(fbxgrp(fbx_id).vertices.Length)
-        ReDim comp.indices(fbxgrp(fbx_id).vertices.Length)
+        Try
 
-        ReDim fbx_uv2s(fbxgrp(fbx_id).vertices.Length)
-        uv2_total_count = 0
-        For i = 0 To fbxgrp(fbx_id).vertices.Length - 1
+            comp = New comp_
+            ReDim comp.vertices(fbxgrp(fbx_id).vertices.Length)
+            ReDim comp.indices((fbxgrp(fbx_id).indices.Length) * 3)
 
-            fbx_uv2s(uv2_total_count) = New uv_
-            fbx_uv2s(uv2_total_count).u = fbxgrp(fbx_id).vertices(i).u2
-            fbx_uv2s(uv2_total_count).v = fbxgrp(fbx_id).vertices(i).v2
-            uv2_total_count += 1
-            comp.vertices(i) = New vertice_
-            fbxgrp(fbx_id).vertices(i).found = False
-        Next
-        ReDim Preserve fbx_uv2s(uv2_total_count - 1)
+            ReDim fbx_uv2s(fbxgrp(fbx_id).vertices.Length)
+            uv2_total_count = 0
+            For i As Integer = 0 To fbxgrp(fbx_id).vertices.Length - 1
 
-        Dim v_cnt As Integer
-        Dim i_cnt As Integer
-        Dim indx As Integer
-        frmMain.PG1.Value = 0
-        frmMain.PG1.Maximum = fbxgrp(fbx_id).nPrimitives_ * 3 - 1
-        For i = 0 To fbxgrp(fbx_id).nPrimitives_ * 3 - 1
-            frmMain.PG1.Value = i
-            Dim id = get_vert(fbxgrp(fbx_id).vertices(i), indx, v_cnt, comp)
-            If id > -1 Then
-                comp.indices(i_cnt) = indx
-                i_cnt += 1
-            Else
-                fbxgrp(fbx_id).vertices(i).found = True
-                comp.vertices(indx) = fbxgrp(fbx_id).vertices(i)
-                comp.vertices(indx).found = True
-                comp.indices(i_cnt) = indx
-                i_cnt += 1
+                fbx_uv2s(uv2_total_count) = New uv_
+                fbx_uv2s(uv2_total_count).u = fbxgrp(fbx_id).vertices(i).u2
+                fbx_uv2s(uv2_total_count).v = fbxgrp(fbx_id).vertices(i).v2
+                uv2_total_count += 1
+                comp.vertices(i) = New vertice_
+                fbxgrp(fbx_id).vertices(i).found = False
+            Next
+            ReDim Preserve fbx_uv2s(uv2_total_count - 1)
+
+            Dim i_cnt As Integer
+            Dim indx As Integer
+
+            Dim v_cnt As Integer = 0
+
+            comp.indi_cnt = (fbxgrp(fbx_id).indices.Length) * 3
+            comp.nPrimitives = fbxgrp(fbx_id).nPrimitives_
+            comp.vert_cnt = fbxgrp(fbx_id).nVertices_
+            comp.vertices = fbxgrp(fbx_id).vertices
+            For i = 0 To (fbxgrp(fbx_id).indices.Length - 1) * 3 Step 3
+                comp.indices(i + 0) = fbxgrp(fbx_id).indices(v_cnt).v1
+                comp.indices(i + 1) = fbxgrp(fbx_id).indices(v_cnt).v2
+                comp.indices(i + 2) = fbxgrp(fbx_id).indices(v_cnt).v3
                 v_cnt += 1
+            Next
 
-            End If
-        Next
-        ReDim Preserve comp.vertices(v_cnt - 1)
-        ReDim Preserve comp.indices(i_cnt - 1)
-        comp.indi_cnt = i_cnt
-        comp.vert_cnt = v_cnt
-        comp.nPrimitives = CInt(i_cnt / 3)
-        'make_temp_list(comp) test function to make sure its correct
+            Return comp
+
+            frmMain.PG1.Value = 0
+            frmMain.PG1.Maximum = fbxgrp(fbx_id).nPrimitives_ * 3 - 1
+            For i As Integer = 0 To fbxgrp(fbx_id).nPrimitives_
+                frmMain.PG1.Value = i
+                Dim id As Integer = get_vert(fbxgrp(fbx_id).vertices(i), indx, v_cnt, comp)
+                If id > -1 Then
+                    comp.indices(i_cnt) = indx
+                    i_cnt += 1
+                Else
+                    fbxgrp(fbx_id).vertices(i).found = True
+                    comp.vertices(indx) = fbxgrp(fbx_id).vertices(i)
+                    comp.vertices(indx).found = True
+                    comp.indices(i_cnt) = indx
+                    i_cnt += 1
+                    v_cnt += 1
+
+                End If
+            Next
+            ReDim Preserve comp.vertices(v_cnt - 1)
+            ReDim Preserve comp.indices(i_cnt - 1)
+            comp.indi_cnt = i_cnt
+            comp.vert_cnt = v_cnt
+            comp.nPrimitives = CInt(i_cnt / 3)
+            'make_temp_list(comp) test function to make sure its correct
+        Catch ex As Exception
+
+        End Try
         Return comp
     End Function
     Private Sub make_temp_list(ByRef comp As comp_)

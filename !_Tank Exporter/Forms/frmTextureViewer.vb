@@ -36,6 +36,7 @@ Public Class frmTextureViewer
         Public g As Single
         Public b As Single
     End Structure
+    Dim FVIEWER_LOADED As Boolean = False
     Dim mask As Integer = 15
     Public Sub set_current_image()
 
@@ -704,6 +705,7 @@ Public Class frmTextureViewer
     End Sub
 
     Private Sub frmTextureViewer_Resize(sender As Object, e As EventArgs) Handles Me.Resize
+        If Not FVIEWER_LOADED Then Return
         draw()
         Application.DoEvents()
         drawing_ = False
@@ -932,5 +934,9 @@ Public Class frmTextureViewer
         UVcolor.g = 0.0!
         UVcolor.b = 0.0!
         draw()
+    End Sub
+
+    Private Sub frmTextureViewer_Shown(sender As Object, e As EventArgs) Handles Me.Shown
+        FVIEWER_LOADED = True
     End Sub
 End Class

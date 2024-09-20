@@ -107,7 +107,7 @@ Module mod_glTF
             ReDim uvs(_group(item).nVertices_ - 1)
             For i = 0 To _group(item).nVertices_ - 1
                 uvs(i).X = _group(item).vertices(i).u
-                uvs(i).Y = -_group(item).vertices(i).v
+                uvs(i).Y = (-_group(item).vertices(i).v) + 1
             Next
             uvs_1.SetData(uvs)
             m.AddElement(uvs_1)
@@ -124,29 +124,32 @@ Module mod_glTF
                 m.AddElement(vElement2)
 
             End If
+            If _group(item).has_color = 1 Then
+                Dim vcolor As New VertexElementVertexColor
+                ReDim normals(_group(item).nVertices_ - 1)
+                For i As UInt32 = 0 To _group(item).nVertices_ - 1
+                    normals(i).X = _group(item).vertices(i).r
+                    normals(i).Y = _group(item).vertices(i).g
+                    normals(i).X = _group(item).vertices(i).b
+                    normals(i).W = _group(item).vertices(i).a
+                Next
+                vcolor.SetData(normals)
 
-            Dim vcolor As New VertexElementVertexColor
-            ReDim normals(_group(item).nVertices_ - 1)
-            For i As UInt32 = 0 To _group(item).nVertices_ - 1
-                normals(i).X = _group(item).vertices(i).r
-                normals(i).Y = _group(item).vertices(i).g
-                normals(i).X = _group(item).vertices(i).b
-                normals(i).W = _group(item).vertices(i).a
-            Next
-            vcolor.SetData(normals)
+                m.AddElement(vcolor)
 
-            m.AddElement(vcolor)
-            Dim vcolor2 As New VertexElementVertexColor
-            ReDim normals(_group(item).nVertices_ - 1)
-            For i As UInt32 = 0 To _group(item).nVertices_ - 1
-                normals(i).X = _group(item).vertices(i).index_1
-                normals(i).Y = _group(item).vertices(i).index_2
-                normals(i).X = _group(item).vertices(i).index_3
-                normals(i).W = _group(item).vertices(i).index_4
-            Next
-            vcolor2.SetData(normals)
+                Dim vcolor2 As New VertexElementVertexColor
+                ReDim normals(_group(item).nVertices_ - 1)
+                For i As UInt32 = 0 To _group(item).nVertices_ - 1
+                    normals(i).X = _group(item).vertices(i).ir
+                    normals(i).Y = _group(item).vertices(i).ig
+                    normals(i).Z = _group(item).vertices(i).ib
+                    normals(i).W = _group(item).vertices(i).ia
+                Next
+                vcolor2.SetData(normals)
+                m.AddElement(vcolor2)
+            End If
 
-            m.AddElement(vcolor2)
+
             For i As UInt32 = 0 To _group(item).nVertices_ - 1
                 Dim v As Vector4
                 v.X = _group(item).vertices(i).x

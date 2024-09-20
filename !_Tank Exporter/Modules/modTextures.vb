@@ -1549,6 +1549,42 @@ save_it:
         Next
         Return Nothing
     End Function
+    Public Function find_tank_part_return_entry(ByVal p As String) As ZipEntry
+        'Searched and extracts file p to res_mods.
+        'This does NOT overwrite existing files.
+        Dim pp = p.Replace(My.Settings.res_mods_path + "\", "") ' strip res_mods path off head of file name
+        Dim ss = pp.ToLower.Replace("\", "/")
+
+        Dim pkName = Find_entry(ss)
+        If Not String.IsNullOrEmpty(pkName) Then
+            Using zipf As ZipFile = New ZipFile(Path.GetDirectoryName(shared_pkg_search_list(0)) + "\" + pkName)
+                Dim entry As ZipEntry = zipf(ss)
+                If entry IsNot Nothing Then
+                    Return entry
+                End If
+            End Using
+        End If
+
+        'this is slow
+        For Each f In tank_pkg_search_list
+            Using zipf As New ZipFile(f)
+                For Each entry In zipf
+                    If Not entry.IsDirectory Then
+                        If entry.FileName.Contains("vehicles") Then
+
+                            'Debug.WriteLine(entry.FileName)
+                            If entry.FileName.ToLower = ss Then
+                                zipf.Dispose()
+                                GC.Collect()
+                                Return entry
+                            End If
+                        End If
+                    End If
+                Next
+            End Using
+        Next
+        Return Nothing
+    End Function
     Public Function find_and_extract_file_in_pkgs(ByVal p As String) As Boolean
         'Searched and extracts file p to res_mods.
         'This does NOT overwrite existing files.
@@ -1624,12 +1660,18 @@ save_it:
 
             Dim pkName = Find_entry(name)
             If Not String.IsNullOrEmpty(pkName) Then
-                Using zipf As ZipFile = New ZipFile(Path.GetDirectoryName(shared_pkg_search_list(0)) + "\" + pkName)
+                Using zipf As ZipFile = New ZipFile(My.Settings.game_path + "\res\packages\" + pkName)
                     ent = zipf(name)
+                    If ent IsNot Nothing Then
+                        mStream = New MemoryStream
+                        ent.Extract(mStream)
+                        id = get_texture(mStream, name) ' get hd texture ID
+                        Return id
+                    End If
+
                 End Using
             End If
 
-            ent = frmMain.packages_HD(current_tank_package)(name) ' look in tank package
         Catch ex As Exception
         End Try
         If ent Is Nothing Then

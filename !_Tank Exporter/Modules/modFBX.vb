@@ -20,6 +20,7 @@ Imports System.Data
 Imports Skill.FbxSDK
 Imports Skill.FbxSDK.IO
 Imports cttools
+Imports System.Windows.Forms.VisualStyles
 Module modFBX
     Public t_fbx(0) As _grps
     Public FBX_Texture_path As String
@@ -44,23 +45,23 @@ Module modFBX
     Public Sub remove_loaded_fbx()
         'If FBX_LOADED Then
         FBX_LOADED = False
-            For ii = 1 To fbxgrp.Length - 2
-                Gl.glDeleteTextures(1, fbxgrp(ii).color_Id)
-                Gl.glFinish()
-                Gl.glDeleteTextures(1, fbxgrp(ii).color_Id)
-                Gl.glFinish()
-                Gl.glDeleteLists(fbxgrp(ii).call_list, 1)
-                Gl.glDeleteLists(fbxgrp(ii).vertex_pick_list, 1)
-                Gl.glFinish()
-            Next
-            frmMain.m_show_fbx.Visible = False
-            frmMain.m_show_fbx.Checked = False
-            frmMain.m_show_fbx.Enabled = True
-            frmMain.m_write_non_tank_primitive.Enabled = False
+        For ii = 1 To fbxgrp.Length - 2
+            Gl.glDeleteTextures(1, fbxgrp(ii).color_Id)
+            Gl.glFinish()
+            Gl.glDeleteTextures(1, fbxgrp(ii).color_Id)
+            Gl.glFinish()
+            Gl.glDeleteLists(fbxgrp(ii).call_list, 1)
+            Gl.glDeleteLists(fbxgrp(ii).vertex_pick_list, 1)
+            Gl.glFinish()
+        Next
+        frmMain.m_show_fbx.Visible = False
+        frmMain.m_show_fbx.Checked = False
+        frmMain.m_show_fbx.Enabled = True
+        frmMain.m_write_non_tank_primitive.Enabled = False
 
-            ReDim fbxgrp(0)
-            GC.Collect() 'clean up garbage
-            GC.WaitForFullGCComplete()
+        ReDim fbxgrp(0)
+        GC.Collect() 'clean up garbage
+        GC.WaitForFullGCComplete()
         'End If
     End Sub
 
@@ -203,21 +204,21 @@ Module modFBX
         pManager.Destroy()
         '        Try
         process_fbx_data()
-            For i = 1 To object_count - 1
-                tank_center_X += _object(i).center_x
-                tank_center_Y += _object(i).center_y
-                tank_center_Z += _object(i).center_z
-            Next
-            tank_center_X /= object_count
-            tank_center_Y /= object_count
-            tank_center_Z /= object_count
-            look_point_x = tank_center_X
-            look_point_y = tank_center_Y
-            look_point_z = tank_center_Z
+        For i = 1 To object_count - 1
+            tank_center_X += _object(i).center_x
+            tank_center_Y += _object(i).center_y
+            tank_center_Z += _object(i).center_z
+        Next
+        tank_center_X /= object_count
+        tank_center_Y /= object_count
+        tank_center_Z /= object_count
+        look_point_x = tank_center_X
+        look_point_y = tank_center_Y
+        look_point_z = tank_center_Z
 
-            'Catch ex As Exception
+        'Catch ex As Exception
 
-            'End Try
+        'End Try
 
 outofhere:
         frmMain.info_Label.Text = "Creating Display Lists"
@@ -568,7 +569,7 @@ we_dont_want_this_one_saved:
             GoTo outahere
         End If
         Dim version As Version = Skill.FbxSDK.IO.FbxIO.CurrentVersion
-        Console.Write(String.Format("FBX version number for this FBX SDK is {0}.{1}.{2}", _
+        Console.Write(String.Format("FBX version number for this FBX SDK is {0}.{1}.{2}",
                           version.Major, version.Minor, version.Revision))
         If frmFBX.export_as_binary_cb.Checked Then
             exporter.FileFormat = IO.FileFormat.FbxBinary
@@ -757,7 +758,7 @@ we_dont_want_this_one_saved:
             GoTo outahere
         End If
         Dim version As Version = Skill.FbxSDK.IO.FbxIO.CurrentVersion
-        Console.Write(String.Format("FBX version number for this FBX SDK is {0}.{1}.{2}", _
+        Console.Write(String.Format("FBX version number for this FBX SDK is {0}.{1}.{2}",
                           version.Major, version.Minor, version.Revision))
         If frmFBX.export_as_binary_cb.Checked Then
             exporter.FileFormat = IO.FileFormat.FbxBinary
@@ -795,8 +796,8 @@ outahere:
 #Region "Import helpers"
 
 
-    Private Function readMeshdata(ByVal i As Integer, ByRef childnode As FbxNode, _
-                                  start_vertex As Integer, start_index As Integer, _
+    Private Function readMeshdata(ByVal i As Integer, ByRef childnode As FbxNode,
+                                  start_vertex As Integer, start_index As Integer,
                                   scene As FbxScene, rootnode As FbxNode, mesh As FbxMesh)
 
         ReDim Preserve fbxgrp(i)
@@ -892,11 +893,11 @@ outahere:
                         fbxgrp(i).color_name = texture.FileName
                     End If
                     fbxgrp(i).color_Id = -1
-                        frmMain.info_Label.Text = "Loading Texture: " + Path.GetFileName(fbxgrp(i).color_name)
-                        Application.DoEvents()
-                        fbxgrp(i).color_Id = get_fbx_texture(fbxgrp(i).color_name)
-                    Else
-                        fbxgrp(i).color_Id = white_id
+                    frmMain.info_Label.Text = "Loading Texture: " + Path.GetFileName(fbxgrp(i).color_name)
+                    Application.DoEvents()
+                    fbxgrp(i).color_Id = get_fbx_texture(fbxgrp(i).color_name)
+                Else
+                    fbxgrp(i).color_Id = white_id
                 End If
             Else
                 fbxgrp(i).color_Id = white_id
@@ -989,8 +990,8 @@ outahere:
         'End Try
         Return get_mesh_geo(i, childnode, start_vertex, start_index, scene, rootnode, mesh)
     End Function
-    Private Function readMeshdata_primitives(ByVal i As Integer, ByRef childnode As FbxNode, _
-                                start_vertex As Integer, start_index As Integer, _
+    Private Function readMeshdata_primitives(ByVal i As Integer, ByRef childnode As FbxNode,
+                                start_vertex As Integer, start_index As Integer,
                                 scene As FbxScene, rootnode As FbxNode, mesh As FbxMesh)
 
         ReDim Preserve fbxgrp(i)
@@ -1059,8 +1060,8 @@ outahere:
         Dim material As FbxSurfaceMaterial = mesh.Node.GetSrcObject(FbxSurfaceMaterial.ClassId, 0)
         Return get_mesh_geo(i, childnode, start_vertex, start_index, scene, rootnode, mesh)
     End Function
-    Private Function get_mesh_geo(ByVal fbx_idx As Integer, ByRef childnode As FbxNode, _
-                                    start_vertex As Integer, start_index As Integer, _
+    Private Function get_mesh_geo(ByVal fbx_idx As Integer, ByRef childnode As FbxNode,
+                                    start_vertex As Integer, start_index As Integer,
                                     scene As FbxScene, rootnode As FbxNode, mesh As FbxMesh)
 
         Dim uvlayer1 As FbxLayerElementUV = mesh.GetLayer(0).GetUVs
@@ -1411,12 +1412,14 @@ outahere:
         m_groups(4) = New mgrp_
         CRASH_MODE = False
         Dim ar() As String
+        Dim target_group As Integer = 0
         For i = 1 To fbxgrp.Length - 1
             'set some booleans 
             fbxgrp(i).is_carraige = False
             fbxgrp(i).component_visible = True
             'figure out if this is a chasss component and get component counts
             If fbxgrp(i).name.ToLower.Contains("chassis") Then
+                target_group = ct
                 If fbxgrp(i).name.ToLower.Contains("\crash\") Then
                     CRASH_MODE = True
                 End If
@@ -1442,6 +1445,7 @@ outahere:
                 ct += 1
             End If
             If fbxgrp(i).name.ToLower.Contains("hull") Then
+                target_group = ht
                 ReDim Preserve m_groups(2).list(ht)
                 ReDim Preserve m_groups(2).f_name(ht)
                 ReDim Preserve m_groups(2).package_id(ht)
@@ -1458,6 +1462,7 @@ outahere:
                 ht += 1
             End If
             If fbxgrp(i).name.ToLower.Contains("turret") Then
+                target_group = tt
                 ReDim Preserve m_groups(3).list(tt)
                 ReDim Preserve m_groups(3).f_name(tt)
                 ReDim Preserve m_groups(3).package_id(tt)
@@ -1474,6 +1479,7 @@ outahere:
                 tt += 1
             End If
             If fbxgrp(i).name.ToLower.Contains("gun") Then
+                target_group = gt
                 ReDim Preserve m_groups(4).list(gt)
                 ReDim Preserve m_groups(4).f_name(gt)
                 ReDim Preserve m_groups(4).package_id(gt)
@@ -1511,9 +1517,9 @@ outahere:
             End If
             frmMain.info_Label.Text = "Loading Tank Component: " + file_name
             Application.DoEvents()
+
             Dim fp = Path.GetDirectoryName(file_name)
             Dim fnm = Path.GetFileName(file_name)
-
 
             Select Case True
                 Case fnm.ToLower.Contains("chass")
@@ -1539,6 +1545,8 @@ outahere:
             TANK_NAME = ta(0)
             frmMain.Text = "File: " + ta(0)
             LOADING_FBX = True
+
+
             Dim success As Boolean = False
             If file_name.ToLower.Contains("chassis") Then
                 success = build_primitive_data(False)
@@ -1550,6 +1558,36 @@ outahere:
                 remove_loaded_fbx()
                 frmMain.clean_house()
             End If
+        Next
+        For i = 1 To 4
+            For cnt = 0 To m_groups(i).cnt - 1
+                file_name = m_groups(i).f_name(cnt)
+                Dim fp = Path.GetDirectoryName(file_name)
+                Dim fnm = Path.GetFileName(file_name)
+
+                Select Case True
+                    Case fnm.ToLower.Contains("chass")
+                        fnm = "Chassis.model"
+                        Exit Select
+                    Case fnm.ToLower.Contains("hull")
+                        fnm = "Hull.model"
+                        Exit Select
+                    Case fnm.ToLower.Contains("turr")
+                        Dim arr = fnm.Split(".")
+                        fnm = arr(0) + ".model"
+                        Exit Select
+                    Case fnm.ToLower.Contains("gun")
+                        Dim arr = fnm.Split(".")
+                        fnm = arr(0) + ".model"
+                        'fnm = "chassis.model_processed"
+                        Exit Select
+
+                End Select
+                file_name = fp + "\" + fnm
+                file_name = file_name.Replace("\l\", "\lod0\")
+
+                m_groups(i).f_name(cnt) = file_name
+            Next
         Next
         '---------------------------------------------------------------------------------------------------
         'get the xml for this tank.

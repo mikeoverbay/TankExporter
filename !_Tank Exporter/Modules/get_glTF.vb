@@ -93,6 +93,13 @@ Module get_glTF
                 Dim weight0 = primitive.GetVertexAccessor("WEIGHTS_0")?.AsVector4Array()
                 Dim weight1 = primitive.GetVertexAccessor("WEIGHTS_1")?.AsVector4Array()
                 ReDim Preserve fbxgrp(id).vertices(verts.Count - 1)
+                If vcolor IsNot Nothing Then
+                    ReDim Preserve fbxgrp(id).vertColor(verts.Count - 1)
+                End If
+                If weight0 IsNot Nothing Then
+                    ReDim Preserve fbxgrp(id).weight0(verts.Count - 1)
+                End If
+
 
                 For i = 0 To verts.Count - 1
 

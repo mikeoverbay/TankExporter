@@ -91,10 +91,10 @@ Module ModTankLoader
         Public index_2 As Byte
         Public index_3 As Byte
         Public index_4 As Byte
-        Public weight_1 As Single
-        Public weight_2 As Single
-        Public weight_3 As Single
-        Public weight_4 As Single
+        Public weight_1 As Byte
+        Public weight_2 As Byte
+        Public weight_3 As Byte
+        Public weight_4 As Byte
         Public nx, ny, nz As Single
         Public tx, ty, tz As Single
         Public bnx, bny, bnz As Single
@@ -103,6 +103,7 @@ Module ModTankLoader
         Public u2 As Single
         Public v2 As Single
         Public r, g, b, a As Single
+        Public ir, ig, ib, ia As Single
     End Class
     Structure primGroup
         Public startIndex_ As Long
@@ -595,25 +596,33 @@ Module ModTankLoader
             buf = File.ReadAllBytes(t_path)
             frmMain.update_log("reading data from res_mods")
             r = New MemoryStream(buf)
+            b_reader = New BinaryReader(r)
             File_len = r.Length
+            r.Position = 0
+            ReDim buf(File_len)
+            For i = 0 To File_len - 1
+                buf(i) = b_reader.ReadByte
+            Next
+            frmMain.update_log("Buf filled")
             loaded_from_resmods = True
         Else
 
-            Dim entry = find_tank_and_return_entry_in_pkgs(file_name)
+            Dim entry = find_tank_part_return_entry(file_name.Replace("\", "/"))
             If entry Is Nothing Then
                 frmMain.update_log("File Not Found in package.." + file_name + vbCrLf)
                 Return False
             Else
                 entry.Extract(r)
             End If
-        End If
-        r.Position = 0
-        File_len = r.Length
+            b_reader = New BinaryReader(r)
+            r.Position = 0
+            File_len = r.Length
             ReDim buf(File_len)
             For i = 0 To File_len - 1
                 buf(i) = b_reader.ReadByte
             Next
             frmMain.update_log("Buf filled")
+        End If
 
         r.Dispose()
         '####################################################################################
@@ -800,13 +809,18 @@ next_m:
             f_name_vertices = ordered_names(sg - sub_groups).vert_name
             f_name_indices = ordered_names(sg - sub_groups).indi_name
             f_name_uv2 = ordered_names(sg - sub_groups).uv2_name
-            If ordered_names(sg - sub_groups).uv2_name.Length > 2 Then
-                has_uv2 = True
-                save_has_uv2 = True
-            Else
-                has_uv2 = False
-                save_has_uv2 = False
-            End If
+            Try
+                If ordered_names(sg - sub_groups).uv2_name.Length > 2 Then
+                    has_uv2 = True
+                    save_has_uv2 = True
+                Else
+                    has_uv2 = False
+                    save_has_uv2 = False
+                End If
+            Catch ex As Exception
+                Return False
+            End Try
+
 
 
             If ordered_names(sg - sub_groups).color_name.Length > 0 Then
@@ -1024,26 +1038,28 @@ next_m:
                     tbuf(i).u = vb_reader.ReadSingle
                     tbuf(i).v = vb_reader.ReadSingle
                     If vh.header_text = "BPVTxyznuviiiww" Then
-                        tbuf(i).r = CSng(vb_reader.ReadByte() / 255.0!)
-                        tbuf(i).g = CSng(vb_reader.ReadByte() / 255.0!)
-                        tbuf(i).b = CSng(vb_reader.ReadByte() / 255.0!)
-                        tbuf(i).a = CSng(vb_reader.ReadByte() / 255.0!)
-                        tbuf(i).weight_1 = CSng(vb_reader.ReadByte() / 255.0!)
-                        tbuf(i).weight_2 = CSng(vb_reader.ReadByte() / 255.0!)
-                        tbuf(i).weight_3 = CSng(vb_reader.ReadByte() / 255.0!)
-                        tbuf(i).weight_4 = CSng(vb_reader.ReadByte() / 255.0!)
+                        _group(k).has_color = 1
+                        tbuf(i).index_1 = vb_reader.ReadByte()
+                        tbuf(i).index_2 = vb_reader.ReadByte()
+                        tbuf(i).index_3 = vb_reader.ReadByte()
+                        tbuf(i).index_4 = vb_reader.ReadByte()
+                        tbuf(i).weight_1 = vb_reader.ReadByte()
+                        tbuf(i).weight_2 = vb_reader.ReadByte()
+                        tbuf(i).weight_3 = vb_reader.ReadByte()
+                        tbuf(i).weight_4 = vb_reader.ReadByte()
                         'no tangent and bitangent on BPVTxyznuviiiww type vertex
                     Else
 
                         If stride = 37 Or stride = 40 Then
-                            tbuf(i).r = CSng(vb_reader.ReadByte() / 255.0!)
-                            tbuf(i).g = CSng(vb_reader.ReadByte() / 255.0!)
-                            tbuf(i).b = CSng(vb_reader.ReadByte() / 255.0!)
-                            tbuf(i).a = CSng(vb_reader.ReadByte() / 255.0!)
-                            tbuf(i).weight_1 = CSng(vb_reader.ReadByte() / 255.0!)
-                            tbuf(i).weight_2 = CSng(vb_reader.ReadByte() / 255.0!)
-                            tbuf(i).weight_3 = CSng(vb_reader.ReadByte() / 255.0!)
-                            tbuf(i).weight_4 = CSng(vb_reader.ReadByte() / 255.0!)
+                            _group(k).has_color = 1
+                            tbuf(i).index_1 = vb_reader.ReadByte()
+                            tbuf(i).index_2 = vb_reader.ReadByte()
+                            tbuf(i).index_3 = vb_reader.ReadByte()
+                            tbuf(i).index_4 = vb_reader.ReadByte()
+                            tbuf(i).weight_1 = vb_reader.ReadByte()
+                            tbuf(i).weight_2 = vb_reader.ReadByte()
+                            tbuf(i).weight_3 = vb_reader.ReadByte()
+                            tbuf(i).weight_4 = vb_reader.ReadByte()
                             tbuf(i).t = vb_reader.ReadUInt32
                             tbuf(i).bn = vb_reader.ReadUInt32
                         Else
@@ -1081,10 +1097,21 @@ next_m:
                     round_signed_to(_group(k).vertices(cnt).u, 4)
                     round_signed_to(_group(k).vertices(cnt).v, 4)
 
-                    _group(k).vertices(cnt).r = tbuf(i).r
-                    _group(k).vertices(cnt).g = tbuf(i).g
-                    _group(k).vertices(cnt).b = tbuf(i).b
-                    _group(k).vertices(cnt).a = tbuf(i).a
+                    _group(k).vertices(cnt).r = CSng(tbuf(i).index_1 / 255)
+                    _group(k).vertices(cnt).g = CSng(tbuf(i).index_2 / 255)
+                    _group(k).vertices(cnt).b = CSng(tbuf(i).index_3 / 255)
+                    _group(k).vertices(cnt).a = CSng(tbuf(i).index_4 / 255)
+
+                    _group(k).vertices(cnt).ir = CSng(tbuf(i).weight_1 / 255)
+                    _group(k).vertices(cnt).ig = CSng(tbuf(i).weight_2 / 255)
+                    _group(k).vertices(cnt).ib = CSng(tbuf(i).weight_3 / 255)
+                    _group(k).vertices(cnt).ia = CSng(tbuf(i).weight_4 / 255)
+
+                    _group(k).vertices(cnt).index_1 = tbuf(i).index_1
+                    _group(k).vertices(cnt).index_2 = tbuf(i).index_2
+                    _group(k).vertices(cnt).index_3 = tbuf(i).index_3
+                    _group(k).vertices(cnt).index_4 = tbuf(i).index_4
+
                     _group(k).vertices(cnt).weight_1 = tbuf(i).weight_1
                     _group(k).vertices(cnt).weight_2 = tbuf(i).weight_2
                     _group(k).vertices(cnt).weight_3 = tbuf(i).weight_3
@@ -1100,14 +1127,15 @@ next_m:
                         round_signed_to(_group(k).vertices(cnt).v2, 4)
 
                     End If
-                    If ordered_names(sg - sub_groups).has_color Then
-                        _group(k).has_color = 1
-                        _group(k).vertices(cnt).r = color_rgb(color_runner).r
-                        _group(k).vertices(cnt).g = color_rgb(color_runner).g
-                        _group(k).vertices(cnt).b = color_rgb(color_runner).b
-                        _group(k).vertices(cnt).a = color_rgb(color_runner).a
-                        color_runner += 1
-                    End If
+                    'obsolete
+                    'If ordered_names(sg - sub_groups).has_color Then
+                    '    _group(k).has_color = 1
+                    '    _group(k).vertices(cnt).r = color_rgb(color_runner).r
+                    '    _group(k).vertices(cnt).g = color_rgb(color_runner).g
+                    '    _group(k).vertices(cnt).b = color_rgb(color_runner).b
+                    '    _group(k).vertices(cnt).a = color_rgb(color_runner).a
+                    '    color_runner += 1
+                    'End If
                     i += 1
                 Next cnt
             Next k
@@ -1728,84 +1756,74 @@ all_done:
 
     Public Function openVisual(ByVal filename As String) As Boolean
         Try
-check_res_mods:
-            filename = filename.Replace(" - Copy", "")
+            Dim mstream As MemoryStream = New MemoryStream
+            Dim buf() As Byte
 
-            Dim mstream = New MemoryStream
-            If File.Exists(My.Settings.res_mods_path + "/" + filename) And Not LOADING_FBX Then
-                If Not File.Exists(My.Settings.res_mods_path + "\" + filename.Replace(".model", ".visual_processed")) Then
-                    If PRIMITIVES_MODE Then
-                        If find_and_extract_file_in_pkgs(filename.Replace(".model", ".visual_processed")) Then
-                            GoTo check_res_mods
-                        End If
-                    End If
-                End If
-                Dim buf = File.ReadAllBytes(My.Settings.res_mods_path + "\" + filename.Replace(".model", ".visual_processed"))
+            ' Check if the file exists on the hard drive if we are allowed to (LOADING_FBX is False)
+            If File.Exists(My.Settings.res_mods_path + "\" + filename) And Not LOADING_FBX Then
+                buf = File.ReadAllBytes(My.Settings.res_mods_path + "\" + filename)
                 mstream = New MemoryStream(buf)
-                If openXml_stream(mstream, "") Then
-                    file_name = filename.Replace(".model", ".primitives_processed")
-                    mstream.Dispose()
-                    buf = Nothing
-                    Return True
-                End If
-
-                TheXML_String = File.ReadAllText(My.Settings.res_mods_path + "\" + filename.Replace(".model", ".visual_processed"))
-                TheXML_String = PrettyPrint(TheXML_String)
-                Dim tr As New StringReader(TheXML_String)
-                Dim xmlr = New XmlTextReader(tr)
-                xmldataset.ReadXml(xmlr)
-                tr.Dispose()
-                file_name = filename.Replace(".model", ".primitives_processed")
-                GC.Collect()
-                Return True
-            End If
-look_again:
-            If PRIMITIVES_MODE Then
-                If find_and_extract_file_in_pkgs(filename) Then
-                    GoTo check_res_mods
-                End If
-            End If
-
-
-            Dim e = search_shared_pkgs(filename)
-            If e IsNot Nothing Then
-                e.Extract(mstream)
             Else
+                ' If the file doesn't exist on the hard drive or LOADING_FBX is True, search the shared packages
+                Dim entry = search_shared_pkgs(filename)
+                If entry IsNot Nothing Then
+                    entry.Extract(mstream)
+                Else
+                    MsgBox("Model file not found: " & vbCrLf & filename, MsgBoxStyle.Critical, "Can't find file")
+                    Return False
+                End If
+            End If
+
+            ' Open the .model file using openXml_stream
+            If Not openXml_stream(mstream, My.Settings.res_mods_path + "\" + filename) Then
                 Return False
             End If
+            Dim ts = TheXML_String
 
-            openXml_stream(mstream, "")
+            ' Retrieve the nodefullVisual value from the table
             Dim d As DataSet = xmldataset
-            Dim tbl = d.Tables("map_")
-            If tbl.Columns.Contains("nodelessVisual") Then
-                filename = filename.Replace(".model", ".visual_processed")
-                file_name = filename.Replace(".visual_processed", ".primitives_processed")
-                GoTo get_visual
-            End If
+            Dim tbl As DataTable = d.Tables("map_")
+            If tbl IsNot Nothing AndAlso tbl.Columns.Contains("nodefullVisual") Then
+                Dim q = From row In tbl.AsEnumerable
+                        Select s = row.Field(Of String)("nodefullVisual")
 
-
-            Dim q = From row In tbl.AsEnumerable
-                    Select s = row.Field(Of String)("nodefullVisual")
-
-            filename = q(0) + ".visual_processed"
-get_visual:
-            mstream = New MemoryStream
-            e = search_shared_pkgs(filename)
-            If e IsNot Nothing Then
-                e.Extract(mstream)
-                openXml_stream(mstream, "")
-                Return True
-
+                If q.Any() Then
+                    filename = q(0) + ".visual_processed"
+                Else
+                    MsgBox("Visual entry not found in the model data", MsgBoxStyle.Critical, "Error")
+                    Return False
+                End If
             Else
-                MsgBox("visual file not found: " + vbCrLf + filename, MsgBoxStyle.Critical, "Can't find file ")
+                MsgBox("Invalid data structure in model file", MsgBoxStyle.Critical, "Error")
                 Return False
             End If
+
+            ' Attempt to load the .visual_processed file, checking disk first if allowed
+            If File.Exists(My.Settings.res_mods_path + "\" + filename) And Not LOADING_FBX Then
+                ' Initialize buf2 with the contents of the .visual_processed file
+                Dim buf2() As Byte = File.ReadAllBytes(My.Settings.res_mods_path + "\" + filename)
+                mstream = New MemoryStream(buf2)
+            Else
+                ' Otherwise, check shared packages
+                Dim entry = search_shared_pkgs(filename)
+                If entry IsNot Nothing Then
+                    mstream = New MemoryStream()
+                    entry.Extract(mstream)
+                Else
+                    MsgBox("Visual file not found: " & vbCrLf & filename, MsgBoxStyle.Critical, "Can't find file")
+                    Return False
+                End If
+            End If
+
+            ' Open the .visual_processed file
+            Return openXml_stream(mstream, My.Settings.res_mods_path + "\" + filename)
+
         Catch ex As Exception
-            MsgBox("visual file not found: " + vbCrLf + filename, MsgBoxStyle.Critical, "Can't find file ")
+            MsgBox("Error: " & vbCrLf & ex.Message, MsgBoxStyle.Critical, "An error occurred")
             Return False
         End Try
-        Return False
 
+        Return False
     End Function
 
 

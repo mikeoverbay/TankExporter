@@ -431,25 +431,49 @@ remove_more:
 
     Public TheXML_String As String = ""
     Public Function openXml_stream(ByVal f As MemoryStream, ByVal PackedFileName_in As String) As Boolean
-        xDoc = New XmlDocument
-        f.Position = 0
-        xmldataset.Clear()
-        While xmldataset.Tables.Count > 0
-            xmldataset.Reset()
-        End While
-        PackedFileName = "map_" & PackedFileName_in.ToLower()
-        Dim reader As New BinaryReader(f)
-        Dim head As Int32 = reader.ReadInt32()
-        If head = Packed_Section.Packed_Header Then
-            DecodePackedFile(reader)
-        ElseIf head = Binary_Header Then
-        Else
-            Return False
+        Try
+            xDoc = New XmlDocument
+            f.Position = 0
+            xmldataset.Clear()
+            While xmldataset.Tables.Count > 0
+                xmldataset.Reset()
+            End While
+            PackedFileName = "map_"
 
-        End If
-        reader.Close()
-        Return True
+            Using reader As New BinaryReader(f)
+                Dim head As Int32 = reader.ReadInt32()
+
+                If head = Packed_Section.Packed_Header Then
+                    DecodePackedFile(reader)
+                    Return True
+                ElseIf head = Binary_Header Then
+                    MsgBox("XML header error!: " + PackedFileName_in, MsgBoxStyle.Exclamation, "error")
+                    Return False
+                Else
+                    If File.Exists(PackedFileName_in) Then
+                        TheXML_String = File.ReadAllText(PackedFileName_in)
+                        ' Load the XML string into the DataSet
+                        Using the_reader As New StringReader(TheXML_String)
+                            Using xmlReader As XmlReader = XmlReader.Create(the_reader)
+                                xmldataset.Clear()  ' Clear the existing data in the DataSet
+                                xmldataset.ReadXml(xmlReader)  ' Load the XML data into the DataSet
+                            End Using
+                        End Using
+                        Return True
+                    Else
+                        MsgBox("Could not open: " + PackedFileName_in, MsgBoxStyle.Exclamation, "error")
+                        Return False
+                    End If
+                End If
+            End Using
+
+        Catch ex As Exception
+            ' Handle exceptions accordingly, log or show message
+            MsgBox("Error during XML stream processing: " & ex.Message)
+            Return False
+        End Try
     End Function
+
     Public Function openXml_stream_3(ByVal f As MemoryStream, ByVal PackedFileName_in As String) As Boolean
         xDoc = New XmlDocument
         f.Position = 0

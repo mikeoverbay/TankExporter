@@ -88,6 +88,9 @@ Module modVisualParser
             Dim s = TheXML_String.Replace("  ", "")
             Dim delim As String = "<primitivesName>"
             Dim s_sections = s.Split(delim)
+            If s_sections.Length = 1 Then
+                Return ""
+            End If
             delim = "</primitivesName>"
             Dim s_2 = s_sections(1).Split(delim)
             Return s_2(0)

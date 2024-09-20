@@ -96,21 +96,10 @@ Module get_FBX
                         fbxgrp(item).vertices(cnt).x = vert.X
                         fbxgrp(item).vertices(cnt).y = vert.Y
                         fbxgrp(item).vertices(cnt).z = vert.Z
-                        If mesh.HasVertexColors(0) Then
-                            Dim c = mesh.VertexColorChannels(0)(cnt)
-                            fbxgrp(item).vertices(cnt).r = c.R
-                            fbxgrp(item).vertices(cnt).g = c.G
-                            fbxgrp(item).vertices(cnt).b = c.B
-                        End If
                         If mesh.HasNormals Then
                             fbxgrp(item).vertices(cnt).nx = mesh.Normals(cnt).X
                             fbxgrp(item).vertices(cnt).ny = mesh.Normals(cnt).Y
                             fbxgrp(item).vertices(cnt).nz = mesh.Normals(cnt).Z
-                        End If
-                        If mesh.HasVertexColors(1) Then
-                            fbxgrp(item).vertices(cnt).index_1 = mesh.VertexColorChannels(1)(cnt).R
-                            fbxgrp(item).vertices(cnt).index_2 = mesh.VertexColorChannels(1)(cnt).G
-                            fbxgrp(item).vertices(cnt).index_3 = mesh.VertexColorChannels(1)(cnt).B
                         End If
                         If mesh.HasTextureCoords(0) Then
                             fbxgrp(item).vertices(cnt).u = mesh.TextureCoordinateChannels(0)(cnt).X
@@ -122,6 +111,21 @@ Module get_FBX
                             fbxgrp(item).has_uv2 = 1
                         Else
                             fbxgrp(item).has_uv2 = 0
+                        End If
+                        If mesh.HasVertexColors(1) Then
+                            fbxgrp(item).has_color = True
+                            Dim c = mesh.VertexColorChannels(1)(cnt)
+                            fbxgrp(item).vertices(cnt).weight_1 = CByte(c.R * 255)
+                            fbxgrp(item).vertices(cnt).weight_2 = CByte(c.G * 255)
+                            fbxgrp(item).vertices(cnt).weight_3 = CByte(c.B * 255)
+                            fbxgrp(item).vertices(cnt).weight_4 = CByte(c.A * 255)
+                        End If
+                        If mesh.HasVertexColors(0) Then
+                            fbxgrp(item).has_color = 1
+                            Dim c = mesh.VertexColorChannels(0)(cnt)
+                            fbxgrp(item).vertices(cnt).index_1 = CByte(c.R * 255)
+                            fbxgrp(item).vertices(cnt).index_2 = CByte(c.G * 255)
+                            fbxgrp(item).vertices(cnt).index_3 = CByte(c.B * 255)
                         End If
                         cnt += 1
                     Next
@@ -183,6 +187,7 @@ Module get_FBX
                     Gl.glEndList()
                 Next
                 FBX_LOADED = True
+                LOADING_FBX = False
                 frmMain.info_Label.Visible = False
                 frmMain.m_show_fbx.Checked = True
                 If MODEL_LOADED Then
