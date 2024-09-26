@@ -1623,7 +1623,7 @@ outahere:
         t_mdl = c_cnt + h_cnt + t_cnt + g_cnt
         'if t_fbx = t_mdl than we have the same componet counts.
         'Check of one of them has been modified.
-        Dim flg, CB, HB, TB, GB As Boolean
+        Dim CB, HB, TB, GB As Boolean
         Dim c_new, h_new, t_new, g_new As Boolean
         CB = False : HB = False : TB = False : GB = False ' these default to false but set them anyway
         c_new = False : h_new = False : t_new = False : g_new = False

@@ -152,7 +152,7 @@ Public Class frmScreenCap
                 Dim i_path = OpenFileDialog1.FileName
                 File.WriteAllText(Temp_Storage + "\custom_bg_path.txt", Path.GetDirectoryName(i_path))
                 If i_path.ToLower.Contains(".dds") Then
-                    custom_image_text_Id = load_dds_file(i_path)
+                    custom_image_text_Id = LoadTextureDDS(i_path)
                 End If
                 If i_path.ToLower.Contains(".jpg") Then
                     custom_image_text_Id = load_jpg_file(i_path)

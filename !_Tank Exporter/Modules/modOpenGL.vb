@@ -28,6 +28,8 @@ Module modOpenGL
     Public pb2_hRC As System.IntPtr
     Public pb3_hDC As System.IntPtr
     Public pb3_hRC As System.IntPtr
+    Public pb4_hDC As System.IntPtr ' New for the fourth context
+    Public pb4_hRC As System.IntPtr ' New for the fourth context
     Public position0() As Single = {2.843F, 10.0F, 9.596F, 1.0F}
     Public position1() As Single = {-5.0F, 8.0F, -5.0F, 1.0F}
     Public position2() As Single = {5.0F, 12.0F, 0.0F, -5.0F}
@@ -37,7 +39,6 @@ Module modOpenGL
     Public W_position2() As Single = {5.0F, 10.0F, -5.0F, 1.0F}
 
     Public Sub EnableOpenGL()
-
         position0(0) = W_position0(0)
         position0(1) = W_position0(1)
         position0(2) = W_position0(2)
@@ -54,18 +55,22 @@ Module modOpenGL
         Application.DoEvents()
         Application.DoEvents()
         Application.DoEvents()
+
         pb1_hDC = User.GetDC(frmMain.pb1.Handle)
         pb2_hDC = User.GetDC(frmMain.pb2.Handle)
         pb3_hDC = User.GetDC(frmMain.PB3.Handle)
+        pb4_hDC = User.GetDC(frmPickDecal.pb4.Handle) ' Get the device context of the form
+
         frmMain.Controls.Add(frmMain.pb2)
         Application.DoEvents()
         Application.DoEvents()
         Application.DoEvents()
+
         frmMain.pb2.Location = frmMain.pb1.Location
         Dim pfd As Gdi.PIXELFORMATDESCRIPTOR
         Dim PixelFormat As Integer
 
-        'ZeroMemory(pfd, Len(pfd))
+        ' ZeroMemory(pfd, Len(pfd))
         pfd.nSize = Len(pfd)
         pfd.nVersion = 1
         pfd.dwFlags = Gdi.PFD_DRAW_TO_WINDOW Or Gdi.PFD_SUPPORT_OPENGL Or Gdi.PFD_DOUBLEBUFFER Or Gdi.PFD_GENERIC_ACCELERATED
@@ -76,86 +81,105 @@ Module modOpenGL
         pfd.cAlphaBits = 8
         pfd.iLayerType = Gdi.PFD_MAIN_PLANE
 
+        ' Set pixel formats
         PixelFormat = Gdi.ChoosePixelFormat(pb1_hDC, pfd)
-        PixelFormat = Gdi.ChoosePixelFormat(pb2_hDC, pfd)
-        PixelFormat = Gdi.ChoosePixelFormat(pb3_hDC, pfd)
         If PixelFormat = 0 Then
             MessageBox.Show("Unable to retrieve pixel format")
-            End
+            Return
         End If
+
         '================================================================1
         If Not (Gdi.SetPixelFormat(pb1_hDC, PixelFormat, pfd)) Then
             MessageBox.Show("Unable to set pixel format")
-            End
+            Return
         End If
         pb1_hRC = Wgl.wglCreateContext(pb1_hDC)
         If pb1_hRC.ToInt32 = 0 Then
             MessageBox.Show("Unable to get rendering context")
-            End
+            Return
         End If
         If Not (Wgl.wglMakeCurrent(pb1_hDC, pb1_hRC)) Then
             MessageBox.Show("Unable to make rendering context current 1")
-            End
+            Return
         End If
+
         '================================================================2
         If Not (Gdi.SetPixelFormat(pb2_hDC, PixelFormat, pfd)) Then
             MessageBox.Show("Unable to set pixel format 2")
-            End
+            Return
         End If
         pb2_hRC = Wgl.wglCreateContext(pb2_hDC)
         If pb2_hRC.ToInt32 = 0 Then
             MessageBox.Show("Unable to get rendering context 2")
-            End
+            Return
         End If
         If Not (Wgl.wglMakeCurrent(pb2_hDC, pb2_hRC)) Then
             MessageBox.Show("Unable to make rendering context current 2")
-            End
+            Return
         End If
+
         '================================================================3
         If Not (Gdi.SetPixelFormat(pb3_hDC, PixelFormat, pfd)) Then
             MessageBox.Show("Unable to set pixel format 3")
-            End
+            Return
         End If
         pb3_hRC = Wgl.wglCreateContext(pb3_hDC)
         If pb3_hRC.ToInt32 = 0 Then
             MessageBox.Show("Unable to get rendering context 3")
-            End
+            Return
         End If
         If Not (Wgl.wglMakeCurrent(pb3_hDC, pb3_hRC)) Then
-            MessageBox.Show("Unable to make rendering context current 3 ")
-            End
+            MessageBox.Show("Unable to make rendering context current 3")
+            Return
         End If
+
+        '================================================================4
+
+        If Not (Gdi.SetPixelFormat(pb4_hDC, PixelFormat, pfd)) Then
+            MessageBox.Show("Unable to set pixel format 4")
+            Return
+        End If
+        pb4_hRC = Wgl.wglCreateContext(pb4_hDC)
+        If pb4_hRC.ToInt32 = 0 Then
+            MessageBox.Show("Unable to get rendering context 4")
+            Return
+        End If
+        If Not (Wgl.wglMakeCurrent(pb4_hDC, pb4_hRC)) Then
+            MessageBox.Show("Unable to make rendering context current 4")
+            Return
+        End If
+
         '================================================================
-        'go back to context 1
+        ' Share resources among contexts
+        Wgl.wglShareLists(pb1_hRC, pb2_hRC)
+        Wgl.wglShareLists(pb1_hRC, pb3_hRC)
+        Wgl.wglShareLists(pb1_hRC, pb4_hRC) ' Share with the fourth context
+
+        ' Go back to context 1
         If Not (Wgl.wglMakeCurrent(pb1_hDC, pb1_hRC)) Then
             MessageBox.Show("Unable to make rendering context current 1")
-            End
+            Return
         End If
 
         Glut.glutInit()
         Gl.glGetFloatv(Gl.GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, largestAnsio)
 
-        'Glut.glutInitDisplayMode(GLUT_RGBA Or GLUT_DOUBLE Or GLUT_MULTISAMPLE)
         Glut.glutInitDisplayMode(GLUT_RGBA Or GLUT_DOUBLE)
-
         Gl.glViewport(0, 0, frmMain.pb1.Width, frmMain.pb1.Height)
 
         Gl.glClearColor(0.0F, 0.0F, 0.0F, 1.0F)
         Gl.glEnable(Gl.GL_COLOR_MATERIAL)
         Gl.glEnable(Gl.GL_LIGHT0)
         Gl.glEnable(Gl.GL_LIGHTING)
-        Wgl.wglShareLists(pb1_hRC, pb2_hRC)
-        Wgl.wglShareLists(pb1_hRC, pb3_hRC)
 
         gl_set_lights()
         'build_shaders()
         Dim pa = Wgl.wglGetProcAddress("wglGetExtensionsStringEXT")
 
         'If Wgl.wglSwapIntervalEXT(0) Then
-
         'End If
-
     End Sub
+
 
 
     Public Sub DisableOpenGL()
@@ -173,7 +197,7 @@ Module modOpenGL
         Gl.glViewport(0, 0, w, h)
 
     End Sub
-    Public Sub glutPrintSmall(ByVal x As Single, ByVal y As Single, _
+    Public Sub glutPrintSmall(ByVal x As Single, ByVal y As Single,
 ByVal text As String, ByVal r As Single, ByVal g As Single, ByVal b As Single, ByVal a As Single)
 
         Try
@@ -193,53 +217,81 @@ ByVal text As String, ByVal r As Single, ByVal g As Single, ByVal b As Single, B
         Next
         If Not blending Then Gl.glDisable(Gl.GL_BLEND)
     End Sub
-    Public Sub glutPrint(ByVal x As Single, ByVal y As Single, _
+    Public Sub glutPrint(ByVal x As Single, ByVal y As Single,
 ByVal text As String, ByVal r As Single, ByVal g As Single, ByVal b As Single, ByVal a As Single)
+        ' Split the text by lines
+        Dim lines As String() = text.Split(New String() {Environment.NewLine}, StringSplitOptions.None)
 
-        Try
+        ' Set the color for text rendering
+        Gl.glColor4f(r, g, b, a)
+        Dim blending As Boolean = False
+
+        ' Iterate through each line and render it
+        For Each line As String In lines
+            ' Render the text line by line
+            ' RenderText(x, y, line) ' Assume RenderText is a method that renders the text at the given position
+
+            ' Move to the next line position
+            y -= 15 ' Adjust this value based on your line height requirements
+
+            Try
             If text.Length = 0 Then Exit Sub
         Catch ex As Exception
             Return
         End Try
-        Dim blending As Boolean = False
-        If Gl.glIsEnabled(Gl.GL_BLEND) Then blending = True
-        Gl.glEnable(Gl.GL_BLEND)
+            If Gl.glIsEnabled(Gl.GL_BLEND) Then blending = True
+            Gl.glEnable(Gl.GL_BLEND)
         Gl.glColor3f(r, g, b)
         Gl.glRasterPos2f(x, y)
-        For Each I In text
+            For Each I In line
 
-            Glut.glutBitmapCharacter(Glut.GLUT_BITMAP_8_BY_13, Asc(I))
+                Glut.glutBitmapCharacter(Glut.GLUT_BITMAP_8_BY_13, Asc(I))
 
+            Next
         Next
         If Not blending Then Gl.glDisable(Gl.GL_BLEND)
     End Sub
-    Public Sub glutPrintBox(ByVal x As Single, ByVal y As Single, _
+    Public Sub glutPrintBox(ByVal x As Single, ByVal y As Single,
 ByVal text As String, ByVal r As Single, ByVal g As Single, ByVal b As Single, ByVal a As Single)
 
-        Try
-            If text.Length = 0 Then Exit Sub
-        Catch ex As Exception
-            Return
-        End Try
+        ' Split the text by lines
+        Dim lines As String() = text.Split(New String() {Environment.NewLine}, StringSplitOptions.None)
+
+        ' Set the color for text rendering
+        Gl.glColor4f(r, g, b, a)
         Dim blending As Boolean = False
-        Gl.glPolygonMode(Gl.GL_FRONT_AND_BACK, Gl.GL_FILL)
-        If Gl.glIsEnabled(Gl.GL_BLEND) Then blending = True
-        Gl.glEnable(Gl.GL_BLEND)
-        Gl.glColor4f(0, 0, 0, 0.25)
-        Gl.glBegin(Gl.GL_QUADS)
-        Dim L1 = text.Length * 8
-        Dim l2 = 7
-        Gl.glVertex2f(x - 2, y - l2 + 2)
-        Gl.glVertex2f(x + L1 + 2, y - l2 + 2)
-        Gl.glVertex2f(x + L1 + 2, y + l2 + 5)
-        Gl.glVertex2f(x - 2, y + l2 + 5)
-        Gl.glEnd()
-        Gl.glColor3f(r, g, b)
-        Gl.glRasterPos2f(x, y)
-        For Each I In text
 
-            Glut.glutBitmapCharacter(Glut.GLUT_BITMAP_8_BY_13, Asc(I))
+        ' Iterate through each line and render it
+        For Each line As String In lines
+            ' Render the text line by line
+            ' RenderText(x, y, line) ' Assume RenderText is a method that renders the text at the given position
 
+            ' Move to the next line position
+            y -= 15 ' Adjust this value based on your line height requirements
+            Try
+                If text.Length = 0 Then Exit Sub
+            Catch ex As Exception
+                Return
+            End Try
+            Gl.glPolygonMode(Gl.GL_FRONT_AND_BACK, Gl.GL_FILL)
+            If Gl.glIsEnabled(Gl.GL_BLEND) Then blending = True
+            Gl.glEnable(Gl.GL_BLEND)
+            Gl.glColor4f(0, 0, 0, 0.25)
+            Gl.glBegin(Gl.GL_QUADS)
+            Dim L1 = line.Length * 8
+            Dim l2 = 7
+            Gl.glVertex2f(x - 2, y - l2 + 2)
+            Gl.glVertex2f(x + L1 + 2, y - l2 + 2)
+            Gl.glVertex2f(x + L1 + 2, y + l2 + 5)
+            Gl.glVertex2f(x - 2, y + l2 + 5)
+            Gl.glEnd()
+            Gl.glColor3f(r, g, b)
+            Gl.glRasterPos2f(x, y)
+            For Each I In line
+
+                Glut.glutBitmapCharacter(Glut.GLUT_BITMAP_8_BY_13, Asc(I))
+
+            Next
         Next
         If Not blending Then Gl.glDisable(Gl.GL_BLEND)
     End Sub

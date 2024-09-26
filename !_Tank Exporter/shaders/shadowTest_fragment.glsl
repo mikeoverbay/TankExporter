@@ -60,7 +60,7 @@ void main()
     ShadowCoordPostW = ShadowCoord / ShadowCoord.w;
     // Depth was scaled up in the depth shader so we scale it up here too.
     // This fixes precision issues.
-    float shadow = chebyshevUpperBound(ShadowCoordPostW.z*5000.0);
+    float shadow = chebyshevUpperBound(ShadowCoordPostW.z*1000.0);
 
     if (length(vVertex) > 12.0) shadow = 1.0;
     gl_FragColor.r  =  max(abs(shadow)+0.4,0.1);

@@ -13,7 +13,7 @@ out vec4 fColor;
 
 void main()
     {
-    float scale = 5000.0;
+    float scale = 1000.0;
     float d = v_position.z / v_position.w ;
 
     // figure out if we need to discard this.

@@ -74,7 +74,6 @@ Partial Class frmSettings
         Me.TrackBar1.BackColor = System.Drawing.Color.FromArgb(CType(CType(33, Byte), Integer), CType(CType(33, Byte), Integer), CType(CType(33, Byte), Integer))
         Me.TrackBar1.Location = New System.Drawing.Point(120, 34)
         Me.TrackBar1.Maximum = 100
-        Me.TrackBar1.Minimum = 10
         Me.TrackBar1.Name = "TrackBar1"
         Me.TrackBar1.Orientation = System.Windows.Forms.Orientation.Vertical
         Me.TrackBar1.Size = New System.Drawing.Size(45, 163)

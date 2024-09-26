@@ -33,7 +33,8 @@ Partial Class frmXMLbuilder
         '
         'go_btn
         '
-        Me.go_btn.ForeColor = System.Drawing.SystemColors.ActiveCaptionText
+        Me.go_btn.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+        Me.go_btn.ForeColor = System.Drawing.SystemColors.ControlLight
         Me.go_btn.Location = New System.Drawing.Point(215, 3)
         Me.go_btn.Name = "go_btn"
         Me.go_btn.Size = New System.Drawing.Size(75, 23)
@@ -43,6 +44,7 @@ Partial Class frmXMLbuilder
         '
         'file_tb
         '
+        Me.file_tb.BackColor = System.Drawing.Color.Gray
         Me.file_tb.Location = New System.Drawing.Point(15, 89)
         Me.file_tb.Name = "file_tb"
         Me.file_tb.Size = New System.Drawing.Size(494, 20)
@@ -50,6 +52,7 @@ Partial Class frmXMLbuilder
         '
         'pkg_tb
         '
+        Me.pkg_tb.BackColor = System.Drawing.Color.Gray
         Me.pkg_tb.Location = New System.Drawing.Point(15, 32)
         Me.pkg_tb.Name = "pkg_tb"
         Me.pkg_tb.Size = New System.Drawing.Size(494, 20)
@@ -100,9 +103,11 @@ Partial Class frmXMLbuilder
         Me.Controls.Add(Me.file_tb)
         Me.Controls.Add(Me.go_btn)
         Me.ForeColor = System.Drawing.SystemColors.ControlText
+        Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow
         Me.Icon = CType(resources.GetObject("$this.Icon"), System.Drawing.Icon)
         Me.Name = "frmXMLbuilder"
-        Me.Text = "frmXMLbuilder"
+        Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent
+        Me.Text = "XML builder"
         Me.ResumeLayout(False)
         Me.PerformLayout()
 

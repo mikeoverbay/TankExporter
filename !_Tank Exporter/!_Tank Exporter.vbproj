@@ -11,7 +11,7 @@
     <AssemblyName>!_Tank Exporter</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <MyType>WindowsForms</MyType>
-    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8.1</TargetFrameworkVersion>
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <TargetFrameworkProfile />
     <NuGetPackageImportStamp>
@@ -41,6 +41,7 @@
     <DocumentationFile>!_Tank Exporter.xml</DocumentationFile>
     <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022</NoWarn>
     <Prefer32Bit>false</Prefer32Bit>
+    <WarningLevel>1</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -52,6 +53,7 @@
     <DocumentationFile>!_Tank Exporter.xml</DocumentationFile>
     <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022</NoWarn>
     <Prefer32Bit>false</Prefer32Bit>
+    <WarningLevel>1</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
     <OptionExplicit>On</OptionExplicit>
@@ -77,6 +79,7 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>false</Prefer32Bit>
     <Optimize>false</Optimize>
+    <WarningLevel>1</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
     <DefineTrace>true</DefineTrace>
@@ -85,9 +88,10 @@
     <Optimize>true</Optimize>
     <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022</NoWarn>
     <DebugType>pdbonly</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>false</Prefer32Bit>
+    <WarningLevel>1</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <DebugSymbols>true</DebugSymbols>
@@ -100,6 +104,7 @@
     <PlatformTarget>x64</PlatformTarget>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>false</Prefer32Bit>
+    <WarningLevel>1</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
     <DefineTrace>true</DefineTrace>
@@ -111,6 +116,7 @@
     <PlatformTarget>x64</PlatformTarget>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>false</Prefer32Bit>
+    <WarningLevel>1</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationManifest>My Project\app.manifest</ApplicationManifest>
@@ -310,6 +316,12 @@
     <Compile Include="Forms\frmModelInfo.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Forms\frmPickDecal.Designer.vb">
+      <DependentUpon>frmPickDecal.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\frmPickDecal.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Forms\frmReverseVertexWinding.Designer.vb">
       <DependentUpon>frmReverseVertexWinding.vb</DependentUpon>
     </Compile>
@@ -374,6 +386,7 @@
     <Compile Include="Modules\get_FBX.vb" />
     <Compile Include="Modules\get_glTF.vb" />
     <Compile Include="Modules\modBloom.vb" />
+    <Compile Include="Modules\mod_DDS_loader.vb" />
     <Compile Include="Modules\mod_FindTankParts.vb" />
     <Compile Include="Modules\modDecals.vb" />
     <Compile Include="Modules\modFBX.vb" />
@@ -382,11 +395,7 @@
     <Compile Include="Modules\modTrackUtilites.vb" />
     <Compile Include="Modules\modUpton.vb" />
     <Compile Include="Modules\modVisualParser.vb" />
-    <Compile Include="Modules\mod_glTF.vb" />
-    <Compile Include="Modules\mod_showDecals.vb">
-      <SubType>Component</SubType>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Compile>
+    <Compile Include="Modules\mod_Exporter.vb" />
     <Compile Include="Modules\put_glTF.vb" />
     <Compile Include="Modules\put_STL.vb" />
     <Compile Include="Modules\WorkFBO.vb" />
@@ -510,6 +519,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\frmModelInfo.resx">
       <DependentUpon>frmModelInfo.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\frmPickDecal.resx">
+      <DependentUpon>frmPickDecal.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\frmReverseVertexWinding.resx">
       <DependentUpon>frmReverseVertexWinding.vb</DependentUpon>
@@ -757,6 +769,9 @@
     </Content>
     <None Include="resources\box_solid.png" />
     <None Include="resources\box_wire.png" />
+    <None Include="glew32.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <Content Include="html\addingmodels.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -2282,6 +2297,9 @@
     <Content Include="resources\decals\Stones_White_Smooth_01_00369_GMM.dds">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="resources\decals\Stones_White_Smooth_01_00370_NM.dds">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="resources\decals\Stones_White_Smooth_01_00369_NM.dds">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -2611,6 +2629,9 @@
     <Content Include="Templates\templatePBR.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="TextureLoader.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Zip\Ionic.Zip.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -2625,6 +2646,11 @@
     <BootstrapperPackage Include=".NETFramework,Version=v4.5">
       <Visible>False</Visible>
       <ProductName>Microsoft .NET Framework 4.5 %28x86 and x64%29</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include=".NETFramework,Version=v4.7.2">
+      <Visible>False</Visible>
+      <ProductName>Microsoft .NET Framework 4.7.2 %28x86 and x64%29</ProductName>
       <Install>true</Install>
     </BootstrapperPackage>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">

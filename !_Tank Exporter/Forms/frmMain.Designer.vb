@@ -23,6 +23,11 @@ Partial Class frmMain
     <System.Diagnostics.DebuggerStepThrough()> _
     Private Sub InitializeComponent()
         Me.components = New System.ComponentModel.Container()
+        Dim DataGridViewCellStyle1 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim DataGridViewCellStyle2 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim DataGridViewCellStyle5 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim DataGridViewCellStyle3 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim DataGridViewCellStyle4 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(frmMain))
         Me.Startup_Timer = New System.Windows.Forms.Timer(Me.components)
         Me.MM = New System.Windows.Forms.MenuStrip()
@@ -38,10 +43,8 @@ Partial Class frmMain
         Me.m_load_file = New System.Windows.Forms.ToolStripMenuItem()
         Me.m_save = New System.Windows.Forms.ToolStripMenuItem()
         Me.ToolStripSeparator7 = New System.Windows.Forms.ToolStripSeparator()
-        Me.m_Import_FBX = New System.Windows.Forms.ToolStripMenuItem()
         Me.m_import_2016_fbx = New System.Windows.Forms.ToolStripMenuItem()
         Me.m_import_GLB = New System.Windows.Forms.ToolStripMenuItem()
-        Me.m_tangent_normalMaps = New System.Windows.Forms.ToolStripMenuItem()
         Me.ToolStripSeparator8 = New System.Windows.Forms.ToolStripSeparator()
         Me.m_import_primitives_fbx = New System.Windows.Forms.ToolStripMenuItem()
         Me.ToolStripSeparator29 = New System.Windows.Forms.ToolStripSeparator()
@@ -54,9 +57,12 @@ Partial Class frmMain
         Me.ToolStripSeparator9 = New System.Windows.Forms.ToolStripSeparator()
         Me.m_load_primitive = New System.Windows.Forms.ToolStripMenuItem()
         Me.ToolStripSeparator28 = New System.Windows.Forms.ToolStripSeparator()
+        Me.m_tangent_normalMaps = New System.Windows.Forms.ToolStripMenuItem()
         Me.m_edit_visual = New System.Windows.Forms.ToolStripMenuItem()
         Me.m_show_log = New System.Windows.Forms.ToolStripMenuItem()
+        Me.ToolStripSeparator34 = New System.Windows.Forms.ToolStripSeparator()
         Me.m_Open_game_folder = New System.Windows.Forms.ToolStripMenuItem()
+        Me.m_open_wot_temp_folder = New System.Windows.Forms.ToolStripMenuItem()
         Me.ToolStripSeparator4 = New System.Windows.Forms.ToolStripSeparator()
         Me.m_region_combo = New System.Windows.Forms.ToolStripComboBox()
         Me.ToolStripSeparator11 = New System.Windows.Forms.ToolStripSeparator()
@@ -96,11 +102,11 @@ Partial Class frmMain
         Me.m_extract = New System.Windows.Forms.ToolStripMenuItem()
         Me.ToolStripSeparator32 = New System.Windows.Forms.ToolStripSeparator()
         Me.m_export_to_glTF = New System.Windows.Forms.ToolStripMenuItem()
-        Me.m_export_to_FBX_2 = New System.Windows.Forms.ToolStripMenuItem()
-        Me.m_export_to_fbx = New System.Windows.Forms.ToolStripMenuItem()
+        Me.m_2013_fbx = New System.Windows.Forms.ToolStripMenuItem()
+        Me.m_2016_fbx = New System.Windows.Forms.ToolStripMenuItem()
+        Me.ToolStripSeparator33 = New System.Windows.Forms.ToolStripSeparator()
         Me.m_export_STL = New System.Windows.Forms.ToolStripMenuItem()
         Me.m_export_to_obj = New System.Windows.Forms.ToolStripMenuItem()
-        Me.m_export_to_collada = New System.Windows.Forms.ToolStripMenuItem()
         Me.ToolStripSeparator15 = New System.Windows.Forms.ToolStripSeparator()
         Me.m_view_res_mods_folder = New System.Windows.Forms.ToolStripMenuItem()
         Me.ToolStripSeparator6 = New System.Windows.Forms.ToolStripSeparator()
@@ -152,15 +158,16 @@ Partial Class frmMain
         Me.Label4 = New System.Windows.Forms.Label()
         Me.Label3 = New System.Windows.Forms.Label()
         Me.d_texture_name = New System.Windows.Forms.Label()
-        Me.Label1 = New System.Windows.Forms.Label()
         Me.mouse_pick_cb = New System.Windows.Forms.CheckBox()
         Me.d_move_down = New System.Windows.Forms.Button()
         Me.d_move_up = New System.Windows.Forms.Button()
         Me.m_sel_texture = New System.Windows.Forms.Button()
         Me.m_delete = New System.Windows.Forms.Button()
         Me.m_new = New System.Windows.Forms.Button()
-        Me.d_list_tb = New System.Windows.Forms.TextBox()
         Me.current_decal_lable = New System.Windows.Forms.Label()
+        Me.dgv = New System.Windows.Forms.DataGridView()
+        Me.decalName = New System.Windows.Forms.DataGridViewTextBoxColumn()
+        Me.decalID = New System.Windows.Forms.DataGridViewTextBoxColumn()
         Me.PB3 = New System.Windows.Forms.PictureBox()
         Me.pb1 = New System.Windows.Forms.PictureBox()
         Me.font_holder = New System.Windows.Forms.Label()
@@ -194,7 +201,10 @@ Partial Class frmMain
         Me.ToolStripMenuItem1 = New System.Windows.Forms.ToolStripMenuItem()
         Me.SaveFileDialog1 = New System.Windows.Forms.SaveFileDialog()
         Me.OpenFileDialog1 = New System.Windows.Forms.OpenFileDialog()
-        Me.m_2016_fbx = New System.Windows.Forms.ToolStripMenuItem()
+        Me.decal_ds = New System.Data.DataSet()
+        Me.d_table = New System.Data.DataTable()
+        Me.DataColumn1 = New System.Data.DataColumn()
+        Me.DataColumn2 = New System.Data.DataColumn()
         Me.MM.SuspendLayout()
         CType(Me.SplitContainer1, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SplitContainer1.Panel1.SuspendLayout()
@@ -207,6 +217,7 @@ Partial Class frmMain
         Me.decal_panel.SuspendLayout()
         CType(Me.decal_alpha_slider, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.decal_level_slider, System.ComponentModel.ISupportInitialize).BeginInit()
+        CType(Me.dgv, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.PB3, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.pb1, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.SplitContainer2, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -217,6 +228,8 @@ Partial Class frmMain
         Me.TC2.SuspendLayout()
         CType(Me.iconbox, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.conMenu.SuspendLayout()
+        CType(Me.decal_ds, System.ComponentModel.ISupportInitialize).BeginInit()
+        CType(Me.d_table, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
         'Startup_Timer
@@ -234,7 +247,7 @@ Partial Class frmMain
         '
         'm_file
         '
-        Me.m_file.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.m_test, Me.m_load_file, Me.m_save, Me.ToolStripSeparator7, Me.m_import_2016_fbx, Me.m_Import_FBX, Me.m_import_GLB, Me.m_tangent_normalMaps, Me.ToolStripSeparator8, Me.m_import_primitives_fbx, Me.ToolStripSeparator29, Me.m_remove_fbx, Me.ToolStripSeparator1, Me.m_write_primitive, Me.m_write_non_tank_primitive, Me.ToolStripSeparator18, Me.m_build_wotmod, Me.ToolStripSeparator9, Me.m_load_primitive, Me.ToolStripSeparator28, Me.m_edit_visual, Me.m_show_log, Me.m_Open_game_folder, Me.ToolStripSeparator4, Me.m_region_combo, Me.ToolStripSeparator11, Me.M_Path, Me.m_res_mods_path, Me.ToolStripSeparator2, Me.m_rebuild_XML, Me.m_clear_temp_folder_data, Me.m_reload_api_data, Me.ToolStripSeparator3, Me.m_UI_settings, Me.ToolStripSeparator31, Me.m_dump_tanks, Me.m_enable_tarrain_decals, Me.ToolStripSeparator19, Me.M_Exit})
+        Me.m_file.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.m_test, Me.m_load_file, Me.m_save, Me.ToolStripSeparator7, Me.m_import_2016_fbx, Me.m_import_GLB, Me.ToolStripSeparator8, Me.m_import_primitives_fbx, Me.ToolStripSeparator29, Me.m_remove_fbx, Me.ToolStripSeparator1, Me.m_write_primitive, Me.m_write_non_tank_primitive, Me.ToolStripSeparator18, Me.m_build_wotmod, Me.ToolStripSeparator9, Me.m_load_primitive, Me.ToolStripSeparator28, Me.m_tangent_normalMaps, Me.m_edit_visual, Me.m_show_log, Me.ToolStripSeparator34, Me.m_Open_game_folder, Me.m_open_wot_temp_folder, Me.ToolStripSeparator4, Me.m_region_combo, Me.ToolStripSeparator11, Me.M_Path, Me.m_res_mods_path, Me.ToolStripSeparator2, Me.m_rebuild_XML, Me.m_clear_temp_folder_data, Me.m_reload_api_data, Me.ToolStripSeparator3, Me.m_UI_settings, Me.ToolStripSeparator31, Me.m_dump_tanks, Me.m_enable_tarrain_decals, Me.ToolStripSeparator19, Me.M_Exit})
         Me.m_file.Name = "m_file"
         Me.m_file.Size = New System.Drawing.Size(90, 23)
         Me.m_file.Text = "&File / Settings"
@@ -304,12 +317,6 @@ Partial Class frmMain
         Me.ToolStripSeparator7.Name = "ToolStripSeparator7"
         Me.ToolStripSeparator7.Size = New System.Drawing.Size(227, 6)
         '
-        'm_Import_FBX
-        '
-        Me.m_Import_FBX.Name = "m_Import_FBX"
-        Me.m_Import_FBX.Size = New System.Drawing.Size(230, 22)
-        Me.m_Import_FBX.Text = "Import 2006.1 FBX"
-        '
         'm_import_2016_fbx
         '
         Me.m_import_2016_fbx.Name = "m_import_2016_fbx"
@@ -321,15 +328,6 @@ Partial Class frmMain
         Me.m_import_GLB.Name = "m_import_GLB"
         Me.m_import_GLB.Size = New System.Drawing.Size(230, 22)
         Me.m_import_GLB.Text = "Import GLB"
-        '
-        'm_tangent_normalMaps
-        '
-        Me.m_tangent_normalMaps.Checked = True
-        Me.m_tangent_normalMaps.CheckOnClick = True
-        Me.m_tangent_normalMaps.CheckState = System.Windows.Forms.CheckState.Checked
-        Me.m_tangent_normalMaps.Name = "m_tangent_normalMaps"
-        Me.m_tangent_normalMaps.Size = New System.Drawing.Size(230, 22)
-        Me.m_tangent_normalMaps.Text = "Tangent FBX Normal Maps"
         '
         'ToolStripSeparator8
         '
@@ -399,6 +397,15 @@ Partial Class frmMain
         Me.ToolStripSeparator28.Name = "ToolStripSeparator28"
         Me.ToolStripSeparator28.Size = New System.Drawing.Size(227, 6)
         '
+        'm_tangent_normalMaps
+        '
+        Me.m_tangent_normalMaps.Checked = True
+        Me.m_tangent_normalMaps.CheckOnClick = True
+        Me.m_tangent_normalMaps.CheckState = System.Windows.Forms.CheckState.Checked
+        Me.m_tangent_normalMaps.Name = "m_tangent_normalMaps"
+        Me.m_tangent_normalMaps.Size = New System.Drawing.Size(230, 22)
+        Me.m_tangent_normalMaps.Text = "Tangent FBX Normal Maps"
+        '
         'm_edit_visual
         '
         Me.m_edit_visual.Name = "m_edit_visual"
@@ -411,11 +418,22 @@ Partial Class frmMain
         Me.m_show_log.Size = New System.Drawing.Size(230, 22)
         Me.m_show_log.Text = "Show Log File"
         '
+        'ToolStripSeparator34
+        '
+        Me.ToolStripSeparator34.Name = "ToolStripSeparator34"
+        Me.ToolStripSeparator34.Size = New System.Drawing.Size(227, 6)
+        '
         'm_Open_game_folder
         '
         Me.m_Open_game_folder.Name = "m_Open_game_folder"
         Me.m_Open_game_folder.Size = New System.Drawing.Size(230, 22)
         Me.m_Open_game_folder.Text = "Open WOT Folder"
+        '
+        'm_open_wot_temp_folder
+        '
+        Me.m_open_wot_temp_folder.Name = "m_open_wot_temp_folder"
+        Me.m_open_wot_temp_folder.Size = New System.Drawing.Size(230, 22)
+        Me.m_open_wot_temp_folder.Text = "Open wot_temp folder"
         '
         'ToolStripSeparator4
         '
@@ -630,7 +648,7 @@ Partial Class frmMain
         '
         'm_ExportExtract
         '
-        Me.m_ExportExtract.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.m_extract, Me.ToolStripSeparator32, Me.m_export_to_glTF, Me.m_2016_fbx, Me.m_export_to_FBX_2, Me.m_export_to_fbx, Me.m_export_STL, Me.m_export_to_obj, Me.m_export_to_collada, Me.ToolStripSeparator15, Me.m_view_res_mods_folder, Me.ToolStripSeparator6, Me.m_clean_res_mods, Me.ToolStripSeparator17, Me.m_screen_cap})
+        Me.m_ExportExtract.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.m_extract, Me.ToolStripSeparator32, Me.m_export_to_glTF, Me.m_2013_fbx, Me.m_2016_fbx, Me.ToolStripSeparator33, Me.m_export_STL, Me.m_export_to_obj, Me.ToolStripSeparator15, Me.m_view_res_mods_folder, Me.ToolStripSeparator6, Me.m_clean_res_mods, Me.ToolStripSeparator17, Me.m_screen_cap})
         Me.m_ExportExtract.Enabled = False
         Me.m_ExportExtract.Name = "m_ExportExtract"
         Me.m_ExportExtract.Size = New System.Drawing.Size(94, 23)
@@ -653,17 +671,22 @@ Partial Class frmMain
         Me.m_export_to_glTF.Size = New System.Drawing.Size(228, 22)
         Me.m_export_to_glTF.Text = "Export glb"
         '
-        'm_export_to_FBX_2
+        'm_2013_fbx
         '
-        Me.m_export_to_FBX_2.Name = "m_export_to_FBX_2"
-        Me.m_export_to_FBX_2.Size = New System.Drawing.Size(228, 22)
-        Me.m_export_to_FBX_2.Text = "Export 2013 FBX"
+        Me.m_2013_fbx.Name = "m_2013_fbx"
+        Me.m_2013_fbx.Size = New System.Drawing.Size(228, 22)
+        Me.m_2013_fbx.Text = "Export 2013 FBX"
         '
-        'm_export_to_fbx
+        'm_2016_fbx
         '
-        Me.m_export_to_fbx.Name = "m_export_to_fbx"
-        Me.m_export_to_fbx.Size = New System.Drawing.Size(228, 22)
-        Me.m_export_to_fbx.Text = "Export 2006.1 FBX"
+        Me.m_2016_fbx.Name = "m_2016_fbx"
+        Me.m_2016_fbx.Size = New System.Drawing.Size(228, 22)
+        Me.m_2016_fbx.Text = "Export 2019 FBX"
+        '
+        'ToolStripSeparator33
+        '
+        Me.ToolStripSeparator33.Name = "ToolStripSeparator33"
+        Me.ToolStripSeparator33.Size = New System.Drawing.Size(225, 6)
         '
         'm_export_STL
         '
@@ -676,12 +699,6 @@ Partial Class frmMain
         Me.m_export_to_obj.Name = "m_export_to_obj"
         Me.m_export_to_obj.Size = New System.Drawing.Size(228, 22)
         Me.m_export_to_obj.Text = "Export OBJ"
-        '
-        'm_export_to_collada
-        '
-        Me.m_export_to_collada.Name = "m_export_to_collada"
-        Me.m_export_to_collada.Size = New System.Drawing.Size(228, 22)
-        Me.m_export_to_collada.Text = "Export Collada"
         '
         'ToolStripSeparator15
         '
@@ -1047,15 +1064,14 @@ Partial Class frmMain
         Me.decal_panel.Controls.Add(Me.Label4)
         Me.decal_panel.Controls.Add(Me.Label3)
         Me.decal_panel.Controls.Add(Me.d_texture_name)
-        Me.decal_panel.Controls.Add(Me.Label1)
         Me.decal_panel.Controls.Add(Me.mouse_pick_cb)
         Me.decal_panel.Controls.Add(Me.d_move_down)
         Me.decal_panel.Controls.Add(Me.d_move_up)
         Me.decal_panel.Controls.Add(Me.m_sel_texture)
         Me.decal_panel.Controls.Add(Me.m_delete)
         Me.decal_panel.Controls.Add(Me.m_new)
-        Me.decal_panel.Controls.Add(Me.d_list_tb)
         Me.decal_panel.Controls.Add(Me.current_decal_lable)
+        Me.decal_panel.Controls.Add(Me.dgv)
         Me.decal_panel.ForeColor = System.Drawing.Color.White
         Me.decal_panel.Location = New System.Drawing.Point(276, 54)
         Me.decal_panel.Name = "decal_panel"
@@ -1245,20 +1261,11 @@ Partial Class frmMain
         '
         Me.d_texture_name.AutoSize = True
         Me.d_texture_name.ForeColor = System.Drawing.Color.Yellow
-        Me.d_texture_name.Location = New System.Drawing.Point(59, 122)
+        Me.d_texture_name.Location = New System.Drawing.Point(5, 123)
         Me.d_texture_name.Name = "d_texture_name"
-        Me.d_texture_name.Size = New System.Drawing.Size(115, 13)
+        Me.d_texture_name.Size = New System.Drawing.Size(181, 13)
         Me.d_texture_name.TabIndex = 9
-        Me.d_texture_name.Text = "__________________"
-        '
-        'Label1
-        '
-        Me.Label1.AutoSize = True
-        Me.Label1.Location = New System.Drawing.Point(7, 122)
-        Me.Label1.Name = "Label1"
-        Me.Label1.Size = New System.Drawing.Size(46, 13)
-        Me.Label1.TabIndex = 8
-        Me.Label1.Text = "Texture:"
+        Me.d_texture_name.Text = "_____________________________"
         '
         'mouse_pick_cb
         '
@@ -1277,7 +1284,7 @@ Partial Class frmMain
         Me.d_move_down.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center
         Me.d_move_down.FlatStyle = System.Windows.Forms.FlatStyle.Popup
         Me.d_move_down.Image = Global.Tank_Exporter.My.Resources.Resources.control_270
-        Me.d_move_down.Location = New System.Drawing.Point(204, 169)
+        Me.d_move_down.Location = New System.Drawing.Point(234, 171)
         Me.d_move_down.Name = "d_move_down"
         Me.d_move_down.Size = New System.Drawing.Size(20, 20)
         Me.d_move_down.TabIndex = 5
@@ -1290,7 +1297,7 @@ Partial Class frmMain
         Me.d_move_up.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center
         Me.d_move_up.FlatStyle = System.Windows.Forms.FlatStyle.Popup
         Me.d_move_up.Image = Global.Tank_Exporter.My.Resources.Resources.control_090
-        Me.d_move_up.Location = New System.Drawing.Point(204, 149)
+        Me.d_move_up.Location = New System.Drawing.Point(234, 149)
         Me.d_move_up.Name = "d_move_up"
         Me.d_move_up.Size = New System.Drawing.Size(20, 20)
         Me.d_move_up.TabIndex = 4
@@ -1328,31 +1335,84 @@ Partial Class frmMain
         Me.m_new.Text = "New"
         Me.m_new.UseVisualStyleBackColor = True
         '
-        'd_list_tb
-        '
-        Me.d_list_tb.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
-            Or System.Windows.Forms.AnchorStyles.Left) _
-            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.d_list_tb.BackColor = System.Drawing.Color.FromArgb(CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer))
-        Me.d_list_tb.ForeColor = System.Drawing.Color.White
-        Me.d_list_tb.HideSelection = False
-        Me.d_list_tb.Location = New System.Drawing.Point(1, 142)
-        Me.d_list_tb.Multiline = True
-        Me.d_list_tb.Name = "d_list_tb"
-        Me.d_list_tb.ScrollBars = System.Windows.Forms.ScrollBars.Vertical
-        Me.d_list_tb.Size = New System.Drawing.Size(248, 237)
-        Me.d_list_tb.TabIndex = 0
-        '
         'current_decal_lable
         '
         Me.current_decal_lable.AutoSize = True
-        Me.current_decal_lable.Font = New System.Drawing.Font("Microsoft Sans Serif", 15.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.current_decal_lable.Font = New System.Drawing.Font("Microsoft Sans Serif", 14.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.current_decal_lable.ForeColor = System.Drawing.Color.Yellow
-        Me.current_decal_lable.Location = New System.Drawing.Point(3, 3)
+        Me.current_decal_lable.Location = New System.Drawing.Point(0, 3)
+        Me.current_decal_lable.Margin = New System.Windows.Forms.Padding(0, 0, 3, 0)
         Me.current_decal_lable.Name = "current_decal_lable"
-        Me.current_decal_lable.Size = New System.Drawing.Size(24, 25)
+        Me.current_decal_lable.Size = New System.Drawing.Size(20, 24)
         Me.current_decal_lable.TabIndex = 17
         Me.current_decal_lable.Text = "_"
+        Me.current_decal_lable.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+        '
+        'dgv
+        '
+        DataGridViewCellStyle1.BackColor = System.Drawing.Color.FromArgb(CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer))
+        Me.dgv.AlternatingRowsDefaultCellStyle = DataGridViewCellStyle1
+        Me.dgv.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom), System.Windows.Forms.AnchorStyles)
+        Me.dgv.BackgroundColor = System.Drawing.Color.FromArgb(CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer))
+        Me.dgv.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.[Single]
+        DataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter
+        DataGridViewCellStyle2.BackColor = System.Drawing.Color.FromArgb(CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer))
+        DataGridViewCellStyle2.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        DataGridViewCellStyle2.ForeColor = System.Drawing.Color.White
+        DataGridViewCellStyle2.SelectionBackColor = System.Drawing.Color.FromArgb(CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer))
+        DataGridViewCellStyle2.SelectionForeColor = System.Drawing.Color.White
+        DataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.[True]
+        Me.dgv.ColumnHeadersDefaultCellStyle = DataGridViewCellStyle2
+        Me.dgv.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
+        Me.dgv.Columns.AddRange(New System.Windows.Forms.DataGridViewColumn() {Me.decalName, Me.decalID})
+        DataGridViewCellStyle5.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
+        DataGridViewCellStyle5.BackColor = System.Drawing.Color.FromArgb(CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer))
+        DataGridViewCellStyle5.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        DataGridViewCellStyle5.ForeColor = System.Drawing.Color.White
+        DataGridViewCellStyle5.SelectionBackColor = System.Drawing.Color.Gray
+        DataGridViewCellStyle5.SelectionForeColor = System.Drawing.Color.White
+        DataGridViewCellStyle5.WrapMode = System.Windows.Forms.DataGridViewTriState.[False]
+        Me.dgv.DefaultCellStyle = DataGridViewCellStyle5
+        Me.dgv.GridColor = System.Drawing.Color.Black
+        Me.dgv.Location = New System.Drawing.Point(0, 150)
+        Me.dgv.MultiSelect = False
+        Me.dgv.Name = "dgv"
+        Me.dgv.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.[Single]
+        Me.dgv.RowHeadersVisible = False
+        Me.dgv.RowHeadersWidth = 20
+        Me.dgv.ScrollBars = System.Windows.Forms.ScrollBars.Vertical
+        Me.dgv.Size = New System.Drawing.Size(231, 231)
+        Me.dgv.TabIndex = 27
+        '
+        'decalName
+        '
+        Me.decalName.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None
+        DataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
+        DataGridViewCellStyle3.BackColor = System.Drawing.Color.FromArgb(CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer))
+        DataGridViewCellStyle3.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        DataGridViewCellStyle3.ForeColor = System.Drawing.Color.White
+        DataGridViewCellStyle3.SelectionBackColor = System.Drawing.Color.FromArgb(CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer))
+        Me.decalName.DefaultCellStyle = DataGridViewCellStyle3
+        Me.decalName.HeaderText = "Decal Name"
+        Me.decalName.Name = "decalName"
+        Me.decalName.Resizable = System.Windows.Forms.DataGridViewTriState.[False]
+        Me.decalName.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable
+        Me.decalName.Width = 170
+        '
+        'decalID
+        '
+        Me.decalID.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None
+        DataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
+        DataGridViewCellStyle4.BackColor = System.Drawing.Color.FromArgb(CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer))
+        DataGridViewCellStyle4.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        DataGridViewCellStyle4.ForeColor = System.Drawing.Color.White
+        DataGridViewCellStyle4.SelectionBackColor = System.Drawing.Color.FromArgb(CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer))
+        DataGridViewCellStyle4.SelectionForeColor = System.Drawing.Color.White
+        Me.decalID.DefaultCellStyle = DataGridViewCellStyle4
+        Me.decalID.HeaderText = "Decal ID"
+        Me.decalID.Name = "decalID"
+        Me.decalID.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable
+        Me.decalID.Width = 60
         '
         'PB3
         '
@@ -1399,7 +1459,7 @@ Partial Class frmMain
         'pb2
         '
         Me.pb2.Anchor = System.Windows.Forms.AnchorStyles.None
-        Me.pb2.Location = New System.Drawing.Point(33, 125)
+        Me.pb2.Location = New System.Drawing.Point(45, 125)
         Me.pb2.Name = "pb2"
         Me.pb2.Size = New System.Drawing.Size(200, 100)
         Me.pb2.TabIndex = 3
@@ -1474,7 +1534,7 @@ Partial Class frmMain
         Me.TC1.Location = New System.Drawing.Point(0, 23)
         Me.TC1.Name = "TC1"
         Me.TC1.SelectedIndex = 0
-        Me.TC1.Size = New System.Drawing.Size(22, 511)
+        Me.TC1.Size = New System.Drawing.Size(22, 547)
         Me.TC1.SizeMode = System.Windows.Forms.TabSizeMode.Fixed
         Me.TC1.TabIndex = 0
         '
@@ -1484,7 +1544,7 @@ Partial Class frmMain
         Me.TabPage1.Location = New System.Drawing.Point(4, 25)
         Me.TabPage1.Name = "TabPage1"
         Me.TabPage1.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage1.Size = New System.Drawing.Size(14, 482)
+        Me.TabPage1.Size = New System.Drawing.Size(14, 518)
         Me.TabPage1.TabIndex = 0
         Me.TabPage1.Text = "1"
         '
@@ -1494,7 +1554,7 @@ Partial Class frmMain
         Me.TabPage2.Location = New System.Drawing.Point(4, 25)
         Me.TabPage2.Name = "TabPage2"
         Me.TabPage2.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage2.Size = New System.Drawing.Size(14, 482)
+        Me.TabPage2.Size = New System.Drawing.Size(14, 518)
         Me.TabPage2.TabIndex = 1
         Me.TabPage2.Text = "2"
         '
@@ -1504,7 +1564,7 @@ Partial Class frmMain
         Me.TabPage3.Location = New System.Drawing.Point(4, 25)
         Me.TabPage3.Name = "TabPage3"
         Me.TabPage3.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage3.Size = New System.Drawing.Size(14, 482)
+        Me.TabPage3.Size = New System.Drawing.Size(14, 518)
         Me.TabPage3.TabIndex = 2
         Me.TabPage3.Text = "3"
         '
@@ -1514,7 +1574,7 @@ Partial Class frmMain
         Me.TabPage4.Location = New System.Drawing.Point(4, 25)
         Me.TabPage4.Name = "TabPage4"
         Me.TabPage4.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage4.Size = New System.Drawing.Size(14, 482)
+        Me.TabPage4.Size = New System.Drawing.Size(14, 518)
         Me.TabPage4.TabIndex = 3
         Me.TabPage4.Text = "4"
         '
@@ -1524,7 +1584,7 @@ Partial Class frmMain
         Me.TabPage5.Location = New System.Drawing.Point(4, 25)
         Me.TabPage5.Name = "TabPage5"
         Me.TabPage5.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage5.Size = New System.Drawing.Size(14, 482)
+        Me.TabPage5.Size = New System.Drawing.Size(14, 518)
         Me.TabPage5.TabIndex = 4
         Me.TabPage5.Text = "5"
         '
@@ -1534,7 +1594,7 @@ Partial Class frmMain
         Me.TabPage6.Location = New System.Drawing.Point(4, 25)
         Me.TabPage6.Name = "TabPage6"
         Me.TabPage6.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage6.Size = New System.Drawing.Size(14, 482)
+        Me.TabPage6.Size = New System.Drawing.Size(14, 518)
         Me.TabPage6.TabIndex = 5
         Me.TabPage6.Text = "6"
         '
@@ -1544,7 +1604,7 @@ Partial Class frmMain
         Me.TabPage7.Location = New System.Drawing.Point(4, 25)
         Me.TabPage7.Name = "TabPage7"
         Me.TabPage7.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage7.Size = New System.Drawing.Size(14, 482)
+        Me.TabPage7.Size = New System.Drawing.Size(14, 518)
         Me.TabPage7.TabIndex = 6
         Me.TabPage7.Text = "7"
         '
@@ -1554,7 +1614,7 @@ Partial Class frmMain
         Me.TabPage8.Location = New System.Drawing.Point(4, 25)
         Me.TabPage8.Name = "TabPage8"
         Me.TabPage8.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage8.Size = New System.Drawing.Size(14, 482)
+        Me.TabPage8.Size = New System.Drawing.Size(14, 518)
         Me.TabPage8.TabIndex = 7
         Me.TabPage8.Text = "8"
         '
@@ -1564,7 +1624,7 @@ Partial Class frmMain
         Me.TabPage9.Location = New System.Drawing.Point(4, 25)
         Me.TabPage9.Name = "TabPage9"
         Me.TabPage9.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage9.Size = New System.Drawing.Size(14, 482)
+        Me.TabPage9.Size = New System.Drawing.Size(14, 518)
         Me.TabPage9.TabIndex = 8
         Me.TabPage9.Text = "9"
         '
@@ -1574,7 +1634,7 @@ Partial Class frmMain
         Me.TabPage10.Location = New System.Drawing.Point(4, 25)
         Me.TabPage10.Name = "TabPage10"
         Me.TabPage10.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage10.Size = New System.Drawing.Size(14, 482)
+        Me.TabPage10.Size = New System.Drawing.Size(14, 518)
         Me.TabPage10.TabIndex = 9
         Me.TabPage10.Text = "10"
         '
@@ -1588,7 +1648,7 @@ Partial Class frmMain
         Me.TC2.Location = New System.Drawing.Point(0, 23)
         Me.TC2.Name = "TC2"
         Me.TC2.SelectedIndex = 0
-        Me.TC2.Size = New System.Drawing.Size(22, 511)
+        Me.TC2.Size = New System.Drawing.Size(22, 547)
         Me.TC2.TabIndex = 0
         Me.TC2.Visible = False
         '
@@ -1598,7 +1658,7 @@ Partial Class frmMain
         Me.TabPage11.Location = New System.Drawing.Point(4, 25)
         Me.TabPage11.Name = "TabPage11"
         Me.TabPage11.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage11.Size = New System.Drawing.Size(14, 482)
+        Me.TabPage11.Size = New System.Drawing.Size(14, 518)
         Me.TabPage11.TabIndex = 0
         Me.TabPage11.Text = "Result"
         '
@@ -1674,11 +1734,24 @@ Partial Class frmMain
         '
         Me.OpenFileDialog1.FileName = "OpenFileDialog1"
         '
-        'm_2016_fbx
+        'decal_ds
         '
-        Me.m_2016_fbx.Name = "m_2016_fbx"
-        Me.m_2016_fbx.Size = New System.Drawing.Size(228, 22)
-        Me.m_2016_fbx.Text = "Export 2016 FBX"
+        Me.decal_ds.DataSetName = "NewDataSet"
+        Me.decal_ds.Tables.AddRange(New System.Data.DataTable() {Me.d_table})
+        '
+        'd_table
+        '
+        Me.d_table.Columns.AddRange(New System.Data.DataColumn() {Me.DataColumn1, Me.DataColumn2})
+        Me.d_table.TableName = "Table1"
+        '
+        'DataColumn1
+        '
+        Me.DataColumn1.ColumnName = "Decal Name"
+        '
+        'DataColumn2
+        '
+        Me.DataColumn2.ColumnName = "Decal ID"
+        Me.DataColumn2.DataType = GetType(Integer)
         '
         'frmMain
         '
@@ -1708,6 +1781,7 @@ Partial Class frmMain
         Me.decal_panel.PerformLayout()
         CType(Me.decal_alpha_slider, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.decal_level_slider, System.ComponentModel.ISupportInitialize).EndInit()
+        CType(Me.dgv, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.PB3, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.pb1, System.ComponentModel.ISupportInitialize).EndInit()
         Me.SplitContainer2.Panel1.ResumeLayout(False)
@@ -1720,6 +1794,8 @@ Partial Class frmMain
         Me.TC2.ResumeLayout(False)
         CType(Me.iconbox, System.ComponentModel.ISupportInitialize).EndInit()
         Me.conMenu.ResumeLayout(False)
+        CType(Me.decal_ds, System.ComponentModel.ISupportInitialize).EndInit()
+        CType(Me.d_table, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
 
     End Sub
@@ -1771,7 +1847,6 @@ Partial Class frmMain
     Friend WithEvents m_help As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents PG1 As System.Windows.Forms.ProgressBar
     Friend WithEvents ToolStripSeparator7 As System.Windows.Forms.ToolStripSeparator
-    Friend WithEvents m_Import_FBX As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents OpenFileDialog1 As System.Windows.Forms.OpenFileDialog
     Friend WithEvents m_remove_fbx As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents m_show_fbx As System.Windows.Forms.ToolStripMenuItem
@@ -1803,14 +1878,12 @@ Partial Class frmMain
     Friend WithEvents decal_panel As System.Windows.Forms.Panel
     Friend WithEvents m_delete As System.Windows.Forms.Button
     Friend WithEvents m_new As System.Windows.Forms.Button
-    Friend WithEvents d_list_tb As System.Windows.Forms.TextBox
     Friend WithEvents m_sel_texture As System.Windows.Forms.Button
     Friend WithEvents d_move_down As System.Windows.Forms.Button
     Friend WithEvents d_move_up As System.Windows.Forms.Button
     Friend WithEvents mouse_pick_cb As System.Windows.Forms.CheckBox
     Friend WithEvents decal_alpha_slider As System.Windows.Forms.TrackBar
     Friend WithEvents d_texture_name As System.Windows.Forms.Label
-    Friend WithEvents Label1 As System.Windows.Forms.Label
     Friend WithEvents Label2 As System.Windows.Forms.Label
     Friend WithEvents Label5 As System.Windows.Forms.Label
     Friend WithEvents Uwrap As System.Windows.Forms.DomainUpDown
@@ -1831,7 +1904,6 @@ Partial Class frmMain
     Friend WithEvents ToolStripSeparator13 As System.Windows.Forms.ToolStripSeparator
     Friend WithEvents m_ExportExtract As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents m_extract As System.Windows.Forms.ToolStripMenuItem
-    Friend WithEvents m_export_to_fbx As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents m_edit_camo As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents VertexColor_cb As System.Windows.Forms.CheckBox
     Friend WithEvents ToolStripSeparator6 As System.Windows.Forms.ToolStripSeparator
@@ -1883,11 +1955,8 @@ Partial Class frmMain
     Friend WithEvents m_region_combo As ToolStripComboBox
 
     Friend WithEvents SearchBox As TextBox
-
-    Friend WithEvents m_export_to_collada As ToolStripMenuItem
     Friend WithEvents ToolStripSeparator32 As ToolStripSeparator
     Friend WithEvents m_export_to_glTF As ToolStripMenuItem
-    Friend WithEvents m_export_to_FBX_2 As ToolStripMenuItem
     Friend WithEvents m_export_to_obj As ToolStripMenuItem
     Friend WithEvents m_forums As ToolStripMenuItem
     Friend WithEvents m_hide_right_plane As ToolStripMenuItem
@@ -1896,4 +1965,15 @@ Partial Class frmMain
     Friend WithEvents m_export_STL As ToolStripMenuItem
     Friend WithEvents m_import_2016_fbx As ToolStripMenuItem
     Friend WithEvents m_2016_fbx As ToolStripMenuItem
+    Friend WithEvents m_2013_fbx As ToolStripMenuItem
+    Friend WithEvents ToolStripSeparator33 As ToolStripSeparator
+    Friend WithEvents dgv As DataGridView
+    Friend WithEvents decal_ds As DataSet
+    Friend WithEvents d_table As DataTable
+    Friend WithEvents DataColumn1 As DataColumn
+    Friend WithEvents DataColumn2 As DataColumn
+    Friend WithEvents decalName As DataGridViewTextBoxColumn
+    Friend WithEvents decalID As DataGridViewTextBoxColumn
+    Friend WithEvents ToolStripSeparator34 As ToolStripSeparator
+    Friend WithEvents m_open_wot_temp_folder As ToolStripMenuItem
 End Class

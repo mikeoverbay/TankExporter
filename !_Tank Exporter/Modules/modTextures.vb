@@ -15,6 +15,7 @@ Imports Tao.FreeGlut.Glut
 Imports Tao.DevIl
 Imports Microsoft.VisualBasic.Strings
 Imports Ionic.Zip
+Imports System.Runtime.InteropServices
 
 Module modTextures
     Enum ATLAS_TYPE
@@ -83,7 +84,7 @@ Module modTextures
             id = load_png_file(name)
         End If
         If ext.ToLower.Contains(".dds") Then
-            id = load_dds_file(name)
+            id = LoadTextureDDS(name)
         End If
         If ext.ToLower.Contains(".jpg") Then
             id = load_jpg_file(name)
@@ -1740,6 +1741,8 @@ skip_hd:
     End Function
 
     Public Function get_texture(ByRef ms As MemoryStream, file_path As String) As Integer
+
+
         frmMain.gl_stop = True
         Dim texID As UInt32
         Dim image_id As Integer
@@ -1774,8 +1777,8 @@ skip_hd:
             Gl.glTexParameteri(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_WRAP_S, Gl.GL_REPEAT)
             Gl.glTexParameteri(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_WRAP_T, Gl.GL_REPEAT)
 
-            Gl.glTexImage2D(Gl.GL_TEXTURE_2D, 0, Il.ilGetInteger(Il.IL_IMAGE_BPP), Il.ilGetInteger(Il.IL_IMAGE_WIDTH), _
-            Il.ilGetInteger(Il.IL_IMAGE_HEIGHT), 0, Il.ilGetInteger(Il.IL_IMAGE_FORMAT), Gl.GL_UNSIGNED_BYTE, _
+            Gl.glTexImage2D(Gl.GL_TEXTURE_2D, 0, Il.ilGetInteger(Il.IL_IMAGE_BPP), Il.ilGetInteger(Il.IL_IMAGE_WIDTH),
+            Il.ilGetInteger(Il.IL_IMAGE_HEIGHT), 0, Il.ilGetInteger(Il.IL_IMAGE_FORMAT), Gl.GL_UNSIGNED_BYTE,
             Il.ilGetData()) '  Texture specification 
             Gl.glFinish()
             Gl.glBindTexture(Gl.GL_TEXTURE_2D, 0)
@@ -2105,54 +2108,7 @@ skip_hd:
         Return Nothing
     End Function
     Public Function load_dds_file(ByVal fs As String) As Integer
-        Dim image_id As Integer = -1
-
-        Dim texID As UInt32
-        texID = Ilu.iluGenImage() ' /* Generation of one image name */
-        Il.ilBindImage(texID) '; /* Binding of image name */
-        Dim success = Il.ilGetError
-        Il.ilLoad(Il.IL_DDS, fs)
-        success = Il.ilGetError
-        If success = Il.IL_NO_ERROR Then
-            'Ilu.iluFlipImage()
-            ' Ilu.iluMirror()
-            Dim width As Integer = Il.ilGetInteger(Il.IL_IMAGE_WIDTH)
-            Dim height As Integer = Il.ilGetInteger(Il.IL_IMAGE_HEIGHT)
-            pass_h = height
-            pass_w = width
-            'Dim dds_format = Il.ilGetInteger(Il.IL_DXTC_DATA_FORMAT)
-            'Debug.WriteLine(dds_format.ToString)
-
-            'Il.ilConvertImage(Il.IL_BGRA, Il.IL_UNSIGNED_BYTE)
-
-            'success = Il.ilConvertImage(Il.IL_RGBA, Il.IL_UNSIGNED_BYTE)
-
-            Gl.glGenTextures(1, image_id)
-            Gl.glEnable(Gl.GL_TEXTURE_2D)
-            Gl.glBindTexture(Gl.GL_TEXTURE_2D, image_id)
-            If largestAnsio > 0 Then
-                Gl.glTexParameterf(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_MAX_ANISOTROPY_EXT, largestAnsio)
-            End If
-            Gl.glTexParameteri(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_MAG_FILTER, Gl.GL_LINEAR)
-            Gl.glTexParameteri(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_MIN_FILTER, Gl.GL_LINEAR_MIPMAP_LINEAR)
-            Gl.glTexParameteri(Gl.GL_TEXTURE_2D, Gl.GL_GENERATE_MIPMAP, Gl.GL_TRUE)
-
-            Gl.glTexParameteri(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_WRAP_S, Gl.GL_REPEAT)
-            Gl.glTexParameteri(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_WRAP_T, Gl.GL_REPEAT)
-
-            Gl.glTexImage2D(Gl.GL_TEXTURE_2D, 0, Gl.GL_RGBA8, width, height, 0, Gl.GL_RGBA, Gl.GL_UNSIGNED_BYTE, _
-            Il.ilGetData()) '  Texture specification 
-
-
-            Gl.glBindTexture(Gl.GL_TEXTURE_2D, 0)
-            Il.ilBindImage(0)
-            Ilu.iluDeleteImage(texID)
-            Gl.glFinish()
-            Return image_id
-        Else
-            log_text.AppendLine("File Missing: " + fs)
-        End If
-        Return Nothing
+        Return LoadTextureDDS(fs)
     End Function
     Public Function load_jpg_file(ByVal fs As String) As Integer
         Dim image_id As Integer = -1
@@ -2199,6 +2155,24 @@ skip_hd:
 
     Public Function get_texture_from_stream(ByRef ms As MemoryStream) As Integer
 
+        ' Get the byte array from the memory stream
+        Dim buffer() As Byte = ms.ToArray()
+
+        ' Pin the array in memory
+        Dim gch As GCHandle = GCHandle.Alloc(buffer, GCHandleType.Pinned)
+        Dim ptr As IntPtr = gch.AddrOfPinnedObject()
+
+        ' Call the function with pointer and length
+        Dim textureID As Integer = LoadTextureFromMemory(ptr, buffer.Length)
+
+        ' Free the pinned handle
+        gch.Free()
+
+        Return textureID
+
+
+
+
         Dim texID As UInt32
         Dim image_id As Integer
         ms.Position = 0
@@ -2232,8 +2206,8 @@ skip_hd:
             Gl.glTexParameteri(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_WRAP_S, Gl.GL_REPEAT)
             Gl.glTexParameteri(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_WRAP_T, Gl.GL_REPEAT)
 
-            Gl.glTexImage2D(Gl.GL_TEXTURE_2D, 0, Il.ilGetInteger(Il.IL_IMAGE_BPP), Il.ilGetInteger(Il.IL_IMAGE_WIDTH), _
-            Il.ilGetInteger(Il.IL_IMAGE_HEIGHT), 0, Il.ilGetInteger(Il.IL_IMAGE_FORMAT), Gl.GL_UNSIGNED_BYTE, _
+            Gl.glTexImage2D(Gl.GL_TEXTURE_2D, 0, Il.ilGetInteger(Il.IL_IMAGE_BPP), Il.ilGetInteger(Il.IL_IMAGE_WIDTH),
+            Il.ilGetInteger(Il.IL_IMAGE_HEIGHT), 0, Il.ilGetInteger(Il.IL_IMAGE_FORMAT), Gl.GL_UNSIGNED_BYTE,
             Il.ilGetData()) '  Texture specification 
             Gl.glFinish()
             Gl.glBindTexture(Gl.GL_TEXTURE_2D, 0)

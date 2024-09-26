@@ -106,7 +106,9 @@ Partial Class FrmShadowSettings
         Me.MaximizeBox = False
         Me.MinimizeBox = False
         Me.Name = "FrmShadowSettings"
+        Me.Opacity = 0R
         Me.ShowInTaskbar = False
+        Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent
         Me.Text = "Shadow Quality"
         Me.TopMost = True
         Me.GroupBox1.ResumeLayout(False)

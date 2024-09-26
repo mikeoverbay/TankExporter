@@ -28,9 +28,9 @@ Module get_FBX
         ' Load an FBX file
         Dim importer As New AssimpContext()
 
-
         frmMain.clean_house()
         remove_loaded_fbx()
+
         Try
             Dim scene As Scene = importer.ImportFile(open_path, Assimp.PostProcessSteps.Triangulate Or Assimp.PostProcessSteps.JoinIdenticalVertices)
             Dim materials As List(Of Assimp.Material) = scene.Materials.ToList

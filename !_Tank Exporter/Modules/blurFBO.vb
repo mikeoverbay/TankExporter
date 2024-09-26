@@ -1,4 +1,6 @@
-﻿Module blurFBO
+﻿Imports System.Threading
+
+Module blurFBO
     Public BlurShadowFBO As New BlurFbo_
 
     Public Class BlurFbo_
@@ -118,6 +120,10 @@
         Public Sub init()
             Me.width = shadowMapSize / 2
             Me.height = Me.width
+            updateEvent.Reset()
+            Thread.Sleep(60)
+            ' Unbind any currently bound framebuffer
+            Gl.glBindFramebufferEXT(Gl.GL_FRAMEBUFFER_EXT, 0)
 
             shut_down()
             create_textures()
@@ -133,7 +139,7 @@
                 MsgBox("Failed to create Blur FBO", MsgBoxStyle.Critical, "Not good!")
                 Return
             End If
-
+            updateEvent.Set()
         End Sub
     End Class
 End Module

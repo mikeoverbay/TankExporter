@@ -24,6 +24,9 @@ Imports System.Collections.Generic
 Imports Ionic.Zip
 Imports System.Drawing.Imaging
 Imports System.Globalization
+Imports System.Runtime.Remoting.Metadata.W3cXsd2001
+
+
 #End Region
 
 
@@ -31,20 +34,20 @@ Module modShadow
     Public d_sb As New StringBuilder
     Public bbs(8) As vec3
     Public shadow_fbo As New shadow_fbo_
-    Public shadowMapSize As Integer = 4096
+    Public shadowMapSize As Integer = 8192
     Public depthId As Integer
     Public depthBuffer As Integer
     Public shadowFramebuffer As Integer
     Public MV(15) As Single
-    Public lightProjection() As Single = { _
-                                            1.0, 0.0, 0.0, 0.0, _
-                                            0.0, 1.0, 0.0, 0.0, _
-                                            0.0, 0.0, 1.0, 0.0, _
+    Public lightProjection() As Single = {
+                                            1.0, 0.0, 0.0, 0.0,
+                                            0.0, 1.0, 0.0, 0.0,
+                                            0.0, 0.0, 1.0, 0.0,
                                             0.0, 0.0, 0.0, 1.0}
-    Dim bias() As Single = { _
-                                0.5, 0.0, 0.0, 0.0, _
-                                0.0, 0.5, 0.0, 0.0, _
-                                0.0, 0.0, 0.5, 0.0, _
+    Dim bias() As Single = {
+                                0.5, 0.0, 0.0, 0.0,
+                                0.0, 0.5, 0.0, 0.0,
+                                0.0, 0.0, 0.5, 0.0,
                                 0.5, 0.5, 0.5, 1.0}
 
     Public Class shadow_fbo_
@@ -83,61 +86,94 @@ Module modShadow
             make_shadow_fbo()
             Gl.glFinish()
         End Sub
+        Private Sub CheckGLError(stepName As String)
+            Dim errCode As Integer = Gl.glGetError()
+            If errCode <> Gl.GL_NO_ERROR Then
+                Debug.WriteLine("OpenGL Error at " & stepName & ": " & errCode)
+            End If
+        End Sub
         Public Sub make_shadow_fbo()
-            Gl.glGenTextures(1, depthBuffer)
-            Dim er = Gl.glGetError
+            ' Helper function to check for OpenGL errors and log them
+            updateEvent.Reset()
+            Thread.Sleep(60)
 
-            er = Gl.glGetError
-            Gl.glBindTexture(Gl.GL_TEXTURE_2D, depthBuffer)
-            Gl.glTexParameteri(Gl.GL_TEXTURE_2D, Gl.GL_GENERATE_MIPMAP, Gl.GL_FALSE)
-            Gl.glTexParameteri(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_MIN_FILTER, Gl.GL_LINEAR)
-            Gl.glTexParameteri(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_MAG_FILTER, Gl.GL_LINEAR)
-            Gl.glTexParameterf(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_WRAP_S, Gl.GL_CLAMP)
-            Gl.glTexParameterf(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_WRAP_T, Gl.GL_CLAMP)
+            ' Unbind any currently bound framebuffer
+            Gl.glBindFramebufferEXT(Gl.GL_FRAMEBUFFER_EXT, 0)
+            ' Check maximum texture size
+            Dim maxTextureSize As Integer
+            Gl.glGetIntegerv(Gl.GL_MAX_TEXTURE_SIZE, maxTextureSize)
+            Debug.WriteLine("Max Texture Size: " & maxTextureSize)
 
-            Gl.glTexImage2D(Gl.GL_TEXTURE_2D, 0, Gl.GL_RGB32F_ARB, CInt(shadowMapSize), CInt(shadowMapSize), 0, Gl.GL_RGB, Gl.GL_FLOAT, Nothing)
-            Gl.glBindTexture(Gl.GL_TEXTURE_2D, 0)
-            er = Gl.glGetError
-
-
-
-            er = Gl.glGetError
-            If er = 1285 Then
-                If MsgBox("You do not have enough contiguous video memory." + vbCrLf + _
-                       "Try restaring and setting the shadow to best" + vbCrLf + _
-                       "before loading a tank or importing a FBX." + vbCrLf + _
-                       "Exit so this setting is saved and restart again." + vbCrLf + _
-                       "Would you like me to reset the shadow quality to lowest and Restart TE?", MsgBoxStyle.YesNo, "Out Of Video Memory!") = MsgBoxResult.Yes Then
-                    My.Settings.shadow_quality = "512"
-                    My.Settings.Save()
-                    DisableOpenGL()
-                    Application.Restart()
-                End If
+            If shadowMapSize > maxTextureSize Then
+                Debug.WriteLine("Shadow map size exceeds the maximum supported texture size.")
+                Return
             End If
 
-            ''''''''''''''''''''''''''
+            ' Generate and configure the floating-point texture
+            Gl.glGenTextures(1, depthBuffer)
+            CheckGLError("Generate Texture")
+
+            Gl.glBindTexture(Gl.GL_TEXTURE_2D, depthBuffer)
+            CheckGLError("Bind Texture")
+
+            ' Set texture parameters
+            Gl.glTexParameteri(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_MIN_FILTER, Gl.GL_LINEAR)
+            CheckGLError("Set MIN_FILTER")
+
+            Gl.glTexParameteri(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_MAG_FILTER, Gl.GL_LINEAR)
+            CheckGLError("Set MAG_FILTER")
+
+            Gl.glTexParameteri(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_WRAP_S, Gl.GL_CLAMP_TO_EDGE)
+            CheckGLError("Set WRAP_S")
+
+            Gl.glTexParameteri(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_WRAP_T, Gl.GL_CLAMP_TO_EDGE)
+            CheckGLError("Set WRAP_T")
+
+            ' Create floating-point texture (use GL_RGB32F for RGB)
+            Gl.glTexImage2D(Gl.GL_TEXTURE_2D, 0, Gl.GL_RGB16F_ARB, CInt(shadowMapSize), CInt(shadowMapSize), 0, Gl.GL_RGB, Gl.GL_FLOAT, Nothing)
+
+            Gl.glFinish()
+
+            Gl.glBindTexture(Gl.GL_TEXTURE_2D, 0)
+            CheckGLError("Create Floating-Point Texture Image")
+
             ' create framebuffer
             Gl.glGenFramebuffersEXT(1, shadowFramebuffer)
             Gl.glBindFramebufferEXT(Gl.GL_FRAMEBUFFER_EXT, shadowFramebuffer)
-            er = Gl.glGetError
             Gl.glGenRenderbuffersEXT(1, depthId)
             Gl.glBindRenderbufferEXT(Gl.GL_RENDERBUFFER_EXT, depthId)
             Gl.glRenderbufferStorageEXT(Gl.GL_RENDERBUFFER_EXT, Gl.GL_DEPTH_COMPONENT16, shadowMapSize, shadowMapSize)
             Gl.glFramebufferRenderbufferEXT(Gl.GL_FRAMEBUFFER_EXT, Gl.GL_DEPTH_ATTACHMENT_EXT, Gl.GL_RENDERBUFFER_EXT, depthId) '16f depth
-            er = Gl.glGetError
 
-            Gl.glFramebufferTexture2DEXT(Gl.GL_FRAMEBUFFER_EXT, Gl.GL_COLOR_ATTACHMENT0_EXT, Gl.GL_TEXTURE_2D, depthBuffer, 0) '16f color
-            Gl.glDrawBuffers(1, attach_depthBuffer)
+            ' Attach the floating-point texture to the framebuffer as a color attachment
+            Gl.glFramebufferTexture2DEXT(Gl.GL_FRAMEBUFFER_EXT, Gl.GL_COLOR_ATTACHMENT0_EXT, Gl.GL_TEXTURE_2D, depthBuffer, 0)
+            CheckGLError("Attach Floating-Point Texture to Framebuffer")
 
-            Dim Status = Gl.glCheckFramebufferStatusEXT(Gl.GL_FRAMEBUFFER_EXT)
+            ' Disable depth and stencil attachments
+            Gl.glDrawBuffer(Gl.GL_COLOR_ATTACHMENT0_EXT)
+            CheckGLError("Set Draw Buffer")
 
+            ' Check framebuffer completeness
+            Dim Status As Integer = Gl.glCheckFramebufferStatusEXT(Gl.GL_FRAMEBUFFER_EXT)
             If Status <> Gl.GL_FRAMEBUFFER_COMPLETE_EXT Then
-                MsgBox("Failed to create Shadow FBO", MsgBoxStyle.Critical, "Not good!")
+                Debug.WriteLine("Failed to create Shadow FBO: Framebuffer not complete, status = " & Status)
+                Gl.glBindFramebufferEXT(Gl.GL_FRAMEBUFFER_EXT, 0)
+                updateEvent.Set()
                 Return
+            Else
+                Debug.WriteLine("Shadow FBO successfully created.")
             End If
+
+            ' Unbind the FBO after setting it up
+            Gl.glBindFramebufferEXT(Gl.GL_FRAMEBUFFER_EXT, 0)
+            CheckGLError("Unbind Framebuffer")
+
+            ' Resize the picture box for shadow map visualization
             frmMain.PB3.Width = shadowMapSize
             frmMain.PB3.Height = shadowMapSize
 
+            ' Wait for the rendering thread to finish
+            updateEvent.Set()
         End Sub
         Public Sub attach_depth()
             Gl.glFramebufferTexture2DEXT(Gl.GL_FRAMEBUFFER_EXT, Gl.GL_COLOR_ATTACHMENT0_EXT, Gl.GL_TEXTURE_2D, depthBuffer, 0) '32f color
@@ -324,7 +360,7 @@ Module modShadow
         'Gl.glEnable(Gl.GL_POLYGON_OFFSET_FILL)
         Gl.glPolygonOffset(2.0, 2.0)
         Gl.glUseProgram(shader_list.depth_shader) '<<<==================================== depth shader
-        Gl.glUniform1i(depth_normalMap, 0)
+        Gl.glUniform1i(depthMap_32bit, 0)
         'render carraige
         Gl.glFrontFace(Gl.GL_CCW)
         Gl.glPolygonMode(Gl.GL_FRONT, Gl.GL_FILL)
@@ -370,7 +406,7 @@ Module modShadow
             End If
         Next
 
-        Gl.glUniform1i(depth_normalMap, 0)
+        Gl.glUniform1i(depthMap_32bit, 0)
         Gl.glEnable(Gl.GL_CULL_FACE)
 
         If MODEL_LOADED _
@@ -449,7 +485,7 @@ Module modShadow
         Gl.glGetFloatv(Gl.GL_MODELVIEW_MATRIX, lightProjection)
         Gl.glPopMatrix()
         '###############################################################################################
- 
+
         'BlurShadowFBO.blur_depth_texture()
 nope:
         '###############################################################################################

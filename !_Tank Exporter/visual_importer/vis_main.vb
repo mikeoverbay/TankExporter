@@ -450,6 +450,7 @@ remove_more:
                     MsgBox("XML header error!: " + PackedFileName_in, MsgBoxStyle.Exclamation, "error")
                     Return False
                 Else
+                    'file is already decompressed
                     If File.Exists(PackedFileName_in) Then
                         TheXML_String = File.ReadAllText(PackedFileName_in)
                         ' Load the XML string into the DataSet

@@ -1116,6 +1116,7 @@ next_m:
                     _group(k).vertices(cnt).weight_2 = tbuf(i).weight_2
                     _group(k).vertices(cnt).weight_3 = tbuf(i).weight_3
                     _group(k).vertices(cnt).weight_4 = tbuf(i).weight_4
+
                     If Not realNormals Then
                         _group(k).vertices(cnt).t = tbuf(i).t
                         _group(k).vertices(cnt).bn = tbuf(i).bn

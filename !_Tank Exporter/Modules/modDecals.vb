@@ -25,13 +25,18 @@ Imports Ionic.Zip
 Imports System.Drawing.Imaging
 Imports System.Globalization
 Imports System.Runtime.Serialization.Formatters.Binary
+Imports Assimp
 
 #End Region
 
 
 
 Module modDecals
-    Public current_decal As Integer = -1
+
+    Public decal_draw_box As Integer
+
+
+    Public current_decal_data_pnt As Integer = -1
     Public cur_selected_decal As Integer = -1
     Public picked_decal As Integer = 0
     Public decal_order() As Integer
@@ -45,245 +50,293 @@ Module modDecals
         Public gmmMap_id As Integer
     End Structure
 
+    ' Define a structure representing a 3D vector with X, Y, and Z components.
+    Public Structure Vect3s
+        Public Property X As Single
+        Public Property Y As Single
+        Public Property Z As Single
 
-    Public decal_matrix_list() As decal_matrix_list_
-    <Serializable> Public Structure decal_matrix_list_
-        Public alpha As Single
-        Public level As Single
-        Public scale As vect3
-        Public translate As vect3
-        Public rotation As vect3
-        Public u_wrap As Single
-        Public v_wrap As Single
-        Public uv_rot As Single
-        Public u_wrap_index As Integer
-        Public v_wrap_index As Integer
-        Public uv_rot_index As Integer
-
-        Public texture_id As Integer
-        Public normal_id As Integer
-        Public gmm_id As Integer
-        Public decal_texture As String
-
-        Public display_matrix() As Single
-        Public y_rotate_matrix() As Single
-        Public x_rotate_matrix() As Single
-        Public z_rotate_matrix() As Single
-        Public scale_matrix() As Single
-        Public translate_matrix() As Single
-
-        Public lbl As vect3
-        Public lbr As vect3
-        Public ltl As vect3
-        Public ltr As vect3
-        Public rbl As vect3
-        Public rbr As vect3
-        Public rtl As vect3
-        Public rtr As vect3
-        Public pi2 As Single
-
-        Public Sub get_decals_transform_info()
-            g_decal_scale = Me.scale
-            g_decal_translate = Me.translate
-            g_decal_rotate = Me.rotation
-            frmMain.decal_alpha_slider.Value = Int(100 * Me.alpha)
-            frmMain.decal_level_slider.Value = Int(100 * Me.level)
-            frmMain.Uwrap.SelectedIndex = Me.u_wrap_index
-            frmMain.Vwrap.SelectedIndex = Me.v_wrap_index
-            frmMain.uv_rotate.SelectedIndex = Me.uv_rot_index
-            frmMain.current_decal_lable.Text = current_decal
-            look_point_x = Me.translate.x
-            look_point_y = Me.translate.y
-            look_point_z = Me.translate.z
-            frmMain.d_texture_name.Text = Me.decal_texture
-
-            Dim s = Sin(Me.rotation.x)
-            Dim c = Cos(Me.rotation.x)
-            Me.y_rotate_matrix = {
-              c, 0.0, -s, 0.0,
-              0.0, 1.0, 0.0, 0.0,
-              s, 0.0, c, 0.0,
-              0.0, 0.0, 0.0, 1.0}
-            s = Sin(Me.rotation.y)
-            c = Cos(Me.rotation.y)
-            Me.x_rotate_matrix = {
-                1.0, 0.0, 0.0, 0.0,
-                0.0, c, s, 0.0,
-                0.0, -s, c, 0.0,
-                0.0, 0.0, 0.0, 1.0}
-
-            s = Sin(Me.rotation.z)
-            c = Cos(Me.rotation.z)
-            Me.z_rotate_matrix = {
-                c, s, 0.0, 0.0,
-                -s, c, 0.0, 0.0,
-                0.0, 0.0, 1.0, 0.0,
-                0.0, 0.0, 0.0, 1.0}
-
-            Dim ss = Me.scale
-            Me.scale_matrix = {
-                ss.x, 0.0, 0.0, 0.0,
-                0.0, ss.y, 0.0, 0.0,
-                0.0, 0.0, ss.z, 0.0,
-                0.0, 0.0, 0.0, 1.0}
-            Dim v = Me.translate
-            Me.translate_matrix(12) = v.x
-            Me.translate_matrix(13) = v.y
-            Me.translate_matrix(14) = v.z
+        ' Constructor to initialize the vector components
+        Public Sub New(ByVal x As Single, ByVal y As Single, ByVal z As Single)
+            Me.X = x
+            Me.Y = y
+            Me.Z = z
         End Sub
 
-        Public Sub load_identity()
-            'set some vaules when this decal is created
-            Me.alpha = 1.0
-            Me.level = 1.0
-            pi2 = PI * 2.0
-            Me.scale.x = 1.0
-            Me.scale.y = 1.0
-            Me.scale.z = 1.0
-            Me.u_wrap = 1.0
-            Me.v_wrap = 1.0
-            Me.uv_rot = 0
-            Me.u_wrap_index = 4
-            Me.v_wrap_index = 4
-            Me.uv_rot_index = 4
+        ' Method to calculate the length (magnitude) of the vector
+        Public Function Length() As Single
+            Return Math.Sqrt(X * X + Y * Y + Z * Z)
+        End Function
 
-            Me.translate.x = 0.0
-            Me.translate.y = 0.0
-            Me.translate.z = 0.0
+        ' Method to set the vector components
+        Public Sub SetValues(ByVal x As Single, ByVal y As Single, ByVal z As Single)
+            Me.X = x
+            Me.Y = y
+            Me.Z = z
+        End Sub
 
-            g_decal_rotate.x = PI / 2.0
-            g_decal_rotate.y = 0.0
-            If Sqrt(scale.x ^ 2 + scale.y ^ 2 + scale.z ^ 2) = 0.0 Then
-                g_decal_scale.x = 1.0
-                g_decal_scale.y = 1.0
-                g_decal_scale.z = 1.0
+        ' Override the ToString method for easy display of vector components
+        Public Overrides Function ToString() As String
+            Return $"({X}, {Y}, {Z})"
+        End Function
+    End Structure
 
+    Public decal_matrix_list As New List(Of DecalMatrix)
+    Public Class DecalMatrix
+        Public Property Alpha As Single
+        Public Property Level As Single
+        Public Property Scale As Vect3s
+        Public Property Translate As Vect3s
+        Public Property Rotation As Vect3s
+        Public Property UWrap As Single
+        Public Property VWrap As Single
+        Public Property UVRot As Single
+        Public Property UWrapIndex As Integer
+        Public Property VWrapIndex As Integer
+        Public Property UVRotIndex As Integer
+
+        Public Property TextureId As Integer
+        Public Property NormalId As Integer
+        Public Property GmmId As Integer
+        Public Property DecalTexture As String
+
+        Public Property DisplayMatrix() As Single()
+        Public Property YRotateMatrix() As Single()
+        Public Property XRotateMatrix() As Single()
+        Public Property ZRotateMatrix() As Single()
+        Public Property ScaleMatrix() As Single()
+        Public Property TranslateMatrix() As Single()
+
+        Private Const PI2 As Single = 6.283
+        Public Property DecalIndex As Integer
+
+        Public Sub New()
+            ' Initialize matrices with identity
+            LoadIdentity()
+        End Sub
+
+        ' Deep copy method
+        Public Sub GetDecalsTransformInfo()
+            ' Example assignments using this instance
+            g_decal_scale = Me.Scale
+            g_decal_translate = Me.Translate
+            g_decal_rotate = Me.Rotation
+            frmMain.decal_alpha_slider.Value = CInt(1 * Me.Alpha)
+            frmMain.decal_level_slider.Value = CInt(1 * Me.Level)
+            frmMain.Uwrap.SelectedIndex = Me.UWrapIndex
+            frmMain.Vwrap.SelectedIndex = Me.VWrapIndex
+            frmMain.uv_rotate.SelectedIndex = Me.UVRotIndex
+            frmMain.current_decal_lable.Text = current_decal_data_pnt
+            look_point_x = Me.Translate.x
+            look_point_y = Me.Translate.y
+            look_point_z = Me.Translate.z
+            frmMain.d_texture_name.Text = Me.DecalTexture
+
+            ' Set rotation matrices
+            SetRotationMatrices()
+        End Sub
+
+        Public Sub SetRotationMatrices()
+
+            ' Create  rotation matrix
+            SetXRotationMatrix(Rotation.X)
+            SetYRotationMatrix(Rotation.Y)
+            SetZRotationMatrix(Rotation.Z)
+
+
+            ' Create scale matrix
+            Me.ScaleMatrix = {
+                Me.Scale.X, 0.0, 0.0, 0.0,
+                0.0, Me.Scale.Y, 0.0, 0.0,
+                0.0, 0.0, Me.Scale.Z, 0.0,
+                0.0, 0.0, 0.0, 1.0}
+
+            ' Create translation matrix
+            Me.TranslateMatrix = {
+                1.0, 0.0, 0.0, 0.0,
+                0.0, 1.0, 0.0, 0.0,
+                0.0, 0.0, 1.0, 0.0,
+                Me.Translate.X, Me.Translate.Y, Me.Translate.Z, 1.0}
+
+        End Sub
+
+        Public Sub LoadIdentity()
+            ' Set default values when the decal is created
+            Me.Alpha = 1.0
+            Me.Level = 1.0
+            Me.Scale = New Vect3s(1.0, 1.0, 1.0)
+            Me.UWrap = 1.0
+            Me.VWrap = 1.0
+            Me.UVRot = 0
+            Me.UWrapIndex = 4
+            Me.VWrapIndex = 4
+            Me.UVRotIndex = 4
+
+            Me.Translate = New Vect3s(0.0, 0.0, 0.0)
+
+            ' Check and set default scale
+            If Me.Scale.Length() <= 0.0 Then
+                Me.Scale = New Vect3s(1.0, 1.0, 1.0)
             End If
-            display_matrix = {
-                1.0, 0.0, 0.0, 0.0,
-                0.0, 1.0, 0.0, 0.0,
-                0.0, 0.0, 1.0, 0.0,
-                0.0, 0.0, 0.0, 1.0}
-            x_rotate_matrix = {
-                1.0, 0.0, 0.0, 0.0,
-                0.0, 1.0, 0.0, 0.0,
-                0.0, 0.0, 1.0, 0.0,
-                0.0, 0.0, 0.0, 1.0}
-            y_rotate_matrix = {
-                1.0, 0.0, 0.0, 0.0,
-                0.0, 1.0, 0.0, 0.0,
-                0.0, 0.0, 1.0, 0.0,
-                0.0, 0.0, 0.0, 1.0}
-            z_rotate_matrix = {
-                1.0, 0.0, 0.0, 0.0,
-                0.0, 1.0, 0.0, 0.0,
-                0.0, 0.0, 1.0, 0.0,
-                0.0, 0.0, 0.0, 1.0}
-            scale_matrix = {
-                1.0, 0.0, 0.0, 0.0,
-                0.0, 1.0, 0.0, 0.0,
-                0.0, 0.0, 1.0, 0.0,
-                0.0, 0.0, 0.0, 1.0}
-            translate_matrix = {
-                1.0, 0.0, 0.0, 0.0,
-                0.0, 1.0, 0.0, 0.0,
-                0.0, 0.0, 1.0, 0.0,
-                U_look_point_x, U_look_point_y, U_look_point_z, 1.0} ' position where we are looking
-            'preset translation to where we are looking.
-            g_decal_translate.x = U_look_point_x
-            g_decal_translate.y = U_look_point_y
-            g_decal_translate.z = U_look_point_z
-            Me.set_x_rotation_matrix(PI / 2.0)
-            Me.set_y_rotation_matrix(0.0)
-            Me.set_z_rotation_matrix(0.0)
-            Me.translate = g_decal_translate
-        End Sub
-        Public Sub transform()
-            Gl.glPushMatrix()
-            Gl.glLoadIdentity()
-            Gl.glMultMatrixf(Me.translate_matrix)
-            Gl.glMultMatrixf(Me.y_rotate_matrix)
-            Gl.glMultMatrixf(Me.z_rotate_matrix)
-            Gl.glMultMatrixf(Me.x_rotate_matrix)
 
-            Gl.glMultMatrixf(Me.scale_matrix)
-            Gl.glGetFloatv(Gl.GL_MODELVIEW_MATRIX, Me.display_matrix)
+            ' Initialize identity matrices
+            Me.DisplayMatrix = {
+            1.0, 0.0, 0.0, 0.0,
+            0.0, 1.0, 0.0, 0.0,
+            0.0, 0.0, 1.0, 0.0,
+            0.0, 0.0, 0.0, 1.0}
+
+            Me.XRotateMatrix = DisplayMatrix.Clone()
+            Me.YRotateMatrix = DisplayMatrix.Clone()
+            Me.ZRotateMatrix = DisplayMatrix.Clone()
+            Me.ScaleMatrix = DisplayMatrix.Clone()
+            Me.TranslateMatrix = {
+            1.0, 0.0, 0.0, 0.0,
+            0.0, 1.0, 0.0, 0.0,
+            0.0, 0.0, 1.0, 0.0,
+            U_look_point_x, U_look_point_y, U_look_point_z, 1.0}
+
+            ' Preset translation to where we are looking.
+            g_decal_translate = New Vect3s(U_look_point_x, U_look_point_y, U_look_point_z)
+            Me.SetXRotationMatrix(Math.PI / 2.0)
+            Me.SetYRotationMatrix(0.0) 'Math.PI / 2.0
+            Me.SetZRotationMatrix(0.0)
+            Me.Translate = g_decal_translate
+        End Sub
+
+        Public Sub Transform()
+            ' Push the current matrix onto the stack
+            Gl.glPushMatrix()
+
+            ' Load the identity matrix to reset transformations
+            Gl.glLoadIdentity()
+
+            ' Apply transformations in the correct order:
+            Gl.glMultMatrixf(Me.TranslateMatrix)      ' Apply translation
+            Gl.glMultMatrixf(Me.YRotateMatrix)        ' Apply rotation around Y axis
+            Gl.glMultMatrixf(Me.XRotateMatrix)        ' Apply rotation around X axis
+            Gl.glMultMatrixf(Me.ZRotateMatrix)        ' Apply rotation around Z axis
+            Gl.glMultMatrixf(Me.ScaleMatrix)          ' Apply scaling
+
+            ' Retrieve the final transformation matrix
+            Gl.glGetFloatv(Gl.GL_MODELVIEW_MATRIX, Me.DisplayMatrix)
+
+            ' Restore the previous matrix state
             Gl.glPopMatrix()
         End Sub
 
-        Public Function set_y_rotation_matrix(x As Single)
-            Me.rotation.x += x
-            If Me.rotation.x > pi2 Then
-                Me.rotation.x -= pi2
-            End If
-            If Me.rotation.x < -pi2 Then
-                Me.rotation.x += pi2
-            End If
-            Dim s = Sin(Me.rotation.x)
-            Dim c = Cos(Me.rotation.x)
-            Me.y_rotate_matrix = {
-              c, 0.0, -s, 0.0,
-              0.0, 1.0, 0.0, 0.0,
-              s, 0.0, c, 0.0,
-              0.0, 0.0, 0.0, 1.0}
-            Return Me.y_rotate_matrix
-        End Function
-        Public Function set_x_rotation_matrix(y As Single)
-            Me.rotation.y += y
-            If Me.rotation.y > pi2 Then
-                Me.rotation.y -= pi2
-            End If
-            If Me.rotation.y < -pi2 Then
-                Me.rotation.y += pi2
-            End If
-            Dim s = Sin(Me.rotation.y)
-            Dim c = Cos(Me.rotation.y)
-            Me.x_rotate_matrix = {
-                1.0, 0.0, 0.0, 0.0,
-                0.0, c, s, 0.0,
-                0.0, -s, c, 0.0,
-                0.0, 0.0, 0.0, 1.0}
-            Return Me.x_rotate_matrix
-        End Function
-        Public Function set_z_rotation_matrix(z As Single)
-            Me.rotation.z += z
-            If Me.rotation.z > pi2 Then
-                Me.rotation.z -= pi2
-            End If
-            If Me.rotation.z < -pi2 Then
-                Me.rotation.z += pi2
-            End If
-            Dim s = Sin(Me.rotation.z)
-            Dim c = Cos(Me.rotation.z)
-            Me.z_rotate_matrix = {
-                c, s, 0.0, 0.0,
-                -s, c, 0.0, 0.0,
-                0.0, 0.0, 1.0, 0.0,
-                0.0, 0.0, 0.0, 1.0}
-            Return Me.z_rotate_matrix
-        End Function
-        Public Function set_scale_matrix(s As vect3)
-            If s.x < 0.1 Then s.x = 0.1
-            If s.y < 0.1 Then s.y = 0.1
-            If s.z < 0.1 Then s.z = 0.1
+        ' Utility function to format and display a 4x4 matrix
 
-            Me.scale = s
-            Me.scale_matrix = {
-                s.x, 0.0, 0.0, 0.0,
-                0.0, s.y, 0.0, 0.0,
-                0.0, 0.0, s.z, 0.0,
-                0.0, 0.0, 0.0, 1.0}
 
-            Return Me.scale_matrix
+        ' Function for setting rotation matrix around Y-axis (Forward direction)
+        Public Function SetYRotationMatrix(ByVal deltaY As Single) As Single
+            ' Update the rotation around the X-axis because Y rotation controls pitch (up/down).
+            Dim tempRotation = Me.Rotation
+            tempRotation.Y = deltaY
+            Me.Rotation = tempRotation ' Update the Rotation property
+
+            ' Calculate the Y-axis rotation matrix
+            Dim s As Single = Math.Sin(Me.Rotation.Y)
+            Dim c As Single = Math.Cos(Me.Rotation.Y)
+            Me.YRotateMatrix = {
+        c, 0.0, s, 0.0,
+        0.0, 1.0, 0.0, 0.0,
+        -s, 0.0, c, 0.0,
+        0.0, 0.0, 0.0, 1.0}
+
+            Return 0
         End Function
 
-        Public Sub set_translate_matrix(id As Integer, v As vect3)
-            Me.translate = v
-            Me.translate_matrix(12) = v.x
-            Me.translate_matrix(13) = v.y
-            Me.translate_matrix(14) = v.z
+        ' Subroutine for setting rotation matrix around X-axis (Up direction)
+        Public Sub SetXRotationMatrix(ByVal deltaX As Single)
+            ' Update the rotation around the Y-axis because X rotation controls yaw (left/right).
+            Dim tempRotation = Me.Rotation
+            tempRotation.X = deltaX
+            Me.Rotation = tempRotation ' Update the Rotation property
+
+            ' Calculate the X-axis rotation matrix
+            Dim s As Single = Math.Sin(Me.Rotation.X)
+            Dim c As Single = Math.Cos(Me.Rotation.X)
+            Me.XRotateMatrix = {
+        1.0, 0.0, 0.0, 0.0,
+        0.0, c, -s, 0.0,
+        0.0, s, c, 0.0,
+        0.0, 0.0, 0.0, 1.0}
         End Sub
-    End Structure
+
+        ' Subroutine for setting rotation matrix around Z-axis (Roll direction)
+        Public Sub SetZRotationMatrix(ByVal deltaZ As Single)
+            ' Update the rotation around the Z-axis.
+            Dim tempRotation = Me.Rotation
+            tempRotation.Z = deltaZ
+            Me.Rotation = tempRotation ' Update the Rotation property
+
+            ' Calculate the Z-axis rotation matrix
+            Dim s As Single = Math.Sin(Me.Rotation.Z)
+            Dim c As Single = Math.Cos(Me.Rotation.Z)
+            Me.ZRotateMatrix = {
+        c, -s, 0.0, 0.0,
+        s, c, 0.0, 0.0,
+        0.0, 0.0, 1.0, 0.0,
+        0.0, 0.0, 0.0, 1.0}
+        End Sub
+
+        Public Sub SetScaleMatrix(ByVal s As Vect3s)
+            If s.X < 0.1 Then s.X = 0.1
+            If s.Y < 0.1 Then s.Y = 0.1
+            If s.Z < 0.1 Then s.Z = 0.1
+
+            Me.Scale = s
+            Me.ScaleMatrix = {
+            s.X, 0.0, 0.0, 0.0,
+            0.0, s.Y, 0.0, 0.0,
+            0.0, 0.0, s.Z, 0.0,
+            0.0, 0.0, 0.0, 1.0}
+        End Sub
+
+        Public Sub SetTranslateMatrix(ByVal v As Vect3s)
+            Me.Translate = v
+            Me.TranslateMatrix(12) = v.X
+            Me.TranslateMatrix(13) = v.Y
+            Me.TranslateMatrix(14) = v.Z
+        End Sub
+
+        Public Class DecalMatrix
+            ' Existing properties and methods...
+
+            ' Method to deep copy this object
+        End Class
+
+    End Class
+    Public Function DecalMatrixClone(ByRef decal_in As DecalMatrix) As DecalMatrix
+        Dim newDecalMatrix = New DecalMatrix
+        newDecalMatrix.Alpha = decal_in.Alpha
+        newDecalMatrix.Level = decal_in.Level
+        newDecalMatrix.Scale = decal_in.Scale ' Assuming Vect3s has a Clone decal_inthod
+        newDecalMatrix.Translate = decal_in.Translate
+        newDecalMatrix.Rotation = decal_in.Rotation
+        newDecalMatrix.UWrap = decal_in.UWrap
+        newDecalMatrix.VWrap = decal_in.VWrap
+        newDecalMatrix.UVRot = decal_in.UVRot
+        newDecalMatrix.UWrapIndex = decal_in.UWrapIndex
+        newDecalMatrix.VWrapIndex = decal_in.VWrapIndex
+        newDecalMatrix.UVRotIndex = decal_in.UVRotIndex
+        newDecalMatrix.TextureId = decal_in.TextureId
+        newDecalMatrix.NormalId = decal_in.NormalId
+        newDecalMatrix.GmmId = decal_in.GmmId
+        newDecalMatrix.DecalTexture = decal_in.DecalTexture
+        newDecalMatrix.DisplayMatrix = CType(decal_in.DisplayMatrix.Clone(), Single()) ' Deep copy array
+        newDecalMatrix.YRotateMatrix = CType(decal_in.YRotateMatrix.Clone(), Single())
+        newDecalMatrix.XRotateMatrix = CType(decal_in.XRotateMatrix.Clone(), Single())
+        newDecalMatrix.ZRotateMatrix = CType(decal_in.ZRotateMatrix.Clone(), Single())
+        newDecalMatrix.ScaleMatrix = CType(decal_in.ScaleMatrix.Clone(), Single())
+        newDecalMatrix.TranslateMatrix = CType(decal_in.TranslateMatrix.Clone(), Single())
+        newDecalMatrix.DecalIndex = decal_in.DecalIndex
+        Return newDecalMatrix
+    End Function
+
+    ' Assume Vect3 is a custom structure or class representing a vector with X, Y, and Z components and a Length method.
+
     Public Structure vertex_data
         Public x As Single
         Public y As Single
@@ -294,150 +347,157 @@ Module modDecals
         Public ny As Single
         Public nz As Single
         Public map As Integer
-        Public t As vect3
-        Public bt As vect3
+        Public t As Vect3
+        Public bt As Vect3
     End Structure
 
-    Public decal_draw_box As Integer
-    Public Sub update_decal_order()
-        Dim lc = decal_matrix_list.Length - 2
-        Try
 
-            ReDim decal_order(lc)
-            For i = 0 To lc
-                frmMain.d_list_tb.SelectionStart = frmMain.d_list_tb.GetFirstCharIndexFromLine(i)
-                frmMain.d_list_tb.Select(frmMain.d_list_tb.GetFirstCharIndexOfCurrentLine(),
-                     frmMain.d_list_tb.Lines(i).Length) ' select line
-                Dim ar = frmMain.d_list_tb.SelectedText.Split(":")
-                decal_order(i) = CInt(ar(1))
-            Next
-        Catch ex As Exception
 
-        End Try
+    ' Method to create a cube and store it in the decal_draw_box display list
+    Public Sub CreateCube()
+        ' Generate a new display list and store the list ID in decal_draw_box
+        decal_draw_box = Gl.glGenLists(1)
+
+        ' Start defining the display list
+        Gl.glNewList(decal_draw_box, Gl.GL_COMPILE)
+
+        ' Draw the cube using GL_QUADS for each face with vertices transformed manually for Z-axis rotation
+        Gl.glBegin(Gl.GL_QUADS)
+
+        ' Front face (rotated around Z-axis)
+        Gl.glVertex3f(0.5F, -0.5F, 0.5F) ' Bottom left -> (y, -x, z) -> (0.5, -0.5, 0.5)
+        Gl.glVertex3f(0.5F, 0.5F, 0.5F)  ' Bottom right -> (y, -x, z) -> (0.5, 0.5, 0.5)
+        Gl.glVertex3f(-0.5F, 0.5F, 0.5F) ' Top right -> (y, -x, z) -> (-0.5, 0.5, 0.5)
+        Gl.glVertex3f(-0.5F, -0.5F, 0.5F) ' Top left -> (y, -x, z) -> (-0.5, -0.5, 0.5)
+
+        ' Back face (rotated around Z-axis)
+        Gl.glVertex3f(0.5F, 0.5F, -0.5F)  ' Bottom right -> (y, -x, z) -> (0.5, 0.5, -0.5)
+        Gl.glVertex3f(0.5F, -0.5F, -0.5F) ' Bottom left -> (y, -x, z) -> (0.5, -0.5, -0.5)
+        Gl.glVertex3f(-0.5F, -0.5F, -0.5F) ' Top left -> (y, -x, z) -> (-0.5, -0.5, -0.5)
+        Gl.glVertex3f(-0.5F, 0.5F, -0.5F)  ' Top right -> (y, -x, z) -> (-0.5, 0.5, -0.5)
+
+        ' Left face (rotated around Z-axis)
+        Gl.glVertex3f(-0.5F, -0.5F, -0.5F) ' Bottom back -> (y, -x, z) -> (-0.5, -0.5, -0.5)
+        Gl.glVertex3f(-0.5F, -0.5F, 0.5F)  ' Bottom front -> (y, -x, z) -> (-0.5, -0.5, 0.5)
+        Gl.glVertex3f(0.5F, -0.5F, 0.5F)   ' Top front -> (y, -x, z) -> (0.5, -0.5, 0.5)
+        Gl.glVertex3f(0.5F, -0.5F, -0.5F)  ' Top back -> (y, -x, z) -> (0.5, -0.5, -0.5)
+
+        ' Right face (rotated around Z-axis)
+        Gl.glVertex3f(0.5F, 0.5F, 0.5F)    ' Bottom front -> (y, -x, z) -> (0.5, 0.5, 0.5)
+        Gl.glVertex3f(-0.5F, 0.5F, 0.5F)   ' Bottom back -> (y, -x, z) -> (-0.5, 0.5, 0.5)
+        Gl.glVertex3f(-0.5F, 0.5F, -0.5F)  ' Top back -> (y, -x, z) -> (-0.5, 0.5, -0.5)
+        Gl.glVertex3f(0.5F, 0.5F, -0.5F)   ' Top front -> (y, -x, z) -> (0.5, 0.5, -0.5)
+
+        ' Top face (rotated around Z-axis)
+        Gl.glVertex3f(0.5F, 0.5F, 0.5F)    ' Top front right -> (y, -x, z) -> (0.5, 0.5, 0.5)
+        Gl.glVertex3f(0.5F, -0.5F, 0.5F)   ' Top front left -> (y, -x, z) -> (0.5, -0.5, 0.5)
+        Gl.glVertex3f(0.5F, -0.5F, -0.5F)  ' Top back left -> (y, -x, z) -> (0.5, -0.5, -0.5)
+        Gl.glVertex3f(0.5F, 0.5F, -0.5F)   ' Top back right -> (y, -x, z) -> (0.5, 0.5, -0.5)
+
+        ' Bottom face (rotated around Z-axis)
+        Gl.glVertex3f(-0.5F, 0.5F, -0.5F)  ' Bottom back left -> (y, -x, z) -> (-0.5, 0.5, -0.5)
+        Gl.glVertex3f(-0.5F, -0.5F, -0.5F) ' Bottom back right -> (y, -x, z) -> (-0.5, -0.5, -0.5)
+        Gl.glVertex3f(-0.5F, -0.5F, 0.5F)  ' Bottom front right -> (y, -x, z) -> (-0.5, -0.5, 0.5)
+        Gl.glVertex3f(-0.5F, 0.5F, 0.5F)   ' Bottom front left -> (y, -x, z) -> (-0.5, 0.5, 0.5)
+
+        Gl.glEnd() ' End of drawing GL_QUADS
+
+        ' End the display list
+        Gl.glEndList()
     End Sub
+
+
+    ' Adds a new decal entry to both the DataGridView and the decal_matrix_list.
     Public Sub add_decal()
-        Dim id As Integer = 0
+        ' Reset the update event before performing operations
+        updateEvent.Reset()
+        ' Pause briefly to ensure any ongoing operations are completed
+        Thread.Sleep(50)
+
+        ' Determine the index where the new row should be inserted (after the current selection)
+        Dim selectedIndex As Integer = If(frmMain.dgv.SelectedRows.Count > 0, frmMain.dgv.SelectedRows(0).Index + 1, frmMain.dgv.Rows.Count)
+
+        ' Insert a new row at the next index in the DataGridView
+        frmMain.dgv.Rows.Insert(selectedIndex)
+
+        ' Get the newly inserted row
+        Dim newRow As DataGridViewRow = frmMain.dgv.Rows(selectedIndex)
+
+        ' Set default values for the new row
+        newRow.Cells("DecalName").Value = decal_textures(0).colorMap_name ' Default to the first decal name
+        newRow.Cells("DecalID").Value = 0
+        newRow.Cells("Alpha").Value = 1.0
+        newRow.Cells("Level").Value = 1.0
+        newRow.Cells("U_Wrap").Value = 1.0
+        newRow.Cells("V_Wrap").Value = 1.0
+        newRow.Cells("UV_Rot").Value = 4
+        newRow.Cells("ScaleX").Value = 1.0
+        newRow.Cells("ScaleY").Value = 1.0
+        newRow.Cells("ScaleZ").Value = 1.0
+        newRow.Cells("TranslateX").Value = 0.0
+        newRow.Cells("TranslateY").Value = 0.0
+        newRow.Cells("TranslateZ").Value = 0.0
+        newRow.Cells("RotationX").Value = 0.0
+        newRow.Cells("RotationY").Value = 0.0
+        newRow.Cells("RotationZ").Value = 0.0
+        newRow.Cells("U_Wrap_Index").Value = 4
+        newRow.Cells("V_Wrap_Index").Value = 4
+        newRow.Cells("UV_Rot_Index").Value = 4
+
+        ' Optionally, select the newly inserted row
+        frmMain.dgv.ClearSelection()
+        frmMain.dgv.Rows(selectedIndex).Selected = True
+
+        ' Ensure decal_matrix_list is a List(Of DecalMatrix) and not an array
         If decal_matrix_list Is Nothing Then
-            id = 0
-            ReDim Preserve decal_matrix_list(id + 1)
-        Else
-            id = decal_matrix_list.Length - 1
-            ReDim Preserve decal_matrix_list(id + 1)
+            decal_matrix_list = New List(Of DecalMatrix)() ' Initialize as a list if not already done
         End If
-        decal_matrix_list(id) = New decal_matrix_list_
-        current_decal = id
-        decal_matrix_list(id).load_identity()
-        decal_matrix_list(id).get_decals_transform_info()
 
-        frmMain.d_list_tb.Text += "Decal ID :" + id.ToString + vbCrLf
-        update_decal_order()
-        frmMain.d_current_line = current_decal
-        If id = 0 Then ' if we have a draw box already, use it...
-            '0therwise, create the draw box in first decal.
-            With decal_matrix_list(id)
-                Gl.glDeleteLists(decal_draw_box, 1)
-                decal_draw_box = Gl.glGenLists(1)
-                Gl.glNewList(decal_draw_box, Gl.GL_COMPILE)
-                get_box_corners(id, 0.5) ' creates coordinates
+        Dim newDecal As New DecalMatrix
+        ' Initialize the matrices as identity matrices (4x4 matrices with 16 elements)
+        ReDim newDecal.DisplayMatrix(15)
+        ReDim newDecal.XRotateMatrix(15)
+        ReDim newDecal.YRotateMatrix(15)
+        ReDim newDecal.ZRotateMatrix(15)
+        ReDim newDecal.TranslateMatrix(15)
+        ReDim newDecal.ScaleMatrix(15)
+        ' Insert a new default decal_matrix_list_ structure at the selected index
+        newDecal.LoadIdentity()
+        newDecal.GetDecalsTransformInfo()
+        newDecal.DecalIndex = 0
 
-                Gl.glBegin(Gl.GL_QUADS)
-                make_decal_box(id) ' draws the box
-                Gl.glEnd()
-                Gl.glEndList()
-            End With
+        ' Insert the new structure into the list at the desired index
+        decal_matrix_list.Insert(selectedIndex, newDecal)
+        current_decal_data_pnt = selectedIndex
+        If Not LOADING_FBX Then
+
         End If
+        newDecal.SetXRotationMatrix(-1.5707)
+
+        ' Update the d_current_line variable to the current decal index
+        cur_selected_decal = current_decal_data_pnt
+        setthisdecal(0)
+        frmMain.current_decal_lable.Text = current_decal_data_pnt
+        ' Re-enable the update event after operations are complete
+        frmMain.set_g_decal_current()
+        updateEvent.Set()
+    End Sub
+    ' Creates and initializes a new decal_matrix_list_ structure at the specified index in the decal_matrix_list.
+    Public Sub setthisdecal(ByVal texturePnt As Integer)
+        decal_matrix_list(current_decal_data_pnt).TextureId = decal_textures(texturePnt).colorMap_Id
+        decal_matrix_list(current_decal_data_pnt).NormalId = decal_textures(texturePnt).normalMap_Id
+        decal_matrix_list(current_decal_data_pnt).GmmId = decal_textures(texturePnt).gmmMap_id
     End Sub
 
-    Private Sub make_decal_box(ByVal decal As Integer)
-        With decal_matrix_list(decal)
-            '1 right
-            Gl.glNormal3f(1.0, 0.0, 0.0)
-            Gl.glVertex3f(.lbr.x, .lbr.y, .lbr.z)
-            Gl.glVertex3f(.ltr.x, .ltr.y, .ltr.z)
-            Gl.glVertex3f(.rtr.x, .rtr.y, .rtr.z)
-            Gl.glVertex3f(.rbr.x, .rbr.y, .rbr.z)
-            '2 back
-            Gl.glNormal3f(0.0, 0.0, -1.0)
-            Gl.glVertex3f(.lbl.x, .lbl.y, .lbl.z)
-            Gl.glVertex3f(.ltl.x, .ltl.y, .ltl.z)
-            Gl.glVertex3f(.ltr.x, .ltr.y, .ltr.z)
-            Gl.glVertex3f(.lbr.x, .lbr.y, .lbr.z)
-            '3 left
-            Gl.glNormal3f(-1.0, 0.0, 0.0)
-            Gl.glVertex3f(.rbl.x, .rbl.y, .rbl.z)
-            Gl.glVertex3f(.rtl.x, .rtl.y, .rtl.z)
-            Gl.glVertex3f(.ltl.x, .ltl.y, .ltl.z)
-            Gl.glVertex3f(.lbl.x, .lbl.y, .lbl.z)
-            '4 front
-            Gl.glNormal3f(0.0, 0.0, 1.0)
-            Gl.glVertex3f(.rbr.x, .rbr.y, .rbr.z)
-            Gl.glVertex3f(.rtr.x, .rtr.y, .rtr.z)
-            Gl.glVertex3f(.rtl.x, .rtl.y, .rtl.z)
-            Gl.glVertex3f(.rbl.x, .rbl.y, .rbl.z)
-            '5 top
-            Gl.glNormal3f(0.0, 1.0, 0.0)
-            Gl.glVertex3f(.rtr.x, .rtr.y, .rtr.z)
-            Gl.glVertex3f(.ltr.x, .ltr.y, .ltr.z)
-            Gl.glVertex3f(.ltl.x, .ltl.y, .ltl.z)
-            Gl.glVertex3f(.rtl.x, .rtl.y, .rtl.z)
-            '6 bottom
-            Gl.glNormal3f(0.0, -1.0, 0.0)
-            Gl.glVertex3f(.rbl.x, .rbl.y, .rbl.z)
-            Gl.glVertex3f(.lbl.x, .lbl.y, .lbl.z)
-            Gl.glVertex3f(.lbr.x, .lbr.y, .lbr.z)
-            Gl.glVertex3f(.rbr.x, .rbr.y, .rbr.z)
-
-
-        End With
-
-    End Sub
-
-    Private Sub get_box_corners(ByVal decal As Integer, ByVal z_scale As Single)
-        With decal_matrix_list(decal)
-            ' left side -----------
-            .lbl.x = -0.5 'left bottom left
-            .lbl.y = -0.5
-            .lbl.z = -z_scale
-            '
-            .lbr.x = 0.5 ' left bottom right
-            .lbr.y = -0.5
-            .lbr.z = -z_scale
-            '
-            .ltl.x = -0.5 'left top left
-            .ltl.y = 0.5
-            .ltl.z = -z_scale
-            '
-            .ltr.x = 0.5 ' left top right
-            .ltr.y = 0.5
-            .ltr.z = -z_scale
-            ' right side ----------
-            .rbl.x = -0.5 ' right bottom left
-            .rbl.y = -0.5
-            .rbl.z = z_scale
-            '
-            .rbr.x = 0.5 ' right bottom right
-            .rbr.y = -0.5
-            .rbr.z = z_scale
-            '
-            .rtl.x = -0.5 ' right top left
-            .rtl.y = 0.5
-            .rtl.z = z_scale
-            '
-            .rtr.x = 0.5 ' right top right
-            .rtr.y = 0.5
-            .rtr.z = z_scale
-
-        End With
-    End Sub
     Public Sub load_this_Decal(ByVal j As Integer)
         If decal_textures(j).colorMap_Id = 0 Then
             Try
                 Dim name As String = decal_textures(j).full_path
-                decal_textures(j).colorMap_Id = load_dds_file(name)
+                decal_textures(j).colorMap_Id = LoadTextureDDS(name)
                 Dim ts = name.Replace("_AM.dds", "_NM.dds")
-                decal_textures(j).normalMap_Id = load_dds_file(ts)
+                decal_textures(j).normalMap_Id = LoadTextureDDS(ts)
                 ts = name.Replace("_AM.dds", "_GMM.dds")
-                decal_textures(j).gmmMap_id = load_dds_file(ts)
+                decal_textures(j).gmmMap_id = LoadTextureDDS(ts)
             Catch ex As Exception
 
             End Try
@@ -554,36 +614,13 @@ Module modDecals
         Return vo
     End Function
 
-    Public Sub copy_decal()
-        Dim d As New decal_matrix_list_
-        d = decal_matrix_list(current_decal)
-        'Return
-        add_decal()
-        With decal_matrix_list(current_decal)
-            .decal_texture = d.decal_texture
-            .texture_id = d.texture_id
-            .gmm_id = d.gmm_id
-            .normal_id = d.normal_id
-            .alpha = d.alpha
-            .level = d.level
-            .u_wrap_index = d.u_wrap_index
-            .v_wrap_index = d.v_wrap_index
-            .u_wrap = d.u_wrap
-            .v_wrap = d.v_wrap
-            .uv_rot_index = d.uv_rot_index
-            .uv_rot = d.uv_rot
-            .rotation = d.rotation
-            .scale = d.scale
-            .translate = d.translate
 
-            copy_mat4(.x_rotate_matrix, d.x_rotate_matrix)
-            copy_mat4(.y_rotate_matrix, d.y_rotate_matrix)
-            copy_mat4(.z_rotate_matrix, d.z_rotate_matrix)
-            copy_mat4(.scale_matrix, d.scale_matrix)
-            copy_mat4(.translate_matrix, d.translate_matrix)
-            .get_decals_transform_info()
-        End With
-    End Sub
+    Private Function DummyDeepCopy(original As DecalMatrix) As DecalMatrix
+        ' For now, just create a new instance of DecalMatrix
+        ' Later, this subroutine can be filled with actual deep copy logic
+        Return New DecalMatrix()
+    End Function
+
     Private Sub copy_mat4(ByRef m() As Single, ByRef s() As Single)
         For i = 0 To 15
             m(i) = s(i)
@@ -618,18 +655,17 @@ Module modDecals
         Gl.glClearColor(0.0, 0.0, 0.3, 1.0)
         Gl.glClear(Gl.GL_COLOR_BUFFER_BIT)
 
-        If current_decal > -1 Then
+        If decal_matrix_list.Count > 0 Then
 
             Gl.glDisable(Gl.GL_LIGHTING)
             Gl.glDisable(Gl.GL_CULL_FACE)
             Gl.glPolygonMode(Gl.GL_FRONT_AND_BACK, Gl.GL_FILL)
             'Gl.glDisable(Gl.GL_DEPTH_TEST)
-            For j = 0 To decal_matrix_list.Length - 2
-                Dim i = decal_order(j)
+            For i = 0 To decal_matrix_list.Count - 1
                 Gl.glColor3ub(CByte(i + 1), 0.0, 0.0)
                 Gl.glPushMatrix()
                 decal_matrix_list(i).transform()
-                Gl.glMultMatrixf(decal_matrix_list(i).display_matrix)
+                Gl.glMultMatrixf(decal_matrix_list(i).DisplayMatrix)
                 Gl.glCallList(decal_draw_box)
                 Gl.glPopMatrix()
             Next
@@ -643,6 +679,9 @@ Module modDecals
         er = Gl.glGetError
         If pixel(0) > 0 Then 'mouse is on upton window
             picked_decal = pixel(0) - 1
+            If frmPickDecal.Visible Then
+                'frmPickDecal.set_selecion(picked_decal)
+            End If
             Return
         End If
         picked_decal = -1
@@ -650,149 +689,164 @@ Module modDecals
 
     End Sub
 
-    Public Sub save_decal_data()
+    ' Function to load data from a CSV file into a DataGridView
 
-        Dim p = Temp_Storage + "\decal_layout"
-        Dim f = File.Open(p, FileMode.OpenOrCreate, FileAccess.Write)
-        Dim b As New BinaryWriter(f)
-
-        Dim cnt As Integer = decal_matrix_list.Length - 2
-        'write count of decals
-        b.Write(cnt)
-        For i = 0 To cnt - 1
-            b.Write(decal_order(i))
-        Next
-        b.Write(decal_order(decal_order.Length - 1))
-        For j = 0 To cnt
-            With decal_matrix_list(j)
-
-                b.Write(.alpha)
-                b.Write(.level)
-                b.Write(.scale.x)
-                b.Write(.scale.y)
-                b.Write(.scale.z)
-
-                b.Write(.translate.x)
-                b.Write(.translate.y)
-                b.Write(.translate.z)
-
-                b.Write(.rotation.x)
-                b.Write(.rotation.y)
-                b.Write(.rotation.z)
-
-                b.Write(.u_wrap)
-                b.Write(.v_wrap)
-                b.Write(.uv_rot)
-
-                b.Write(.u_wrap_index)
-                b.Write(.v_wrap_index)
-                b.Write(.uv_rot_index)
-
-                b.Write(.decal_texture)
-
-            End With
-
-        Next
-        b.Write(frmMain.d_list_tb.Text)
-        b.Dispose()
-        f.Close()
-
-    End Sub
-
-    Public Sub load_decal_data()
-        Dim p = Temp_Storage + "\decal_layout"
-        'Return
-        If Not File.Exists(p) Then
-            File.Copy(Application.StartupPath + "\resources\decal_layout\decal_layout", p)
-        End If
-        Dim f = File.Open(p, FileMode.Open, FileAccess.Read)
-        Dim b As New BinaryReader(f)
-
-        Dim cnt As Integer = b.ReadInt32
-        ReDim decal_order(cnt + 1)
-        For i = 0 To cnt
-            decal_order(i) = b.ReadInt32
-        Next
-        'write count of decals
-        decal_matrix_list = Nothing
-        frmMain.d_list_tb.Text = ""
+    Public Sub ExportDataGridViewToCSV(dgv As DataGridView, filePath As String)
         Try
-            current_decal = -1
-            For j = 0 To cnt
-                add_decal()
-                decal_matrix_list(j) = New decal_matrix_list_
-                decal_matrix_list(j).load_identity()
-                With decal_matrix_list(j)
+            Using writer As New System.IO.StreamWriter(filePath)
+                ' Write the header row
+                Dim headers = dgv.Columns.Cast(Of DataGridViewColumn)().[Select](Function(column) column.HeaderText).ToArray()
+                writer.WriteLine(String.Join(",", headers))
 
-                    .alpha = b.ReadSingle
-                    .level = b.ReadSingle
-                    .scale.x = b.ReadSingle
-                    .scale.y = b.ReadSingle
-                    .scale.z = b.ReadSingle
-
-                    .translate.x = b.ReadSingle
-                    .translate.y = b.ReadSingle
-                    .translate.z = b.ReadSingle
-
-                    .rotation.x = b.ReadSingle
-                    .rotation.y = b.ReadSingle
-                    .rotation.z = b.ReadSingle
-
-                    .u_wrap = b.ReadSingle
-                    .v_wrap = b.ReadSingle
-                    .uv_rot = b.ReadSingle
-
-                    .u_wrap_index = b.ReadInt32
-                    .v_wrap_index = b.ReadInt32
-                    .uv_rot_index = b.ReadInt32
-
-                    .decal_texture = b.ReadString
-
-                    .get_decals_transform_info() 'setup matices and other data
-                End With
-
-                For i = 0 To decal_textures.Length - 1
-                    If decal_matrix_list(j).decal_texture = decal_textures(i).colorMap_name Then
-                        load_this_Decal(i)
-                        decal_matrix_list(j).texture_id = decal_textures(i).colorMap_Id
-                        decal_matrix_list(j).normal_id = decal_textures(i).normalMap_Id
-                        decal_matrix_list(j).gmm_id = decal_textures(i).gmmMap_id
-                        Exit For
+                ' Write the data rows
+                For Each row As DataGridViewRow In dgv.Rows
+                    If Not row.IsNewRow Then
+                        Dim cells = row.Cells.Cast(Of DataGridViewCell)().[Select](Function(cell) If(cell.Value IsNot Nothing, cell.Value.ToString(), String.Empty)).ToArray()
+                        writer.WriteLine(String.Join(",", cells))
                     End If
                 Next
+            End Using
 
-            Next
-            frmMain.d_list_tb.Text = b.ReadString
-            current_decal = 0
-            update_decal_order()
-            decal_matrix_list(current_decal).get_decals_transform_info()
+            MessageBox.Show("Data exported successfully.", "Export", MessageBoxButtons.OK, MessageBoxIcon.Information)
         Catch ex As Exception
-
+            MessageBox.Show("Error exporting data: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
-        'hightlight first line
-        Dim tc As Integer
-        For k = 0 To decal_order.Length - 2
-            If decal_order(k) = 0 Then
-                tc = k
-            End If
+    End Sub
+
+    Dim LOADING As Boolean = False
+    Public Sub load_decal_data()
+        Dim filepath = Temp_Storage + "\decal_layout.csv"
+        Try
+            LOADING = True
+            ' Clear existing rows and columns
+            frmMain.dgv.Rows.Clear()
+            frmMain.dgv.Columns.Clear()
+
+            ' Open the CSV file for reading
+            Using reader As New System.IO.StreamReader(filepath)
+                ' Read the header line
+                Dim headerLine As String = reader.ReadLine()
+                If headerLine Is Nothing Then
+                    MessageBox.Show("The file is empty.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                    Return
+                End If
+
+                ' Split the header line to create columns
+                Dim headers As String() = headerLine.Split(","c)
+                For Each header As String In headers
+                    frmMain.dgv.Columns.Add(header, header)
+                Next
+
+                ' Read the data rows
+                While Not reader.EndOfStream
+                    Dim line As String = reader.ReadLine()
+                    If Not String.IsNullOrWhiteSpace(line) Then
+                        ' Split the line into values and add to DataGridView
+                        Dim values As String() = line.Split(","c)
+                        frmMain.dgv.Rows.Add(values)
+                    End If
+                End While
+            End Using
+            Dim tg = frmMain.dgv
+            PopulateDecalMatrixListFromDataGridView()
+            With frmMain.dgv
+                ' Disable auto resizing of columns
+                .AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None
+
+                ' Set specific widths and disable resizing for column 0
+                .Columns(0).Width = 170
+                .Columns(0).Resizable = DataGridViewTriState.False
+                .Columns(0).SortMode = DataGridViewColumnSortMode.NotSortable
+
+                ' Set specific widths and disable resizing for column 2
+                .Columns(1).Width = 60
+                .Columns(1).Resizable = DataGridViewTriState.False
+                .Columns(1).SortMode = DataGridViewColumnSortMode.NotSortable
+
+                ' Optional: Disable user resizing of the entire DataGridView columns
+                .AllowUserToResizeColumns = False
+            End With
+            current_decal_data_pnt = 0
+            frmMain.set_g_decal_current()
+            'Dim dgv2 = frmMain.dgv
+            'MessageBox.Show("Data loaded successfully from CSV.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information)
+        Catch ex As Exception
+            LOADING = False
+            MessageBox.Show("Error loading data: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+        End Try
+        LOADING = False
+
+    End Sub
+    ' Populates the global decal_matrix_list from the global frmMain.dgv DataGridView.
+    Private Sub PopulateDecalMatrixListFromDataGridView()
+        ' Clear the existing decal_matrix_list to ensure it's empty before populating
+        decal_matrix_list.Clear()
+
+        ' Loop through each row in the DataGridView
+        For Each row As DataGridViewRow In frmMain.dgv.Rows
+            ' Skip the new row placeholder if present
+            If row.IsNewRow Then Continue For
+
+            ' Create a new instance of DecalMatrix
+            Dim decal As New DecalMatrix
+            decal.LoadIdentity()
+
+            decal.DecalTexture = Convert.ToString(row.Cells("DecalName").Value)
+
+            ' Populate fields from DataGridView cells
+            decal.Alpha = Convert.ToSingle(row.Cells("Alpha").Value)
+            decal.Level = Convert.ToSingle(row.Cells("Level").Value)
+
+            ' Scale values
+            Dim tempScale As Vect3s = decal.Scale
+            tempScale.X = Convert.ToSingle(row.Cells("ScaleX").Value)
+            tempScale.Y = Convert.ToSingle(row.Cells("ScaleY").Value)
+            tempScale.Z = Convert.ToSingle(row.Cells("ScaleZ").Value)
+            decal.Scale = tempScale
+
+            ' Translate values
+            Dim tempTranslate As Vect3s = decal.Translate
+            tempTranslate.X = Convert.ToSingle(row.Cells("TranslateX").Value)
+            tempTranslate.Y = Convert.ToSingle(row.Cells("TranslateY").Value)
+            tempTranslate.Z = Convert.ToSingle(row.Cells("TranslateZ").Value)
+            decal.Translate = tempTranslate
+
+            ' Rotation values
+            Dim tempRotation As Vect3s = decal.Rotation
+            tempRotation.X = Convert.ToSingle(row.Cells("RotationX").Value)
+            tempRotation.Y = Convert.ToSingle(row.Cells("RotationY").Value)
+            tempRotation.Z = Convert.ToSingle(row.Cells("RotationZ").Value)
+            decal.Rotation = tempRotation
+
+            ' UV properties
+            decal.UWrap = Convert.ToSingle(row.Cells("U_Wrap").Value)
+            decal.VWrap = Convert.ToSingle(row.Cells("V_Wrap").Value)
+            decal.UVRot = Convert.ToSingle(row.Cells("UV_Rot").Value)
+
+            ' UV indices
+            decal.UWrapIndex = Convert.ToInt32(row.Cells("U_Wrap_Index").Value)
+            decal.VWrapIndex = Convert.ToInt32(row.Cells("V_Wrap_Index").Value)
+            decal.UVRotIndex = Convert.ToInt32(row.Cells("UV_Rot_Index").Value)
+
+
+            ' Initialize the matrices as identity matrices (4x4 matrices with 16 elements)
+
+            ' Assign texture IDs if the texture matches
+            For i = 0 To decal_textures.Length - 1
+                If decal.DecalTexture = decal_textures(i).colorMap_name Then
+                    decal.TextureId = decal_textures(i).colorMap_Id
+                    decal.NormalId = decal_textures(i).normalMap_Id
+                    decal.GmmId = decal_textures(i).gmmMap_id
+                End If
+            Next
+
+            ' Add to the decal_matrix_list
+            'decal.GetDecalsTransformInfo()
+            decal.SetRotationMatrices()
+            ' Set up matrices
+            decal_matrix_list.Add(decal)
+
         Next
-        frmMain.d_current_line = tc
-
-        'frmMain.d_list_tb.Location = New Point(0, 141)
-
-        'frmMain.d_list_tb.Width = 227
-
-        Dim sp = frmMain.d_list_tb.GetFirstCharIndexFromLine(tc) ' get prev line
-        frmMain.d_list_tb.SelectionStart = sp
-        frmMain.d_list_tb.Select(frmMain.d_list_tb.GetFirstCharIndexOfCurrentLine(),
-                         frmMain.d_list_tb.Lines(tc).Length) ' select prev line
-        frmMain.d_sel_Len = frmMain.d_list_tb.Lines(tc).Length
-
-        b.Dispose()
-        f.Close()
-
     End Sub
-    Private Sub read_d_data(id As Integer)
 
-    End Sub
 End Module

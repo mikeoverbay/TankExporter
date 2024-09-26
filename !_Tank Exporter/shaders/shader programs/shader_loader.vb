@@ -476,20 +476,20 @@ Module shader_loader
         terrain_camPosition = Gl.glGetUniformLocation(shader_list.terrainShader_shader, "camPosition")
     End Sub
 
-    Public depth_alphaTest, depth_alphaRef, depth_normalMap As Integer
+    Public depth_alphaTest, depth_alphaRef, depthMap_32bit As Integer
     '==============================================================================================================
     Public Sub set_depth_variables()
         depth_alphaRef = Gl.glGetUniformLocation(shader_list.depth_shader, "alphaRef")
         depth_alphaTest = Gl.glGetUniformLocation(shader_list.depth_shader, "alphaTest")
-        depth_normalMap = Gl.glGetUniformLocation(shader_list.depth_shader, "normalMap")
+        depthMap_32bit = Gl.glGetUniformLocation(shader_list.depth_shader, "normalMap")
     End Sub
 
-    Public Backdepth_alphaTest, Backdepth_alphaRef, Backdepth_normalMap As Integer
+    Public Backdepth_alphaTest, Backdepth_alphaRef, BackdepthMap_32bit As Integer
     '==============================================================================================================
     Public Sub set_Backdepth_variables()
         Backdepth_alphaRef = Gl.glGetUniformLocation(shader_list.backDepth_shader, "alphaRef")
         Backdepth_alphaTest = Gl.glGetUniformLocation(shader_list.backDepth_shader, "alphaTest")
-        Backdepth_normalMap = Gl.glGetUniformLocation(shader_list.backDepth_shader, "normalMap")
+        BackdepthMap_32bit = Gl.glGetUniformLocation(shader_list.backDepth_shader, "normalMap")
     End Sub
 
     Public basic_alphaTest, basic_alphaRef, basic_normalMap As Integer

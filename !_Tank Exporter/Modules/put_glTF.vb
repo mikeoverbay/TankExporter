@@ -49,19 +49,35 @@ Module put_glTF
         Else
             ar = TANK_NAME.Split(":")
         End If
-        file_name = current_tank_name
 
-        frmMain.SaveFileDialog1.InitialDirectory = My.Settings.GLTF_path
-
-        frmMain.SaveFileDialog1.Filter = "glb|*.glb"
-        frmMain.SaveFileDialog1.Title = "Save glb.."
-        frmMain.SaveFileDialog1.FileName = Path.GetFileName(ar(0)) + ".glb"
-
+        frmMain.SaveFileDialog1.InitialDirectory = My.Settings.fbx_path
         frmMain.SaveFileDialog1.AddExtension = True
-        frmMain.SaveFileDialog1.RestoreDirectory = True
+        frmMain.SaveFileDialog1.RestoreDirectory = False
 
-        Dim result = frmMain.SaveFileDialog1.ShowDialog
-        Dim out_path = frmMain.SaveFileDialog1.FileName
+        Select Case EXPORT_TYPE
+            Case 1
+                frmMain.SaveFileDialog1.Filter = "GLB|*.glb"
+                frmMain.SaveFileDialog1.Title = "Save GLB.."
+                frmMain.SaveFileDialog1.FileName = Path.GetFileName(ar(0)) + ".glb"
+            Case 2
+                frmMain.SaveFileDialog1.Filter = "FBX|*.fbx"
+                frmMain.SaveFileDialog1.Title = "Save FBX.."
+                frmMain.SaveFileDialog1.FileName = Path.GetFileName(ar(0)) + ".fbx"
+            Case 3
+                frmMain.SaveFileDialog1.Filter = "OBJ|*.obj"
+                frmMain.SaveFileDialog1.Title = "Save OBJ.."
+                frmMain.SaveFileDialog1.FileName = Path.GetFileName(ar(0)) + ".obj"
+            Case 4
+                frmMain.SaveFileDialog1.Filter = "Collada|*.dae"
+                frmMain.SaveFileDialog1.Title = "Save Collada.."
+                frmMain.SaveFileDialog1.FileName = Path.GetFileName(ar(0)) + ".dae"
+        End Select
+
+        Dim result As DialogResult = frmMain.SaveFileDialog1.ShowDialog()
+        Dim out_path As String = frmMain.SaveFileDialog1.FileName
+        ' Proceed with the saving process using out_path
+        My.Settings.fbx_path = out_path
+        My.Settings.Save()
 
         If Not result = DialogResult.OK Then
             Return
@@ -71,7 +87,7 @@ Module put_glTF
         My.Settings.GLTF_path = out_path
 
         Dim name As String = Path.GetFileName(ar(0))
-        Dim save_path = Path.GetDirectoryName(My.Settings.fbx_path) + "\" + name
+        Dim save_path = Path.GetDirectoryName(out_path) + "\" + name
         export_fbx_textures(False, 1) 'export all textures. converts from dds to png.
 
         Dim MySceneBuilder As New SceneBuilder()
@@ -85,31 +101,40 @@ Module put_glTF
             Dim MyMaterialBuilder As New MaterialBuilder("Material00" + item.ToString) With {.ShaderStyle = "PBRMetallicRoughness"}
 
 
-            Dim folder = Path.GetDirectoryName(frmMain.SaveFileDialog1.FileName) + "\" + name + "\"
-            ' Extract textures from _group(item)
 
-            Dim baseColorTexture = Path.GetFileName(_group(item).color_name).Replace("\tracks", "").Replace(".dds", ".png")
-            Dim aoTexture As String = ""
-            Dim metalRoughTexture = Path.GetFileName(_group(item).metalGMM_name).Replace("\tracks", "").Replace(".dds", ".png")
-            Dim normalTexture = Path.GetFileName(_group(item).normal_name).Replace("\tracks", "").Replace(".dds", ".png")
+            Dim baseColorTexture = save_path + "\" + Path.GetFileNameWithoutExtension(_group(item).color_name.Replace("\tracks", "")) + ".png"
+            Dim aoTexture As String = save_path + "\" + Path.GetFileNameWithoutExtension(_group(item).ao_name.Replace("\tracks", "")) + ".png"
+            Dim metalRoughTexture = save_path + "\" + Path.GetFileNameWithoutExtension(_group(item).metalGMM_name.Replace("\tracks", "")) + ".png"
+            Dim normalTexture = save_path + "\" + Path.GetFileNameWithoutExtension(_group(item).normal_name.Replace("\tracks", "")) + ".png"
 
             ' Assign Base Color Texture if exists
-            If Not String.IsNullOrEmpty(folder + baseColorTexture) Then
-                MyMaterialBuilder.WithBaseColor(folder + baseColorTexture)
+            If Not String.IsNullOrEmpty(baseColorTexture) Then
+                Try
+                    MyMaterialBuilder.WithBaseColor(baseColorTexture)
+                Catch ex As Exception
+                End Try
             End If
             ' Check its there!
-            If Not String.IsNullOrEmpty(_group(item).ao_name) Then
-                aoTexture = Path.GetFileName(_group(item).ao_name).Replace("\tracks", "").Replace(".dds", ".png")
-                MyMaterialBuilder.WithOcclusion(folder + aoTexture)
+            If Not String.IsNullOrEmpty(aoTexture) Then
+                Try
+                    MyMaterialBuilder.WithOcclusion(aoTexture)
+                Catch ex As Exception
+                End Try
             End If
             ' Assign Metallic and Roughness Texture if exists
             If Not String.IsNullOrEmpty(metalRoughTexture) Then
                 ' GLTF PBR Metallic-Roughness uses a combined texture with metallic in the B channel and roughness in the G channel
-                MyMaterialBuilder.WithMetallicRoughness(folder + metalRoughTexture)
+                Try
+                    MyMaterialBuilder.WithMetallicRoughness(metalRoughTexture)
+                Catch ex As Exception
+                End Try
             End If
             ' Assign Normal Map if exists
             If Not String.IsNullOrEmpty(normalTexture) Then
-                MyMaterialBuilder.WithNormal(folder + normalTexture)
+                Try
+                    MyMaterialBuilder.WithNormal(normalTexture)
+                Catch ex As Exception
+                End Try
             End If
 
 
@@ -122,30 +147,30 @@ Module put_glTF
             model_name = model_name.Replace("\lod0\", "\l\")
 
 
-            Dim MyMeshBuilder = New MeshBuilder(Of VertexPositionNormal, VertexTexture2, VertexEmpty)(model_name)
+            Dim MyMeshBuilder As Object = Nothing
+            Dim prim As Object = Nothing
 
-            ' Create a mesh primitive and assign the material
-            Dim prim = MyMeshBuilder.UsePrimitive(MyMaterialBuilder)
+            If Not _group(item).has_uv2 = 1 And _group(item).has_color = 1 Then 'gun
+                MyMeshBuilder = New MeshBuilder(Of VertexPositionNormal, VertexColor1Texture1, VertexEmpty)(model_name)
+                prim = MyMeshBuilder.UsePrimitive(MyMaterialBuilder)
 
-            If Not _group(item).has_uv2 = 1 And _group(item).has_color = 1 Then
+                ' Handle vertices with color and single texture coordinates
                 Dim vertices As New List(Of VertexBuilder(Of VertexPositionNormal, VertexColor1Texture1, VertexEmpty))()
+
                 For i As UInt32 = 0 To _group(item).nVertices_ - 1
                     Dim color1 = New Vector4(_group(item).vertices(i).r, _group(item).vertices(i).g, _group(item).vertices(i).b, _group(item).vertices(i).a)
-                    Dim color2 = New Vector4(_group(item).vertices(i).ir, _group(item).vertices(i).ig, _group(item).vertices(i).ib, _group(item).vertices(i).ia)
+
                     Dim v As New VertexBuilder(Of VertexPositionNormal, VertexColor1Texture1, VertexEmpty)(
             New VertexPositionNormal(
                 New Vector3(_group(item).vertices(i).x, _group(item).vertices(i).y, _group(item).vertices(i).z),
                 New Vector3(_group(item).vertices(i).nx, _group(item).vertices(i).ny, _group(item).vertices(i).nz)
             ),
-            New VertexColor1Texture1(
-                color1,
-                New Vector2(_group(item).vertices(i).u, _group(item).vertices(i).v)
-            )
+            New VertexColor1Texture1(color1, New Vector2(_group(item).vertices(i).u, _group(item).vertices(i).v))
         )
-                    ' Add the vertex to the list
                     vertices.Add(v)
                 Next
-                ' Create mesh primitive face indices
+
+                ' Create mesh primitives using triangle indices
                 For i As UInt32 = 1 To _group(item).nPrimitives_
                     prim.AddTriangle(
             vertices(_group(item).indices(i).v1 - off),
@@ -153,28 +178,29 @@ Module put_glTF
             vertices(_group(item).indices(i).v3 - off)
         )
                 Next
-            ElseIf _group(item).has_uv2 = 1 Then
+
+            ElseIf _group(item).has_uv2 = 1 Then ' chassis
+                MyMeshBuilder = New MeshBuilder(Of VertexPositionNormal, VertexColor2Texture2, VertexEmpty)(model_name)
+                prim = MyMeshBuilder.UsePrimitive(MyMaterialBuilder)
+
+                ' Handle vertices with two colors and two sets of texture coordinates
                 Dim vertices As New List(Of VertexBuilder(Of VertexPositionNormal, VertexColor2Texture2, VertexEmpty))()
+
                 For i As UInt32 = 0 To _group(item).nVertices_ - 1
                     Dim color1 = New Vector4(_group(item).vertices(i).r, _group(item).vertices(i).g, _group(item).vertices(i).b, _group(item).vertices(i).a)
                     Dim color2 = New Vector4(_group(item).vertices(i).ir, _group(item).vertices(i).ig, _group(item).vertices(i).ib, _group(item).vertices(i).ia)
+
                     Dim v As New VertexBuilder(Of VertexPositionNormal, VertexColor2Texture2, VertexEmpty)(
-           New VertexPositionNormal(
+            New VertexPositionNormal(
                 New Vector3(_group(item).vertices(i).x, _group(item).vertices(i).y, _group(item).vertices(i).z),
                 New Vector3(_group(item).vertices(i).nx, _group(item).vertices(i).ny, _group(item).vertices(i).nz)
             ),
-            New VertexColor2Texture2(
-                color1,
-                color2,
-                New Vector2(_group(item).vertices(i).u, _group(item).vertices(i).v),
-                New Vector2(_group(item).vertices(i).u2, _group(item).vertices(i).v2)
-            )
+            New VertexColor2Texture2(color1, color2, New Vector2(_group(item).vertices(i).u, _group(item).vertices(i).v), New Vector2(_group(item).vertices(i).u2, _group(item).vertices(i).v2))
         )
-                    ' Add the vertex to the list
                     vertices.Add(v)
                 Next
 
-                ' Create mesh primitive face indices
+                ' Create mesh primitives using triangle indices
                 For i As UInt32 = 1 To _group(item).nPrimitives_
                     prim.AddTriangle(
             vertices(_group(item).indices(i).v1 - off),
@@ -182,24 +208,26 @@ Module put_glTF
             vertices(_group(item).indices(i).v3 - off)
         )
                 Next
-            ElseIf Not _group(item).has_color = 1 Then
+
+            ElseIf Not _group(item).has_color = 1 Then 'hull and turret
+                MyMeshBuilder = New MeshBuilder(Of VertexPositionNormal, VertexTexture1, VertexEmpty)(model_name)
+                prim = MyMeshBuilder.UsePrimitive(MyMaterialBuilder)
+
+                ' Handle vertices with only position, normal, and texture coordinates
                 Dim vertices As New List(Of VertexBuilder(Of VertexPositionNormal, VertexTexture1, VertexEmpty))()
+
                 For i As UInt32 = 0 To _group(item).nVertices_ - 1
-                    Dim color1 = New Vector4(_group(item).vertices(i).r, _group(item).vertices(i).g, _group(item).vertices(i).b, _group(item).vertices(i).a)
                     Dim v As New VertexBuilder(Of VertexPositionNormal, VertexTexture1, VertexEmpty)(
-           New VertexPositionNormal(
+            New VertexPositionNormal(
                 New Vector3(_group(item).vertices(i).x, _group(item).vertices(i).y, _group(item).vertices(i).z),
                 New Vector3(_group(item).vertices(i).nx, _group(item).vertices(i).ny, _group(item).vertices(i).nz)
             ),
-            New VertexTexture1(
-                New Vector2(_group(item).vertices(i).u, _group(item).vertices(i).v)
-)
+            New VertexTexture1(New Vector2(_group(item).vertices(i).u, _group(item).vertices(i).v))
         )
-                    ' Add the vertex to the list
                     vertices.Add(v)
                 Next
 
-                ' Create mesh primitive face indices
+                ' Create mesh primitives using triangle indices
                 For i As UInt32 = 1 To _group(item).nPrimitives_
                     prim.AddTriangle(
             vertices(_group(item).indices(i).v1 - off),
@@ -208,7 +236,6 @@ Module put_glTF
         )
                 Next
             End If
-
 
             ' Create a node and add the mesh to it
             ' Convert the matrix directly from _group(item).matrix to System.Numerics.Matrix4x4
@@ -269,4 +296,5 @@ Module put_glTF
 
         MySceneBuilder.ToGltf2().SaveGLB(out_path, settings)
     End Sub
+
 End Module

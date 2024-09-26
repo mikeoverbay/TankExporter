@@ -32,16 +32,16 @@
         Dim val = CInt(sender.Tag)
         Select Case val
             Case 4096
-                shadowMapSize = 4096
-            Case 2048
                 shadowMapSize = 2048
-            Case 1024
+            Case 2048
                 shadowMapSize = 1024
-            Case 512
+            Case 1024
                 shadowMapSize = 512
+            Case 512
+                shadowMapSize = 256
         End Select
         My.Settings.shadow_quality = shadowMapSize.ToString
-        'shadow_fbo.reset_shadowFbo()
+        shadow_fbo.reset_shadowFbo()
     End Sub
 
 End Class

@@ -147,7 +147,7 @@ Public Class showDecals
         For Each item In decal_textures
             If item.full_path.ToLower.Contains("am.dds") Then
                 If item.colorMap_Id = 0 Then
-                    item.colorMap_Id = load_dds_file(item.full_path)
+                    item.colorMap_Id = LoadTextureDDS(item.full_path)
                 End If
                 If item.colorMap_Id > 0 Then
 
@@ -409,7 +409,7 @@ Public Class showDecals
 End Class
 
 ' Usage example:
-' Dim decalsForm As showDecals = showDecals.GetInstance(current_decal)
+' Dim decalsForm As showDecals = showDecals.GetInstance(current_decal_data_pnt)
 ' Dim selectedImageId As Integer = decalsForm.ShowDialogAndGetImageId()
 ' If selectedImageId <> -1 Then
 '     ' Use the selected image ID

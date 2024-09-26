@@ -1,8 +1,29 @@
 ﻿Imports System.Text
 Imports System.IO
 Imports System.Data.SqlTypes
+Imports System.Runtime.InteropServices
 
 Module modGlobals
+
+    <DllImport("TextureLoader.dll", CallingConvention:=CallingConvention.Cdecl, CharSet:=CharSet.Ansi)>
+    Public Function LoadTextureDDS(ByVal filePath As String) As UInteger
+
+    End Function
+
+    ' Declare the function for loading texture from memory
+    <DllImport("TextureLoader.dll", CallingConvention:=CallingConvention.Cdecl)>
+    Public Function LoadTextureFromMemory(ByVal data As IntPtr, ByVal dataSize As UInteger) As UInteger
+    End Function
+
+    <DllImport("TextureLoader.dll", CallingConvention:=CallingConvention.Cdecl, CharSet:=CharSet.Ansi)>
+    Public Function initGlew() As UInteger
+    End Function
+
+    <DllImport("kernel32.dll", SetLastError:=True, CharSet:=CharSet.Auto)>
+    Private Function LoadLibrary(ByVal lpFileName As String) As IntPtr
+    End Function
+
+
     Public updateEvent As New Threading.ManualResetEvent(True) ' Starts in signaled state
     Public fbx_vers As Aspose.ThreeD.FileFormat
     Public formAspectRatio As Double
@@ -17,9 +38,9 @@ Module modGlobals
     '##################################
     Public section_a, section_b As Integer
     '##################################
-    Public g_decal_scale As New vect3
-    Public g_decal_rotate As vect3
-    Public g_decal_translate As vect3
+    Public g_decal_scale As New Vect3s
+    Public g_decal_rotate As Vect3s
+    Public g_decal_translate As Vect3s
     '##################################
     'turret and gun rotation matrices 
     Public tm() = {1.0F, 0.0F, 0.0F, 0.0F,

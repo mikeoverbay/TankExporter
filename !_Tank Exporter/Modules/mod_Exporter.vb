@@ -10,7 +10,7 @@ Imports Aspose.ThreeD.Formats
 'Imports Skill.FbxSDK.FbxAxisSystem
 
 
-Module mod_glTF
+Module mod_Exporter
     Public EXPORT_TYPE As Integer = 1
     Public Sub make_glTF()
         Dim normals() As Aspose.ThreeD.Utilities.Vector4
@@ -56,6 +56,10 @@ Module mod_glTF
             Return
         End If
         My.Settings.fbx_path = out_path
+
+        frmMain.clean_house()
+        remove_loaded_fbx()
+
 
         Dim name As String = Path.GetFileName(ar(0))
         Dim save_path = Path.GetDirectoryName(My.Settings.fbx_path) + "\" + name

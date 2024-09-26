@@ -20,7 +20,7 @@
 
     Private Sub TrackBar1_Scroll(sender As Object, e As EventArgs) Handles TrackBar1.Scroll
         Dim val = TrackBar1.Value / TrackBar1.Maximum
-        mouse_speed_global = val * 3
+        mouse_speed_global = val
         My.Settings.mouse_speed = mouse_speed_global
         mouse_v.Text = mouse_speed_global.ToString("0.00")
     End Sub

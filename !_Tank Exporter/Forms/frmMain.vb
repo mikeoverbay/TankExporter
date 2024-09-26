@@ -17,12 +17,15 @@ Imports Aspose.ThreeD
 Imports Aspose.ThreeD.Render
 Imports Tank_Exporter.shader_loader
 Imports Aspose.ThreeD.Profiles
+Imports System.ComponentModel
+Imports System.Windows.Forms.VisualStyles
 
 
 
 #End Region
 
 Public Class frmMain
+
     Protected Overrides Sub OnClientSizeChanged(e As EventArgs)
         If Not _Started Then Return
         If Not allow_mouse Then Return
@@ -322,7 +325,7 @@ Public Class frmMain
 
             Case Keys.I
                 If Not My.Computer.Keyboard.ShiftKeyDown Then
-                    m_Import_FBX.PerformClick()
+                    m_2013_fbx.PerformClick()
                 ElseIf My.Computer.Keyboard.ShiftKeyDown Then
                     m_import_primitives_fbx.PerformClick()
                     move_mod = False
@@ -360,7 +363,7 @@ Public Class frmMain
 
             Case Keys.X
                 If MODEL_LOADED Then
-                    m_export_to_fbx.PerformClick()
+                    m_2013_fbx.PerformClick()
                 End If
 
         End Select
@@ -474,7 +477,6 @@ done:
                 If Not _Started Then Return
                 If stop_updating Then draw_scene()
                 Return
-                gl_stop = False
             End If
             window_state = Me.WindowState
         End If
@@ -574,6 +576,7 @@ done:
         PB3.Visible = False
         decal_panel.Parent = SplitContainer2.Panel1
         decal_panel.Visible = False
+
         Application.DoEvents()
 
 
@@ -582,7 +585,13 @@ done:
         Il.ilInit()
         Ilu.iluInit()
         Ilut.ilutInit()
+        frmPickDecal.Show()
         EnableOpenGL()
+        frmPickDecal.Hide()
+        Dim err = initGlew()
+        If err <> 42 Then
+            MsgBox("failed to init Glew", MsgBoxStyle.Exclamation, "oops")
+        End If
         pb1.Visible = False
         '---------------------------------------------------------------------------------------------------------------------
         m_load_file.Visible = False
@@ -592,8 +601,10 @@ done:
         m_set_vertex_winding_order.Enabled = False
 
         '---------------------------------------------------------------------------------------------------------------------
+        '---------------------------------------------------------------------------------------------------------------------
         'just to convert to .te binary models;
         'load_and_save()
+
 
         Dim glstr As String
         glstr = Gl.glGetString(Gl.GL_VENDOR)
@@ -632,10 +643,10 @@ done:
         'I'M SAVING ALL CODE RELATED TO THE OLD TANK LIST IN CASE I WORK ON TERRA AGAIN!
         decal_path = Application.StartupPath
 
-        TankListTempFolder = Temp_Storage + "\tanklist\"
-        If Not System.IO.Directory.Exists(TankListTempFolder) Then
-            System.IO.Directory.CreateDirectory(TankListTempFolder)
-        End If
+        'TankListTempFolder = Temp_Storage + "\tanklist\"
+        'If Not System.IO.Directory.Exists(TankListTempFolder) Then
+        '    System.IO.Directory.CreateDirectory(TankListTempFolder)
+        'End If
 
         If My.Settings.firstRun Then ' check for possible update to tank list.
             My.Settings.firstRun = False
@@ -856,20 +867,35 @@ done:
         End If
         '===================================================================================
         info_Label.Text = "loading terrain, textures, creating shadow texture, ect..."
+        SetupDataGridViewInvisible(dgv)
+
         Application.DoEvents()
         load_resources()
         info_Label.Visible = False
         '###################################
         update_log("----- Startup Complete -----")
+
         'show and hide to assign setting and initilize the windows
+        FrmShadowSettings.Opacity = 0 ' So no one knows.,. Who's gonna know?
         FrmShadowSettings.Show() ' set the buttons and shadow quality
         FrmShadowSettings.Hide()
+        FrmShadowSettings.Opacity = 100
+
+        frmLighting.Opacity = 0
         frmLighting.Show()
         frmLighting.Hide()
+        frmLighting.Opacity = 100
+
+        frmLightSelection.Opacity = 0
         frmLightSelection.Show()
         frmLightSelection.Hide()
+        frmLightSelection.Opacity = 100
+
+        frmComponents.Opacity = 0
         frmComponents.Show()
         frmComponents.Hide()
+        frmComponents.Opacity = 100
+
         '###################################
         MM.Enabled = True
         TC1.Enabled = True
@@ -902,11 +928,7 @@ done:
         time_flasher.Start()
         Startup_Timer.Enabled = True
         Application.DoEvents()
-        'test
-        'Wgl.wglMakeCurrent(pb1_hDC, pb1_hRC)
-        'Dim droid = Gl.glGenLists(1)
-        'MsgBox("List id = " + droid.ToString)
-        'Gl.glDeleteLists(droid, 1)
+
     End Sub
     '############################################################################ form load
     Private Sub reset_view()
@@ -927,40 +949,6 @@ done:
             lookup(i) = 254 - i
         Next
         lookup(255) = 0
-
-    End Sub
-    Private Sub find_pbs_decals()
-        Dim iPath = My.Settings.game_path + "\res\packages\"
-        Dim f_info = Directory.GetFiles(iPath)
-        Dim maps(100) As String
-        Dim cnt As Integer = 0
-        'first, lets get a list of all the map files.
-        For Each m In f_info
-            If Not m.Contains("_hd") And Not m.Contains("vehicles_") Then
-                Dim s = Path.GetFileNameWithoutExtension(m)
-                Dim ta = s.Split("_")
-                If IsNumeric(ta(0)) Then 'If the file name as a number at the start, it's a map file!
-                    maps(cnt) = m
-                    cnt += 1
-                End If
-            End If
-        Next
-        ReDim Preserve maps(cnt - 1)
-        'now lets search each map file for decals_pbs
-        Dim oPath = Temp_Storage + "\decals\"
-        For i = 0 To cnt - 1
-            Using z As New Ionic.Zip.ZipFile(maps(i))
-                For Each item In z
-                    If item.FileName.Contains("decals_pbs") _
-                And Not item.FileName.ToLower.Contains("snow") Then
-                        item.Extract(oPath, ExtractExistingFileAction.OverwriteSilently)
-                    End If
-                Next
-            End Using
-            GC.Collect() 'clean up trash to free memory!
-        Next
-        load_decal_textures()
-
 
     End Sub
     Private Sub make_shared_pkg_search_list()
@@ -1052,6 +1040,9 @@ done:
         t.Restart()
         '==========
         If TERRAIN_DECALS Then
+
+            CreateCube() 'decal projection cube.
+
             info_Label.Text = "loading Upton control"
             update_log("loading Upton....")
             Application.DoEvents()
@@ -1062,8 +1053,14 @@ done:
             '==========
             info_Label.Text = "loading Decal textures"
             update_log("loading Decal Textures")
+
             Application.DoEvents()
+            t.Restart()
             load_decal_textures()
+
+            For i = 0 To decal_textures.Length - 1
+                load_this_Decal(i)
+            Next
             tt = t.ElapsedMilliseconds.ToString
             update_log("T = " + tt + "ms")
             t.Restart()
@@ -1071,7 +1068,7 @@ done:
             info_Label.Text = "loading Decal layout"
             update_log("loading Decal Layout")
             Application.DoEvents()
-            load_decal_data()
+            'load_decal_data()
             tt = t.ElapsedMilliseconds.ToString
             update_log("T = " + tt + "ms")
         End If
@@ -1479,7 +1476,7 @@ loaded_jump:
             b.Width = 50
             b.Height = 50
             b.BackgroundImage = camo_images(i).bmp
-            b.ImageAlign = ContentAlignment.MiddleCenter
+            b.ImageAlign = Drawing.ContentAlignment.MiddleCenter
             b.BackgroundImageLayout = ImageLayout.Stretch
             AddHandler b.Click, AddressOf handle_imgbtn_click
             Dim p = New System.Drawing.Point(col * 50, row * 50)
@@ -2569,7 +2566,7 @@ loaded_jump:
 
         G_Buffer.attachColorTexture()
         G_Buffer.getsize(w, h)
-        If current_decal > -1 Then
+        If decal_matrix_list.Count > 0 Then
             G_Buffer.get_depth_buffer(w, h) ' get depth in to gDepth
 
             Gl.glFrontFace(Gl.GL_CW)
@@ -2638,23 +2635,24 @@ loaded_jump:
             Gl.glBindTexture(Gl.GL_TEXTURE_2D, u_brdfLUT)
 
 
-            For i = 0 To decal_matrix_list.Length - 2
-                Dim j = decal_order(i)
-                With decal_matrix_list(j)
-                    .transform()
-                    Gl.glUniformMatrix4fv(decalC_decal_matrix, 1, Gl.GL_FALSE, .display_matrix)
-                    Gl.glUniform2f(decalC_UVwrap, .u_wrap, .v_wrap)
-                    Gl.glUniform1f(decalC_uv_rotate, .uv_rot)
-                    Gl.glUniform1f(decalC_alpha, .alpha)
-                    Gl.glUniform1f(decalC_level, .level)
+            For i = 0 To decal_matrix_list.Count - 1
+                With decal_matrix_list(i)
+                    .Transform()
+                    Gl.glUniformMatrix4fv(decalC_decal_matrix, 1, Gl.GL_FALSE, .DisplayMatrix)
+                    Gl.glUniform2f(decalC_UVwrap, .UWrap, .VWrap)
+                    Gl.glUniform1f(decalC_uv_rotate, .UVRot)
+                    Gl.glUniform1f(decalC_alpha, .Alpha)
+                    Gl.glUniform1f(decalC_level, .Level)
                     Gl.glActiveTexture(Gl.GL_TEXTURE0 + 7)
-                    Gl.glBindTexture(Gl.GL_TEXTURE_2D, decal_matrix_list(j).texture_id)
+                    Gl.glBindTexture(Gl.GL_TEXTURE_2D, decal_matrix_list(i).TextureId)
                     Gl.glActiveTexture(Gl.GL_TEXTURE0 + 8)
-                    Gl.glBindTexture(Gl.GL_TEXTURE_2D, decal_matrix_list(j).normal_id)
+                    Gl.glBindTexture(Gl.GL_TEXTURE_2D, decal_matrix_list(i).NormalId)
                     Gl.glActiveTexture(Gl.GL_TEXTURE0 + 9)
-                    Gl.glBindTexture(Gl.GL_TEXTURE_2D, decal_matrix_list(j).gmm_id)
+                    Gl.glBindTexture(Gl.GL_TEXTURE_2D, decal_matrix_list(i).GmmId)
+                    ' Apply translation
 
                     Gl.glCallList(decal_draw_box)
+
                 End With
             Next
             Gl.glUseProgram(0)
@@ -3794,13 +3792,13 @@ nothing_else:
         'track_test()
         '=================================================================================
         If m_decal.Checked And Not hide_BB_cb.Checked Then
-            If current_decal > -1 Then
+            If decal_matrix_list.Count > 0 Then
                 Gl.glLineWidth(2.0)
                 Gl.glEnable(Gl.GL_LIGHTING)
                 Gl.glDisable(Gl.GL_CULL_FACE)
                 Gl.glPolygonMode(Gl.GL_FRONT_AND_BACK, Gl.GL_LINE)
                 'Gl.glDisable(Gl.GL_DEPTH_TEST)
-                For j = 0 To decal_matrix_list.Length - 2
+                For j = 0 To decal_matrix_list.Count - 1
 
                     If mouse_pick_cb.Checked Then
                         If picked_decal = j Then
@@ -3809,20 +3807,35 @@ nothing_else:
                             Gl.glColor3f(1.0, 1.0, 1.0)
                         End If
                     Else
-                        If j = current_decal Then
+                        If j = current_decal_data_pnt Then
                             Gl.glColor3f(1.0, 0.0, 0.0)
                         Else
                             Gl.glColor3f(1.0, 1.0, 1.0)
                         End If
                     End If
                     Gl.glPushMatrix()
-                    decal_matrix_list(j).transform()
-                    Gl.glMultMatrixf(decal_matrix_list(j).display_matrix)
+                    decal_matrix_list(j).Transform()
+                    Gl.glMultMatrixf(decal_matrix_list(j).DisplayMatrix)
                     Gl.glCallList(decal_draw_box)
                     Gl.glPopMatrix()
                 Next
-                Gl.glLineWidth(1.0)
+                Gl.glLineWidth(3.0)
+                Gl.glColor3f(1.0, 0.0, 0.0)
+                For j = 0 To decal_matrix_list.Count - 1
 
+                    If Not mouse_pick_cb.Checked Then
+
+                        If j = current_decal_data_pnt Then
+
+                            Gl.glPushMatrix()
+                            decal_matrix_list(j).Transform()
+                            Gl.glMultMatrixf(decal_matrix_list(j).DisplayMatrix)
+                            Gl.glCallList(decal_draw_box)
+                            Gl.glPopMatrix()
+                        End If
+                    End If
+                Next
+                Gl.glLineWidth(1.0)
             End If
         End If
         '=================================================================================
@@ -4003,20 +4016,24 @@ fuckit:
             s_Location = 157
             top = 177
         End If
-        Gl.glEnable(Gl.GL_BLEND)
-        Gl.glBlendFunc(Gl.GL_SRC_ALPHA, Gl.GL_ONE_MINUS_SRC_ALPHA)
-        Gl.glColor4f(0.3, 0.0, 0.0, 0.6)
-        Gl.glBegin(Gl.GL_TRIANGLES)
-        Gl.glVertex3f(0.0, -pb1.Height, 0.0)
-        Gl.glColor4f(0.3, 0.0, 0.0, 0.4)
-        Gl.glVertex3f(0.0, -pb1.Height + top, 0.0)
-        Gl.glVertex3f(pb1.Width, -pb1.Height + top, 0.0)
 
-        Gl.glVertex3f(pb1.Width, -pb1.Height + top, 0.0)
-        Gl.glColor4f(0.3, 0.0, 0.0, 0.6)
-        Gl.glVertex3f(pb1.Width, -pb1.Height, 0.0)
-        Gl.glVertex3f(0.0, -pb1.Height, 0.0)
-        Gl.glEnd()
+        If Not m_decal.Checked Then ' Hide if we are working on decal layout.
+            Gl.glEnable(Gl.GL_BLEND)
+            Gl.glBlendFunc(Gl.GL_SRC_ALPHA, Gl.GL_ONE_MINUS_SRC_ALPHA)
+            Gl.glColor4f(0.3, 0.0, 0.0, 0.6)
+            Gl.glBegin(Gl.GL_TRIANGLES)
+            Gl.glVertex3f(0.0, -pb1.Height, 0.0)
+            Gl.glColor4f(0.3, 0.0, 0.0, 0.4)
+            Gl.glVertex3f(0.0, -pb1.Height + top, 0.0)
+            Gl.glVertex3f(pb1.Width, -pb1.Height + top, 0.0)
+
+            Gl.glVertex3f(pb1.Width, -pb1.Height + top, 0.0)
+            Gl.glColor4f(0.3, 0.0, 0.0, 0.6)
+            Gl.glVertex3f(pb1.Width, -pb1.Height, 0.0)
+            Gl.glVertex3f(0.0, -pb1.Height, 0.0)
+            Gl.glEnd()
+        Else
+        End If
         '######################################################################
         If m_shadow_preview.Checked Then
             show_depth_texture()
@@ -4035,16 +4052,49 @@ fuckit:
         End If
         '######################################################################
         '######################################################################
-        Dim str = "FPS: " + screen_totaled_draw_time.ToString + "  " + cur_texture_name
         'swat.Stop()
         If MODEL_LOADED And frmTextureViewer.Visible And (frmTextureViewer.m_show_uvs.Checked Or frmTextureViewer.m_uvs_only.Checked) Then
-            glutPrintBox(5, -40, os1.ToString, 0.0, 1.0, 0.0, 1.0) ' fps string
+            glutPrintBox(5, -40, os1.ToString, 0.0, 1.0, 0.0, 1.0)
 
         End If
         'glutPrintBox(10, -60, "W = " + pb1.Width.ToString + " H = " + pb1.Height.ToString, 1.0, 1.0, 1.0, 1.0) ' fps string
 
-        glutPrint(5, 8 - pb1.Height + s_Location, str.ToString, 0.0, 1.0, 0.0, 1.0) ' fps string
-        glutPrintBox(5, -20, view_status_string, 0.0, 1.0, 0.0, 1.0) ' view status
+        Dim str = "FPS: " + screen_totaled_draw_time.ToString
+        glutPrint(5, -pb1.Height + 21, str.ToString, 0.0, 1.0, 0.0, 1.0) ' fps string
+        If Not m_decal.Checked Then ' Hide if we are working on decal layout.
+            glutPrintBox(5, -20, view_status_string, 0.0, 1.0, 0.0, 1.0) ' view status
+        End If
+
+
+        ' good to see matrix values
+        If current_decal_data_pnt < -1 And decal_matrix_list.Count > 0 Then
+
+            Dim sb As New System.Text.StringBuilder()
+            For i As Integer = 0 To 3
+                sb.Append(decal_matrix_list(current_decal_data_pnt).XRotateMatrix(i * 4).ToString("F2")).Append(" ")
+                sb.Append(decal_matrix_list(current_decal_data_pnt).XRotateMatrix(i * 4 + 1).ToString("F2")).Append(" ")
+                sb.Append(decal_matrix_list(current_decal_data_pnt).XRotateMatrix(i * 4 + 2).ToString("F2")).Append(" ")
+                sb.Append(decal_matrix_list(current_decal_data_pnt).XRotateMatrix(i * 4 + 3).ToString("F2")).AppendLine() ' AppendLine adds CRLF
+            Next
+            glutPrintBox(pb1.Width - 300, -20 + s_Location, sb.ToString, 1.0, 1.0, 0.0, 1.0) ' fps string
+            sb.Clear()
+            For i As Integer = 0 To 3
+                sb.Append(decal_matrix_list(current_decal_data_pnt).YRotateMatrix(i * 4).ToString("F2")).Append(" ")
+                sb.Append(decal_matrix_list(current_decal_data_pnt).YRotateMatrix(i * 4 + 1).ToString("F2")).Append(" ")
+                sb.Append(decal_matrix_list(current_decal_data_pnt).YRotateMatrix(i * 4 + 2).ToString("F2")).Append(" ")
+                sb.Append(decal_matrix_list(current_decal_data_pnt).YRotateMatrix(i * 4 + 3).ToString("F2")).AppendLine() ' AppendLine adds CRLF
+            Next
+            glutPrintBox(pb1.Width - 300, -100 + s_Location, sb.ToString, 1.0, 1.0, 0.0, 1.0) ' fps string
+            sb.Clear()
+            For i As Integer = 0 To 3
+                sb.Append(decal_matrix_list(current_decal_data_pnt).ZRotateMatrix(i * 4).ToString("F2")).Append(" ")
+                sb.Append(decal_matrix_list(current_decal_data_pnt).ZRotateMatrix(i * 4 + 1).ToString("F2")).Append(" ")
+                sb.Append(decal_matrix_list(current_decal_data_pnt).ZRotateMatrix(i * 4 + 2).ToString("F2")).Append(" ")
+                sb.Append(decal_matrix_list(current_decal_data_pnt).ZRotateMatrix(i * 4 + 3).ToString("F2")).AppendLine() ' AppendLine adds CRLF
+            Next
+            glutPrintBox(pb1.Width - 300, -180 + s_Location, sb.ToString, 1.0, 1.0, 0.0, 1.0) ' fps string
+        End If
+
 
         Gl.glDisable(Gl.GL_BLEND)
         Gl.glDisable(Gl.GL_DEPTH_TEST)
@@ -4758,78 +4808,81 @@ fuckit:
 
     Private tempX, tempZ As Single
     Private Sub move_xyz()
-        If current_decal = -1 Then Return
+        If current_decal_data_pnt = -1 Then Return
         Dim x, z As Single
         Dim ms As Single = Sin((view_radius / 80.0!) * (PI / 2.0)) ' distance away changes speed. THIS WORKS WELL!
-        Dim speed As Single = 0.2
 
+        x = (mouse.x - m_mouse.x) * ms * mouse_speed_global * 0.2
+        z = (mouse.y - m_mouse.y) * ms * mouse_speed_global * 0.2
         If upton.state = 5 Or upton.state = 7 Then
-            x = (mouse.x - m_mouse.x) * ms * speed
-            z = (mouse.y - m_mouse.y) * ms * speed
 
-            g_decal_translate.x += (x * -Cos(Cam_X_angle)) + (z * -Sin(Cam_X_angle))
+            g_decal_translate.X += (x * -Cos(Cam_X_angle)) + (z * -Sin(Cam_X_angle))
 
-            g_decal_translate.z += (z * -Cos(Cam_X_angle)) + (x * Sin(Cam_X_angle))
+            g_decal_translate.Z += (z * -Cos(Cam_X_angle)) + (x * Sin(Cam_X_angle))
 
         End If
 
         If upton.state = 6 Then
-            g_decal_translate.y += -(mouse.y - m_mouse.y) * ms * speed
+            g_decal_translate.Y -= z
         End If
-        decal_matrix_list(current_decal).set_translate_matrix(0, g_decal_translate)
+        decal_matrix_list(current_decal_data_pnt).SetTranslateMatrix(g_decal_translate)
         mouse.x = m_mouse.x
         mouse.y = m_mouse.y
+
+
         If track_decal_cb.Checked Then
-            look_point_x = decal_matrix_list(current_decal).translate.x
-            look_point_y = decal_matrix_list(current_decal).translate.y
-            look_point_z = decal_matrix_list(current_decal).translate.z
+            look_point_x = decal_matrix_list(current_decal_data_pnt).translate.x
+            look_point_y = decal_matrix_list(current_decal_data_pnt).translate.y
+            look_point_z = decal_matrix_list(current_decal_data_pnt).translate.z
         End If
+        UpdateSelectedRow()
     End Sub
     Private Sub rotate_decal_xyz()
-        If current_decal = -1 Then Return
-        Dim z As Single
+        If current_decal_data_pnt = -1 Then Return
+        Dim ms As Double = view_radius / 80 ' distance away changes speed. THIS WORKS WELL!
+        Dim delta = -(mouse.y - m_mouse.y) * ms * 0.02 * mouse_speed_global
         If upton.state = 8 Then
-            z = -(mouse.y - m_mouse.y) * 0.01
-            g_decal_rotate.x += z
-            decal_matrix_list(current_decal).set_x_rotation_matrix(z)
+            g_decal_rotate.X += delta
+            decal_matrix_list(current_decal_data_pnt).SetXRotationMatrix(g_decal_rotate.X)
         End If
         If upton.state = 9 Then
-            z = -(mouse.y - m_mouse.y) * 0.01
-            g_decal_rotate.y += z
-            decal_matrix_list(current_decal).set_y_rotation_matrix(z)
+            g_decal_rotate.Y += delta
+            decal_matrix_list(current_decal_data_pnt).SetYRotationMatrix(g_decal_rotate.Y)
         End If
         If upton.state = 10 Then
-            z = -(mouse.y - m_mouse.y) * 0.01
-            g_decal_rotate.z += z
-            decal_matrix_list(current_decal).set_z_rotation_matrix(z)
+            g_decal_rotate.Z += delta
+            decal_matrix_list(current_decal_data_pnt).SetZRotationMatrix(g_decal_rotate.Z)
         End If
+        'decal_matrix_list(current_decal_data_pnt).SetRotationMatrices()
+        UpdateSelectedRow()
+
+        'Debug.WriteLine(delta.ToString)
         'Debug.WriteLine("x " + x.ToString("0.0000") + " :z " + z.ToString("0.00000"))
         mouse.x = m_mouse.x
         mouse.y = m_mouse.y
     End Sub
     Private Sub scale_decal_xyz()
-        If current_decal = -1 Then Return
+        If current_decal_data_pnt = -1 Then Return
         Dim v As New vect3
         Dim z As Single
         Dim ms As Double = view_radius / 80 ' distance away changes speed. THIS WORKS WELL!
         Dim speed As Single = 0.25
 
-        z = -(mouse.y - m_mouse.y) * ms * speed
+        z = -(mouse.y - m_mouse.y) * ms * 0.2 * mouse_speed_global
         If upton.state = 1 Then
             g_decal_scale.x += z
             If g_decal_scale.x < 0.1 Then g_decal_scale.x = 0.1
-            decal_matrix_list(current_decal).set_scale_matrix(g_decal_scale)
+            decal_matrix_list(current_decal_data_pnt).SetScaleMatrix(g_decal_scale)
         End If
         If upton.state = 2 Then
             g_decal_scale.z += z
             If g_decal_scale.z < 0.1 Then g_decal_scale.z = 0.1
-            decal_matrix_list(current_decal).set_scale_matrix(g_decal_scale)
+            decal_matrix_list(current_decal_data_pnt).SetScaleMatrix(g_decal_scale)
         End If
         If upton.state = 3 Then
             g_decal_scale.y += z
             If g_decal_scale.y < 0.1 Then g_decal_scale.y = 0.1
-            decal_matrix_list(current_decal).set_scale_matrix(g_decal_scale)
-
+            decal_matrix_list(current_decal_data_pnt).SetScaleMatrix(g_decal_scale)
         End If
         If upton.state = 4 Then
             g_decal_scale.x += z
@@ -4838,12 +4891,57 @@ fuckit:
             If g_decal_scale.x < 0.1 Then g_decal_scale.x = 0.1
             If g_decal_scale.y < 0.1 Then g_decal_scale.y = 0.1
             If g_decal_scale.z < 0.1 Then g_decal_scale.z = 0.1
-            decal_matrix_list(current_decal).set_scale_matrix(g_decal_scale)
+            decal_matrix_list(current_decal_data_pnt).SetScaleMatrix(g_decal_scale)
         End If
+        UpdateSelectedRow()
 
         mouse.x = m_mouse.x
         mouse.y = m_mouse.y
 
+    End Sub
+    Private Sub UpdateSelectedRow()
+        ' Check if there is a selected row in the DataGridView
+        If dgv.SelectedRows.Count > 0 Then
+            ' Get the selected row
+            Dim selectedRow As DataGridViewRow = dgv.SelectedRows(0)
+            ' Update rotation values
+            selectedRow.Cells("RotationX").Value = g_decal_rotate.X
+            selectedRow.Cells("RotationY").Value = g_decal_rotate.Y
+            selectedRow.Cells("RotationZ").Value = g_decal_rotate.Z
+
+            ' Update scale values
+            selectedRow.Cells("ScaleX").Value = g_decal_scale.X
+            selectedRow.Cells("ScaleY").Value = g_decal_scale.Y
+            selectedRow.Cells("ScaleZ").Value = g_decal_scale.Z
+
+            ' Update translation values
+            selectedRow.Cells("TranslateX").Value = g_decal_translate.X
+            selectedRow.Cells("TranslateY").Value = g_decal_translate.Y
+            selectedRow.Cells("TranslateZ").Value = g_decal_translate.Z
+
+            ' Update wrap values
+            selectedRow.Cells("U_Wrap").Value = Uwrap.SelectedItem
+            selectedRow.Cells("V_Wrap").Value = Vwrap.SelectedItem
+
+            ' Update UV rotation values
+            selectedRow.Cells("UV_Rot").Value = uv_rotate.SelectedItem
+
+            ' Update wrap indices
+            selectedRow.Cells("U_Wrap_Index").Value = Uwrap.SelectedIndex
+            selectedRow.Cells("V_Wrap_Index").Value = Vwrap.SelectedIndex
+            selectedRow.Cells("UV_Rot_Index").Value = uv_rotate.SelectedIndex
+
+            ' Update alpha and level
+            selectedRow.Cells("Alpha").Value = decal_level_slider.Value
+            selectedRow.Cells("Level").Value = decal_level_slider.Value
+
+            ' Update texture field
+            If decal_matrix_list(current_decal_data_pnt).DecalTexture IsNot Nothing Then
+                    selectedRow.Cells("DecalName").Value = decal_matrix_list(current_decal_data_pnt).DecalTexture
+                End If
+
+
+        End If
     End Sub
 
 #End Region
@@ -4851,6 +4949,39 @@ fuckit:
 #Region "PB1 Mouse"
 
     Private Sub pb1_MouseDoubleClick(sender As Object, e As MouseEventArgs) Handles pb1.MouseDoubleClick
+
+    End Sub
+
+    Public Sub selected_texture_changed(id As Integer)
+        If id < 0 Then Return
+        Try
+            If id > -1 Then
+                current_decal_lable.Text = current_decal_data_pnt.ToString
+                Try
+                    Dim row_idx = dgv.SelectedRows(0).Index
+                    dgv.SelectedRows(0).Cells("DecalName").Value = decal_textures(id).colorMap_name
+                    dgv.SelectedRows(0).Cells("DecalID").Value = id
+
+                    Dim decal As DecalMatrix = decal_matrix_list(row_idx)
+
+                    ' Modify the fields of the copied structure
+                    decal.DecalTexture = decal_textures(id).colorMap_name
+                    decal.TextureId = decal_textures(id).colorMap_Id
+                    decal.NormalId = decal_textures(id).normalMap_Id
+                    decal.GmmId = decal_textures(id).gmmMap_id
+                    decal.DecalIndex = id
+
+                    ' Assign the modified structure back to the list
+                    decal_matrix_list(row_idx) = decal
+                Catch ex As Exception
+                End Try
+            Else
+                Return
+            End If
+
+        Catch ex As Exception
+
+        End Try
 
     End Sub
 
@@ -4864,26 +4995,30 @@ fuckit:
         'End If
         mouse.x = e.X
         mouse.y = e.Y
-        If mouse_pick_cb.Checked And e.Button = MouseButtons.Left Then
+        If mouse_pick_cb.Checked And e.Button = MouseButtons.Middle Then
             If picked_decal > -1 Then
-                current_decal = picked_decal
+                current_decal_data_pnt = picked_decal
                 picked_decal = -1
-                decal_matrix_list(current_decal).get_decals_transform_info()
+
+                dgv.Rows(dgv.SelectedRows(0).Index).Selected = False
+                dgv.Rows(current_decal_data_pnt).Selected = True
+
+
+                ' Get the index of the selected row
+                Dim selectedRowIndex As Integer = dgv.SelectedRows(0).Index
+                ' Set the FirstDisplayedScrollingRowIndex to the selected row index
+                dgv.FirstDisplayedScrollingRowIndex = selectedRowIndex
+                'decal_matrix_list(current_decal_data_pnt).GetDecalsTransformInfo()
                 mouse_pick_cb.Checked = False
-                update_decal_order()
-                Dim tc As Integer = 0
-                For k = 0 To decal_order.Length - 1
-                    If decal_order(k) = current_decal Then
-                        tc = k
-                    End If
-                Next
-                d_current_line = tc
 
-                Dim sp = d_list_tb.GetFirstCharIndexFromLine(tc) ' get prev line
-                d_list_tb.SelectionStart = sp
-                d_list_tb.Select(d_list_tb.GetFirstCharIndexOfCurrentLine(),
-                                 d_list_tb.Lines(tc).Length) ' select prev line
-
+                cur_selected_decal = dgv.SelectedRows(0).Cells("DecalId").Value
+                frmPickDecal.set_selecion(dgv.SelectedRows(0).Cells("DecalId").Value)
+                set_g_decal_current()
+                'Dim sp = d_list_tb.GetFirstCharIndexFromLine(tc) ' get prev line
+                'd_list_tb.SelectionStart = sp
+                'd_list_tb.Select(d_list_tb.GetFirstCharIndexOfCurrentLine(),
+                'd_list_tb.Lines(tc).Length) ' select prev line
+                Return
             End If
         End If
         If e.Button = Forms.MouseButtons.Right Then
@@ -5263,7 +5398,7 @@ fuckit:
                 l_scaler = 1.0!
             End If
             Application.DoEvents()
-            If Not gl_busy And Not Me.WindowState = FormWindowState.Minimized Then
+            If Not gl_busy Then
                 'scale light based on mode
                 If Not spin_light Then
                     position0(0) = W_position0(0) * l_scaler
@@ -5334,13 +5469,20 @@ fuckit:
             If Me.InvokeRequired Then
                 Me.Invoke(New update_screen_delegate(AddressOf update_screen))
             Else
-                draw_scene()
+                If Not Me.window_state = FormWindowState.Minimized Then
+                    draw_scene()
+                End If
+
+                If frmPickDecal.Visible Then
+                    frmPickDecal.Draw_Decal_Cells() ' Call the drawcentersquare function here
+                End If
             End If
         Catch ex As Exception
 
         End Try
         gl_busy = False
     End Sub
+
     Private Sub Startup_Timer_Tick(sender As Object, e As EventArgs) Handles Startup_Timer.Tick
         Startup_Timer.Enabled = False
         update_thread.IsBackground = True
@@ -8046,7 +8188,7 @@ skip_old_way:
     End Sub
 
 
-    Private Sub m_Import_FBX_Click(sender As Object, e As EventArgs) Handles m_Import_FBX.Click
+    Private Sub m_Import_FBX_Click(sender As Object, e As EventArgs)
         frmReverseVertexWinding.Hide()
         frmComponentView.Hide()
         m_load_textures.Enabled = True
@@ -8259,10 +8401,12 @@ skip_old_way:
     End Sub
 
     Private Sub m_shadows_Click(sender As Object, e As EventArgs) Handles m_shadows.Click
+        shadow_fbo.reset_shadowFbo()
         If stop_updating Then draw_scene()
     End Sub
 
     Private Sub m_shadowQuality_Click(sender As Object, e As EventArgs) Handles m_shadowQuality.Click
+        FrmShadowSettings.Opacity = 100
         FrmShadowSettings.Show()
     End Sub
 
@@ -8295,96 +8439,59 @@ skip_old_way:
     Private Sub m_settings_Click(sender As Object, e As EventArgs) Handles m_settings.Click
         frmSettings.Visible = True
     End Sub
-
     Private Sub m_sel_texture_Click(sender As Object, e As EventArgs) Handles m_sel_texture.Click
         ' Create and show the showDecals form
+        If d_line_count = -1 Then Return
 
-        Dim decalsForm As showDecals = showDecals.GetInstance()
-        cur_selected_decal = current_decal
-        decalsForm.AppCalled = False
-        Dim id As Integer = decalsForm.ShowDialogAndGetImageId()
-        If id > -1 Then
-            current_decal_lable.Text = current_decal.ToString
-            Try
-                load_this_Decal(id)
-                decal_matrix_list(current_decal).decal_texture = decal_textures(id).colorMap_name
-                decal_matrix_list(current_decal).texture_id = decal_textures(id).colorMap_Id
-                decal_matrix_list(current_decal).normal_id = decal_textures(id).normalMap_Id
-                decal_matrix_list(current_decal).gmm_id = decal_textures(id).gmmMap_id
-                d_texture_name.Text = decal_matrix_list(current_decal).decal_texture
-            Catch ex As Exception
-            End Try
-        Else
-            Return
-        End If
+        'Dim ta = d_list_tb.SelectedText.Split(":")
+
+        'cur_selected_decal = ta(1)
+        frmPickDecal.Opacity = 100
+        frmPickDecal.Show()
+        frmPickDecal.loadcells()
+
 
 
     End Sub
 
     Private Sub m_delete_Click(sender As Object, e As EventArgs) Handles m_delete.Click
+        Try
+            updateEvent.Reset()
+            Thread.Sleep(100)
 
-        m_delete.Enabled = False
+            m_delete.Enabled = False
 
-        If decal_matrix_list.Length < 2 Then Return
-        Dim t_l(decal_matrix_list.Length - 2) As decal_matrix_list_
-        Dim ta = d_list_tb.Text.Split(vbLf)
-        Dim ts As String = ""
-        For Each s In ta
-            Dim ti = s.Split(":")
-            If ti.Length > 1 Then ' dont mess with empty lines
-                Dim tii = ti(1).Split(vbCr)
-                Dim rv = CInt(tii(0))
-                If rv <> current_decal Then
-                    If rv > current_decal Then ' If this ones larger it needs decremented.
-                        rv -= 1
+            ' Check if there is a selected row in the DataGridView
+            If dgv.SelectedRows.Count > 0 Then
+                ' Get the index of the selected row
+                Dim tc As Integer = dgv.SelectedRows(0).Index
+
+                ' Remove the selected row from the DataGridView
+                dgv.Rows.RemoveAt(tc)
+
+                ' Remove the corresponding item from decal_matrix_list
+                If tc >= 0 AndAlso tc < decal_matrix_list.Count Then
+                    decal_matrix_list.RemoveAt(tc)
+                End If
+
+                ' Adjust the selection after row removal
+                If dgv.Rows.Count > 0 Then
+                    ' If the deleted row was not the last one, select the same index
+                    If tc < dgv.Rows.Count Then
+                        dgv.Rows(tc).Selected = True
+                    Else
+                        ' If the deleted row was the last one, select the new last row
+                        dgv.Rows(dgv.Rows.Count - 1).Selected = True
                     End If
-                    ts += ti(0) + ":" + rv.ToString + vbCrLf 're-assemble the line.
                 End If
             End If
-        Next
-        d_list_tb.Text = ts
-        Application.DoEvents()
-        Dim cnt As Integer = 0
-        For i = 0 To decal_matrix_list.Length - 2
-            If i <> current_decal Then
-                t_l(cnt) = decal_matrix_list(i)
-                cnt += 1
-            End If
-        Next
-        ReDim Preserve decal_matrix_list(decal_matrix_list.Length - 2)
-        For i = 0 To decal_matrix_list.Length - 2
-            decal_matrix_list(i) = t_l(i)
-            'd_list_tb.Text += "Decal ID :" + i.ToString + vbCrLf
-        Next
-        'current_decal -= 1
-        'If current_decal = -1 And decal_matrix_list.Length > 1 Then
-        '    current_decal = 0
-        'End If
-        If current_decal > -1 Then
-            update_decal_order()
-            Dim new_line As Integer = 0
-            For i = 0 To decal_order.Length - 1
-                If decal_order(i) = current_decal Then
-                    new_line = i
-                    Exit For
-                End If
-            Next
-            Dim sp = d_list_tb.GetFirstCharIndexFromLine(new_line) ' get line
-            d_list_tb.SelectionStart = sp
-            Try
-                d_list_tb.Select(d_list_tb.GetFirstCharIndexOfCurrentLine(),
-                                     d_list_tb.Lines(new_line).Length) ' select prev line
-                decal_matrix_list(new_line).get_decals_transform_info()
 
-            Catch ex As Exception
-                m_delete.Enabled = True
-                Return
-            End Try
-            d_current_line = new_line
-            d_sel_Len = d_list_tb.Lines(new_line).Length
-        End If
-        m_delete.Enabled = True
-
+        Catch ex As Exception
+            MessageBox.Show("An error occurred: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+        Finally
+            m_delete.Enabled = True
+            updateEvent.Set()
+        End Try
     End Sub
 
 
@@ -8394,7 +8501,7 @@ skip_old_way:
 
     End Sub
 
-    Private Sub m_export_to_fbx_Click(sender As Object, e As EventArgs) Handles m_export_to_fbx.Click
+    Private Sub m_export_to_fbx_Click(sender As Object, e As EventArgs)
         If loaded_from_resmods Then
             'If MsgBox("You are about to write a FBX loaded from the res_mods folder!" + vbCrLf +
             '           "Doing so will corrupt the chassis if the markers have been modified." _
@@ -8713,169 +8820,201 @@ outta_here:
     Public d_sel_Len As Integer
     Public d_current_line As Integer
     Dim d_line_count As Integer
-    Private Sub d_list_tb_Click(sender As Object, e As EventArgs) Handles d_list_tb.Click
-        d_list_tb.SelectionLength = 0
-        Dim t = d_list_tb.Text.Split(":")
-        d_line_count = t.Length - 2
-        If d_line_count = -1 Then Return
-        Dim a = d_list_tb.GetLineFromCharIndex(d_list_tb.GetFirstCharIndexOfCurrentLine())
-        d_list_tb.Select(d_list_tb.GetFirstCharIndexOfCurrentLine(), d_list_tb.Lines(a).Length)
-        If d_list_tb.SelectedText.Length < 4 Then
-            Return
-            d_sel_Len = 0
-            d_current_line = 0
-        Else
-            Dim d = d_list_tb.SelectedText.Split(":")
-            current_decal = CInt(d(1))
-            Try
-                decal_matrix_list(current_decal).get_decals_transform_info()
-                d_sel_Len = d_list_tb.Lines(a).Length
-                d_current_line = a
-                decal_matrix_list(current_decal).get_decals_transform_info()
-            Catch ex As Exception
-            End Try
-        End If
-
-    End Sub
 
     Private Sub d_move_up_Click(sender As Object, e As EventArgs) Handles d_move_up.Click
-        If d_current_line = 0 Then
-            Return
-        End If
-        If d_sel_Len > 0 Then
-            Dim prev_line = d_current_line - 1
-            Dim sel_tex_current = d_list_tb.SelectedText ' save current text
-            If sel_tex_current = "" Then Return
-            Dim sp = d_list_tb.GetFirstCharIndexFromLine(prev_line) ' get prev line
-            Application.DoEvents()
-            d_list_tb.SelectionStart = sp
-            d_list_tb.Select(d_list_tb.GetFirstCharIndexOfCurrentLine(),
-                             d_list_tb.Lines(prev_line).Length) ' select prev line
-            Application.DoEvents()
-            Dim pre_text = d_list_tb.SelectedText ' save prev line text
-            If pre_text = "" Then Return
-            Application.DoEvents()
-            d_list_tb.SelectedText = sel_tex_current ' replace current line text
-            Application.DoEvents()
+        updateEvent.Reset()
+        Thread.Sleep(100)
+        If dgv.SelectedRows.Count > 0 Then
+            Dim rowIndex As Integer = dgv.SelectedRows(0).Index
 
-            d_list_tb.SelectionStart = sp + sel_tex_current.Length + 2
-            d_current_line = d_list_tb.GetLineFromCharIndex(d_list_tb.GetFirstCharIndexOfCurrentLine())
+            If rowIndex > 0 Then
+                ' Move the row in the DataGridView
+                Dim rowToMove As DataGridViewRow = dgv.Rows(rowIndex)
+                dgv.Rows.RemoveAt(rowIndex)
+                dgv.Rows.Insert(rowIndex - 1, rowToMove)
 
-            d_list_tb.Select(d_list_tb.GetFirstCharIndexOfCurrentLine(),
-                             d_list_tb.Lines(d_current_line).Length) ' reselect current line
-            Application.DoEvents()
-            d_list_tb.SelectedText = pre_text ' replace it with prev lines text
-            d_list_tb.Select(d_list_tb.GetFirstCharIndexOfCurrentLine(),
-                     d_list_tb.Lines(d_current_line).Length) ' reselect current line
-            Application.DoEvents()
-            update_decal_order()
-            d_list_tb.SelectionStart = sp
-            d_list_tb.Select(d_list_tb.GetFirstCharIndexOfCurrentLine(),
-                       d_list_tb.Lines(prev_line).Length) ' select prev line
-            d_current_line = prev_line
-            decal_matrix_list(current_decal).get_decals_transform_info()
+                ' Move the corresponding item in decal_matrix_list
+                Dim decalToMove As DecalMatrix = decal_matrix_list(rowIndex)
+                decal_matrix_list(rowIndex) = decal_matrix_list(rowIndex - 1)
+                decal_matrix_list(rowIndex - 1) = decalToMove
+
+                ' Update the selected decal index
+                current_decal_data_pnt = rowIndex - 1
+
+                ' Reselect the moved row
+                dgv.ClearSelection()
+                dgv.Rows(rowIndex - 1).Selected = True
+                dgv.CurrentCell = dgv.Rows(rowIndex - 1).Cells(0)
+            End If
         End If
+        updateEvent.Set()
     End Sub
 
     Private Sub d_move_down_Click(sender As Object, e As EventArgs) Handles d_move_down.Click
-        If d_current_line = d_line_count Then
-            Return
-        End If
-        If d_sel_Len > 0 Then
-            Dim next_line = d_current_line + 1
-            Dim sel_tex_current = d_list_tb.SelectedText ' save current text
-            If sel_tex_current = "" Then Return
-            Dim sp = d_list_tb.GetFirstCharIndexFromLine(next_line) ' get prev line
-            Application.DoEvents()
-            d_list_tb.SelectionStart = sp
-            d_list_tb.Select(d_list_tb.GetFirstCharIndexOfCurrentLine(),
-                             d_list_tb.Lines(next_line).Length) ' select prev line
-            Application.DoEvents()
-            Dim next_text = d_list_tb.SelectedText ' save prev line text
-            If next_text = "" Then Return
-            Application.DoEvents()
-            d_list_tb.SelectedText = sel_tex_current ' replace current line text
-            Application.DoEvents()
+        updateEvent.Reset()
+        Thread.Sleep(100)
+        If dgv.SelectedRows.Count > 0 Then
+            Dim rowIndex As Integer = dgv.SelectedRows(0).Index
 
-            d_list_tb.SelectionStart = sp - 2
-            d_current_line = d_list_tb.GetLineFromCharIndex(d_list_tb.GetFirstCharIndexOfCurrentLine())
+            If rowIndex < dgv.Rows.Count - 1 Then
+                ' Move the row in the DataGridView
+                Dim rowToMove As DataGridViewRow = dgv.Rows(rowIndex)
+                dgv.Rows.RemoveAt(rowIndex)
+                dgv.Rows.Insert(rowIndex + 1, rowToMove)
 
-            d_list_tb.Select(d_list_tb.GetFirstCharIndexOfCurrentLine(),
-                             d_list_tb.Lines(d_current_line).Length) ' reselect current line
-            Application.DoEvents()
-            d_list_tb.SelectedText = next_text ' replace it with prev lines text
-            d_list_tb.Select(d_list_tb.GetFirstCharIndexOfCurrentLine(),
-                     d_list_tb.Lines(d_current_line).Length) ' reselect current line
-            Application.DoEvents()
-            update_decal_order()
-            d_list_tb.SelectionStart = sp
-            d_list_tb.Select(d_list_tb.GetFirstCharIndexOfCurrentLine(),
-                             d_list_tb.Lines(next_line).Length) ' select prev line
-            d_current_line = next_line
-            decal_matrix_list(current_decal).get_decals_transform_info()
+                ' Move the corresponding item in decal_matrix_list
+                Dim decalToMove As DecalMatrix = decal_matrix_list(rowIndex)
+                decal_matrix_list(rowIndex) = decal_matrix_list(rowIndex + 1)
+                decal_matrix_list(rowIndex + 1) = decalToMove
+
+                ' Update the selected decal index
+                current_decal_data_pnt = rowIndex + 1
+
+                ' Reselect the moved row
+                dgv.ClearSelection()
+                dgv.Rows(rowIndex + 1).Selected = True
+                dgv.CurrentCell = dgv.Rows(rowIndex + 1).Cells(0)
+            End If
         End If
+        updateEvent.Set()
     End Sub
 
-    Private Sub d_list_tb_KeyPress(sender As Object, e As KeyPressEventArgs) Handles d_list_tb.KeyPress
+    Private Sub d_list_tb_KeyPress(sender As Object, e As KeyPressEventArgs)
         e.Handled = True
     End Sub
 
+    ' Handles the scroll event of the decal_alpha_slider control.
     Private Sub decal_alpha_slider_Scroll(sender As Object, e As EventArgs) Handles decal_alpha_slider.Scroll
-        If current_decal = -1 Then Return
-        decal_matrix_list(current_decal).alpha = CSng(decal_alpha_slider.Value / 100)
-    End Sub
-    Private Sub decal_level_slider_Scroll(sender As Object, e As EventArgs) Handles decal_level_slider.Scroll
-        If current_decal = -1 Then Return
-        decal_matrix_list(current_decal).level = CSng(decal_level_slider.Value / 100)
-
-    End Sub
-    Dim t_list As TextBox
-
-
-    Private Sub handle_t_click(sender As TextBox, e As EventArgs)
-        If current_decal < 0 Then Return
-        t_list.SelectionLength = 0
-        Dim t = t_list.Text.Split(":")
-        d_line_count = t.Length - 2
-        Dim a = t_list.GetLineFromCharIndex(t_list.GetFirstCharIndexOfCurrentLine())
-        t_list.Select(t_list.GetFirstCharIndexOfCurrentLine(), t_list.Lines(a).Length)
-        If t_list.SelectedText.Length < 4 Then
+        ' Check if a valid decal is selected
+        If current_decal_data_pnt = -1 Then
+            ' No decal selected, exit the subroutine
             Return
-            d_sel_Len = 0
-            d_current_line = 0
+        End If
+
+        ' Check if the current_decal_data_pnt is within bounds of the decal_matrix_list
+        If current_decal_data_pnt >= 0 AndAlso current_decal_data_pnt < decal_matrix_list.Count Then
+            ' Retrieve the structure from the list
+            Dim currentDecal As DecalMatrix = decal_matrix_list(current_decal_data_pnt)
+
+            ' Update the alpha value in the copied structure
+            currentDecal.Alpha = CSng(decal_alpha_slider.Value / 100)
+
+            ' Assign the modified structure back to the list
+            decal_matrix_list(current_decal_data_pnt) = currentDecal
+
+            ' Update the corresponding cell in the DataGridView to reflect the change
+            dgv.Rows(current_decal_data_pnt).Cells("Alpha").Value = currentDecal.Alpha
         Else
-            Dim d = t_list.SelectedText.Split(":")
-            Dim id = current_decal
-            load_this_Decal(id)
-            decal_matrix_list(current_decal).decal_texture = decal_textures(id).colorMap_name
-            decal_matrix_list(current_decal).texture_id = decal_textures(id).colorMap_Id
-            decal_matrix_list(current_decal).normal_id = decal_textures(id).normalMap_Id
-            decal_matrix_list(current_decal).gmm_id = decal_textures(id).gmmMap_id
-            d_texture_name.Text = decal_matrix_list(current_decal).decal_texture
-            t_list.SendToBack()
-            d_list_tb.BringToFront()
-            d_move_up.BringToFront()
-            d_move_down.BringToFront()
+            ' Handle the case where the index is out of bounds
+            MessageBox.Show("Invalid decal index.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+        End If
+    End Sub
+    ' Handles the scroll event of the decal_level_slider control.
+    Private Sub decal_level_slider_Scroll(sender As Object, e As EventArgs) Handles decal_level_slider.Scroll
+        ' Check if a valid decal is selected
+        If current_decal_data_pnt = -1 Then
+            ' No decal selected, exit the subroutine
+            Return
+        End If
+
+        ' Check if the current_decal_data_pnt is within bounds of the decal_matrix_list
+        If current_decal_data_pnt >= 0 AndAlso current_decal_data_pnt < decal_matrix_list.Count Then
+            ' Retrieve the structure from the list
+            Dim currentDecal As DecalMatrix = decal_matrix_list(current_decal_data_pnt)
+
+            ' Update the level value in the copied structure
+            currentDecal.Level = CSng(decal_level_slider.Value / 100)
+
+            ' Assign the modified structure back to the list
+            decal_matrix_list(current_decal_data_pnt) = currentDecal
+
+            ' Optional: Update the corresponding cell in the DataGridView to reflect the change
+            If dgv.Columns.Contains("Level") Then
+                dgv.Rows(current_decal_data_pnt).Cells("Level").Value = currentDecal.Level
+            End If
+        Else
+            ' Handle the case where the index is out of bounds
+            MessageBox.Show("Invalid decal index.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
         End If
     End Sub
 
+    Dim t_list As TextBox
+
+
+
+    ' Handles the SelectedItemChanged event of the Uwrap control.
     Private Sub Uwrap_SelectedItemChanged(sender As Object, e As EventArgs) Handles Uwrap.SelectedItemChanged
-        If current_decal = -1 Then Return
-        decal_matrix_list(current_decal).u_wrap = CSng(Uwrap.SelectedItem)
-        decal_matrix_list(current_decal).u_wrap_index = Uwrap.SelectedIndex
+        ' Check if a valid decal is selected
+        If current_decal_data_pnt = -1 Then
+            ' No valid decal selected, exit the subroutine
+            Return
+        End If
+
+        ' Check if the current_decal_data_pnt is within bounds of the decal_matrix_list
+        If current_decal_data_pnt >= 0 AndAlso current_decal_data_pnt < decal_matrix_list.Count Then
+            ' Retrieve the structure from the list
+            Dim currentDecal As DecalMatrix = decal_matrix_list(current_decal_data_pnt)
+
+            ' Update the u_wrap value in the copied structure
+            currentDecal.UWrap = CSng(Uwrap.SelectedItem)
+            ' Update the u_wrap_index in the copied structure
+            currentDecal.UWrapIndex = Uwrap.SelectedIndex
+
+            ' Assign the modified structure back to the list
+            decal_matrix_list(current_decal_data_pnt) = currentDecal
+
+            ' Optional: Update the corresponding cell in the DataGridView to reflect the change
+            If dgv.Columns.Contains("U_Wrap") Then
+                dgv.Rows(current_decal_data_pnt).Cells("U_Wrap").Value = currentDecal.UWrap
+            End If
+            If dgv.Columns.Contains("U_Wrap_Index") Then
+                dgv.Rows(current_decal_data_pnt).Cells("U_Wrap_Index").Value = currentDecal.UWrapIndex
+            End If
+        Else
+            ' Handle the case where the index is out of bounds
+            MessageBox.Show("Invalid decal index.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+        End If
     End Sub
 
-    Private Sub Vwrap_SelectedItemChanged(sender As Object, e As EventArgs) Handles Vwrap.SelectedItemChanged
-        If current_decal = -1 Then Return
-        decal_matrix_list(current_decal).v_wrap = CSng(Vwrap.SelectedItem)
-        decal_matrix_list(current_decal).v_wrap_index = Vwrap.SelectedIndex
 
+    ' Handles the SelectedItemChanged event of the Vwrap control.
+    Private Sub Vwrap_SelectedItemChanged(sender As Object, e As EventArgs) Handles Vwrap.SelectedItemChanged
+        ' Check if a valid decal is selected
+        If current_decal_data_pnt = -1 Then
+            ' No valid decal selected, exit the subroutine
+            Return
+        End If
+
+        ' Check if the current_decal_data_pnt is within bounds of the decal_matrix_list
+        If current_decal_data_pnt >= 0 AndAlso current_decal_data_pnt < decal_matrix_list.Count Then
+            ' Retrieve the structure from the list
+            Dim currentDecal As DecalMatrix = decal_matrix_list(current_decal_data_pnt)
+
+            ' Update the v_wrap value in the copied structure
+            currentDecal.VWrap = CSng(Vwrap.SelectedItem)
+            ' Update the v_wrap_index in the copied structure
+            currentDecal.VWrapIndex = Vwrap.SelectedIndex
+
+            ' Assign the modified structure back to the list
+            decal_matrix_list(current_decal_data_pnt) = currentDecal
+
+            ' Optional: Update the corresponding cell in the DataGridView to reflect the change
+            If dgv.Columns.Contains("V_Wrap") Then
+                dgv.Rows(current_decal_data_pnt).Cells("V_Wrap").Value = currentDecal.VWrap
+            End If
+            If dgv.Columns.Contains("V_Wrap_Index") Then
+                dgv.Rows(current_decal_data_pnt).Cells("V_Wrap_Index").Value = currentDecal.VWrapIndex
+            End If
+        Else
+            ' Handle the case where the index is out of bounds
+            MessageBox.Show("Invalid decal index.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+        End If
     End Sub
 
     Private Sub save_decal_btn_Click(sender As Object, e As EventArgs) Handles save_decal_btn.Click
-        If current_decal = -1 Then Return
+        If dgv.Rows.Count = 0 Then Return
         If MsgBox("Are you sure?", MsgBoxStyle.YesNo, "For real?") = MsgBoxResult.Yes Then
-            save_decal_data()
+            ExportDataGridViewToCSV(dgv, Temp_Storage + "\decal_layout.csv")
         End If
     End Sub
 
@@ -8885,21 +9024,91 @@ outta_here:
         End If
     End Sub
 
+    ' Handles the SelectedItemChanged event of the uv_rotate control.
     Private Sub uv_rotate_direction(sender As Object, e As EventArgs) Handles uv_rotate.SelectedItemChanged
-        If current_decal = -1 Then Return
-        decal_matrix_list(current_decal).uv_rot = CSng(uv_rotate.SelectedItem) * 0.017453293
-        decal_matrix_list(current_decal).uv_rot_index = uv_rotate.SelectedIndex
-
-    End Sub
-
-    Private Sub copy_Decal_btn_Click(sender As Object, e As EventArgs) Handles copy_Decal_btn.Click
-        If decal_order.Length < 1 Then
+        ' Check if a valid decal is selected
+        If current_decal_data_pnt = -1 Then
+            ' No valid decal selected, exit the subroutine
             Return
         End If
-        copy_decal()
+
+        ' Check if the current_decal_data_pnt is within bounds of the decal_matrix_list
+        If current_decal_data_pnt >= 0 AndAlso current_decal_data_pnt < decal_matrix_list.Count Then
+            ' Retrieve the structure from the list
+            Dim currentDecal As DecalMatrix = decal_matrix_list(current_decal_data_pnt)
+
+            ' Update the uv_rot value in the copied structure
+            ' Convert the selected item to radians by multiplying by 0.017453293 (1 degree = π/180 radians)
+            currentDecal.UVRot = CSng(uv_rotate.SelectedItem) * 0.017453293
+
+            ' Update the uv_rot_index in the copied structure
+            currentDecal.UVRotIndex = uv_rotate.SelectedIndex
+
+            ' Assign the modified structure back to the list
+            decal_matrix_list(current_decal_data_pnt) = currentDecal
+
+            ' Optional: Update the corresponding cell in the DataGridView to reflect the change
+            If dgv.Columns.Contains("UV_Rot") Then
+                dgv.Rows(current_decal_data_pnt).Cells("UV_Rot").Value = currentDecal.UVRot
+            End If
+            If dgv.Columns.Contains("UV_Rot_Index") Then
+                dgv.Rows(current_decal_data_pnt).Cells("UV_Rot_Index").Value = currentDecal.UVRotIndex
+            End If
+        Else
+            ' Handle the case where the index is out of bounds
+            MessageBox.Show("Invalid decal index.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+        End If
     End Sub
 
 
+    ' Handles the click event of the copy_Decal_btn button.
+    Private Sub copy_Decal_btn_Click(sender As Object, e As EventArgs) Handles copy_Decal_btn.Click
+        ' Reset the update event before performing operations
+        updateEvent.Reset()
+        ' Pause briefly to ensure any ongoing operations are completed
+        Thread.Sleep(100)
+
+        ' Check if there is at least one selected row in the DataGridView
+        If dgv.SelectedRows.Count > 0 Then
+            ' Get the index of the selected row
+            Dim selectedIndex As Integer = dgv.SelectedRows(0).Index
+
+            ' Deselect the current row to avoid conflicts
+            dgv.SelectedRows(0).Selected = False
+
+            ' Ensure the selected row is within a valid range and not the last row (which might be a new row placeholder)
+            If selectedIndex < dgv.Rows.Count Then
+                ' Copy data from the selected row to a new row in the DataGridView
+                Dim newRow As DataGridViewRow = CType(dgv.Rows(selectedIndex).Clone(), DataGridViewRow)
+                ' Loop through all columns in the selected row
+                For columnIndex As Integer = 0 To dgv.ColumnCount - 1
+                    newRow.Cells(columnIndex).Value = dgv.Rows(selectedIndex).Cells(columnIndex).Value
+                Next
+                dgv.Rows.Insert(selectedIndex + 1, newRow)
+
+                ' Insert a copy of the corresponding structure in decal_matrix_list
+                If selectedIndex >= 0 AndAlso selectedIndex < decal_matrix_list.Count Then
+                    ' Create a copy of the selected DecalMatrix structure
+                    Dim copiedDecal As DecalMatrix = decal_matrix_list(selectedIndex)
+
+                    ' Insert the deep copyied DecalMatrix
+                    decal_matrix_list.Insert(selectedIndex + 1, DecalMatrixClone(copiedDecal))
+                End If
+
+                ' Select the newly inserted row in the DataGridView
+                dgv.ClearSelection()
+                dgv.Rows(selectedIndex + 1).Selected = True
+                ' Scroll to the new row
+                dgv.FirstDisplayedScrollingRowIndex = selectedIndex + 1
+                current_decal_data_pnt = selectedIndex + 1
+                set_g_decal_current()
+
+            End If
+        End If
+
+        ' Re-enable the update event after operations are complete
+        updateEvent.Set()
+    End Sub
 
     Private Sub grid_cb_Click(sender As Object, e As EventArgs) Handles grid_cb.Click
         If grid_cb.Checked Then
@@ -10030,7 +10239,7 @@ load_script:
         End Try
 
     End Sub
-    Private Sub m_export_to_FBX_2_Click(sender As Object, e As EventArgs) Handles m_export_to_FBX_2.Click
+    Private Sub m_export_to_FBX_2_Click(sender As Object, e As EventArgs)
         fbx_vers = FileFormat.FBX7300Binary
         EXPORT_TYPE = 2
         make_glTF()
@@ -10041,7 +10250,7 @@ load_script:
         EXPORT_TYPE = 3
         make_glTF()
     End Sub
-    Private Sub m_export_to_collada_Click(sender As Object, e As EventArgs) Handles m_export_to_collada.Click
+    Private Sub m_export_to_collada_Click(sender As Object, e As EventArgs)
         EXPORT_TYPE = 4
         make_glTF()
     End Sub
@@ -10075,8 +10284,6 @@ load_script:
     End Sub
 
     Private Sub m_import_2016_fbx_Click(sender As Object, e As EventArgs) Handles m_import_2016_fbx.Click
-        Open_2016_fbx()
-
     End Sub
 
 
@@ -10093,13 +10300,139 @@ load_script:
         Application.DoEvents()
     End Sub
 
+    Private Sub m_2013_fbx_Click(sender As Object, e As EventArgs) Handles m_2013_fbx.Click
+        fbx_vers = FileFormat.FBX7400Binary
+        EXPORT_TYPE = 2
+        make_glTF()
+    End Sub
+
     Private Sub m_rebuild_XML_Click(sender As Object, e As EventArgs) Handles m_rebuild_XML.Click
         frmXMLbuilder.ShowDialog()
     End Sub
 
+
     Private Sub frmMain_Shown(sender As Object, e As EventArgs) Handles Me.Shown
         draw_scene()
-        shadow_fbo.reset_shadowFbo()
+
+
+    End Sub
+
+    Private Sub SetupDataGridViewInvisible(dgv As DataGridView)
+        ' General DataGridView configuration
+        With dgv
+            .Columns.Clear()
+            .SelectionMode = DataGridViewSelectionMode.FullRowSelect
+            .AllowUserToResizeColumns = False
+            .AllowUserToResizeRows = False
+            .AllowUserToOrderColumns = False
+            .AllowUserToAddRows = False
+            .AllowUserToDeleteRows = False
+            .AllowDrop = False
+            .ReadOnly = True
+            .Size = New Size(230, 231)
+            .AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None
+            .RowHeadersWidthSizeMode = DataGridViewRowHeadersWidthSizeMode.DisableResizing
+            .ColumnHeadersHeight = 20
+            .BackgroundColor = System.Drawing.Color.FromArgb(64, 64, 64)
+            .ColumnHeadersDefaultCellStyle.ForeColor = Color.FromArgb(255, 255, 255)
+
+        End With
+        ' Add visible columns
+        AddColumn(dgv, "DecalName", "DecalName", GetType(String), True, 170)
+        AddColumn(dgv, "DecalID", "DecalID", GetType(Integer), True, 60)
+
+        ' Add invisible single value columns
+        Dim singleValueColumns() As String = {"Alpha", "Level", "U_Wrap", "V_Wrap", "UV_Rot"}
+        For Each colName In singleValueColumns
+            AddColumn(dgv, colName, colName, GetType(Single), False)
+        Next
+
+        ' Add invisible scale columns
+        Dim scaleColumns() As String = {"ScaleX", "ScaleY", "ScaleZ"}
+        For Each colName In scaleColumns
+            AddColumn(dgv, colName, colName, GetType(Single), False)
+        Next
+
+        ' Add invisible translate columns
+        Dim translateColumns() As String = {"TranslateX", "TranslateY", "TranslateZ"}
+        For Each colName In translateColumns
+            AddColumn(dgv, colName, colName, GetType(Single), False)
+        Next
+
+        ' Add invisible rotation columns
+        Dim rotationColumns() As String = {"RotationX", "RotationY", "RotationZ"}
+        For Each colName In rotationColumns
+            AddColumn(dgv, colName, colName, GetType(Single), False)
+        Next
+
+        ' Add invisible wrap index columns
+        Dim wrapIndexColumns() As String = {"U_Wrap_Index", "V_Wrap_Index", "UV_Rot_Index"}
+        For Each colName In wrapIndexColumns
+            AddColumn(dgv, colName, colName, GetType(Integer), False)
+        Next
+
+        ' Don't allow user to sort rows.. It would trash texture overlaying order!
+        For Each column As DataGridViewColumn In dgv.Columns
+            column.SortMode = DataGridViewColumnSortMode.NotSortable
+        Next
+    End Sub
+
+    ' Helper function to add columns to the DataGridView
+    Private Sub AddColumn(dgv As DataGridView, name As String, headerText As String, valueType As Type, visible As Boolean, Optional width As Integer = 0)
+        Dim column As New DataGridViewTextBoxColumn() With {
+        .Name = name,
+        .HeaderText = headerText,
+        .DataPropertyName = name,
+        .ValueType = valueType,
+        .Visible = visible
+    }
+
+        If width > 0 Then
+            column.Width = width
+        End If
+
+        dgv.Columns.Add(column)
+    End Sub
+
+
+    Private Sub m_open_wot_temp_folder_Click(sender As Object, e As EventArgs) Handles m_open_wot_temp_folder.Click
+        Process.Start("explorer.exe", Temp_Storage)
+
+    End Sub
+
+    Private Sub dgv_CellClick(sender As Object, e As DataGridViewCellEventArgs) Handles dgv.CellClick
+        ' Check if the left mouse button is pressed
+        current_decal_lable.Text = dgv.SelectedRows(0).Index
+        d_texture_name.Text = dgv.SelectedRows(0).Cells("DecalName").Value
+        frmPickDecal.set_selecion(dgv.SelectedRows(0).Cells("DecalID").Value)
+
+        current_decal_data_pnt = dgv.SelectedRows(0).Index
+        cur_selected_decal = dgv.SelectedRows(0).Index
+        look_point_x = decal_matrix_list(current_decal_data_pnt).Translate.X
+        look_point_y = decal_matrix_list(current_decal_data_pnt).Translate.Y
+        look_point_z = decal_matrix_list(current_decal_data_pnt).Translate.Z
+
+        set_g_decal_current()
+    End Sub
+    Public Sub set_g_decal_current()
+        g_decal_translate.X = decal_matrix_list(current_decal_data_pnt).Translate.X
+        g_decal_translate.Y = decal_matrix_list(current_decal_data_pnt).Translate.Y
+        g_decal_translate.Z = decal_matrix_list(current_decal_data_pnt).Translate.Z
+
+        ' Copy the rotation values to global variables
+        g_decal_rotate.X = decal_matrix_list(current_decal_data_pnt).Rotation.X
+        g_decal_rotate.Y = decal_matrix_list(current_decal_data_pnt).Rotation.Y
+        g_decal_rotate.Z = decal_matrix_list(current_decal_data_pnt).Rotation.Z
+
+        ' Copy the scale values to global variables
+        g_decal_scale.X = decal_matrix_list(current_decal_data_pnt).Scale.X
+        g_decal_scale.Y = decal_matrix_list(current_decal_data_pnt).Scale.Y
+        g_decal_scale.Z = decal_matrix_list(current_decal_data_pnt).Scale.Z
+
+        ' Update look points (optional, if needed)
+        look_point_x = g_decal_translate.X
+        look_point_y = g_decal_translate.Y
+        look_point_z = g_decal_translate.Z
 
     End Sub
 End Class
