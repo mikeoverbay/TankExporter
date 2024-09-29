@@ -417,6 +417,9 @@ Module modDecals
         ' Pause briefly to ensure any ongoing operations are completed
         Thread.Sleep(50)
 
+        If frmMain.dgv.Columns.Count = 0 Then
+            frmMain.SetupDataGridView()
+        End If
         ' Determine the index where the new row should be inserted (after the current selection)
         Dim selectedIndex As Integer = If(frmMain.dgv.SelectedRows.Count > 0, frmMain.dgv.SelectedRows(0).Index + 1, frmMain.dgv.Rows.Count)
 
@@ -728,8 +731,10 @@ Module modDecals
             ' Clear existing rows and columns
             frmMain.dgv.Rows.Clear()
             frmMain.dgv.Columns.Clear()
-
             ' Open the CSV file for reading
+            If Not File.Exists(filepath) Then
+                Return
+            End If
             Using reader As New System.IO.StreamReader(filepath)
                 ' Read the header line
                 Dim headerLine As String = reader.ReadLine()

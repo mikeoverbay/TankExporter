@@ -900,7 +900,7 @@ done:
         End If
         '===================================================================================
         info_Label.Text = "loading terrain, textures, creating shadow texture, ect..."
-        SetupDataGridViewInvisible(dgv)
+        SetupDataGridView()
 
         Application.DoEvents()
         load_resources()
@@ -10374,7 +10374,7 @@ load_script:
 
     End Sub
 
-    Private Sub SetupDataGridViewInvisible(dgv As DataGridView)
+    Public Sub SetupDataGridView()
         ' General DataGridView configuration
         With dgv
             .Columns.Clear()
