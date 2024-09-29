@@ -1,9 +1,9 @@
-﻿<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()> _
+﻿<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()>
 Partial Class frmWritePrimitive
     Inherits System.Windows.Forms.Form
 
     'Form overrides dispose to clean up the component list.
-    <System.Diagnostics.DebuggerNonUserCode()> _
+    <System.Diagnostics.DebuggerNonUserCode()>
     Protected Overrides Sub Dispose(ByVal disposing As Boolean)
         Try
             If disposing AndAlso components IsNot Nothing Then
@@ -20,7 +20,7 @@ Partial Class frmWritePrimitive
     'NOTE: The following procedure is required by the Windows Form Designer
     'It can be modified using the Windows Form Designer.  
     'Do not modify it using the code editor.
-    <System.Diagnostics.DebuggerStepThrough()> _
+    <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(frmWritePrimitive))
         Me.Label1 = New System.Windows.Forms.Label()
@@ -41,7 +41,7 @@ Partial Class frmWritePrimitive
         Me.Label1.AutoSize = True
         Me.Label1.BackColor = System.Drawing.Color.Transparent
         Me.Label1.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label1.ForeColor = System.Drawing.Color.Black
+        Me.Label1.ForeColor = System.Drawing.Color.White
         Me.Label1.Location = New System.Drawing.Point(12, 9)
         Me.Label1.Name = "Label1"
         Me.Label1.Size = New System.Drawing.Size(99, 13)
@@ -53,7 +53,7 @@ Partial Class frmWritePrimitive
         Me.cew_cb.AutoSize = True
         Me.cew_cb.BackColor = System.Drawing.Color.Transparent
         Me.cew_cb.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.cew_cb.ForeColor = System.Drawing.Color.Black
+        Me.cew_cb.ForeColor = System.Drawing.Color.White
         Me.cew_cb.Location = New System.Drawing.Point(15, 30)
         Me.cew_cb.Name = "cew_cb"
         Me.cew_cb.Size = New System.Drawing.Size(69, 17)
@@ -66,7 +66,7 @@ Partial Class frmWritePrimitive
         Me.hew_cb.AutoSize = True
         Me.hew_cb.BackColor = System.Drawing.Color.Transparent
         Me.hew_cb.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.hew_cb.ForeColor = System.Drawing.Color.Black
+        Me.hew_cb.ForeColor = System.Drawing.Color.White
         Me.hew_cb.Location = New System.Drawing.Point(15, 53)
         Me.hew_cb.Name = "hew_cb"
         Me.hew_cb.Size = New System.Drawing.Size(48, 17)
@@ -79,7 +79,7 @@ Partial Class frmWritePrimitive
         Me.tew_cb.AutoSize = True
         Me.tew_cb.BackColor = System.Drawing.Color.Transparent
         Me.tew_cb.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.tew_cb.ForeColor = System.Drawing.Color.Black
+        Me.tew_cb.ForeColor = System.Drawing.Color.White
         Me.tew_cb.Location = New System.Drawing.Point(15, 76)
         Me.tew_cb.Name = "tew_cb"
         Me.tew_cb.Size = New System.Drawing.Size(60, 17)
@@ -92,7 +92,7 @@ Partial Class frmWritePrimitive
         Me.gew_cb.AutoSize = True
         Me.gew_cb.BackColor = System.Drawing.Color.Transparent
         Me.gew_cb.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.gew_cb.ForeColor = System.Drawing.Color.Black
+        Me.gew_cb.ForeColor = System.Drawing.Color.White
         Me.gew_cb.Location = New System.Drawing.Point(15, 99)
         Me.gew_cb.Name = "gew_cb"
         Me.gew_cb.Size = New System.Drawing.Size(49, 17)
@@ -104,7 +104,7 @@ Partial Class frmWritePrimitive
         '
         Me.Button1.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
         Me.Button1.ForeColor = System.Drawing.Color.Black
-        Me.Button1.Location = New System.Drawing.Point(196, 241)
+        Me.Button1.Location = New System.Drawing.Point(15, 122)
         Me.Button1.Name = "Button1"
         Me.Button1.Size = New System.Drawing.Size(75, 23)
         Me.Button1.TabIndex = 5
@@ -171,9 +171,8 @@ Partial Class frmWritePrimitive
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.Color.FromArgb(CType(CType(30, Byte), Integer), CType(CType(30, Byte), Integer), CType(CType(30, Byte), Integer))
-        Me.BackgroundImage = Global.Tank_Exporter.My.Resources.Resources.upton
         Me.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
-        Me.ClientSize = New System.Drawing.Size(279, 272)
+        Me.ClientSize = New System.Drawing.Size(183, 272)
         Me.Controls.Add(Me.m_write_crashed)
         Me.Controls.Add(Me.copy_lods_cb)
         Me.Controls.Add(Me.hide_tracks_cb)

@@ -127,9 +127,6 @@
   <data name="control_090" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\resources\control_090.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="uptonMask" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\resources\uptonMask.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
   <data name="images_on" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\resources\images_on.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
@@ -148,20 +145,11 @@
   <data name="grid_dark" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\resources\grid_dark.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="game_of_war" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\resources\game_of_war.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
   <data name="gun" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\resources\gun.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="blue" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\resources\blue.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="upton" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\resources\upton.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="bone_off" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\resources\bone_off.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="Paste_6520" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\resources\Paste_6520.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -208,16 +196,13 @@
   <data name="grid_blank" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\resources\grid_blank.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="Katie_upton" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\resources\Katie_upton.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
   <data name="black" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\resources\black.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="MDL_bg" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\resources\MDL_bg.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="upton_BnW" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\resources\upton_BnW.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="splash" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\splash.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
 </root>

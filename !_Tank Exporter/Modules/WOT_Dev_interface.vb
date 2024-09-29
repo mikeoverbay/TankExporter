@@ -204,7 +204,8 @@ Module WOT_Dev_interface
 
         build_look_table()
 
-        'fix 2024/8/6 defined column data types. 
+        'fix 2024/9/29 defined column data types. table needs reset to a new one.
+        TankDataTable = New DataTable
         Dim column As New DataColumn()
         Dim column1 As New DataColumn()
         Dim column2 As New DataColumn()

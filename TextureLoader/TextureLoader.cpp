@@ -7,7 +7,6 @@
 #include <thread>
 #include <mutex>
 #include <condition_variable>
-
 // DDS format constants
 const uint32_t FOURCC_DXT1 = 0x31545844; // "DXT1" in ASCII
 const uint32_t FOURCC_DXT3 = 0x33545844; // "DXT3" in ASCII

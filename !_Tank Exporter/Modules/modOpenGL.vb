@@ -24,12 +24,19 @@ Imports System.Collections.Generic
 Module modOpenGL
     Public pb1_hDC As System.IntPtr
     Public pb1_hRC As System.IntPtr
+
     Public pb2_hDC As System.IntPtr
     Public pb2_hRC As System.IntPtr
+
     Public pb3_hDC As System.IntPtr
     Public pb3_hRC As System.IntPtr
-    Public pb4_hDC As System.IntPtr ' New for the fourth context
-    Public pb4_hRC As System.IntPtr ' New for the fourth context
+
+    Public pb4_hDC As System.IntPtr
+    Public pb4_hRC As System.IntPtr
+
+    Public pb5_hDC As System.IntPtr
+    Public pb5_hRC As System.IntPtr
+
     Public position0() As Single = {2.843F, 10.0F, 9.596F, 1.0F}
     Public position1() As Single = {-5.0F, 8.0F, -5.0F, 1.0F}
     Public position2() As Single = {5.0F, 12.0F, 0.0F, -5.0F}
@@ -37,6 +44,23 @@ Module modOpenGL
     Public W_position0() As Single = {5.0F, 10.0F, 5.0F, 1.0F}
     Public W_position1() As Single = {-5.0F, 8.0F, -5.0F, 1.0F}
     Public W_position2() As Single = {5.0F, 10.0F, -5.0F, 1.0F}
+
+
+    Public light1_color As Color = Color.White
+    Public light2_color As Color = Color.White
+    Public light3_color As Color = Color.White
+
+    Public lightPositions As Single() = {
+                                    position0(0), position0(1), position0(2),  ' 
+                                    position1(0), position1(1), position1(2),  ' 
+                                    position2(0), position2(1), position2(2)   '
+                                    }
+    Public lightColors As Single() = {
+                                        light1_color.R / 255.0, light1_color.G / 255, light1_color.B / 255,  ' Light 0 
+                                        light2_color.R / 255.0, light2_color.G / 255, light2_color.B / 255,  ' Light 1 
+                                        light3_color.R / 255.0, light3_color.G / 255, light3_color.B / 255  ' Light 2 
+                                       }
+
 
     Public Sub EnableOpenGL()
         position0(0) = W_position0(0)
@@ -60,6 +84,7 @@ Module modOpenGL
         pb2_hDC = User.GetDC(frmMain.pb2.Handle)
         pb3_hDC = User.GetDC(frmMain.PB3.Handle)
         pb4_hDC = User.GetDC(frmPickDecal.pb4.Handle) ' Get the device context of the form
+        pb5_hDC = User.GetDC(frmFullScreen.fs_render_box.Handle) ' Get the device context of the form
 
         frmMain.Controls.Add(frmMain.pb2)
         Application.DoEvents()
@@ -148,12 +173,28 @@ Module modOpenGL
             MessageBox.Show("Unable to make rendering context current 4")
             Return
         End If
+        '================================================================4
+
+        If Not (Gdi.SetPixelFormat(pb5_hDC, PixelFormat, pfd)) Then
+            MessageBox.Show("Unable to set pixel format 4")
+            Return
+        End If
+        pb5_hRC = Wgl.wglCreateContext(pb5_hDC)
+        If pb4_hRC.ToInt32 = 0 Then
+            MessageBox.Show("Unable to get rendering context 4")
+            Return
+        End If
+        If Not (Wgl.wglMakeCurrent(pb5_hDC, pb5_hRC)) Then
+            MessageBox.Show("Unable to make rendering context current 4")
+            Return
+        End If
 
         '================================================================
         ' Share resources among contexts
         Wgl.wglShareLists(pb1_hRC, pb2_hRC)
         Wgl.wglShareLists(pb1_hRC, pb3_hRC)
         Wgl.wglShareLists(pb1_hRC, pb4_hRC) ' Share with the fourth context
+        Wgl.wglShareLists(pb1_hRC, pb5_hRC) ' Share with the fifth context
 
         ' Go back to context 1
         If Not (Wgl.wglMakeCurrent(pb1_hDC, pb1_hRC)) Then
@@ -299,7 +340,11 @@ ByVal text As String, ByVal r As Single, ByVal g As Single, ByVal b As Single, B
     Public Sub ViewOrtho()
         Gl.glMatrixMode(Gl.GL_PROJECTION) 'Select Projection
         Gl.glLoadIdentity() 'Reset The Matrix
-        Gl.glOrtho(0, frmMain.pb1.Width, -frmMain.pb1.Height, 0, -200.0, 100.0) 'Select Ortho Mode
+        If Not FULL_SCREEN Then
+            Gl.glOrtho(0, frmMain.pb1.Width, -frmMain.pb1.Height, 0, -200.0, 100.0) 'Select Ortho Mode
+        Else
+            Gl.glOrtho(0, frmFullScreen.fs_render_box.Width, -frmFullScreen.fs_render_box.Height, 0, -200.0, 100.0)
+        End If
         Gl.glMatrixMode(Gl.GL_MODELVIEW)    'Select Modelview Matrix
         Gl.glLoadIdentity() 'Reset The Matrix
     End Sub

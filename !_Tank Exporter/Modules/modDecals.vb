@@ -37,7 +37,7 @@ Module modDecals
 
 
     Public current_decal_data_pnt As Integer = -1
-    Public cur_selected_decal As Integer = -1
+    Public cur_selected_decal_texture As Integer = -1
     Public picked_decal As Integer = 0
     Public decal_order() As Integer
 
@@ -94,12 +94,7 @@ Module modDecals
         Public Property UWrapIndex As Integer
         Public Property VWrapIndex As Integer
         Public Property UVRotIndex As Integer
-
-        Public Property TextureId As Integer
-        Public Property NormalId As Integer
-        Public Property GmmId As Integer
         Public Property DecalTexture As String
-
         Public Property DisplayMatrix() As Single()
         Public Property YRotateMatrix() As Single()
         Public Property XRotateMatrix() As Single()
@@ -116,20 +111,16 @@ Module modDecals
         End Sub
 
         ' Deep copy method
-        Public Sub GetDecalsTransformInfo()
+        Public Sub Set_UI_and_Matrices()
             ' Example assignments using this instance
             g_decal_scale = Me.Scale
             g_decal_translate = Me.Translate
             g_decal_rotate = Me.Rotation
-            frmMain.decal_alpha_slider.Value = CInt(1 * Me.Alpha)
-            frmMain.decal_level_slider.Value = CInt(1 * Me.Level)
-            frmMain.Uwrap.SelectedIndex = Me.UWrapIndex
-            frmMain.Vwrap.SelectedIndex = Me.VWrapIndex
-            frmMain.uv_rotate.SelectedIndex = Me.UVRotIndex
-            frmMain.current_decal_lable.Text = current_decal_data_pnt
-            look_point_x = Me.Translate.x
-            look_point_y = Me.Translate.y
-            look_point_z = Me.Translate.z
+            If frmMain.track_decal_cb.Checked Then
+                look_point_x = Me.Translate.X
+                look_point_y = Me.Translate.Y
+                look_point_z = Me.Translate.Z
+            End If
             frmMain.d_texture_name.Text = Me.DecalTexture
 
             ' Set rotation matrices
@@ -162,8 +153,8 @@ Module modDecals
 
         Public Sub LoadIdentity()
             ' Set default values when the decal is created
-            Me.Alpha = 1.0
-            Me.Level = 1.0
+            Me.Alpha = 100
+            Me.Level = 100
             Me.Scale = New Vect3s(1.0, 1.0, 1.0)
             Me.UWrap = 1.0
             Me.VWrap = 1.0
@@ -212,10 +203,10 @@ Module modDecals
             Gl.glLoadIdentity()
 
             ' Apply transformations in the correct order:
-            Gl.glMultMatrixf(Me.TranslateMatrix)      ' Apply translation
+            Gl.glTranslatef(Me.Translate.X, Me.Translate.Y, Me.Translate.Z)
+            Gl.glMultMatrixf(Me.ZRotateMatrix)        ' Apply rotation around Z axis
             Gl.glMultMatrixf(Me.YRotateMatrix)        ' Apply rotation around Y axis
             Gl.glMultMatrixf(Me.XRotateMatrix)        ' Apply rotation around X axis
-            Gl.glMultMatrixf(Me.ZRotateMatrix)        ' Apply rotation around Z axis
             Gl.glMultMatrixf(Me.ScaleMatrix)          ' Apply scaling
 
             ' Retrieve the final transformation matrix
@@ -308,6 +299,20 @@ Module modDecals
         End Class
 
     End Class
+    Public Sub updateGUI()
+        Dim index = current_decal_data_pnt
+        Try
+
+            frmMain.decal_alpha_slider.Value = decal_matrix_list(index).Alpha
+            frmMain.decal_level_slider.Value = decal_matrix_list(index).Level
+            frmMain.Uwrap.SelectedIndex = decal_matrix_list(index).UWrapIndex
+            frmMain.Vwrap.SelectedIndex = decal_matrix_list(index).VWrapIndex
+            frmMain.uv_rotate.SelectedIndex = decal_matrix_list(index).UVRotIndex
+            frmMain.current_decal_lable.Text = current_decal_data_pnt
+        Catch ex As Exception
+
+        End Try
+    End Sub
     Public Function DecalMatrixClone(ByRef decal_in As DecalMatrix) As DecalMatrix
         Dim newDecalMatrix = New DecalMatrix
         newDecalMatrix.Alpha = decal_in.Alpha
@@ -321,9 +326,7 @@ Module modDecals
         newDecalMatrix.UWrapIndex = decal_in.UWrapIndex
         newDecalMatrix.VWrapIndex = decal_in.VWrapIndex
         newDecalMatrix.UVRotIndex = decal_in.UVRotIndex
-        newDecalMatrix.TextureId = decal_in.TextureId
-        newDecalMatrix.NormalId = decal_in.NormalId
-        newDecalMatrix.GmmId = decal_in.GmmId
+        newDecalMatrix.DecalIndex = decal_in.DecalIndex
         newDecalMatrix.DecalTexture = decal_in.DecalTexture
         newDecalMatrix.DisplayMatrix = CType(decal_in.DisplayMatrix.Clone(), Single()) ' Deep copy array
         newDecalMatrix.YRotateMatrix = CType(decal_in.YRotateMatrix.Clone(), Single())
@@ -347,8 +350,8 @@ Module modDecals
         Public ny As Single
         Public nz As Single
         Public map As Integer
-        Public t As Vect3
-        Public bt As Vect3
+        Public t As vect3
+        Public bt As vect3
     End Structure
 
 
@@ -426,20 +429,20 @@ Module modDecals
         ' Set default values for the new row
         newRow.Cells("DecalName").Value = decal_textures(0).colorMap_name ' Default to the first decal name
         newRow.Cells("DecalID").Value = 0
-        newRow.Cells("Alpha").Value = 1.0
-        newRow.Cells("Level").Value = 1.0
-        newRow.Cells("U_Wrap").Value = 1.0
-        newRow.Cells("V_Wrap").Value = 1.0
+        newRow.Cells("Alpha").Value = 100.0!
+        newRow.Cells("Level").Value = 100.0!
+        newRow.Cells("U_Wrap").Value = 1.0!
+        newRow.Cells("V_Wrap").Value = 1.0!
         newRow.Cells("UV_Rot").Value = 4
-        newRow.Cells("ScaleX").Value = 1.0
-        newRow.Cells("ScaleY").Value = 1.0
-        newRow.Cells("ScaleZ").Value = 1.0
-        newRow.Cells("TranslateX").Value = 0.0
-        newRow.Cells("TranslateY").Value = 0.0
-        newRow.Cells("TranslateZ").Value = 0.0
-        newRow.Cells("RotationX").Value = 0.0
-        newRow.Cells("RotationY").Value = 0.0
-        newRow.Cells("RotationZ").Value = 0.0
+        newRow.Cells("ScaleX").Value = 1.0!
+        newRow.Cells("ScaleY").Value = 1.0!
+        newRow.Cells("ScaleZ").Value = 1.0!
+        newRow.Cells("TranslateX").Value = 0.0!
+        newRow.Cells("TranslateY").Value = 0.0!
+        newRow.Cells("TranslateZ").Value = 0.0!
+        newRow.Cells("RotationX").Value = -PI / 2.0!
+        newRow.Cells("RotationY").Value = 0.0!
+        newRow.Cells("RotationZ").Value = 0.0!
         newRow.Cells("U_Wrap_Index").Value = 4
         newRow.Cells("V_Wrap_Index").Value = 4
         newRow.Cells("UV_Rot_Index").Value = 4
@@ -461,32 +464,35 @@ Module modDecals
         ReDim newDecal.ZRotateMatrix(15)
         ReDim newDecal.TranslateMatrix(15)
         ReDim newDecal.ScaleMatrix(15)
-        ' Insert a new default decal_matrix_list_ structure at the selected index
+        ' Load identity matrices
         newDecal.LoadIdentity()
-        newDecal.GetDecalsTransformInfo()
+        newDecal.Set_UI_and_Matrices()
         newDecal.DecalIndex = 0
 
         ' Insert the new structure into the list at the desired index
         decal_matrix_list.Insert(selectedIndex, newDecal)
         current_decal_data_pnt = selectedIndex
-        If Not LOADING_FBX Then
+
+        ' Set the default rotation matrix to -1.5707 for X-axis rotation
+        If Not LOADING Then
 
         End If
-        newDecal.SetXRotationMatrix(-1.5707)
+        'newDecal.SetXRotationMatrix(-PI / 2)
 
-        ' Update the d_current_line variable to the current decal index
-        cur_selected_decal = current_decal_data_pnt
+        ' Update the current selected decal texture index
+        cur_selected_decal_texture = 0
         setthisdecal(0)
+
+        ' Update the current decal label text
         frmMain.current_decal_lable.Text = current_decal_data_pnt
+
         ' Re-enable the update event after operations are complete
         frmMain.set_g_decal_current()
         updateEvent.Set()
     End Sub
     ' Creates and initializes a new decal_matrix_list_ structure at the specified index in the decal_matrix_list.
     Public Sub setthisdecal(ByVal texturePnt As Integer)
-        decal_matrix_list(current_decal_data_pnt).TextureId = decal_textures(texturePnt).colorMap_Id
-        decal_matrix_list(current_decal_data_pnt).NormalId = decal_textures(texturePnt).normalMap_Id
-        decal_matrix_list(current_decal_data_pnt).GmmId = decal_textures(texturePnt).gmmMap_id
+        decal_matrix_list(current_decal_data_pnt).DecalIndex = texturePnt
     End Sub
 
     Public Sub load_this_Decal(ByVal j As Integer)
@@ -498,11 +504,13 @@ Module modDecals
                 decal_textures(j).normalMap_Id = LoadTextureDDS(ts)
                 ts = name.Replace("_AM.dds", "_GMM.dds")
                 decal_textures(j).gmmMap_id = LoadTextureDDS(ts)
+
             Catch ex As Exception
 
             End Try
         End If
     End Sub
+
     Public Sub load_decal_textures()
         If My.Settings.stop_loading_decals Then Return
 
@@ -527,24 +535,23 @@ Module modDecals
         ReDim decal_textures(c_c - 1)
         Dim ts As String = ""
         For j = 0 To c_c - 1
-            If File.Exists(c_names(j).Replace("_AM.dds", "_GMM.dds")) Then
-                decal_textures(j) = New decal_texture_
-                decal_textures(j).full_path = c_names(j)
-                decal_textures(j).colorMap_name = Path.GetFileNameWithoutExtension(c_names(j))
-                'decal_textures(j).colorMap_Id = load_dds_file(c_names(j))
-                'ts = c_names(j).Replace("_AM.dds", "_NM.dds")
-                ' decal_textures(j).normalMap_Id = load_dds_file(ts)
-                'ts = c_names(j).Replace("_AM.dds", "_GMM.dds")
-                'decal_textures(j).gmmMap_id = load_dds_file(ts)
-            Else
-                Try
-                    File.Delete(c_names(j))
-                Catch ex As Exception
-                End Try
-                Try
-                    File.Delete(c_names(j).Replace("_AM.dds", "_NM.dds"))
-                Catch ex As Exception
-                End Try
+            If decal_textures(j).colorMap_Id = 0 Then
+
+                If File.Exists(c_names(j).Replace("_AM.dds", "_GMM.dds")) Then
+                    decal_textures(j) = New decal_texture_
+                    decal_textures(j).full_path = c_names(j)
+                    decal_textures(j).colorMap_name = Path.GetFileNameWithoutExtension(c_names(j))
+
+                Else
+                    Try
+                        File.Delete(c_names(j))
+                    Catch ex As Exception
+                    End Try
+                    Try
+                        File.Delete(c_names(j).Replace("_AM.dds", "_NM.dds"))
+                    Catch ex As Exception
+                    End Try
+                End If
             End If
         Next
 
@@ -714,7 +721,7 @@ Module modDecals
     End Sub
 
     Dim LOADING As Boolean = False
-    Public Sub load_decal_data()
+    Public Sub load_decal_layout()
         Dim filepath = Temp_Storage + "\decal_layout.csv"
         Try
             LOADING = True
@@ -783,6 +790,7 @@ Module modDecals
         decal_matrix_list.Clear()
 
         ' Loop through each row in the DataGridView
+        Dim idx As Integer = 0
         For Each row As DataGridViewRow In frmMain.dgv.Rows
             ' Skip the new row placeholder if present
             If row.IsNewRow Then Continue For
@@ -834,18 +842,19 @@ Module modDecals
             ' Assign texture IDs if the texture matches
             For i = 0 To decal_textures.Length - 1
                 If decal.DecalTexture = decal_textures(i).colorMap_name Then
-                    decal.TextureId = decal_textures(i).colorMap_Id
-                    decal.NormalId = decal_textures(i).normalMap_Id
-                    decal.GmmId = decal_textures(i).gmmMap_id
+                    load_this_Decal(i)
+                    decal.DecalIndex = i
                 End If
             Next
 
+
             ' Add to the decal_matrix_list
-            'decal.GetDecalsTransformInfo()
-            decal.SetRotationMatrices()
+            decal.Set_UI_and_Matrices()
             ' Set up matrices
             decal_matrix_list.Add(decal)
-
+            current_decal_data_pnt = idx
+            updateGUI()
+            idx += 1
         Next
     End Sub
 

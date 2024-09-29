@@ -94,7 +94,7 @@ vec3 getNormal(in vec2 iUV,in vec2 UVn,in vec3 pos,  in float alpha)
     co = normalize(co);
 
     co = tbn * co;
-    co.z *= -1.0;
+    co.x *= -1.0;
 
     co = normalize(co);
     return co;

@@ -49,6 +49,9 @@ Module get_glTF
                     ReDim Preserve _group(cnt)
                     _group(cnt) = New _grps
                     ProcessNode(node, cnt)
+                    fbxgrp(cnt).name = "node_" + cnt.ToString
+                    fbxgrp(cnt).visible = True
+                    fbxgrp(cnt).component_visible = True
                     cnt += 1
                 Next
             Next
@@ -57,13 +60,14 @@ Module get_glTF
             Return False
         End Try
 
+
         frmMain.info_Label.Text = "Creating Display Lists"
         Application.DoEvents()
         For i = 1 To fbxgrp.Length - 1
             Dim id = Gl.glGenLists(1)
             Gl.glNewList(id, Gl.GL_COMPILE)
             fbxgrp(i).call_list = id
-            make_fbx_display_lists(fbxgrp(i).nPrimitives_ * 3, i)
+            make_fbx_display_lists(fbxgrp(i).nPrimitives_ - 1, i)
             Gl.glEndList()
         Next
         FBX_LOADED = True
@@ -141,8 +145,8 @@ Module get_glTF
 
 
                 Next
-                fbxgrp(id).nPrimitives_ = node.Mesh.Primitives.Count
                 Dim indis = primitive.GetIndices
+                fbxgrp(id).nPrimitives_ = indis.Count / 3
                 Dim cnt = 0
                 ReDim Preserve fbxgrp(id).indices((indis.Count / 3) - 1)
                 For i = 0 To indis.Count - 1 Step 3
@@ -154,35 +158,70 @@ Module get_glTF
                 If primitive.Material IsNot Nothing Then
 
                     ' Base color texture
-                    Dim texture = primitive.Material.Channels(0) 'BaseColor
-                    Dim textCoordIdx = texture.TextureCoordinate
-                        Dim color = texture.Color
-                        Dim name = texture.Texture.PrimaryImage.Name
-                        Dim data = texture.Texture.PrimaryImage.Content.Content.ToArray
-                        Using ms As New MemoryStream(data)
-                            _group(id).color_Id = get_png_id(ms)
-                            _group(id).color_name = name
-                        End Using
+                    With primitive.Material
 
-                    texture = primitive.Material.Channels(1) 'matallic roughness
-                    textCoordIdx = texture.TextureCoordinate
-                        color = texture.Color
-                        name = texture.Texture.PrimaryImage.Name
-                        data = texture.Texture.PrimaryImage.Content.Content.ToArray
-                        Using ms As New MemoryStream(data)
-                        _group(id).metalGMM_Id = get_png_id(ms)
-                        _group(id).metalGMM_name = name
-                    End Using
+                        Dim basecolorchannel = .FindChannel("baseColor")
 
-                    texture = primitive.Material.Channels(2) 'matallic roughness
-                    textCoordIdx = texture.TextureCoordinate
-                    color = texture.Color
-                    name = texture.Texture.PrimaryImage.Name
-                    data = texture.Texture.PrimaryImage.Content.Content.ToArray
-                    Using ms As New MemoryStream(data)
-                        _group(id).metalGMM_Id = get_png_id(ms)
-                        _group(id).metalGMM_name = name
-                    End Using
+                        If basecolorchannel IsNot Nothing Then
+                            Dim texture = .Channels(0) 'BaseColor
+                            Dim textCoordIdx = texture.TextureCoordinate
+                            Dim color = texture.Color
+                            Dim name = texture.Texture.PrimaryImage.Name
+                            Dim data = texture.Texture.PrimaryImage.Content.Content.ToArray
+                            Using ms As New MemoryStream(data)
+                                fbxgrp(id).color_Id = get_png_id(ms)
+                                fbxgrp(id).color_name = name
+                            End Using
+                        End If
+
+                        Dim gmmchannel = .FindChannel("MetallicRoughness")
+
+                        If gmmchannel IsNot Nothing Then
+                            Dim gmtexture = .Channels(1) 'matallic roughness
+                            Try
+
+                                Dim textCoordIdx = gmtexture.TextureCoordinate
+                                'Dim Color = gmtexture.Color
+                                Dim name = gmtexture.Texture.PrimaryImage.Name
+                                Dim Data = gmtexture.Texture.PrimaryImage.Content.Content.ToArray
+                                Using ms As New MemoryStream(Data)
+                                    fbxgrp(id).metalGMM_Id = get_png_id(ms)
+                                    fbxgrp(id).metalGMM_name = name
+                                End Using
+                            Catch ex As Exception
+
+                            End Try
+                        End If
+
+                        Dim normalchannel = .FindChannel("normal")
+                        If normalchannel IsNot Nothing Then
+                            Dim texture = .Channels(2) 'normal
+                            Dim textCoordIdx = texture.TextureCoordinate
+                            'Dim color = texture.Color
+                            Dim name = texture.Texture.PrimaryImage.Name
+                            Dim data = texture.Texture.PrimaryImage.Content.Content.ToArray
+                            Using ms As New MemoryStream(data)
+                                fbxgrp(id).normal_Id = get_png_id(ms)
+                                fbxgrp(id).normal_name = name
+                            End Using
+                        End If
+
+                        Dim aochannel = .FindChannel("OcclusionOcclusion")
+                        If aochannel IsNot Nothing Then
+
+                            Dim texture = .Channels(3) 'ao
+                            Dim textCoordIdx = texture.TextureCoordinate
+                            Dim Color = texture.Color
+                            Dim name = texture.Texture.PrimaryImage.Name
+                            Dim Data = texture.Texture.PrimaryImage.Content.Content.ToArray
+                            Using ms As New MemoryStream(Data)
+                                fbxgrp(id).normal_Id = get_png_id(ms)
+                                fbxgrp(id).normal_name = name
+                            End Using
+                        End If
+
+                    End With
+
                 End If
             Next
         End If

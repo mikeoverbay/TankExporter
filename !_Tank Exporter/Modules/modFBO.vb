@@ -61,8 +61,13 @@ Module modFBO
         End Sub
         Public Sub getsize(ByRef w As Integer, ByRef h As Integer)
             Dim w1, h1 As Integer
-            w1 = frmMain.pb1.Width
-            h1 = frmMain.pb1.Height
+            If Not FULL_SCREEN Then
+                w1 = frmMain.pb1.Width
+                h1 = frmMain.pb1.Height
+            Else
+                w1 = frmFullScreen.fs_render_box.Width
+                h1 = frmFullScreen.fs_render_box.Height
+            End If
             w = w1 + (w1 Mod 2)
             h = h1 + (h1 Mod 2)
         End Sub

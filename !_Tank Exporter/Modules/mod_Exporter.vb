@@ -57,10 +57,6 @@ Module mod_Exporter
         End If
         My.Settings.fbx_path = out_path
 
-        frmMain.clean_house()
-        remove_loaded_fbx()
-
-
         Dim name As String = Path.GetFileName(ar(0))
         Dim save_path = Path.GetDirectoryName(My.Settings.fbx_path) + "\" + name
         export_fbx_textures(False, 0) 'export all textures
@@ -235,7 +231,7 @@ Module mod_Exporter
                         m2.SetTexture(Material.MapNormal, txn)
                         m2.AmbientColor = New Vector3(0.3, 0.3, 0.3)
                         m2.DiffuseColor = New Vector3(0.7, 0.7, 0.7)
-                        base.Material = (scene_.RootNode.Materials(item - 1))
+                        base.Material = scene_.RootNode.Materials(item - 1)
                         Exit Select
                     Case 1
                         ' Create a PBR material with a base color
@@ -254,7 +250,7 @@ Module mod_Exporter
                         m1.Name = "Material00" + item.ToString
                         m1.SetProperty("Specular", 0.05)
                         m1.SetProperty("Shininess", 0.1)
-                        base.Material = (scene_.RootNode.Materials(item - 1))
+                        base.Material = scene_.RootNode.Materials(item - 1)
                         Exit Select
 
                 End Select

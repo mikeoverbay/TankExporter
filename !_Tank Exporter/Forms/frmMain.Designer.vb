@@ -140,6 +140,7 @@ Partial Class frmMain
         Me.turret_cb = New System.Windows.Forms.CheckBox()
         Me.hull_cb = New System.Windows.Forms.CheckBox()
         Me.chassis_cb = New System.Windows.Forms.CheckBox()
+        Me.intro_label = New System.Windows.Forms.Label()
         Me.decal_panel = New System.Windows.Forms.Panel()
         Me.copy_Decal_btn = New System.Windows.Forms.Button()
         Me.hide_BB_cb = New System.Windows.Forms.CheckBox()
@@ -147,6 +148,9 @@ Partial Class frmMain
         Me.decal_alpha_slider = New System.Windows.Forms.TrackBar()
         Me.decal_level_slider = New System.Windows.Forms.TrackBar()
         Me.Label6 = New System.Windows.Forms.Label()
+        Me.dgv = New System.Windows.Forms.DataGridView()
+        Me.decalName = New System.Windows.Forms.DataGridViewTextBoxColumn()
+        Me.decalID = New System.Windows.Forms.DataGridViewTextBoxColumn()
         Me.uv_rotate = New System.Windows.Forms.DomainUpDown()
         Me.save_decal_btn = New System.Windows.Forms.Button()
         Me.load_decal_btn = New System.Windows.Forms.Button()
@@ -165,14 +169,11 @@ Partial Class frmMain
         Me.m_delete = New System.Windows.Forms.Button()
         Me.m_new = New System.Windows.Forms.Button()
         Me.current_decal_lable = New System.Windows.Forms.Label()
-        Me.dgv = New System.Windows.Forms.DataGridView()
-        Me.decalName = New System.Windows.Forms.DataGridViewTextBoxColumn()
-        Me.decalID = New System.Windows.Forms.DataGridViewTextBoxColumn()
         Me.PB3 = New System.Windows.Forms.PictureBox()
-        Me.pb1 = New System.Windows.Forms.PictureBox()
         Me.font_holder = New System.Windows.Forms.Label()
         Me.PG1 = New System.Windows.Forms.ProgressBar()
         Me.pb2 = New System.Windows.Forms.Panel()
+        Me.pb1 = New System.Windows.Forms.PictureBox()
         Me.info_Label = New System.Windows.Forms.Label()
         Me.SplitContainer2 = New System.Windows.Forms.SplitContainer()
         Me.SearchBox = New System.Windows.Forms.TextBox()
@@ -868,10 +869,11 @@ Partial Class frmMain
         '
         'SplitContainer3
         '
-        Me.SplitContainer3.BackColor = System.Drawing.SystemColors.ButtonFace
+        Me.SplitContainer3.BackColor = System.Drawing.Color.Black
         Me.SplitContainer3.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
         Me.SplitContainer3.Dock = System.Windows.Forms.DockStyle.Fill
         Me.SplitContainer3.FixedPanel = System.Windows.Forms.FixedPanel.Panel1
+        Me.SplitContainer3.ForeColor = System.Drawing.Color.White
         Me.SplitContainer3.IsSplitterFixed = True
         Me.SplitContainer3.Location = New System.Drawing.Point(0, 23)
         Me.SplitContainer3.Name = "SplitContainer3"
@@ -891,12 +893,13 @@ Partial Class frmMain
         'SplitContainer3.Panel2
         '
         Me.SplitContainer3.Panel2.BackgroundImage = Global.Tank_Exporter.My.Resources.Resources.gradiant
+        Me.SplitContainer3.Panel2.Controls.Add(Me.intro_label)
         Me.SplitContainer3.Panel2.Controls.Add(Me.decal_panel)
         Me.SplitContainer3.Panel2.Controls.Add(Me.PB3)
-        Me.SplitContainer3.Panel2.Controls.Add(Me.pb1)
         Me.SplitContainer3.Panel2.Controls.Add(Me.font_holder)
         Me.SplitContainer3.Panel2.Controls.Add(Me.PG1)
         Me.SplitContainer3.Panel2.Controls.Add(Me.pb2)
+        Me.SplitContainer3.Panel2.Controls.Add(Me.pb1)
         Me.SplitContainer3.Size = New System.Drawing.Size(942, 483)
         Me.SplitContainer3.SplitterDistance = 56
         Me.SplitContainer3.SplitterWidth = 1
@@ -1043,6 +1046,18 @@ Partial Class frmMain
         Me.chassis_cb.TabIndex = 2
         Me.chassis_cb.UseVisualStyleBackColor = False
         '
+        'intro_label
+        '
+        Me.intro_label.AutoSize = True
+        Me.intro_label.BackColor = System.Drawing.Color.FromArgb(CType(CType(255, Byte), Integer), CType(CType(128, Byte), Integer), CType(CType(0, Byte), Integer))
+        Me.intro_label.Font = New System.Drawing.Font("Segoe Print", 20.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.intro_label.ForeColor = System.Drawing.Color.Black
+        Me.intro_label.Location = New System.Drawing.Point(25, 23)
+        Me.intro_label.Name = "intro_label"
+        Me.intro_label.Size = New System.Drawing.Size(296, 47)
+        Me.intro_label.TabIndex = 6
+        Me.intro_label.Text = "Welcome to version "
+        '
         'decal_panel
         '
         Me.decal_panel.BackColor = System.Drawing.Color.FromArgb(CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer))
@@ -1053,6 +1068,7 @@ Partial Class frmMain
         Me.decal_panel.Controls.Add(Me.decal_alpha_slider)
         Me.decal_panel.Controls.Add(Me.decal_level_slider)
         Me.decal_panel.Controls.Add(Me.Label6)
+        Me.decal_panel.Controls.Add(Me.dgv)
         Me.decal_panel.Controls.Add(Me.uv_rotate)
         Me.decal_panel.Controls.Add(Me.save_decal_btn)
         Me.decal_panel.Controls.Add(Me.load_decal_btn)
@@ -1071,9 +1087,8 @@ Partial Class frmMain
         Me.decal_panel.Controls.Add(Me.m_delete)
         Me.decal_panel.Controls.Add(Me.m_new)
         Me.decal_panel.Controls.Add(Me.current_decal_lable)
-        Me.decal_panel.Controls.Add(Me.dgv)
         Me.decal_panel.ForeColor = System.Drawing.Color.White
-        Me.decal_panel.Location = New System.Drawing.Point(276, 54)
+        Me.decal_panel.Location = New System.Drawing.Point(402, 77)
         Me.decal_panel.Name = "decal_panel"
         Me.decal_panel.Size = New System.Drawing.Size(257, 382)
         Me.decal_panel.TabIndex = 5
@@ -1140,6 +1155,75 @@ Partial Class frmMain
         Me.Label6.Size = New System.Drawing.Size(57, 13)
         Me.Label6.TabIndex = 22
         Me.Label6.Text = "UV Rotate"
+        '
+        'dgv
+        '
+        DataGridViewCellStyle1.BackColor = System.Drawing.Color.FromArgb(CType(CType(33, Byte), Integer), CType(CType(33, Byte), Integer), CType(CType(33, Byte), Integer))
+        DataGridViewCellStyle1.SelectionBackColor = System.Drawing.Color.FromArgb(CType(CType(33, Byte), Integer), CType(CType(33, Byte), Integer), CType(CType(33, Byte), Integer))
+        DataGridViewCellStyle1.SelectionForeColor = System.Drawing.Color.FromArgb(CType(CType(255, Byte), Integer), CType(CType(128, Byte), Integer), CType(CType(0, Byte), Integer))
+        Me.dgv.AlternatingRowsDefaultCellStyle = DataGridViewCellStyle1
+        Me.dgv.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
+            Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
+        Me.dgv.BackgroundColor = System.Drawing.Color.FromArgb(CType(CType(33, Byte), Integer), CType(CType(33, Byte), Integer), CType(CType(33, Byte), Integer))
+        Me.dgv.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.[Single]
+        DataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter
+        DataGridViewCellStyle2.BackColor = System.Drawing.Color.FromArgb(CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer))
+        DataGridViewCellStyle2.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        DataGridViewCellStyle2.ForeColor = System.Drawing.Color.White
+        DataGridViewCellStyle2.SelectionBackColor = System.Drawing.Color.FromArgb(CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer))
+        DataGridViewCellStyle2.SelectionForeColor = System.Drawing.Color.White
+        DataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.[True]
+        Me.dgv.ColumnHeadersDefaultCellStyle = DataGridViewCellStyle2
+        Me.dgv.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
+        Me.dgv.Columns.AddRange(New System.Windows.Forms.DataGridViewColumn() {Me.decalName, Me.decalID})
+        DataGridViewCellStyle5.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
+        DataGridViewCellStyle5.BackColor = System.Drawing.Color.FromArgb(CType(CType(33, Byte), Integer), CType(CType(33, Byte), Integer), CType(CType(33, Byte), Integer))
+        DataGridViewCellStyle5.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        DataGridViewCellStyle5.ForeColor = System.Drawing.Color.White
+        DataGridViewCellStyle5.SelectionBackColor = System.Drawing.Color.FromArgb(CType(CType(33, Byte), Integer), CType(CType(33, Byte), Integer), CType(CType(33, Byte), Integer))
+        DataGridViewCellStyle5.SelectionForeColor = System.Drawing.Color.FromArgb(CType(CType(255, Byte), Integer), CType(CType(128, Byte), Integer), CType(CType(0, Byte), Integer))
+        DataGridViewCellStyle5.WrapMode = System.Windows.Forms.DataGridViewTriState.[False]
+        Me.dgv.DefaultCellStyle = DataGridViewCellStyle5
+        Me.dgv.GridColor = System.Drawing.Color.Black
+        Me.dgv.Location = New System.Drawing.Point(-2, 139)
+        Me.dgv.MultiSelect = False
+        Me.dgv.Name = "dgv"
+        Me.dgv.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.[Single]
+        Me.dgv.RowHeadersVisible = False
+        Me.dgv.RowHeadersWidth = 20
+        Me.dgv.ScrollBars = System.Windows.Forms.ScrollBars.Vertical
+        Me.dgv.Size = New System.Drawing.Size(257, 241)
+        Me.dgv.TabIndex = 27
+        '
+        'decalName
+        '
+        Me.decalName.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None
+        DataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
+        DataGridViewCellStyle3.BackColor = System.Drawing.Color.FromArgb(CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer))
+        DataGridViewCellStyle3.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        DataGridViewCellStyle3.ForeColor = System.Drawing.Color.White
+        DataGridViewCellStyle3.SelectionBackColor = System.Drawing.Color.FromArgb(CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer))
+        Me.decalName.DefaultCellStyle = DataGridViewCellStyle3
+        Me.decalName.HeaderText = "Decal Name"
+        Me.decalName.Name = "decalName"
+        Me.decalName.Resizable = System.Windows.Forms.DataGridViewTriState.[False]
+        Me.decalName.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable
+        Me.decalName.Width = 170
+        '
+        'decalID
+        '
+        Me.decalID.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None
+        DataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
+        DataGridViewCellStyle4.BackColor = System.Drawing.Color.FromArgb(CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer))
+        DataGridViewCellStyle4.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        DataGridViewCellStyle4.ForeColor = System.Drawing.Color.White
+        DataGridViewCellStyle4.SelectionBackColor = System.Drawing.Color.FromArgb(CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer))
+        DataGridViewCellStyle4.SelectionForeColor = System.Drawing.Color.White
+        Me.decalID.DefaultCellStyle = DataGridViewCellStyle4
+        Me.decalID.HeaderText = "Decal ID"
+        Me.decalID.Name = "decalID"
+        Me.decalID.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable
+        Me.decalID.Width = 60
         '
         'uv_rotate
         '
@@ -1259,11 +1343,10 @@ Partial Class frmMain
         '
         'd_texture_name
         '
-        Me.d_texture_name.AutoSize = True
         Me.d_texture_name.ForeColor = System.Drawing.Color.Yellow
         Me.d_texture_name.Location = New System.Drawing.Point(5, 123)
         Me.d_texture_name.Name = "d_texture_name"
-        Me.d_texture_name.Size = New System.Drawing.Size(181, 13)
+        Me.d_texture_name.Size = New System.Drawing.Size(155, 13)
         Me.d_texture_name.TabIndex = 9
         Me.d_texture_name.Text = "_____________________________"
         '
@@ -1284,7 +1367,7 @@ Partial Class frmMain
         Me.d_move_down.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center
         Me.d_move_down.FlatStyle = System.Windows.Forms.FlatStyle.Popup
         Me.d_move_down.Image = Global.Tank_Exporter.My.Resources.Resources.control_270
-        Me.d_move_down.Location = New System.Drawing.Point(234, 171)
+        Me.d_move_down.Location = New System.Drawing.Point(168, 114)
         Me.d_move_down.Name = "d_move_down"
         Me.d_move_down.Size = New System.Drawing.Size(20, 20)
         Me.d_move_down.TabIndex = 5
@@ -1297,7 +1380,7 @@ Partial Class frmMain
         Me.d_move_up.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center
         Me.d_move_up.FlatStyle = System.Windows.Forms.FlatStyle.Popup
         Me.d_move_up.Image = Global.Tank_Exporter.My.Resources.Resources.control_090
-        Me.d_move_up.Location = New System.Drawing.Point(234, 149)
+        Me.d_move_up.Location = New System.Drawing.Point(168, 92)
         Me.d_move_up.Name = "d_move_up"
         Me.d_move_up.Size = New System.Drawing.Size(20, 20)
         Me.d_move_up.TabIndex = 4
@@ -1348,72 +1431,6 @@ Partial Class frmMain
         Me.current_decal_lable.Text = "_"
         Me.current_decal_lable.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         '
-        'dgv
-        '
-        DataGridViewCellStyle1.BackColor = System.Drawing.Color.FromArgb(CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer))
-        Me.dgv.AlternatingRowsDefaultCellStyle = DataGridViewCellStyle1
-        Me.dgv.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom), System.Windows.Forms.AnchorStyles)
-        Me.dgv.BackgroundColor = System.Drawing.Color.FromArgb(CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer))
-        Me.dgv.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.[Single]
-        DataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter
-        DataGridViewCellStyle2.BackColor = System.Drawing.Color.FromArgb(CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer))
-        DataGridViewCellStyle2.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        DataGridViewCellStyle2.ForeColor = System.Drawing.Color.White
-        DataGridViewCellStyle2.SelectionBackColor = System.Drawing.Color.FromArgb(CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer))
-        DataGridViewCellStyle2.SelectionForeColor = System.Drawing.Color.White
-        DataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.[True]
-        Me.dgv.ColumnHeadersDefaultCellStyle = DataGridViewCellStyle2
-        Me.dgv.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
-        Me.dgv.Columns.AddRange(New System.Windows.Forms.DataGridViewColumn() {Me.decalName, Me.decalID})
-        DataGridViewCellStyle5.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
-        DataGridViewCellStyle5.BackColor = System.Drawing.Color.FromArgb(CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer))
-        DataGridViewCellStyle5.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        DataGridViewCellStyle5.ForeColor = System.Drawing.Color.White
-        DataGridViewCellStyle5.SelectionBackColor = System.Drawing.Color.Gray
-        DataGridViewCellStyle5.SelectionForeColor = System.Drawing.Color.White
-        DataGridViewCellStyle5.WrapMode = System.Windows.Forms.DataGridViewTriState.[False]
-        Me.dgv.DefaultCellStyle = DataGridViewCellStyle5
-        Me.dgv.GridColor = System.Drawing.Color.Black
-        Me.dgv.Location = New System.Drawing.Point(0, 150)
-        Me.dgv.MultiSelect = False
-        Me.dgv.Name = "dgv"
-        Me.dgv.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.[Single]
-        Me.dgv.RowHeadersVisible = False
-        Me.dgv.RowHeadersWidth = 20
-        Me.dgv.ScrollBars = System.Windows.Forms.ScrollBars.Vertical
-        Me.dgv.Size = New System.Drawing.Size(231, 231)
-        Me.dgv.TabIndex = 27
-        '
-        'decalName
-        '
-        Me.decalName.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None
-        DataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
-        DataGridViewCellStyle3.BackColor = System.Drawing.Color.FromArgb(CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer))
-        DataGridViewCellStyle3.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        DataGridViewCellStyle3.ForeColor = System.Drawing.Color.White
-        DataGridViewCellStyle3.SelectionBackColor = System.Drawing.Color.FromArgb(CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer))
-        Me.decalName.DefaultCellStyle = DataGridViewCellStyle3
-        Me.decalName.HeaderText = "Decal Name"
-        Me.decalName.Name = "decalName"
-        Me.decalName.Resizable = System.Windows.Forms.DataGridViewTriState.[False]
-        Me.decalName.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable
-        Me.decalName.Width = 170
-        '
-        'decalID
-        '
-        Me.decalID.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None
-        DataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
-        DataGridViewCellStyle4.BackColor = System.Drawing.Color.FromArgb(CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer))
-        DataGridViewCellStyle4.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        DataGridViewCellStyle4.ForeColor = System.Drawing.Color.White
-        DataGridViewCellStyle4.SelectionBackColor = System.Drawing.Color.FromArgb(CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer))
-        DataGridViewCellStyle4.SelectionForeColor = System.Drawing.Color.White
-        Me.decalID.DefaultCellStyle = DataGridViewCellStyle4
-        Me.decalID.HeaderText = "Decal ID"
-        Me.decalID.Name = "decalID"
-        Me.decalID.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable
-        Me.decalID.Width = 60
-        '
         'PB3
         '
         Me.PB3.Location = New System.Drawing.Point(33, 69)
@@ -1422,18 +1439,6 @@ Partial Class frmMain
         Me.PB3.TabIndex = 4
         Me.PB3.TabStop = False
         Me.PB3.Visible = False
-        '
-        'pb1
-        '
-        Me.pb1.BackColor = System.Drawing.Color.FromArgb(CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer))
-        Me.pb1.BackgroundImage = Global.Tank_Exporter.My.Resources.Resources.gradiant
-        Me.pb1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
-        Me.pb1.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.pb1.Location = New System.Drawing.Point(0, 23)
-        Me.pb1.Name = "pb1"
-        Me.pb1.Size = New System.Drawing.Size(881, 456)
-        Me.pb1.TabIndex = 0
-        Me.pb1.TabStop = False
         '
         'font_holder
         '
@@ -1459,11 +1464,23 @@ Partial Class frmMain
         'pb2
         '
         Me.pb2.Anchor = System.Windows.Forms.AnchorStyles.None
-        Me.pb2.Location = New System.Drawing.Point(45, 125)
+        Me.pb2.Location = New System.Drawing.Point(50, 125)
         Me.pb2.Name = "pb2"
         Me.pb2.Size = New System.Drawing.Size(200, 100)
         Me.pb2.TabIndex = 3
         Me.pb2.Visible = False
+        '
+        'pb1
+        '
+        Me.pb1.BackColor = System.Drawing.Color.FromArgb(CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer))
+        Me.pb1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
+        Me.pb1.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.pb1.InitialImage = Nothing
+        Me.pb1.Location = New System.Drawing.Point(0, 0)
+        Me.pb1.Name = "pb1"
+        Me.pb1.Size = New System.Drawing.Size(881, 479)
+        Me.pb1.TabIndex = 0
+        Me.pb1.TabStop = False
         '
         'info_Label
         '
@@ -1534,7 +1551,7 @@ Partial Class frmMain
         Me.TC1.Location = New System.Drawing.Point(0, 23)
         Me.TC1.Name = "TC1"
         Me.TC1.SelectedIndex = 0
-        Me.TC1.Size = New System.Drawing.Size(22, 547)
+        Me.TC1.Size = New System.Drawing.Size(22, 562)
         Me.TC1.SizeMode = System.Windows.Forms.TabSizeMode.Fixed
         Me.TC1.TabIndex = 0
         '
@@ -1544,7 +1561,7 @@ Partial Class frmMain
         Me.TabPage1.Location = New System.Drawing.Point(4, 25)
         Me.TabPage1.Name = "TabPage1"
         Me.TabPage1.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage1.Size = New System.Drawing.Size(14, 518)
+        Me.TabPage1.Size = New System.Drawing.Size(14, 533)
         Me.TabPage1.TabIndex = 0
         Me.TabPage1.Text = "1"
         '
@@ -1554,7 +1571,7 @@ Partial Class frmMain
         Me.TabPage2.Location = New System.Drawing.Point(4, 25)
         Me.TabPage2.Name = "TabPage2"
         Me.TabPage2.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage2.Size = New System.Drawing.Size(14, 518)
+        Me.TabPage2.Size = New System.Drawing.Size(14, 533)
         Me.TabPage2.TabIndex = 1
         Me.TabPage2.Text = "2"
         '
@@ -1564,7 +1581,7 @@ Partial Class frmMain
         Me.TabPage3.Location = New System.Drawing.Point(4, 25)
         Me.TabPage3.Name = "TabPage3"
         Me.TabPage3.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage3.Size = New System.Drawing.Size(14, 518)
+        Me.TabPage3.Size = New System.Drawing.Size(14, 533)
         Me.TabPage3.TabIndex = 2
         Me.TabPage3.Text = "3"
         '
@@ -1574,7 +1591,7 @@ Partial Class frmMain
         Me.TabPage4.Location = New System.Drawing.Point(4, 25)
         Me.TabPage4.Name = "TabPage4"
         Me.TabPage4.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage4.Size = New System.Drawing.Size(14, 518)
+        Me.TabPage4.Size = New System.Drawing.Size(14, 533)
         Me.TabPage4.TabIndex = 3
         Me.TabPage4.Text = "4"
         '
@@ -1584,7 +1601,7 @@ Partial Class frmMain
         Me.TabPage5.Location = New System.Drawing.Point(4, 25)
         Me.TabPage5.Name = "TabPage5"
         Me.TabPage5.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage5.Size = New System.Drawing.Size(14, 518)
+        Me.TabPage5.Size = New System.Drawing.Size(14, 533)
         Me.TabPage5.TabIndex = 4
         Me.TabPage5.Text = "5"
         '
@@ -1594,7 +1611,7 @@ Partial Class frmMain
         Me.TabPage6.Location = New System.Drawing.Point(4, 25)
         Me.TabPage6.Name = "TabPage6"
         Me.TabPage6.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage6.Size = New System.Drawing.Size(14, 518)
+        Me.TabPage6.Size = New System.Drawing.Size(14, 533)
         Me.TabPage6.TabIndex = 5
         Me.TabPage6.Text = "6"
         '
@@ -1604,7 +1621,7 @@ Partial Class frmMain
         Me.TabPage7.Location = New System.Drawing.Point(4, 25)
         Me.TabPage7.Name = "TabPage7"
         Me.TabPage7.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage7.Size = New System.Drawing.Size(14, 518)
+        Me.TabPage7.Size = New System.Drawing.Size(14, 533)
         Me.TabPage7.TabIndex = 6
         Me.TabPage7.Text = "7"
         '
@@ -1614,7 +1631,7 @@ Partial Class frmMain
         Me.TabPage8.Location = New System.Drawing.Point(4, 25)
         Me.TabPage8.Name = "TabPage8"
         Me.TabPage8.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage8.Size = New System.Drawing.Size(14, 518)
+        Me.TabPage8.Size = New System.Drawing.Size(14, 533)
         Me.TabPage8.TabIndex = 7
         Me.TabPage8.Text = "8"
         '
@@ -1624,7 +1641,7 @@ Partial Class frmMain
         Me.TabPage9.Location = New System.Drawing.Point(4, 25)
         Me.TabPage9.Name = "TabPage9"
         Me.TabPage9.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage9.Size = New System.Drawing.Size(14, 518)
+        Me.TabPage9.Size = New System.Drawing.Size(14, 533)
         Me.TabPage9.TabIndex = 8
         Me.TabPage9.Text = "9"
         '
@@ -1634,7 +1651,7 @@ Partial Class frmMain
         Me.TabPage10.Location = New System.Drawing.Point(4, 25)
         Me.TabPage10.Name = "TabPage10"
         Me.TabPage10.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage10.Size = New System.Drawing.Size(14, 518)
+        Me.TabPage10.Size = New System.Drawing.Size(14, 533)
         Me.TabPage10.TabIndex = 9
         Me.TabPage10.Text = "10"
         '
@@ -1648,7 +1665,7 @@ Partial Class frmMain
         Me.TC2.Location = New System.Drawing.Point(0, 23)
         Me.TC2.Name = "TC2"
         Me.TC2.SelectedIndex = 0
-        Me.TC2.Size = New System.Drawing.Size(22, 547)
+        Me.TC2.Size = New System.Drawing.Size(22, 562)
         Me.TC2.TabIndex = 0
         Me.TC2.Visible = False
         '
@@ -1658,7 +1675,7 @@ Partial Class frmMain
         Me.TabPage11.Location = New System.Drawing.Point(4, 25)
         Me.TabPage11.Name = "TabPage11"
         Me.TabPage11.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage11.Size = New System.Drawing.Size(14, 518)
+        Me.TabPage11.Size = New System.Drawing.Size(14, 533)
         Me.TabPage11.TabIndex = 0
         Me.TabPage11.Text = "Result"
         '
@@ -1845,7 +1862,6 @@ Partial Class frmMain
     Friend WithEvents m_edit_shaders As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents m_lighting As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents m_help As System.Windows.Forms.ToolStripMenuItem
-    Friend WithEvents PG1 As System.Windows.Forms.ProgressBar
     Friend WithEvents ToolStripSeparator7 As System.Windows.Forms.ToolStripSeparator
     Friend WithEvents OpenFileDialog1 As System.Windows.Forms.OpenFileDialog
     Friend WithEvents m_remove_fbx As System.Windows.Forms.ToolStripMenuItem
@@ -1972,8 +1988,10 @@ Partial Class frmMain
     Friend WithEvents d_table As DataTable
     Friend WithEvents DataColumn1 As DataColumn
     Friend WithEvents DataColumn2 As DataColumn
-    Friend WithEvents decalName As DataGridViewTextBoxColumn
-    Friend WithEvents decalID As DataGridViewTextBoxColumn
     Friend WithEvents ToolStripSeparator34 As ToolStripSeparator
     Friend WithEvents m_open_wot_temp_folder As ToolStripMenuItem
+    Friend WithEvents PG1 As ProgressBar
+    Friend WithEvents intro_label As Label
+    Friend WithEvents decalName As DataGridViewTextBoxColumn
+    Friend WithEvents decalID As DataGridViewTextBoxColumn
 End Class

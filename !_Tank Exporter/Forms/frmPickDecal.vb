@@ -161,6 +161,7 @@ Public Class frmPickDecal
 
         ReDim Preserve cell_list(decal_textures.Count - 1)
         For i = 0 To decal_textures.Count - 1
+            load_this_Decal(i)
             cell_list(i) = New cell_
             cell_list(i).tex_id = decal_textures(i).colorMap_Id
             cell_list(i).posX = 5
@@ -227,12 +228,12 @@ Public Class frmPickDecal
         Gl.glColor3f(r, g, b) ' Set text color
         glutPrint(x, y, text, r, g, b, 1.0) ' Call your existing text drawing method
     End Sub
-
+    Private old_texture As Integer
     Public Sub set_selecion(ByVal cellIndex As Integer)
         If Not decals_loaded Then Return
         If cell_list Is Nothing Then Return
         If cell_list.Length = 0 Then Return
-
+        old_texture = cellIndex
         If cellIndex > -1 Then
 
             For i = 0 To cell_list.Length - 1
@@ -274,7 +275,10 @@ Public Class frmPickDecal
             draw(cell_list(i))
 
         Next
-        DrawText(130, -10, "Selected: " + current_decal_data_pnt.ToString, 0.0F, 1.0F, 0.0F)
+        If current_decal_data_pnt > -1 Then
+            DrawText(130, -10, "Selected: " + decal_matrix_list(current_decal_data_pnt).DecalTexture, 0.0F, 1.0F, 0.0F)
+
+        End If
         Gl.glColor4f(1.0, 1.0, 1.0, 1.0)
         ' Swap the buffers to display the square
         Wgl.wglSwapBuffers(pb4_hDC)
@@ -378,9 +382,8 @@ Public Class frmPickDecal
         For i = 0 To cell_list.Length - 1
             cell_list(i).selected = False
         Next
-        cell_list(cur_selected_decal).selected = True
-        frmMain.selected_texture_changed(cur_selected_decal)
-
+        cell_list(old_texture).selected = True
+        frmMain.selected_texture_changed(old_texture)
     End Sub
 End Class
 
