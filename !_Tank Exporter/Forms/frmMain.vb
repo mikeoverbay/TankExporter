@@ -165,7 +165,7 @@ Public Class frmMain
         ' If the user clicks Yes, open the web page
         If result = DialogResult.Yes Then
             ' Replace with your update URL
-            Process.Start(New ProcessStartInfo("http://example.com/update") With {.UseShellExecute = True})
+            Process.Start(New ProcessStartInfo("http://tnmshouse.com/tankexporter") With {.UseShellExecute = True})
             End
         End If
     End Sub
