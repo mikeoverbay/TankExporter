@@ -983,35 +983,37 @@ save_it:
 
 
     Public Sub build_textures(ByVal id As Integer)
-        'If PRIMITIVES_MODE Then Return
-        Dim diffuse As String = _group(id).color_name.Replace(".dds", "_hd.dds")
-        Dim normal As String = _group(id).normal_name.Replace(".dds", "_hd.dds")
-        Dim metal As String = _group(id).metalGMM_name.Replace(".dds", "_hd.dds")
-
-        Dim ao_name As String = ""
-        If Not String.IsNullOrEmpty(_group(id).ao_name) Then
-            ao_name = _group(id).ao_name.Replace(".dds", "_hd.dds")
-        End If
-
-        Dim colorIdMap As String = ""
-        If Not String.IsNullOrEmpty(_group(id).colorIDmap) Then
-            colorIdMap = _group(id).colorIDmap.Replace(".dds", "_hd.dds")
-        End If
-        Dim detail_name As String = _group(id).detail_name
-        Dim g_det_name As String = ""
-        If Not String.IsNullOrEmpty(_group(id).g_detailMap) Then
-            g_det_name = _group(id).g_detailMap.Replace(".dds", "_hd.dds")
-        End If
-        'This stops loading textures already loaded....
-        '===========================================================================================
-        If PRIMITIVES_MODE Then 'only if loaded a stand alone
-            get_atlas_stuff(id)
-        End If
-        If _group(id).is_atlas_type = 1 Then
-            Return
-        End If
-        Dim i As Integer = 0
+        Dim s = TheXML_String
         Try
+
+            'If PRIMITIVES_MODE Then Return
+            Dim diffuse As String = _group(id).color_name.Replace(".dds", "_hd.dds")
+            Dim normal As String = _group(id).normal_name.Replace(".dds", "_hd.dds")
+            Dim metal As String = _group(id).metalGMM_name.Replace(".dds", "_hd.dds")
+
+            Dim ao_name As String = ""
+            If Not String.IsNullOrEmpty(_group(id).ao_name) Then
+                ao_name = _group(id).ao_name.Replace(".dds", "_hd.dds")
+            End If
+
+            Dim colorIdMap As String = ""
+            If Not String.IsNullOrEmpty(_group(id).colorIDmap) Then
+                colorIdMap = _group(id).colorIDmap.Replace(".dds", "_hd.dds")
+            End If
+            Dim detail_name As String = _group(id).detail_name
+            Dim g_det_name As String = ""
+            If Not String.IsNullOrEmpty(_group(id).g_detailMap) Then
+                g_det_name = _group(id).g_detailMap.Replace(".dds", "_hd.dds")
+            End If
+            'This stops loading textures already loaded....
+            '===========================================================================================
+            If PRIMITIVES_MODE Then 'only if loaded a stand alone
+                get_atlas_stuff(id)
+            End If
+            If _group(id).is_atlas_type = 1 Then
+                Return
+            End If
+            Dim i As Integer = 0
             For i = 0 To textures.Length - 1
 
                 If textures(i).c_name = diffuse Then
@@ -1036,65 +1038,66 @@ save_it:
                     Return
                 End If
             Next
+
+
+            Dim n_id, c_id, m_id, ao_id, detail_id, g_det_id As Integer
+
+            c_id = get_texture_id(diffuse, id)
+            n_id = get_texture_id(normal, id)
+            m_id = get_texture_id(metal, id)
+            ao_id = get_texture_id(ao_name, id)
+            detail_id = get_texture_id(detail_name, id)
+            g_det_id = get_texture_id(g_det_name, id)
+
+            _group(id).color_name = diffuse
+            _group(id).normal_name = normal
+            _group(id).metalGMM_name = metal
+            _group(id).ao_name = ao_name
+
+
+            i = textures.Length - 1
+            ReDim Preserve textures(i + 1)
+            textures(i) = New textures_
+            textures(i).c_name = diffuse
+            textures(i).c_id = c_id
+
+            textures(i).n_name = normal
+            textures(i).n_id = n_id
+
+            textures(i).gmm_name = metal
+            textures(i).gmm_id = m_id
+
+            textures(i).ao_name = ao_name
+            textures(i).ao_id = ao_id
+
+            textures(i).colorIdMap = colorIdMap
+
+            textures(i).detail_name = detail_name
+            textures(i).detail_id = detail_id
+
+            textures(i).g_det_name = g_det_name
+            textures(i).g_det_id = g_det_id
+
+            textures(i).doubleSided = _group(id).doubleSided
+            textures(i).alphaRef = _group(id).alphaRef
+            textures(i).alphaTestEnabled = _group(id).alphaTest
+            textures(i).skinned = _group(id).skinned
+
+            _group(id).texture_id = i
+
+            _group(id).color_Id = c_id
+            _group(id).normal_Id = n_id
+            _group(id).metalGMM_Id = m_id
+            _group(id).ao_id = ao_id
+            _group(id).detail_Id = detail_id
+            _group(id).g_detailMap_id = g_det_id
+
+            If _group(id).normal_Id > 0 Then
+                _group(id).use_normapMap = 1
+            End If
         Catch ex As Exception
             Return
         End Try
-
-        Dim n_id, c_id, m_id, ao_id, detail_id, g_det_id As Integer
-
-        c_id = get_texture_id(diffuse, id)
-        n_id = get_texture_id(normal, id)
-        m_id = get_texture_id(metal, id)
-        ao_id = get_texture_id(ao_name, id)
-        detail_id = get_texture_id(detail_name, id)
-        g_det_id = get_texture_id(g_det_name, id)
-
-        _group(id).color_name = diffuse
-        _group(id).normal_name = normal
-        _group(id).metalGMM_name = metal
-        _group(id).ao_name = ao_name 
-
-
-        i = textures.Length - 1
-        ReDim Preserve textures(i + 1)
-        textures(i) = New textures_
-        textures(i).c_name = diffuse
-        textures(i).c_id = c_id
-
-        textures(i).n_name = normal
-        textures(i).n_id = n_id
-
-        textures(i).gmm_name = metal
-        textures(i).gmm_id = m_id
-
-        textures(i).ao_name = ao_name
-        textures(i).ao_id = ao_id
-
-        textures(i).colorIdMap = colorIdMap
-
-        textures(i).detail_name = detail_name
-        textures(i).detail_id = detail_id
-
-        textures(i).g_det_name = g_det_name
-        textures(i).g_det_id = g_det_id
-
-        textures(i).doubleSided = _group(id).doubleSided
-        textures(i).alphaRef = _group(id).alphaRef
-        textures(i).alphaTestEnabled = _group(id).alphaTest
-        textures(i).skinned = _group(id).skinned
-
-        _group(id).texture_id = i
-
-        _group(id).color_Id = c_id
-        _group(id).normal_Id = n_id
-        _group(id).metalGMM_Id = m_id
-        _group(id).ao_id = ao_id
-        _group(id).detail_Id = detail_id
-        _group(id).g_detailMap_id = g_det_id
-
-        If _group(id).normal_Id > 0 Then
-            _group(id).use_normapMap = 1
-        End If
     End Sub
 
     Public Function get_packed_atlas(ByVal p As String, ByVal idx As Integer, atlas_mode As Integer) As String
