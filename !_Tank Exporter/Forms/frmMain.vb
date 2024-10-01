@@ -13,7 +13,6 @@ Imports Microsoft.VisualBasic.Strings
 Imports Tao.FreeGlut.Glut
 Imports Aspose.ThreeD
 Imports Tank_Exporter.shader_loader
-Imports ImageMagick
 Imports System.Runtime.InteropServices
 Imports System.Drawing.Imaging
 
@@ -23,10 +22,7 @@ Imports System.Drawing.Imaging
 
 Public Class frmMain
 
-    ' Use DllImport to specify the native DLL
-    <DllImport("Magick.Native-Q8-x86.dll", SetLastError:=True)>
-    Private Shared Function YourFunction() As Integer
-    End Function
+
     Protected Overrides Sub OnClientSizeChanged(e As EventArgs)
         If Not _Started Then Return
         If Not allow_mouse Then Return
@@ -178,7 +174,7 @@ Public Class frmMain
             End While
             'delete any data we created
             For i = 1 To 10
-                packages(i).Dispose()
+                'packages(i).Dispose()
             Next
             DisableOpenGL()
             gui_pkg_part_1.Dispose()
@@ -747,10 +743,6 @@ done:
 
                 scripts_pkg = New Ionic.Zip.ZipFile(My.Settings.game_path + "\res\packages\scripts.pkg")
                 update_log("Loaded: " + My.Settings.game_path + "\res\packages\scripts.pkg")
-                'packages(11) = Ionic.Zip.ZipFile.Read(My.Settings.game_path + "\res\packages\shared_content.pkg")
-                'packages(12) = Ionic.Zip.ZipFile.Read(My.Settings.game_path + "\res\packages\shared_content_sandbox.pkg")
-                'packages(11) = shared_pkg
-                'packages(12) = shared_sandbox_pkg
 
             Catch ex As Exception
                 MsgBox("I was unable to load required pkg files! Path Issue?", MsgBoxStyle.Exclamation, "Error!")
@@ -5732,35 +5724,6 @@ fuckit:
         GC.WaitForFullGCComplete()
     End Sub
 
-    Private Function validate_path(ByVal name As String)
-
-        update_log("Path of component = " + name + vbCrLf)
-
-        If name Is Nothing Then Return "" ' trap dummy names
-        Dim ent = packages(current_tank_package)(name)
-        If ent IsNot Nothing Then
-            Return name
-        End If
-        ent = packages_2(current_tank_package)(name)
-        If ent IsNot Nothing Then
-            Return name
-        End If
-        'not all tiers have 3 parts
-        Try
-            ent = packages_3(current_tank_package)(name)
-        Catch ex As Exception
-        End Try
-        If ent IsNot Nothing Then
-            Return name
-        End If
-
-        ent = search_shared_pkgs(name)
-        If ent IsNot Nothing Then
-            Return name
-        End If
-
-        Return ""
-    End Function
 
     '##################################################################################
     Public Function process_tank(ByVal save_tank As Boolean) As Boolean
@@ -7239,6 +7202,7 @@ fuckit:
         Dim sb As New StringBuilder
 
         Try
+
             Dim all_lods As Boolean = False
             Dim models As Boolean = frmExtract.no_models.Checked
             If frmExtract.all_lods_rb.Checked Then
@@ -7336,8 +7300,10 @@ fuckit:
 
                     If tar(i).Contains("segmentModelLeft") Then
                         Dim sega = tar(i).Split("left>")
-                        Dim sega1 = sega(1).Split("</")
-                        seg_path = Path.GetDirectoryName(sega1(0)).Replace("\", "/")
+                        If sega.Length > 1 Then
+                            Dim sega1 = sega(1).Split("</")
+                            seg_path = Path.GetDirectoryName(sega1(0)).Replace("\", "/")
+                        End If
                     End If
                 Catch ex As Exception
 
@@ -7388,274 +7354,160 @@ fuckit:
             End If
             sb.AppendLine("My.Settings.res_mods_path: " + My.Settings.res_mods_path)
 
-            'Throw New ArgumentException("Exception Occured")
+            'build compare string to remove items we dont want
+            Dim cmpar() As String = {""}
+            Dim cnt = 0
+            If frmExtract.ext_chassis.Checked Then
+                cmpar(cnt) = "chassis"
+                ReDim Preserve cmpar(cnt + 1)
+                cnt += 1
+            End If
+
+            If frmExtract.ext_hull.Checked Then
+                cmpar(cnt) = "hull"
+                ReDim Preserve cmpar(cnt + 1)
+                cnt += 1
+            End If
+
+            If frmExtract.ext_turret.Checked Then
+                cmpar(cnt) = "turret"
+                ReDim Preserve cmpar(cnt + 1)
+                cnt += 1
+            End If
+
+            If frmExtract.ext_gun.Checked Then
+                cmpar(cnt) = "gun"
+                ReDim Preserve cmpar(cnt)
+                cnt += 1
+            End If
+
+
             Dim crash As String = "crash"
             If CRASH_MODE Then
-                crash = "donky_smuggler"
+                crash = "crash"
+            Else
+                crash = "normal"
             End If
             '=============================================================
-            'Look based on tanks name
-            For i = 1 To packages.Length - 2
-                search_and_extract(packages(i), ar(2))
-            Next
-            ' now check package_2 data
-            Dim start_from As Integer = 5 ' This might change and its used in 2 places
-            For i = start_from To 10
-                search_and_extract(packages_2(i), ar(2))
-            Next
-            For i = start_from To 10
-                search_and_extract(packages_3(i), ar(2))
-            Next
-            ' now check package_hd data
-            For i = 1 To packages_HD.Length - 2
-                search_and_extract(packages_HD(i), ar(2))
-            Next
-            'now check package_hd_2 data
-            For i = start_from To packages_HD.Length - 2
-                search_and_extract(packages_HD_2(i), ar(2))
-            Next
-            'now check built package
-            search_and_extract(shared_contents_build, ar(2))
-            '=============================================================
-            'This has to be done because some tanks share the tracks with others.
-            'I'll need to update the wotmod builder to deal with these or leave it?
-            'look based on track path..
-
-            'Going to do this by searching for the filenames in the _groups
-
+            '================== textures
+            Dim pkg As String = ""
             If Not frmExtract.no_textures.Checked Then
-                Dim am, anm, gmm, ao, detail As String
-                Dim rm = My.Settings.res_mods_path + "\"
-                For i = 1 To object_count
-                    am = _group(i).color_name
-                    anm = _group(i).normal_name
-                    gmm = _group(i).metalGMM_name
-                    ao = _group(i).ao_name
-                    detail = _group(i).detail_name
-                    If am IsNot Nothing Then
-                        If Not File.Exists(rm + am) Then
-                            If Not find_tank_and_extract_file_in_pkgs(am.Replace(".dds", "_hd.dds")) Then
-                                find_tank_and_extract_file_in_pkgs(am)
-                            End If
-                        End If
-                    End If
-                    If anm IsNot Nothing Then
-                        If Not File.Exists(rm + anm) Then
-                            If Not find_tank_and_extract_file_in_pkgs(anm.Replace(".dds", "_hd.dds")) Then
-                                find_tank_and_extract_file_in_pkgs(anm)
-                            End If
-                        End If
-                    End If
-                    If gmm IsNot Nothing Then
-                        If Not File.Exists(rm + gmm) Then
-                            If Not find_tank_and_extract_file_in_pkgs(gmm.Replace(".dds", "_hd.dds")) Then
-                                find_tank_and_extract_file_in_pkgs(gmm)
-                            End If
-                        End If
 
-                    End If
-                    If ao IsNot Nothing Then
-                        If Not File.Exists(rm + ao) Then
-                            If Not find_tank_and_extract_file_in_pkgs(ao.Replace(".dds", "_hd.dds")) Then
-                                find_tank_and_extract_file_in_pkgs(ao)
+                For g = 1 To _group.Length - 1
+                    For c = 0 To cnt - 1
+                        If _group(g).color_name.ToLower.Contains(cmpar(c)) Then
+                            Dim nm = _group(g).color_name
+                            pkg = Find_entry(nm)
+                            Using zip As ZipFile = ZipFile.Read(My.Settings.game_path + "/res/packages/" + pkg)
+                                Dim entry As ZipEntry = zip(nm)
+                                entry.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
+                            End Using
+                        End If
+                    Next
+                Next
+                For g = 1 To _group.Length - 1
+                    For c = 0 To cnt - 1
+                        If _group(g).normal_name.ToLower.Contains(cmpar(c)) Then
+                            Dim nm = _group(g).normal_name
+                            pkg = Find_entry(nm)
+                            Using zip As ZipFile = ZipFile.Read(My.Settings.game_path + "/res/packages/" + pkg)
+                                Dim entry As ZipEntry = zip(nm)
+                                entry.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
+                            End Using
+                        End If
+                    Next
+                Next
+                For g = 1 To _group.Length - 1
+                    For c = 0 To cnt - 1
+                        If _group(g).ao_name.ToLower.Contains(cmpar(c)) Then
+                            Dim nm = _group(g).ao_name
+                            If nm IsNot "" Then
+                                pkg = Find_entry(nm)
+                                Using zip As ZipFile = ZipFile.Read(My.Settings.game_path + "/res/packages/" + pkg)
+                                    Dim entry As ZipEntry = zip(nm)
+                                    entry.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
+                                End Using
                             End If
                         End If
-
-                    End If
-                    If detail IsNot Nothing Then
-                        If Not File.Exists(rm + detail) Then
-                            If Not find_tank_and_extract_file_in_pkgs(detail.Replace(".dds", "_hd.dds")) Then
-                                find_tank_and_extract_file_in_pkgs(detail)
+                    Next
+                Next
+                For g = 1 To _group.Length - 1
+                    For c = 0 To cnt - 1
+                        If _group(g).metalGMM_name.ToLower.Contains(cmpar(c)) Then
+                            Dim nm = _group(g).metalGMM_name
+                            If nm IsNot "" Then
+                                pkg = Find_entry(nm)
+                                Using zip As ZipFile = ZipFile.Read(My.Settings.game_path + "/res/packages/" + pkg)
+                                    Dim entry As ZipEntry = zip(nm)
+                                    entry.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
+                                End Using
                             End If
                         End If
-                    End If
+                    Next
                 Next
             End If
-            For i = 1 To packages.Length - 2
-                search_and_extract(packages(i), seg_path)
+            '========================= primitive
+            For g = 1 To _group.Length - 1
+                For c = 0 To cnt - 1
+                    If _group(g).name.ToLower.Contains(cmpar(c)) Then
+                        Dim nm = _group(g).name.ToLower.Replace("normal", crash)
+                        Dim tna = nm.Split(":")
+                        pkg = Find_entry(tna(0))
+                        Using zip As ZipFile = ZipFile.Read(My.Settings.game_path + "/res/packages/" + pkg)
+                            Dim entry As ZipEntry = zip(tna(0))
+                            entry.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
+                        End Using
+                    End If
+                Next
             Next
-            ' now check package_2 data
-            For i = start_from To 10
-                search_and_extract(packages_2(i), seg_path)
+            For g = 1 To _group.Length - 1
+                For c = 0 To cnt - 1
+                    If _group(g).name.ToLower.Contains(cmpar(c)) Then
+                        Dim nm = _group(g).name.Replace("primitives", "visual").Replace("normal", crash)
+                        Dim tna = nm.Split(":")
+                        pkg = Find_entry(tna(0))
+                        Using zip As ZipFile = ZipFile.Read(My.Settings.game_path + "/res/packages/" + pkg)
+                            Dim entry As ZipEntry = zip(tna(0))
+                            entry.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
+                        End Using
+                    End If
+                Next
             Next
-            For i = start_from To 10
-                search_and_extract(packages_3(i), seg_path)
+            For g = 1 To _group.Length - 1
+                For c = 0 To cnt - 1
+                    If _group(g).name.ToLower.Contains(cmpar(c)) Then
+                        Dim nm = _group(g).name.Replace("primitives_processed", "model").Replace("normal", crash)
+                        Dim tna = nm.Split(":")
+                        pkg = Find_entry(tna(0))
+                        Using zip As ZipFile = ZipFile.Read(My.Settings.game_path + "/res/packages/" + pkg)
+                            Dim entry As ZipEntry = zip(tna(0))
+                            entry.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
+                        End Using
+                    End If
+                Next
             Next
-            ' now check package_hd data
-            For i = 1 To packages_HD.Length - 2
-                search_and_extract(packages_HD(i), seg_path)
-            Next
-            'now check package_hd_2 data
-            For i = start_from To packages_HD.Length - 2
-                search_and_extract(packages_HD_2(i), seg_path)
-            Next
-            'now check built package
-            search_and_extract(shared_contents_build, seg_path)
 
-skip_old_way:
-            If frmExtract.create_work_area_cb.Checked And Not frmExtract.no_textures.Checked Then
-                p = My.Settings.res_mods_path + "\" + Path.GetDirectoryName(p)
-                Dim wap = p + "\Work Area"
-                Il.ilDisable(Il.IL_FILE_OVERWRITE) ' dont allow devil to overwrite existing PNGS.. Preserver the users work!
-                If Not Directory.Exists(wap) Then
-                    Directory.CreateDirectory(wap)
-                    Dim di = Directory.GetFiles(p)
-                    Dim id As Integer = 0
-                    For Each img In di
-                        If img.ToLower.Contains("_am_hd.dds") Or img.ToLower.Contains("_ao_hd.dds") Then
-                            Dim tp = Path.GetDirectoryName(img)
-                            Dim t_tn = Path.GetFileNameWithoutExtension(img)
-                            Dim out_path As String = tp + "\Work Area\" + t_tn + ".png"
-                            id = Il.ilGenImage()
-                            Il.ilBindImage(id)
-                            Ilu.iluLoadImage(img)
-                            Il.ilSave(Il.IL_PNG, out_path)
-                            Il.ilBindImage(0)
-                            Il.ilDeleteImage(id)
-                        End If
-
-                    Next
-                End If
+            pkg = Find_entry(seg_path)
+            If pkg IsNot "" Then
+                Using zip As ZipFile = ZipFile.Read(My.Settings.game_path + "/res/packages/" + pkg)
+                    Dim entry As ZipEntry = zip(seg_path)
+                    If entry IsNot Nothing Then
+                        entry.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
+                    End If
+                End Using
             End If
 
+
         Catch ex As Exception
-            'File.WriteAllText("C:\TE.txt", sb.ToString)
+            MsgBox("Fail to extract" + vbCrLf + ex.Message)
         End Try
 
-        WORKING = False
+        WORKING = False ' stop blinking on the screen
 
         TC1.Enabled = True
         SearchBox.Enabled = True
     End Sub
 
-    Private Sub search_and_extract(ByRef package As ZipFile, ByRef search_name As String)
-        Dim crash As String = "crash"
-        If CRASH_MODE Then
-            crash = "donky_smuggler"
-        End If
-        Dim p As String = ""
-        If package IsNot Nothing Then
-
-            For Each ent In package
-                If Not ent.IsDirectory Then
-                    If ent.FileName.Contains(search_name) Then
-                        Dim f = Path.GetDirectoryName(ent.FileName)
-                        Dim s1 = f.Split("\")
-                        Dim s2 = search_name.Split("/")
-                        If s1(2) = s2(2) Then
-
-                            If Not ent.FileName.Contains("collision_client") Then
-                                If Not ent.FileName.Contains(crash) Then
-                                    If Not frmExtract.no_models.Checked Then
-                                        Select Case frmExtract.all_lods_rb.Checked
-                                            Case True
-                                                If ent.FileName.ToLower.Contains("track") Then
-                                                    If frmExtract.ext_chassis.Checked Then
-                                                        If ent.FileName.ToLower.Contains("track") Then
-                                                            ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                                                        End If
-                                                    End If
-                                                End If
-                                                Select Case frmExtract.ext_chassis.Checked
-                                                    Case True
-                                                        If ent.FileName.ToLower.Contains("chassis") Then
-                                                            ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                                                        End If
-                                                End Select
-                                                Select Case frmExtract.ext_hull.Checked
-                                                    Case True
-                                                        If ent.FileName.ToLower.Contains("hull") Then
-                                                            ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                                                        End If
-                                                End Select
-                                                Select Case frmExtract.ext_turret.Checked
-                                                    Case True
-                                                        If ent.FileName.ToLower.Contains("turret") Then
-                                                            ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                                                        End If
-                                                End Select
-                                                Select Case frmExtract.ext_gun.Checked
-                                                    Case True
-                                                        If ent.FileName.ToLower.Contains("gun") Then
-                                                            ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                                                        End If
-                                                End Select
-                                            Case False
-                                                If ent.FileName.ToLower.Contains("track") Then
-                                                    If frmExtract.ext_chassis.Checked Then
-                                                        If ent.FileName.ToLower.Contains("track") Then
-                                                            ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                                                        End If
-                                                    End If
-                                                End If
-                                                If ent.FileName.ToLower.Contains("lod0") Then
-                                                    Select Case frmExtract.ext_chassis.Checked
-                                                        Case True
-                                                            If ent.FileName.ToLower.Contains("chassis") Then
-                                                                ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                                                            End If
-                                                    End Select
-                                                    Select Case frmExtract.ext_hull.Checked
-                                                        Case True
-                                                            If ent.FileName.ToLower.Contains("hull") Then
-                                                                ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                                                            End If
-                                                    End Select
-                                                    Select Case frmExtract.ext_turret.Checked
-                                                        Case True
-                                                            If ent.FileName.ToLower.Contains("turret") Then
-                                                                ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                                                            End If
-                                                    End Select
-                                                    Select Case frmExtract.ext_gun.Checked
-                                                        Case True
-                                                            If ent.FileName.ToLower.Contains("gun") Then
-                                                                ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                                                            End If
-                                                    End Select
-                                                End If
-                                        End Select
-                                    End If 'if model
-                                    Select Case ent.FileName.Contains("dds") And Not frmExtract.no_textures.Checked
-                                        Case True
-                                            Select Case frmExtract.ext_chassis.Checked
-                                                Case True
-                                                    If ent.FileName.ToLower.Contains("chassis") Then
-                                                        ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                                                        p = ent.FileName
-                                                    End If
-                                            End Select
-                                            Select Case frmExtract.ext_hull.Checked
-                                                Case True
-                                                    If ent.FileName.ToLower.Contains("hull") Then
-                                                        ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                                                        p = ent.FileName
-                                                    End If
-                                            End Select
-                                            Select Case frmExtract.ext_turret.Checked
-                                                Case True
-                                                    If ent.FileName.ToLower.Contains("turret") Then
-                                                        ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                                                        p = ent.FileName
-                                                    End If
-                                            End Select
-                                            Select Case frmExtract.ext_gun.Checked
-                                                Case True
-                                                    If ent.FileName.ToLower.Contains("gun") Then
-                                                        ent.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                                                        p = ent.FileName
-                                                    End If
-                                            End Select
-                                    End Select
-                                End If ' crash
-                            End If ' collision_client
-                        End If ' folder match
-                    End If ' filename match
-                End If ' isnot directory
-            Next ' next entry
-        End If 'isnot nothing
-
-    End Sub
 
 
 #Region "menu_button_functions"
@@ -9259,219 +9111,6 @@ outta_here:
         Next
         Return s.Replace("germanyy", "germany")
     End Function
-    Private Function validate_tank_data(ByVal p As String, ByVal author As String, ByVal tank As String) As Boolean
-
-        Dim lod0_path = p + "normal\lod0\"
-        Dim track_path = p + "track\"
-        Dim crash_path = p + "crash\lod0\"
-        Dim n_array = p.Split("\")
-load_script:
-        Dim script_path = My.Settings.res_mods_path + "\res\scripts\item_defs\"
-        script_path = fix_stupid_wargaming_path(script_path + Path.GetDirectoryName(tank))
-        Dim script_name = script_path + "\" + Path.GetFileName(tank) + ".xml"
-
-        segment_visual_exist = find_tank_component(track_path, "segment.", ".visual_processed")
-        segment_1_visual_exist = find_tank_component(track_path, "segment_1", ".visual_processed")
-        segment_2_visual_exist = find_tank_component(track_path, "segment_2", ".visual_processed")
-        tank_script_xml_exist = File.Exists(script_name)
-
-        chassis_crash_visual_exist = find_tank_component(crash_path, "chassis", ".visual_processed")
-        hull_crash_visual_exist = find_tank_component(crash_path, "hull", ".visual_processed")
-        turret_crash_visual_exist = find_tank_component(crash_path, "turret", ".visual_processed")
-        gun_crash_visual_exist = find_tank_component(crash_path, "gun", ".visual_processed")
-
-        chassis_visual_exist = find_tank_component(lod0_path, "chassis", ".visual_processed")
-        hull_visual_exist = find_tank_component(lod0_path, "hull", ".visual_processed")
-        turret_visual_exist = find_tank_component(lod0_path, "turret", ".visual_processed")
-        gun_visual_exist = find_tank_component(lod0_path, "gun", ".visual_processed")
-
-        If Not tank_script_xml_exist Then
-            If MsgBox("You MUST extract the " + Path.GetFileNameWithoutExtension(tank) + ".xml" + vbCrLf +
-                   "from the scripts\item_defs\vehicle XMLs!" + vbCrLf +
-                   "Do it now?", MsgBoxStyle.YesNo) = MsgBoxResult.Yes Then
-                m_extract.PerformClick()
-                GoTo load_script
-                Return False
-            Else
-                info_Label.Visible = False
-                Return False
-            End If
-        End If
-
-        '------------------------------------------------------------------------------
-        Dim tank_xml = get_bw_xml(script_name) 'At this point we know the tanks XML is there.
-        tank_xml = TheXML_String.Replace(vbCr, "") 'Copy the xml and remove any Carriage returns
-        Dim xml_array = tank_xml.Split(vbLf)
-        'Change the xml file depending on what parts are in the temp res folder.
-        Dim tank_xml_update As Boolean = False
-        For idx = 0 To xml_array.Length - 1
-            If xml_array(idx).ToLower.Contains("track/segment") Then
-                If segment_visual_exist Then
-                    If xml_array(idx).ToLower.Contains("segment.model") Then
-                        xml_array(idx) = xml_array(idx).Replace(Path.GetFileName(tank), author + "/remodels/" + Path.GetFileName(tank))
-                        tank_xml_update = True
-                    End If
-                Else
-                    If segment_1_visual_exist Then
-                        If xml_array(idx).ToLower.Contains("segment_1.model") Then
-                            xml_array(idx) = xml_array(idx).Replace(Path.GetFileName(tank), author + "/remodels/" + Path.GetFileName(tank))
-                            tank_xml_update = True
-                        End If
-
-                    End If
-                    If segment_2_visual_exist Then
-                        If xml_array(idx).ToLower.Contains("segment_2.model") Then
-                            xml_array(idx) = xml_array(idx).Replace(Path.GetFileName(tank), author + "/remodels/" + Path.GetFileName(tank))
-                            tank_xml_update = True
-                        End If
-
-                    End If
-                End If
-
-            End If
-            'normal tank parts
-            If xml_array(idx).ToLower.Contains("<undamaged>") Then
-
-                If chassis_visual_exist Then
-                    If xml_array(idx).ToLower.Contains("chassis") Then
-                        xml_array(idx) = xml_array(idx).Replace(Path.GetFileName(tank), author + "/remodels/" + Path.GetFileName(tank))
-                        tank_xml_update = True
-                    End If
-                End If
-                If hull_visual_exist Then
-                    If xml_array(idx).ToLower.Contains("hull") Then
-                        xml_array(idx) = xml_array(idx).Replace(Path.GetFileName(tank), author + "/remodels/" + Path.GetFileName(tank))
-                        tank_xml_update = True
-                    End If
-                End If
-                If turret_visual_exist Then
-                    If xml_array(idx).ToLower.Contains("turret") Then
-                        xml_array(idx) = xml_array(idx).Replace(Path.GetFileName(tank), author + "/remodels/" + Path.GetFileName(tank))
-                        tank_xml_update = True
-                    End If
-                End If
-                If gun_visual_exist Then
-                    If xml_array(idx).ToLower.Contains("gun") Then
-                        xml_array(idx) = xml_array(idx).Replace(Path.GetFileName(tank), author + "/remodels/" + Path.GetFileName(tank))
-                        tank_xml_update = True
-                    End If
-                End If
-
-            End If
-            'crash tank parts
-            If xml_array(idx).ToLower.Contains("<destroyed>") Then
-
-                If chassis_crash_visual_exist Then
-                    If xml_array(idx).ToLower.Contains("chassis") Then
-                        xml_array(idx) = xml_array(idx).Replace(Path.GetFileName(tank), author + "/remodels/" + Path.GetFileName(tank))
-                        tank_xml_update = True
-                    End If
-                End If
-                If hull_crash_visual_exist Then
-                    If xml_array(idx).ToLower.Contains("hull") Then
-                        xml_array(idx) = xml_array(idx).Replace(Path.GetFileName(tank), author + "/remodels/" + Path.GetFileName(tank))
-                        tank_xml_update = True
-                    End If
-                End If
-                If turret_crash_visual_exist Then
-                    If xml_array(idx).ToLower.Contains("turret") Then
-                        xml_array(idx) = xml_array(idx).Replace(Path.GetFileName(tank), author + "/remodels/" + Path.GetFileName(tank))
-                        tank_xml_update = True
-                    End If
-                End If
-                If gun_crash_visual_exist Then
-                    If xml_array(idx).ToLower.Contains("gun") Then
-                        xml_array(idx) = xml_array(idx).Replace(Path.GetFileName(tank), author + "/remodels/" + Path.GetFileName(tank))
-                        tank_xml_update = True
-                    End If
-                End If
-
-            End If
-        Next
-        If tank_xml_update Then 'only rewrite the xml if something was changed
-            tank_xml = ""
-            For idx = 0 To xml_array.Length - 2
-                tank_xml += xml_array(idx) + vbCrLf
-            Next
-            tank_xml += xml_array(xml_array.Length - 1)
-            File.WriteAllText(script_name, tank_xml)
-        End If
-
-        '------------------------------------------------------------------------------
-        'deal with track folder
-        If segment_visual_exist Then
-            fix_paths_track_model("segment.", track_path, author, Path.GetFileName(tank))
-            fix_crash_paths_visual("segment.", track_path, author, Path.GetFileName(tank), track_names)
-
-        Else
-            If segment_1_visual_exist Then
-                fix_paths_track_model("segment_1.", track_path, author, Path.GetFileName(tank))
-                fix_crash_paths_visual("segment_1.", track_path, author, Path.GetFileName(tank), track_names)
-
-            End If
-            If segment_2_visual_exist Then
-                fix_paths_track_model("segment_2.", track_path, author, Path.GetFileName(tank))
-                fix_crash_paths_visual("segment_2.", track_path, author, Path.GetFileName(tank), track_names)
-
-            End If
-
-        End If
-        '------------------------------------------------------------------------------
-        'Find out what textures are in res_mods
-        For i = 1 To object_count
-            'Return False
-            _group(i).AM_in_res_mods = find_tank_component(p, Path.GetFileName(_group(i).color_name), ".dds")
-            _group(i).AO_in_res_mods = find_tank_component(p, Path.GetFileName(_group(i).ao_name), ".dds")
-            _group(i).GMM_in_res_mods = find_tank_component(p, Path.GetFileName(_group(i).metalGMM_name), ".dds")
-            _group(i).ANM_in_res_mods = find_tank_component(p, Path.GetFileName(_group(i).normal_name), ".dds")
-            _group(i).Spec_in_res_mods = find_tank_component(p, Path.GetFileName(_group(i).specular_name), ".dds")
-        Next
-
-        '*** This will NEVER change a path for a track texture.. The do NOT exist normally with the tanks data!
-        'normal tank
-        If chassis_visual_exist Then
-            fix_paths_visual("chassis", lod0_path, author, Path.GetFileName(tank))
-            fix_paths_model("chassis", lod0_path, author, Path.GetFileName(tank))
-        End If
-
-        If hull_visual_exist Then
-            fix_paths_visual("hull", lod0_path, author, Path.GetFileName(tank))
-            fix_paths_model("hull", lod0_path, author, Path.GetFileName(tank))
-        End If
-
-        If turret_visual_exist Then
-            fix_paths_visual("turret", lod0_path, author, Path.GetFileName(tank))
-            fix_paths_model("turret", lod0_path, author, Path.GetFileName(tank))
-        End If
-
-        If gun_visual_exist Then
-            fix_paths_visual("gun", lod0_path, author, Path.GetFileName(tank))
-            fix_paths_model("gun", lod0_path, author, Path.GetFileName(tank))
-        End If
-
-        'crash tank
-        If chassis_crash_visual_exist Then
-            fix_crash_paths_visual("chassis", crash_path, author, Path.GetFileName(tank), chassis_names)
-            fix_paths_model("chassis", crash_path, author, Path.GetFileName(tank))
-        End If
-
-        If hull_crash_visual_exist Then
-            fix_crash_paths_visual("hull", crash_path, author, Path.GetFileName(tank), hull_names)
-            fix_paths_model("hull", crash_path, author, Path.GetFileName(tank))
-        End If
-
-        If turret_crash_visual_exist Then
-            fix_crash_paths_visual("turret", crash_path, author, Path.GetFileName(tank), turret_names)
-            fix_paths_model("turret", crash_path, author, Path.GetFileName(tank))
-        End If
-
-        If gun_crash_visual_exist Then
-            fix_crash_paths_visual("gun", crash_path, author, Path.GetFileName(tank), gun_names)
-            fix_paths_model("gun", crash_path, author, Path.GetFileName(tank))
-        End If
-
-        Return True
-    End Function
     Private Sub fix_paths_model(ByVal item As String, ByVal p As String, ByVal author As String, ByVal tn As String)
         Dim di As New DirectoryInfo(p)
         Dim files = di.GetFiles("*.model")
@@ -9862,13 +9501,6 @@ load_script:
         File.Delete(f_model)
         '------------------------------------------------------------------
 
-        'we have all files in the temp res folder.. now lets fix paths in xmls
-        'If Not validate_tank_data(new_path + tank + "\", frmAuthor.creator_tb.Text, tank) Then
-        '    Directory.Delete(new_path, True) 'somthing went wrong.. delete temp res folder and return
-        '    GC.Collect() 'cleans out garbage in the garbage collecor
-        '    Return
-        'End If
-
         Dim tank_sr_name = Path.GetFileName(public_icon_path)
         Dim an = tank_sr_name.Split("-")
         Dim sss As String = ""
@@ -10208,7 +9840,7 @@ load_script:
             n.Tag = get_file_path(t.tier) + ":" + "vehicles/" + get_nation(t.nation) + "/" + t.tag
             node_list(11).item(cnt).name = t.tag
             node_list(11).item(cnt).node = n
-            node_list(11).item(cnt).package = packages(t.tier).Name
+            node_list(11).item(cnt).package = 1
             icons(11).img(cnt) = New entry_
             icons(11).img(cnt).img = get_tank_icon(n.Text).Clone
             icons(11).img(cnt).name = t.tag

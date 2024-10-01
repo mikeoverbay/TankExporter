@@ -570,7 +570,7 @@ Module shader_loader
         chMute_texture = Gl.glGetUniformLocation(shader_list.channelMute_shader, "colorMap")
     End Sub
 
-    Public CE_camo_Map, CE_AO_Map, CE_AM_Map, CE_tile, CE_camo_tile As Integer
+    Public CE_camo_Map, CE_AO_Map, CE_AM_Map, CE_tile, CE_camo_tile, CE_camo_bake As Integer
     '==============================================================================================================
     Public Sub set_camoExporter_variables()
         CE_camo_Map = Gl.glGetUniformLocation(shader_list.camoExporter_shader, "camo_Map")
@@ -578,6 +578,7 @@ Module shader_loader
         CE_AM_Map = Gl.glGetUniformLocation(shader_list.camoExporter_shader, "AM_Map")
         CE_tile = Gl.glGetUniformLocation(shader_list.camoExporter_shader, "tile")
         CE_camo_tile = Gl.glGetUniformLocation(shader_list.camoExporter_shader, "camo_tile")
+        CE_camo_bake = Gl.glGetUniformLocation(shader_list.camoExporter_shader, "bake")
     End Sub
 
     Public atlasPBR_atlas_TILE, atlasPBR_sizes, atlasPBR_g_tile0Tint, atlasPBR_g_tile1Tint, atlasPBR_g_tile2Tint As Integer

@@ -27,8 +27,8 @@
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>false</MapFileExtensions>
     <OpenBrowserOnPublish>false</OpenBrowserOnPublish>
-    <ApplicationRevision>147</ApplicationRevision>
-    <ApplicationVersion>1.0.0.147</ApplicationVersion>
+    <ApplicationRevision>149</ApplicationRevision>
+    <ApplicationVersion>1.0.0.149</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
@@ -125,6 +125,9 @@
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>tank.ico</ApplicationIcon>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Aspose.3D, Version=24.7.1.0, Culture=neutral, PublicKeyToken=f071c641d0b4582b, processorArchitecture=MSIL">
@@ -227,13 +230,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Import Include="ImageMagick" />
-    <Import Include="ImageMagick.Colors" />
-    <Import Include="ImageMagick.Configuration" />
-    <Import Include="ImageMagick.Drawing" />
-    <Import Include="ImageMagick.Factories" />
-    <Import Include="ImageMagick.Formats" />
-    <Import Include="ImageMagick.ImageOptimizers" />
     <Import Include="Microsoft.VisualBasic" />
     <Import Include="System" />
     <Import Include="System.Collections" />

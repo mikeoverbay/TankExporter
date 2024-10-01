@@ -11,7 +11,8 @@
         TT.InitialDelay = 1000
         TT.ReshowDelay = 500
         TT.ShowAlways = True
-        TT.SetToolTip(Me.all_lods_rb, "Extract ALL LOD models")
+        TT.SetToolTip(Me.all_lods_rb, "Extract ALL LOD models. You can change the name" + vbCrLf + "in the .Model file from nodefullFull to" + vbCrLf +
+                                                               "to nodelessVisual. no need for other LODs.")
         TT.SetToolTip(Me.lod_0_only, "Extract ONLY lod0")
         TT.SetToolTip(Me.no_models, "Do NOT extract Models")
         TT.SetToolTip(Me.ext_chassis, "Extract Chassis Texures and Models")

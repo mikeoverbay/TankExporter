@@ -26,7 +26,7 @@ Module modTextures
     Public AM_index_texture_list() As list_
     Public GBMT_index_texture_list() As list_
     Public MAO_index_texture_list() As list_
-
+    Public BAKE_CAMO As Integer = 0
     Public Structure list_
         Public list() As image_info_
     End Structure
@@ -232,8 +232,19 @@ Module modTextures
         End If
         Dim abs_name As String = ""
         G_Buffer.init()
-        stop_updating = True
+
+        updateEvent.Reset()
+
         Threading.Thread.Sleep(100)
+        If SELECTED_CAMO_BUTTON > 0 Then
+            Dim rs = MsgBox("You have camouflage selected. Bake it in to Diffuse?", MsgBoxStyle.YesNo, "I need an answer..")
+            If rs = DialogResult.Yes Then
+                BAKE_CAMO = 1
+            Else
+                BAKE_CAMO = False
+            End If
+
+        End If
         For i = 0 To textures.Length - 2
 
             Dim alpha_enabled = textures(i).alphaTestEnabled
@@ -241,12 +252,9 @@ Module modTextures
             With textures(i)
                 'color
                 abs_name = FBX_Texture_path + "\" + Path.GetFileNameWithoutExtension(.c_name)
-                If File.Exists(abs_name + ".png") Then
-                    stop_updating = False
-                    Return ' we are not wasting time on this.
-                End If
                 frmMain.info_Label.Visible = True
-                If AC And Not .c_name.Contains("chassis") And Not .c_name.Contains("track") Then
+
+                If SELECTED_CAMO_BUTTON > 0 And Not .c_name.Contains("chassis") And Not .c_name.Contains("track") Then
                     Dim part As Integer = 0
                     For k = 1 To object_count
                         If Path.GetFileNameWithoutExtension(_group(k).color_name) = Path.GetFileNameWithoutExtension(.c_name) Then
@@ -255,8 +263,14 @@ Module modTextures
                         End If
                     Next
 
-
+                    If BAKE_CAMO = 0 Then
+                        save_fbx_texture(.c_id, abs_name, False, alpha_enabled, flipy)
+                    End If
                     save_fbx_textureCamouflaged(.c_id, .ao_id, SELECTED_CAMO_BUTTON, abs_name, part)
+                    If File.Exists(abs_name + ".png") Then
+                        stop_updating = False
+                        'Return ' we are not wasting time on this.
+                    End If
                 Else
                     save_fbx_texture(.c_id, abs_name, False, alpha_enabled, flipy)
                 End If
@@ -277,13 +291,12 @@ Module modTextures
 
         Next
         frmMain.pb2.Visible = False
-
         frmMain.info_Label.Visible = False
         Try
-            stop_updating = False
         Catch ex As Exception
 
         End Try
+        updateEvent.Set()
         G_Buffer.init()
 
     End Sub
@@ -329,6 +342,7 @@ Module modTextures
         Dim e = Gl.glGetError
 
         Gl.glUseProgram(shader_list.camoExporter_shader)
+        Gl.glUniform1i(CE_camo_bake, BAKE_CAMO)
         Gl.glUniform1i(CE_camo_Map, 0)
         Gl.glUniform1i(CE_AO_Map, 1)
         Gl.glUniform1i(CE_AM_Map, 2)
@@ -377,7 +391,12 @@ Module modTextures
         Gl.glFinish()
 
         Gl.glFinish()
-        Il.ilSave(Il.IL_PNG, save_path + ".png") ' save to temp
+        If BAKE_CAMO = 0 Then
+            Il.ilSave(Il.IL_PNG, save_path + "_CAMO.png") ' save to temp
+        Else
+            Il.ilSave(Il.IL_PNG, save_path + ".png") ' save to temp
+
+        End If
         Gl.glDisable(Gl.GL_TEXTURE_2D)
         Gdi.SwapBuffers(pb2_hDC)
         Il.ilBindImage(0)

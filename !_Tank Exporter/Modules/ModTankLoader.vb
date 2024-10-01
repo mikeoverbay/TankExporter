@@ -1784,20 +1784,57 @@ all_done:
             ' Retrieve the nodefullVisual value from the table
             Dim d As DataSet = xmldataset
             Dim tbl As DataTable = d.Tables("map_")
+            'lod0
             If tbl IsNot Nothing AndAlso tbl.Columns.Contains("nodefullVisual") Then
                 Dim q = From row In tbl.AsEnumerable
                         Select s = row.Field(Of String)("nodefullVisual")
 
                 If q.Any() Then
                     filename = q(0) + ".visual_processed"
-                Else
-                    MsgBox("Visual entry not found in the model data", MsgBoxStyle.Critical, "Error")
-                    Return False
+                    GoTo jump_over
                 End If
-            Else
-                MsgBox("Invalid data structure in model file", MsgBoxStyle.Critical, "Error")
-                Return False
+            Else 'lod1
+                If tbl IsNot Nothing AndAlso tbl.Columns.Contains("nodefullVisual") Then
+
+                    Dim q = From row In tbl.AsEnumerable
+                            Select s = row.Field(Of String)("nodefullVisual")
+                    Dim f2 As String = filename.Replace("lod0", "lod1")
+                    If q.Any() Then
+                        f2 = q(0) + ".visual_processed"
+                        GoTo jump_over
+                    Else
+                        MsgBox("Visual entry not found in the model data", MsgBoxStyle.Critical, "Error")
+                        Return False
+                    End If
+                End If
+
             End If
+
+            'check nodeless
+            'lod0
+            If tbl IsNot Nothing AndAlso tbl.Columns.Contains("nodelessVisual") Then
+                Dim q = From row In tbl.AsEnumerable
+                        Select s = row.Field(Of String)("nodelessVisual")
+                If q.Any() Then
+                    filename = q(0) + ".visual_processed"
+                End If
+
+            Else 'lod1
+                If tbl IsNot Nothing AndAlso tbl.Columns.Contains("nodelessVisual") Then
+
+                    Dim q = From row In tbl.AsEnumerable
+                            Select s = row.Field(Of String)("nodelessVisual")
+                    Dim f2 As String = filename.Replace("lod0", "lod1")
+                    If q.Any() Then
+                        f2 = q(0) + ".visual_processed"
+                    Else
+                        MsgBox("Visual entry not found in the model data", MsgBoxStyle.Critical, "Error")
+                        Return False
+                    End If
+                End If
+            End If
+
+jump_over:
 
             ' Attempt to load the .visual_processed file, checking disk first if allowed
             If File.Exists(My.Settings.res_mods_path + "\" + filename) And Not LOADING_FBX Then

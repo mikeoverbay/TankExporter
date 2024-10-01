@@ -227,14 +227,18 @@ extern "C" __declspec(dllexport) GLuint LoadTextureFromMemory(const void* data, 
         }
     }
 
-    // Calculate data offset and size
-    size_t offset = sizeof(DDS_MAGIC) + sizeof(DDSHeader);
+    // Calculate the header size
+    size_t headerSize = sizeof(DDS_MAGIC) + sizeof(DDSHeader);
     if (header->dwFourCC == FOURCC_DX10) {
-        offset += sizeof(DDSHeaderDX10);
+        headerSize += sizeof(DDSHeaderDX10);
     }
 
-    size_t textureDataSize = dataSize - offset;
-    const char* textureData = static_cast<const char*>(data) + offset;
+    // Pointer to the texture data
+    const char* textureData = static_cast<const char*>(data) + headerSize;
+    size_t textureDataSize = dataSize - headerSize;
+
+    // Offset within the texture data
+    size_t offset = 0;
 
     // Generate texture
     GLuint textureID;
@@ -244,7 +248,7 @@ extern "C" __declspec(dllexport) GLuint LoadTextureFromMemory(const void* data, 
     // Upload texture data
     uint32_t width = header->dwWidth;
     uint32_t height = header->dwHeight;
-    uint32_t mipMapCount = header->dwMipMapCount;
+    uint32_t mipMapCount = header->dwMipMapCount ? header->dwMipMapCount : 1; // Ensure at least one mipmap level
     size_t blockSize = (format == GL_COMPRESSED_RGBA_S3TC_DXT1_EXT) ? 8 : 16;
 
     for (uint32_t i = 0; i < mipMapCount && (width || height); ++i) {
@@ -261,10 +265,15 @@ extern "C" __declspec(dllexport) GLuint LoadTextureFromMemory(const void* data, 
     }
 
     // Set texture parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, mipMapCount > 1 ? GL_LINEAR_MIPMAP_LINEAR : GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+    if (mipMapCount <= 1) {
+        // Generate mipmaps if they don't exist in the DDS data
+        glGenerateMipmap(GL_TEXTURE_2D);
+    }
 
     GLenum error = glGetError();
     if (error != GL_NO_ERROR) {
@@ -273,7 +282,6 @@ extern "C" __declspec(dllexport) GLuint LoadTextureFromMemory(const void* data, 
         return 0;
     }
 
-    //std::cout << "Loaded DDS texture from memory, Texture ID: " << textureID << std::endl;
     return textureID;
 }
 

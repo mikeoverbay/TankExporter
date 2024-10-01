@@ -56,7 +56,7 @@ Public Class frmXMLbuilder
         Next
         Dim searchPatterns As String() = {
     "vehicles/american/", "vehicles/british/", "vehicles/chinese/", "vehicles/czech/",
-    "vehicles/french/", "vehicles/german/", "vehicles/itialy/", "vehicles/japan/",
+    "vehicles/french/", "vehicles/german/", "vehicles/italy/", "vehicles/japan/",
     "vehicles/poland/", "vehicles/russian/", "vehicles/sweden/"}
 
         'Dim searchPatterns As String() = {"gui/maps/icons/vehicle/"}
@@ -65,22 +65,96 @@ Public Class frmXMLbuilder
             pkg_tb.Text = PKGS(i)
             Application.DoEvents()
             Using z As New Ionic.Zip.ZipFile(PKGS(i))
-                For k = 0 To searchPatterns.Length - 1
 
-                    For Each item In z
+                For Each item In z
+                    For k = 0 To searchPatterns.Length - 1
                         If Not item.IsDirectory Then
+                            If item.FileName.Contains("vehicles/italy/It04_Fiat_3000/normal/lod0/") Then
+                                ' You can set a breakpoint here for debugging
+                                'Stop
+                            End If
 
-                            Dim fileName As String = item.FileName
-                            If fileName.Contains(searchPatterns(k)) _
-                            And Not ((fileName.Contains("vehicle/420x307/") OrElse fileName.Contains("vehicle/contour/") _
-                            OrElse fileName.Contains("vehicle/small/") OrElse fileName.Contains("lod1") _
-                            OrElse fileName.Contains("lod2")) OrElse fileName.Contains("lod3") _
-                            OrElse fileName.Contains("lod3") OrElse fileName.Contains("lod4") _
-                            OrElse fileName.Contains(".anim_") _
-                            OrElse fileName.Contains(".vt") OrElse fileName.Contains(".prefab") _
-                            OrElse fileName.Contains("lod5") OrElse fileName.Contains("lod6")) Then
-                                seach_add(item, PKGS(i))
+                            Dim fileName As String = item.FileName.ToLower()
+
+                            If fileName.Contains(searchPatterns(k).ToLower()) Then
+
+                                ' Exclusion conditions
+                                If fileName.Contains("vehicle/420x307/") Then
+                                    ' Excluded due to "vehicle/420x307/"
+                                    ' You can print or log this information
+                                    'Debug.Print("Excluded: " & fileName & " due to vehicle/420x307/")
+                                    Continue For
+                                End If
+
+                                If fileName.Contains("vehicle/contour/") Then
+                                    ' Excluded due to "vehicle/contour/"
+                                    Continue For
+                                End If
+
+                                If fileName.Contains("havok") Then
+                                    ' Excluded due to "havok"
+                                    Continue For
+                                End If
+
+                                If fileName.Contains("segment") Then
+                                    ' Excluded due to "segment"
+                                    Continue For
+                                End If
+
+                                If fileName.Contains("lod1") Then
+                                    ' Excluded due to "lod1"
+                                    Continue For
+                                End If
+
+                                If fileName.Contains("vehicle/small/") Then
+                                    ' Excluded due to "vehicle/small/"
+                                    Continue For
+                                End If
+
+                                If fileName.Contains("lod2") Then
+                                    ' Excluded due to "lod2"
+                                    Continue For
+                                End If
+
+                                If fileName.Contains("lod3") Then
+                                    ' Excluded due to "lod3"
+                                    Continue For
+                                End If
+
+                                If fileName.Contains("lod4") Then
+                                    ' Excluded due to "lod4"
+                                    Continue For
+                                End If
+
+                                If fileName.Contains(".anim_") Then
+                                    ' Excluded due to ".anim_"
+                                    Continue For
+                                End If
+
+                                If fileName.Contains(".vt") Then
+                                    ' Excluded due to ".vt"
+                                    Continue For
+                                End If
+
+                                If fileName.Contains(".prefab") Then
+                                    ' Excluded due to ".prefab"
+                                    Continue For
+                                End If
+
+                                If fileName.Contains("lod5") Then
+                                    ' Excluded due to "lod5"
+                                    Continue For
+                                End If
+
+                                If fileName.Contains("lod6") Then
+                                    ' Excluded due to "lod6"
+                                    Continue For
+                                End If
+
+                                ' If none of the exclusion conditions are met, process the file
+                                search_add(item, PKGS(i))
                                 pkg_cnt += 1
+
                             End If
                         End If
                     Next
@@ -113,14 +187,14 @@ Public Class frmXMLbuilder
         'Process.Start(temp_path + "TheItemList.xml")
         go_btn.Enabled = True
 skip_searching:
-        DATA_TABLE.Clear()
+        DATA_TABLE = New DataTable
         DATA_TABLE.Columns.Add("filename", GetType(String))
         DATA_TABLE.Columns.Add("package", GetType(String))
         DATA_TABLE.ReadXml(Application.StartupPath + "\resources\XMLdata\TheItemList.xml")
         go_btn.Enabled = True
     End Sub
 
-    Private Sub seach_add(ByRef item As ZipEntry, ByRef pkg_name As String)
+    Private Sub search_add(ByRef item As ZipEntry, ByRef pkg_name As String)
         'Check if this item has already been added to our list. Return if found.
         'Check if the pkg_name is even in our list.. If not, add it!
         'removing local path of the pkg_names .. The XML file is too big!!
@@ -135,10 +209,9 @@ skip_searching:
         thelist(pkg_cnt).entry_length += 1
 
         pkg_tb.Text = pkg_name
-        file_tb.Text = fname
         total_found += 1
         If cp > used_pkg_cnt Then used_pkg_cnt = cp
-        Application.DoEvents() 'so we don't lock up this app
+        'Application.DoEvents() 'so we don't lock up this app
     End Sub
 
 
