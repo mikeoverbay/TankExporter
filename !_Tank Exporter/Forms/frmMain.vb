@@ -2065,8 +2065,8 @@ loaded_jump:
                 i_fnd = True
                 icons(i).img(cnt).img = CType(Image.FromFile(Temp_Storage + "\" + t.tag + ".png"), Bitmap)
             Else
-                node_list(i).item(cnt).icon.Save(Temp_Storage + "\" + t.tag + ".png", ImageFormat.Png)
                 icons(i).img(cnt).img = get_tank_icon(n.Text + ".").Clone
+                icons(i).img(cnt).img.Save(Temp_Storage + "\" + t.tag + ".png", ImageFormat.Png)
             End If
             icons(i).img(cnt).name = t.tag
 

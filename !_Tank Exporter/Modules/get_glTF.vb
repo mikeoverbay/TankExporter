@@ -42,7 +42,7 @@ Module get_glTF
             ' Iterate through the scenes, nodes, and meshes
 
             For Each scene In model.LogicalScenes
-                Dim cnt = 1
+                Dim cnt As Integer = 1
                 For Each node In scene.VisualChildren
                     ReDim Preserve fbxgrp(cnt)
                     fbxgrp(cnt) = New _grps
@@ -64,6 +64,8 @@ Module get_glTF
         frmMain.info_Label.Text = "Creating Display Lists"
         Application.DoEvents()
         For i = 1 To fbxgrp.Length - 1
+            fbxgrp(i).alphaTest = 0
+
             Dim id = Gl.glGenLists(1)
             Gl.glNewList(id, Gl.GL_COMPILE)
             fbxgrp(i).call_list = id
