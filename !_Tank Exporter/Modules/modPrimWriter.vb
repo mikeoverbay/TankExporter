@@ -3,6 +3,8 @@ Imports System.IO
 Imports System.Windows
 Imports System.Runtime.InteropServices
 Imports System.Text
+Imports SharpGLTF.Schema2
+Imports Assimp.Configs
 
 Module modPrimWriter
     Public OBJECT_WAS_INSERTED As Boolean
@@ -973,6 +975,9 @@ found_section:
 
 
     Public Sub write_primitives(ByVal ID As Integer)
+        updateEvent.Reset()
+
+
         Dim tsa() As Char
         Dim dummy As UInt32 = 0
         Dim i As UInt32
@@ -1142,8 +1147,7 @@ no_UV2EVER:
 
                 'check for legit texture assignments
                 If fbxgrp(fbx_id).normal_name Is Nothing And fbxgrp(fbx_id).color_name IsNot Nothing Then
-                    MsgBox("You have a diffuseMap but no normalMap for " + new_name + "..." + vbCrLf +
-                            "Defaulting to colorOnly shader...", MsgBoxStyle.Exclamation, "Texture Mapping Issue...")
+                    fbxgrp(fbx_id).normal_name = "REPLACE_ME_WITH_TEXTURE_PATH"
                 End If
                 primObj = primObj.Replace("<PG_ID>0</PG_ID>", "<PG_ID>" + pgrp.ToString + "</PG_ID>") ' update primitive grp id
                 pgrp += 1 ' add one for each new item
@@ -1211,12 +1215,13 @@ no_UV2EVER:
         fn = fn.Replace(".primitives", ".visual")
         File.WriteAllText(My.Settings.res_mods_path + "\" + fn.Replace(".model", ".visual_processed"), f)
 
+        updateEvent.Set()
 
     End Sub
 
-    Private Function move_convert_new_textures(ByVal path As String, ByVal t_s As String) As String
+    Private Function move_convert_new_textures(ByVal path_ As String, ByVal t_s As String) As String
         Dim new_path As String = ""
-        If path Is Nothing Then Return Nothing
+        If path_ Is Nothing Then Return Nothing
 
         Dim t_type As String = ""
         If t_s.ToLower.Contains("chassis") Then
@@ -1241,14 +1246,17 @@ no_UV2EVER:
         Dim pat As String
         Try
 
-            new_path = IO.Path.GetFileNameWithoutExtension(path)
+            new_path = IO.Path.GetFileNameWithoutExtension(path_)
+            Dim subf = Path.GetFileName(TANK_NAME)
+            Dim folder = Path.GetDirectoryName(frmMain.OpenFileDialog1.FileName) + "\" + subf
+            Dim compete_path = folder + "\" + Path.GetFileName(path_)
             If File.Exists(res_path + p + "\" + new_path + ".DDS") Then
                 pat = p + "\" + new_path + ".DDS"
                 Return pat.Replace("\", "/")
             End If
             Dim id = Il.ilGenImage
             Il.ilBindImage(id)
-            Il.ilLoadImage(path)
+            Il.ilLoadImage(compete_path)
             Ilu.iluBuildMipmaps()
             If Not new_path.ToLower.Contains(t_type) Then
                 pat = p + "\" + t_type + "_" + new_path + ".DDS"
@@ -1256,17 +1264,44 @@ no_UV2EVER:
                 pat = p + "\" + new_path + ".DDS"
             End If
             pat = pat.Replace("\", "/")
-            If File.Exists(res_path + pat) Then Return pat.Replace("\", "/")
+            'If File.Exists(res_path + pat) Then Return pat.Replace("\", "/")
+
+            Il.ilSetInteger(Il.IL_IMAGE_FORMAT, Il.IL_DXT1)
+            Select Case True
+                Case path_.Contains("ANM.")
+                    Il.ilSetInteger(Il.IL_IMAGE_FORMAT, Il.IL_DXT5)
+                    Exit Select
+                Case path_.ToLower.Contains("normal")
+                    Il.ilSetInteger(Il.IL_IMAGE_FORMAT, Il.IL_DXT5)
+                    Exit Select
+                Case path_.ToLower.Contains("AM.")
+                    Il.ilSetInteger(Il.IL_IMAGE_FORMAT, Il.IL_DXT1)
+                    Exit Select
+                Case path_.ToLower.Contains("ao.")
+                    Il.ilSetInteger(Il.IL_IMAGE_FORMAT, Il.IL_DXT1)
+                    Exit Select
+                Case path_.ToLower.Contains("gmm.")
+                    Il.ilSetInteger(Il.IL_IMAGE_FORMAT, Il.IL_DXT1)
+                    Exit Select
+
+            End Select
+
+            Il.ilEnable(Il.IL_FILE_OVERWRITE)
+
             status = Il.ilSave(Il.IL_DDS, res_path + pat)
+
             Il.ilBindImage(0)
             Il.ilDeleteImage(id)
+
+
             If Not status Then
                 MsgBox("Could not write " + res_path + new_path, MsgBoxStyle.Exclamation, "Oh No!!")
-                Return path
+                Return path_
             End If
+
         Catch ex As Exception
             MsgBox("Could not write " + res_path + new_path, MsgBoxStyle.Exclamation, "Oh No!!")
-            Return path
+            Return path_
         End Try
         Return pat.Replace("\", "/")
     End Function
@@ -1274,6 +1309,7 @@ no_UV2EVER:
     Private Sub write_vertex_data(ByVal id As Integer)
         Dim j As Integer
         Dim h() = "                         ".ToArray
+        stride = fbxgrp(id).stride
         If stride = 40 Then
             Dim h1() = "xyznuvtb".ToArray
             h = h1
@@ -1418,7 +1454,6 @@ no_UV2EVER:
                 br.Write(b)
             Next
         End If
-
     End Sub
     Private Sub write_UV2(id)
         '       save_has_uv2 = False

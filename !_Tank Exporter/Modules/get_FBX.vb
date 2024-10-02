@@ -32,7 +32,8 @@ Module get_FBX
         remove_loaded_fbx()
 
         Try
-            Dim scene As Scene = importer.ImportFile(open_path, Assimp.PostProcessSteps.Triangulate Or Assimp.PostProcessSteps.JoinIdenticalVertices)
+            Dim scene As Scene = importer.ImportFile(open_path, Assimp.PostProcessSteps.Triangulate _
+                                                     Or Assimp.PostProcessSteps.JoinIdenticalVertices)
             Dim materials As List(Of Assimp.Material) = scene.Materials.ToList
 
             ' Check if the scene is loaded successfully
@@ -91,6 +92,7 @@ Module get_FBX
 
                     cnt = 0
                     For Each vert In mesh.Vertices
+                        fbxgrp(item).stride = 37
                         If cnt = mesh.VertexCount Then Exit For ' Ensure we do not exceed the array bounds
                         fbxgrp(item).vertices(cnt) = New vertice_
                         fbxgrp(item).vertices(cnt).x = vert.X
@@ -113,7 +115,8 @@ Module get_FBX
                             fbxgrp(item).has_uv2 = 0
                         End If
                         If mesh.HasVertexColors(1) Then
-                            fbxgrp(item).has_color = True
+                            fbxgrp(item).stride = 37
+                            fbxgrp(item).has_color = 1
                             Dim c = mesh.VertexColorChannels(1)(cnt)
                             fbxgrp(item).vertices(cnt).weight_1 = CByte(c.R * 255)
                             fbxgrp(item).vertices(cnt).weight_2 = CByte(c.G * 255)
@@ -121,6 +124,7 @@ Module get_FBX
                             fbxgrp(item).vertices(cnt).weight_4 = CByte(c.A * 255)
                         End If
                         If mesh.HasVertexColors(0) Then
+                            fbxgrp(item).stride = 40
                             fbxgrp(item).has_color = 1
                             Dim c = mesh.VertexColorChannels(0)(cnt)
                             fbxgrp(item).vertices(cnt).index_1 = CByte(c.R * 255)
@@ -233,111 +237,112 @@ Module get_FBX
     End Sub
 
     Private Sub GetMeshTransformations(scene As Assimp.Scene, ByVal item As Integer)
-        ' Check if item index is valid
-        If item - 1 < 0 OrElse item - 1 >= scene.RootNode.Children.Count Then
-            Debug.WriteLine("Invalid node index.")
+        ' Get the mesh index (assuming item corresponds to the mesh index)
+        Dim meshIndex As Integer = item - 1
+
+        ' Check if mesh index is valid
+        If meshIndex < 0 OrElse meshIndex >= scene.MeshCount Then
+            Debug.WriteLine("Invalid mesh index.")
             Return
         End If
 
-        ' Get the node and associated mesh
-        Dim node = scene.RootNode.Children(item - 1)
-        If node.MeshIndices.Count = 0 Then
-            Debug.WriteLine("Node has no meshes.")
+        ' Find the node that contains this mesh
+        Dim node As Assimp.Node = FindNodeWithMesh(scene.RootNode, meshIndex)
+        If node Is Nothing Then
+            Debug.WriteLine("No node found containing mesh index: " & meshIndex)
             Return
         End If
 
+        ' Accumulate transformations from root to this node
+        Dim meshTransform As Assimp.Matrix4x4 = GetGlobalTransform(node)
 
-
-        ' Get the transformation matrix for this node (applies to this mesh)
-        Dim meshTransform As Assimp.Matrix4x4 = scene.RootNode.Children(item - 1).Transform
-        ' Initialize arrays for translation, rotation, and scale
-        Dim translation(2) As Single
-        Dim rotation(2) As Single
-        Dim scale(2) As Single
-
-        ' Decompose the matrix
+        ' Convert the matrix to OpenGL format
         Dim openGLMatrix(15) As Single
+        DecomposeMatrix(meshTransform, openGLMatrix)
 
+        ' Store the matrix in fbxgrp(item).matrix
         fbxgrp(item).matrix = New Double(15) {}
-        DecomposeMatrix(meshTransform, fbxgrp(item).matrix)
+        Array.Copy(openGLMatrix, fbxgrp(item).matrix, 16)
 
-        ' Convert Assimp matrix to OpenGL format
-        'ConvertAiMatrix4x4ToOpenGL(meshTransform, openGLMatrix)
-
-        ' Apply scaling and translation
-        ApplyTransformations(fbxgrp(item).matrix)
-
-        ' Output the matrix and node index
+        ' Output the matrix and mesh index
         EchoOpenGLMatrix(fbxgrp(item).matrix)
-        Dim op As String = "Mesh " + item.ToString
+        Dim op As String = "Mesh " + item.ToString()
         Debug.WriteLine(op)
     End Sub
-    Private Sub DecomposeMatrix(assimpMatrix As Assimp.Matrix4x4, ByRef rowMajorMatrix() As Double)
-        ' Extract the 4x4 matrix elements from Assimp (column-major order)
+
+    Private Sub DecomposeMatrix(assimpMatrix As Assimp.Matrix4x4, ByRef openGLMatrix() As Single)
+        ' Correct mapping of Assimp matrix elements
         Dim m00 As Single = assimpMatrix.A1
-        Dim m01 As Single = assimpMatrix.B1
-        Dim m02 As Single = assimpMatrix.C1
-        Dim m03 As Single = assimpMatrix.D1
-        Dim m10 As Single = assimpMatrix.A2
+        Dim m01 As Single = assimpMatrix.A2
+        Dim m02 As Single = assimpMatrix.A3
+        Dim m03 As Single = assimpMatrix.A4
+        Dim m10 As Single = assimpMatrix.B1
         Dim m11 As Single = assimpMatrix.B2
-        Dim m12 As Single = assimpMatrix.C2
-        Dim m13 As Single = assimpMatrix.D2
-        Dim m20 As Single = assimpMatrix.A3
-        Dim m21 As Single = assimpMatrix.B3
+        Dim m12 As Single = assimpMatrix.B3
+        Dim m13 As Single = assimpMatrix.B4
+        Dim m20 As Single = assimpMatrix.C1
+        Dim m21 As Single = assimpMatrix.C2
         Dim m22 As Single = assimpMatrix.C3
-        Dim m23 As Single = assimpMatrix.D3
-        Dim m30 As Single = assimpMatrix.A4
-        Dim m31 As Single = assimpMatrix.B4
-        Dim m32 As Single = assimpMatrix.C4
+        Dim m23 As Single = assimpMatrix.C4
+        Dim m30 As Single = assimpMatrix.D1
+        Dim m31 As Single = assimpMatrix.D2
+        Dim m32 As Single = assimpMatrix.D3
         Dim m33 As Single = assimpMatrix.D4
 
-        ' Extract scale factors
-        Dim scaleX As Single = Math.Sqrt(m00 * m00 + m10 * m10 + m20 * m20)
-        Dim scaleY As Single = Math.Sqrt(m01 * m01 + m11 * m11 + m21 * m21)
-        Dim scaleZ As Single = Math.Sqrt(m02 * m02 + m12 * m12 + m22 * m22)
+        ' Construct the OpenGL matrix in column-major order
+        openGLMatrix(0) = m00
+        openGLMatrix(1) = m10
+        openGLMatrix(2) = m20
+        openGLMatrix(3) = m30
 
-        ' Check for zero scale to prevent division by zero
-        If scaleX = 0 Then scaleX = 1
-        If scaleY = 0 Then scaleY = 1
-        If scaleZ = 0 Then scaleZ = 1
+        openGLMatrix(4) = m01
+        openGLMatrix(5) = m11
+        openGLMatrix(6) = m21
+        openGLMatrix(7) = m31
 
-        ' Normalize matrix by scale
-        Dim normM00 As Single = m00 / scaleX
-        Dim normM01 As Single = m01 / scaleY
-        Dim normM02 As Single = m02 / scaleZ
-        Dim normM10 As Single = m10 / scaleX
-        Dim normM11 As Single = m11 / scaleY
-        Dim normM12 As Single = m12 / scaleZ
-        Dim normM20 As Single = m20 / scaleX
-        Dim normM21 As Single = m21 / scaleY
-        Dim normM22 As Single = m22 / scaleZ
+        openGLMatrix(8) = m02
+        openGLMatrix(9) = m12
+        openGLMatrix(10) = m22
+        openGLMatrix(11) = m32
 
-        ' Extract translation (m30, m31, m32 are already translations)
-        Dim translationX As Single = m30
-        Dim translationY As Single = m31
-        Dim translationZ As Single = m32
+        openGLMatrix(12) = m03
+        openGLMatrix(13) = m13
+        openGLMatrix(14) = m23
+        openGLMatrix(15) = m33
+    End Sub
 
-        ' Reconstruct matrix in row-major order (OpenGL compatible)
-        rowMajorMatrix(0) = Math.Round(normM00, 6)
-        rowMajorMatrix(4) = Math.Round(normM01, 6)
-        rowMajorMatrix(8) = Math.Round(normM02, 6)
-        rowMajorMatrix(12) = Math.Round(translationX, 6)
+    Private Function FindNodeWithMesh(node As Assimp.Node, meshIndex As Integer) As Assimp.Node
+        If node.MeshIndices.Contains(meshIndex) Then
+            Return node
+        End If
 
-        rowMajorMatrix(1) = Math.Round(normM10, 6)
-        rowMajorMatrix(5) = Math.Round(normM11, 6)
-        rowMajorMatrix(9) = Math.Round(normM12, 6)
-        rowMajorMatrix(13) = Math.Round(translationY, 6)
+        For Each childNode As Assimp.Node In node.Children
+            Dim result As Assimp.Node = FindNodeWithMesh(childNode, meshIndex)
+            If result IsNot Nothing Then
+                Return result
+            End If
+        Next
 
-        rowMajorMatrix(2) = Math.Round(normM20, 6)
-        rowMajorMatrix(6) = Math.Round(normM21, 6)
-        rowMajorMatrix(10) = Math.Round(normM22, 6)
-        rowMajorMatrix(14) = Math.Round(translationZ, 6)
+        Return Nothing
+    End Function
 
-        ' Set the rest (homogeneous coordinates)
-        rowMajorMatrix(3) = Math.Round(m03, 6)
-        rowMajorMatrix(7) = Math.Round(m13, 6)
-        rowMajorMatrix(11) = Math.Round(m23, 6)
-        rowMajorMatrix(15) = Math.Round(m33, 6) ' Homogeneous coordinate, usually 1
+    Private Function GetGlobalTransform(node As Assimp.Node) As Assimp.Matrix4x4
+        Dim transform As Assimp.Matrix4x4 = node.Transform
+        Dim currentNode As Assimp.Node = node.Parent
+
+        While currentNode IsNot Nothing
+            transform = currentNode.Transform * transform
+            currentNode = currentNode.Parent
+        End While
+
+        Return transform
+    End Function
+
+    Private Sub EchoOpenGLMatrix(matrix() As Single)
+        Debug.WriteLine("OpenGL Matrix:")
+        For i As Integer = 0 To 15 Step 4
+            Debug.WriteLine($"{matrix(i)}, {matrix(i + 1)}, {matrix(i + 2)}, {matrix(i + 3)}")
+        Next
     End Sub
 
 End Module

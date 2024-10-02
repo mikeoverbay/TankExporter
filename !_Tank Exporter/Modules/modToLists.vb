@@ -22,6 +22,10 @@ Imports Skill.FbxSDK
 Imports Skill.FbxSDK.IO
 Imports cttools
 Imports System.Data.Common
+Imports System.Reflection
+
+
+
 #End Region
 
 
@@ -45,30 +49,29 @@ Module modToLists
             comp = New comp_
             ReDim comp.vertices(fbxgrp(fbx_id).vertices.Length)
             ReDim comp.indices((fbxgrp(fbx_id).indices.Length) * 3)
-
-            ReDim fbx_uv2s(fbxgrp(fbx_id).vertices.Length)
-            uv2_total_count = 0
-            For i As Integer = 0 To fbxgrp(fbx_id).vertices.Length - 1
-
-                fbx_uv2s(uv2_total_count) = New uv_
-                fbx_uv2s(uv2_total_count).u = fbxgrp(fbx_id).vertices(i).u2
-                fbx_uv2s(uv2_total_count).v = fbxgrp(fbx_id).vertices(i).v2
-                uv2_total_count += 1
-                comp.vertices(i) = New vertice_
-                fbxgrp(fbx_id).vertices(i).found = False
-            Next
-            ReDim Preserve fbx_uv2s(uv2_total_count - 1)
+            If fbxgrp(fbx_id).has_uv2 = 1 Then
+                ReDim fbx_uv2s(fbxgrp(fbx_id).vertices.Length)
+                uv2_total_count = 0
+                For i As Integer = 0 To fbxgrp(fbx_id).vertices.Length - 1
+                    fbx_uv2s(uv2_total_count) = New uv_
+                    fbx_uv2s(uv2_total_count).u = fbxgrp(fbx_id).vertices(i).u2
+                    fbx_uv2s(uv2_total_count).v = fbxgrp(fbx_id).vertices(i).v2
+                    uv2_total_count += 1
+                    comp.vertices(i) = New vertice_
+                    fbxgrp(fbx_id).vertices(i).found = False
+                Next
+                ReDim Preserve fbx_uv2s(uv2_total_count - 1)
+            End If
 
             Dim i_cnt As Integer
             Dim indx As Integer
-
             Dim v_cnt As Integer = 0
 
             comp.indi_cnt = (fbxgrp(fbx_id).indices.Length) * 3
             comp.nPrimitives = fbxgrp(fbx_id).nPrimitives_
             comp.vert_cnt = fbxgrp(fbx_id).nVertices_
             comp.vertices = fbxgrp(fbx_id).vertices
-            For i = 0 To (fbxgrp(fbx_id).indices.Length - 1) * 3 Step 3
+            For i = 0 To comp.indi_cnt - 1 Step 3
                 comp.indices(i + 0) = fbxgrp(fbx_id).indices(v_cnt).v1
                 comp.indices(i + 1) = fbxgrp(fbx_id).indices(v_cnt).v2
                 comp.indices(i + 2) = fbxgrp(fbx_id).indices(v_cnt).v3

@@ -353,6 +353,7 @@ Module ModTankLoader
         Public has_uv2 As Integer
         Public use_uv2 As Integer
         Public has_color As Integer
+        Public stride As Integer
         Public has_Vcolor As Integer
         Public header As String
         Public call_list As Integer
