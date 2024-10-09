@@ -1233,6 +1233,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_26E77BA5A3E746F1A2905E22A3B14735"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_270B7144B6A64271A0FAB19CC7B6468D"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -5733,6 +5739,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_AA70F94964BF4DA899A2F4B96EE02C47"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_AAA3673B19944F08B43E57129E2DB23E"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -7180,6 +7192,12 @@
         "Entry"
         {
         "MsmKey" = "8:_D6FCB32F92F84CBC8A6F7FC43CA343F2"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_D6FDEC640A9D454B898D1B2856916072"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -8770,7 +8788,7 @@
         "DisplayName" = "8:Release"
         "IsDebugOnly" = "11:FALSE"
         "IsReleaseOnly" = "11:TRUE"
-        "OutputFilename" = "8:..\\..\\Tank Exporter MSI\\Tank_Exporter_151.msi"
+        "OutputFilename" = "8:..\\..\\Tank Exporter MSI\\Tank_Exporter_152.msi"
         "PackageFilesAs" = "3:2"
         "PackageFileSize" = "3:-2147483648"
         "CabType" = "3:1"
@@ -12814,6 +12832,26 @@
             "TargetName" = "8:Road_01_NM.dds"
             "Tag" = "8:"
             "Folder" = "8:_8A7ED6DFBBED4BBAB13BD7B51B86F1EA"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_26E77BA5A3E746F1A2905E22A3B14735"
+            {
+            "SourcePath" = "8:..\\!_Tank Exporter\\resources\\dummy_gmm.png"
+            "TargetName" = "8:dummy_gmm.png"
+            "Tag" = "8:"
+            "Folder" = "8:_EACEE00013F249E6B9932BC37E30FDF4"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -27464,6 +27502,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_AA70F94964BF4DA899A2F4B96EE02C47"
+            {
+            "SourcePath" = "8:..\\!_Tank Exporter\\resources\\dummy_ao.png"
+            "TargetName" = "8:dummy_ao.png"
+            "Tag" = "8:"
+            "Folder" = "8:_EACEE00013F249E6B9932BC37E30FDF4"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_AAA3673B19944F08B43E57129E2DB23E"
             {
             "SourcePath" = "8:..\\!_Tank Exporter\\resources\\decals\\Metal_Sewer_05_NM.dds"
@@ -32299,6 +32357,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D6FDEC640A9D454B898D1B2856916072"
+            {
+            "SourcePath" = "8:..\\!_Tank Exporter\\resources\\dummy_normal.png"
+            "TargetName" = "8:dummy_normal.png"
+            "Tag" = "8:"
+            "Folder" = "8:_EACEE00013F249E6B9932BC37E30FDF4"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D71A3BE1B098440C8E1C88E140DF180F"
             {
             "SourcePath" = "8:..\\!_Tank Exporter\\resources\\decals\\Unloadline_045_AM.dds"
@@ -37053,15 +37131,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Tank Exporter"
-        "ProductCode" = "8:{D61AAF41-7026-430D-B3BF-85C5337B530D}"
-        "PackageCode" = "8:{90A80460-2EA8-42A6-8D26-0C542C7DD2EB}"
+        "ProductCode" = "8:{BB3DA5A4-652A-4A02-BC26-37F6244F5F8A}"
+        "PackageCode" = "8:{2EEF8114-16E1-44C8-B8B1-467946A8AA81}"
         "UpgradeCode" = "8:{6ABAF23A-CB3D-4411-B78A-4855B5B5A0CD}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:1.0.151"
+        "ProductVersion" = "8:1.0.152"
         "Manufacturer" = "8:Coffee_"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"

@@ -16,7 +16,6 @@ Imports Tao.DevIl
 Imports Microsoft.VisualBasic.Strings
 Imports Ionic.Zip
 Imports System.Runtime.InteropServices
-
 Module modTextures
     Enum ATLAS_TYPE
         ATLAS_AM
@@ -1008,7 +1007,7 @@ save_it:
             'If PRIMITIVES_MODE Then Return
             Dim diffuse As String = _group(id).color_name.Replace(".dds", "_hd.dds")
             Dim normal As String = _group(id).normal_name.Replace(".dds", "_hd.dds")
-            Dim metal As String = _group(id).metalGMM_name.Replace(".dds", "_hd.dds")
+            Dim metal As String = _group(id).GMM_name.Replace(".dds", "_hd.dds")
 
             Dim ao_name As String = ""
             If Not String.IsNullOrEmpty(_group(id).ao_name) Then
@@ -1040,8 +1039,8 @@ save_it:
                     _group(id).color_Id = textures(i).c_id
                     _group(id).normal_name = textures(i).n_name
                     _group(id).normal_Id = textures(i).n_id
-                    _group(id).metalGMM_name = textures(i).gmm_name
-                    _group(id).metalGMM_Id = textures(i).gmm_id
+                    _group(id).GMM_name = textures(i).gmm_name
+                    _group(id).GMM_Id = textures(i).gmm_id
                     _group(id).ao_name = textures(i).ao_name
                     _group(id).ao_id = textures(i).ao_id
                     _group(id).colorIDmap = textures(i).colorIdMap
@@ -1070,7 +1069,7 @@ save_it:
 
             _group(id).color_name = diffuse
             _group(id).normal_name = normal
-            _group(id).metalGMM_name = metal
+            _group(id).GMM_name = metal
             _group(id).ao_name = ao_name
 
 
@@ -1106,7 +1105,7 @@ save_it:
 
             _group(id).color_Id = c_id
             _group(id).normal_Id = n_id
-            _group(id).metalGMM_Id = m_id
+            _group(id).GMM_Id = m_id
             _group(id).ao_id = ao_id
             _group(id).detail_Id = detail_id
             _group(id).g_detailMap_id = g_det_id
@@ -1667,14 +1666,14 @@ save_it:
                 log_text.AppendLine("loaded HD res_mods :  " + Path.GetFileName(name))
                 Dim raw = File.ReadAllBytes(r_path)
                 mStream = New MemoryStream(raw)
-                id = get_texture(mStream, name)
+                id = get_texture_fast(mStream)
                 Return id
             End If
             If File.Exists(r_pathSD) Then
                 log_text.AppendLine("loaded SD res_mods : " + Path.GetFileName(name))
                 Dim raw = File.ReadAllBytes(r_pathSD)
                 mStream = New MemoryStream(raw)
-                id = get_texture(mStream, name)
+                id = get_texture_fast(mStream)
                 Return id
             End If
         End If
@@ -1688,7 +1687,7 @@ save_it:
                     If ent IsNot Nothing Then
                         mStream = New MemoryStream
                         ent.Extract(mStream)
-                        id = get_texture(mStream, name) ' get hd texture ID
+                        id = get_texture_fast(mStream) ' get hd texture ID
                         Return id
                     End If
 
@@ -1697,14 +1696,7 @@ save_it:
 
         Catch ex As Exception
         End Try
-        If ent Is Nothing Then
-            Try 'look in HD packages
-                If current_tank_package > 4 Then
-                    ent = frmMain.packages_HD_2(current_tank_package)(name) ' look in tank package
-                End If
-            Catch ex As Exception
-            End Try
-        End If
+
         If ent Is Nothing Then ' look in shared content
             ent = search_shared_pkgs(name) ' look in tank package
         End If
@@ -1728,12 +1720,11 @@ save_it:
             log_text.AppendLine("loaded HD from PKG : " + Path.GetFileName(name))
             mStream = New MemoryStream
             ent.Extract(mStream)
-            id = get_texture(mStream, name) ' get hd texture ID
+            id = get_texture_fast(mStream) ' get hd texture ID
             Return id
         Else
             'look in current pkg for SD texture
 skip_hd:
-            ent = frmMain.packages(current_tank_package)(name) ' look in tank package
             If ent Is Nothing Then 'if not found in current pkg than look in shared
                 If frmMain.packages_2(current_tank_package) IsNot Nothing Then
                     ent = frmMain.packages_2(current_tank_package)(name) ' look in 2nd tank package
@@ -1751,7 +1742,7 @@ skip_hd:
                 log_text.AppendLine("loaded SD from PKG : " + Path.GetFileName(name))
                 mStream = New MemoryStream
                 ent.Extract(mStream)
-                id = get_texture(mStream, name) ' get SD texture ID
+                id = get_texture_fast(mStream) ' get SD texture ID
                 Return id
             End If
         End If
@@ -1761,154 +1752,69 @@ skip_hd:
 
         Return 0
     End Function
+    Public Function get_texture_fast(ByRef ms As MemoryStream) As Integer
+        ' Get the byte array from the memory stream
+        Dim buffer() As Byte = ms.ToArray()
 
-    Public Function get_texture(ByRef ms As MemoryStream, file_path As String) As Integer
+        ' Pin the array in memory
+        Dim gch As GCHandle = GCHandle.Alloc(buffer, GCHandleType.Pinned)
+        Dim ptr As IntPtr = gch.AddrOfPinnedObject()
 
+        ' Call the function with pointer and length
+        Dim textureID As Integer = LoadTextureFromMemory(ptr, buffer.Length)
 
-        frmMain.gl_stop = True
-        Dim texID As UInt32
-        Dim image_id As Integer
-        ms.Position = 0
-        Dim textIn(ms.Length) As Byte
-        ms.Read(textIn, 0, ms.Length)
-        texID = Ilu.iluGenImage() ' /* Generation of one image name */
-        Il.ilBindImage(texID) '; /* Binding of image name */
-        Dim success = Il.ilGetError
+        ' Free the pinned handle
+        gch.Free()
 
-        Il.ilLoadL(Il.IL_DDS, textIn, textIn.Length)
-        success = Il.ilGetError
-        If success = Il.IL_NO_ERROR Then
-            'Ilu.iluFlipImage()
-            Il.ilEnable(Il.IL_FILE_OVERWRITE)
-            'Ilu.iluMirror()
-            Dim width As Integer = Il.ilGetInteger(Il.IL_IMAGE_WIDTH)
-            Dim height As Integer = Il.ilGetInteger(Il.IL_IMAGE_HEIGHT)
+        Return textureID
 
-            success = Il.ilConvertImage(Il.IL_RGBA, Il.IL_UNSIGNED_BYTE) ' Convert every colour component into unsigned bytes
-            'If your image contains alpha channel you can replace IL_RGB with IL_RGBA */
-            Gl.glGenTextures(1, image_id)
-            Gl.glEnable(Gl.GL_TEXTURE_2D)
-            Gl.glBindTexture(Gl.GL_TEXTURE_2D, image_id)
-            If largestAnsio > 0 Then
-                Gl.glTexParameterf(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_MAX_ANISOTROPY_EXT, largestAnsio)
-            End If
-            Gl.glTexParameteri(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_MAG_FILTER, Gl.GL_LINEAR)
-            Gl.glTexParameteri(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_MIN_FILTER, Gl.GL_LINEAR_MIPMAP_LINEAR)
-            Gl.glTexParameteri(Gl.GL_TEXTURE_2D, Gl.GL_GENERATE_MIPMAP, Gl.GL_TRUE)
-
-            Gl.glTexParameteri(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_WRAP_S, Gl.GL_REPEAT)
-            Gl.glTexParameteri(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_WRAP_T, Gl.GL_REPEAT)
-
-            Gl.glTexImage2D(Gl.GL_TEXTURE_2D, 0, Il.ilGetInteger(Il.IL_IMAGE_BPP), Il.ilGetInteger(Il.IL_IMAGE_WIDTH),
-            Il.ilGetInteger(Il.IL_IMAGE_HEIGHT), 0, Il.ilGetInteger(Il.IL_IMAGE_FORMAT), Gl.GL_UNSIGNED_BYTE,
-            Il.ilGetData()) '  Texture specification 
-            Gl.glFinish()
-            Gl.glBindTexture(Gl.GL_TEXTURE_2D, 0)
-
-            If frmFBX.Visible Then
-                'setup texture path
-                Dim ar = TANK_NAME.Split(":")
-                Dim name As String = Path.GetFileName(ar(0))
-                FBX_Texture_path = Path.GetDirectoryName(My.Settings.fbx_path) + "\" + name
-                If Not File.Exists(FBX_Texture_path) Then
-
-                    'create directory for the textures
-                    If Not IO.Directory.Exists(FBX_Texture_path) Then
-                        System.IO.Directory.CreateDirectory(FBX_Texture_path)
-                    End If
-                    Dim abs_name = Path.GetFileNameWithoutExtension(file_path)
-                    'we have to save to a temp file.. from devil.. open and lock a new file with the correct name...
-                    'save the data from the temp file in to it and finally close the new file....
-                    'ALL BECAUSE 3DS MAX Crashes if its using one of PNGs... SUCH BS! Its the file change monitoring.
-                    'It tries to load the image as soon as we change it and that makes it corupt!
-                    Dim save_path As String = Path.GetDirectoryName(My.Settings.fbx_path)
-                    Il.ilSave(Il.IL_PNG, FBX_Texture_path + "\" + abs_name + ".png" + "_temp") ' save to temp
-                    Dim ta = File.ReadAllBytes(FBX_Texture_path + "\" + abs_name + ".png" + "_temp") 'read temp to an arry
-                    Dim hnd = File.Open(FBX_Texture_path + "\" + abs_name + ".png", FileMode.OpenOrCreate, FileAccess.Write, FileShare.None) ' open and lock a new file
-                    hnd.Write(ta, 0, ta.Length) ' save the temp array
-                    hnd.Close() ' close the file
-                    If File.Exists(FBX_Texture_path + "\" + abs_name + ".png" + "_temp") Then ' delete the temp file
-                        File.Delete(FBX_Texture_path + "\" + abs_name + ".png" + "_temp")
-                    End If
-                End If
-            End If
-
-        Else
-            MsgBox("Out of memory error at :get texture:", MsgBoxStyle.Critical, "Well Shit!")
-            End
-        End If
-        Il.ilBindImage(0)
-        Ilu.iluDeleteImage(texID)
-        frmMain.gl_stop = False
-        Return image_id
-        'ms.Close()
-        'ms.Dispose()
-        'GC.Collect()
     End Function
 
     Public Function get_texture_and_bitmap(ByRef ms As MemoryStream, file_path As String, ByRef bmp As Bitmap) As Integer
 
-        Dim texID As UInt32
-        Dim image_id As Integer
-        ms.Position = 0
-        Dim textIn(ms.Length) As Byte
-        ms.Read(textIn, 0, ms.Length)
-        texID = Ilu.iluGenImage() ' /* Generation of one image name */
-        Il.ilBindImage(texID) '; /* Binding of image name */
-        Dim success = Il.ilGetError
+        ' Load the texture using LoadTextureFromMemory and get the texture ID
+        ' Get the byte array from the memory stream
+        Dim buffer() As Byte = ms.ToArray()
 
-        Il.ilLoadL(Il.IL_DDS, textIn, textIn.Length)
-        success = Il.ilGetError
+        ' Pin the array in memory
+        Dim gch As GCHandle = GCHandle.Alloc(buffer, GCHandleType.Pinned)
+        Dim ptr As IntPtr = gch.AddrOfPinnedObject()
+
+        ' Call the function with pointer and length
+        Dim textureID As Integer = LoadTextureFromMemory(ptr, buffer.Length)
+
+        ' Check if the texture was loaded successfully
+        If textureID = 0 Then
+            MsgBox("Failed to load texture from memory.", MsgBoxStyle.Critical, "Error")
+            Return 0
+        End If
+
+        ' Bind the texture and retrieve its dimensions
+        Gl.glBindTexture(Gl.GL_TEXTURE_2D, textureID)
+
+        Dim width As Integer = Il.ilGetInteger(Il.IL_IMAGE_WIDTH)
+        Dim height As Integer = Il.ilGetInteger(Il.IL_IMAGE_HEIGHT)
+
+        ' Create the bitmap and lock its bits for writing
+        Dim rect As Rectangle = New Rectangle(0, 0, width, height)
+        bmp = New System.Drawing.Bitmap(width, height, PixelFormat.Format24bppRgb)
+
+        Dim bitmapData As BitmapData = bmp.LockBits(rect, ImageLockMode.WriteOnly, PixelFormat.Format24bppRgb)
+
+        ' Use DevIL to convert the texture data into bitmap pixel data
+        Dim success As Integer = Il.ilConvertImage(Il.IL_BGR, Il.IL_UNSIGNED_BYTE)
+
         If success = Il.IL_NO_ERROR Then
-            'Ilu.iluFlipImage()
-            Il.ilEnable(Il.IL_FILE_OVERWRITE)
-            'Ilu.iluMirror()
-            Dim width As Integer = Il.ilGetInteger(Il.IL_IMAGE_WIDTH)
-            Dim height As Integer = Il.ilGetInteger(Il.IL_IMAGE_HEIGHT)
-            'success = Il.ilConvertImage(Il.IL_RGBA, Il.IL_UNSIGNED_BYTE) ' Convert every colour component into unsigned bytes
-            'If your image contains alpha channel you can replace IL_RGB with IL_RGBA */
-            Gl.glGenTextures(1, image_id)
-            Gl.glEnable(Gl.GL_TEXTURE_2D)
-            Gl.glBindTexture(Gl.GL_TEXTURE_2D, image_id)
-            If largestAnsio > 0 Then
-                Gl.glTexParameterf(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_MAX_ANISOTROPY_EXT, largestAnsio)
-            End If
-            Gl.glTexParameteri(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_MAG_FILTER, Gl.GL_LINEAR)
-            Gl.glTexParameteri(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_MIN_FILTER, Gl.GL_LINEAR_MIPMAP_LINEAR)
-            Gl.glTexParameteri(Gl.GL_TEXTURE_2D, Gl.GL_GENERATE_MIPMAP, Gl.GL_TRUE)
-
-            Gl.glTexParameteri(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_WRAP_S, Gl.GL_REPEAT)
-            Gl.glTexParameteri(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_WRAP_T, Gl.GL_REPEAT)
-
-            Gl.glTexImage2D(Gl.GL_TEXTURE_2D, 0, Il.ilGetInteger(Il.IL_IMAGE_BPP), Il.ilGetInteger(Il.IL_IMAGE_WIDTH), _
-            Il.ilGetInteger(Il.IL_IMAGE_HEIGHT), 0, Il.ilGetInteger(Il.IL_IMAGE_FORMAT), Gl.GL_UNSIGNED_BYTE, _
-            Il.ilGetData()) '  Texture specification 
-            Gl.glFinish()
-            Gl.glBindTexture(Gl.GL_TEXTURE_2D, 0)
-
-            Dim rect As Rectangle = New Rectangle(0, 0, width, height)
-
-            ' Create the bitmap.
-            bmp = New System.Drawing.Bitmap(width, height, PixelFormat.Format24bppRgb)
-
-            Dim bitmapData As BitmapData = bmp.LockBits(rect, ImageLockMode.WriteOnly, PixelFormat.Format24bppRgb)
-
-            success = Il.ilConvertImage(Il.IL_BMP, Il.IL_UNSIGNED_BYTE)
-
             Il.ilCopyPixels(0, 0, 0, width, height, 1, Il.IL_BGR, Il.IL_UNSIGNED_BYTE, bitmapData.Scan0)
             bmp.UnlockBits(bitmapData)
-
-
         Else
-            MsgBox("Out of memory error at :get texture:", MsgBoxStyle.Critical, "Well Shit!")
-            End
+            MsgBox("Failed to convert texture to bitmap.", MsgBoxStyle.Critical, "Error")
+            Return 0
         End If
-        Il.ilBindImage(0)
-        Ilu.iluDeleteImage(texID)
-        Return image_id
-        'ms.Close()
-        'ms.Dispose()
-        'GC.Collect()
+
+        ' Unbind texture and clean up
+        Gl.glBindTexture(Gl.GL_TEXTURE_2D, 0)
+        Return textureID
     End Function
 
     Public Function get_png(ByVal ms As MemoryStream) As Bitmap
@@ -2035,7 +1941,6 @@ skip_hd:
 
     Public Function load_png_file(ByVal fs As String) As Integer
         Dim image_id As Integer = -1
-
         Dim texID As UInt32
         texID = Ilu.iluGenImage() ' /* Generation of one image name */
         Il.ilBindImage(texID) '; /* Binding of image name */
@@ -2066,8 +1971,8 @@ skip_hd:
             Gl.glTexParameteri(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_WRAP_S, Gl.GL_REPEAT)
             Gl.glTexParameteri(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_WRAP_T, Gl.GL_REPEAT)
 
-            Gl.glTexImage2D(Gl.GL_TEXTURE_2D, 0, Il.ilGetInteger(Il.IL_IMAGE_BPP), Il.ilGetInteger(Il.IL_IMAGE_WIDTH), _
-            Il.ilGetInteger(Il.IL_IMAGE_HEIGHT), 0, Il.ilGetInteger(Il.IL_IMAGE_FORMAT), Gl.GL_UNSIGNED_BYTE, _
+            Gl.glTexImage2D(Gl.GL_TEXTURE_2D, 0, Il.ilGetInteger(Il.IL_IMAGE_BPP), Il.ilGetInteger(Il.IL_IMAGE_WIDTH),
+            Il.ilGetInteger(Il.IL_IMAGE_HEIGHT), 0, Il.ilGetInteger(Il.IL_IMAGE_FORMAT), Gl.GL_UNSIGNED_BYTE,
             Il.ilGetData()) '  Texture specification 
             Gl.glBindTexture(Gl.GL_TEXTURE_2D, 0)
             Il.ilBindImage(0)

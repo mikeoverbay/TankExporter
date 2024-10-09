@@ -1304,6 +1304,7 @@ outahere:
         get_component_index() 'build indexing table
     End Sub
     Private Sub move_fbx_entry(ByRef fbx_in As _grps, ByRef fbx_out As _grps, ByVal i As Integer, ByVal idx As Integer)
+        'sorts the tankk parts by id in file name.
         fbx_in = New _grps
 
         fbx_in.name = fbx_out.name
@@ -1322,6 +1323,17 @@ outahere:
         fbx_in.has_uv2 = fbx_out.has_uv2
         fbx_in.has_Vcolor = fbx_out.has_Vcolor
         fbx_in.bumped = fbx_out.bumped
+        fbx_in.stride = fbx_out.stride
+
+        If fbx_out.vertColor IsNot Nothing Then
+            ReDim fbx_in.vertColor(fbx_out.vertColor.Length - 1)
+            Array.Copy(fbx_out.vertColor, fbx_in.vertColor, fbx_out.vertColor.Length)
+        End If
+        If fbx_out.weight0 IsNot Nothing Then
+            ReDim fbx_in.weight0(fbx_out.vertColor.Length - 1)
+            Array.Copy(fbx_out.weight0, fbx_in.weight0, fbx_out.weight0.Length)
+        End If
+
 
 
         ReDim fbx_in.matrix(15)
@@ -1433,7 +1445,7 @@ outahere:
                 m_groups(1).cnt = ct + 1
                 m_groups(1).m_type = 1
                 ar = fbxgrp(i).name.Split("~")
-                m_groups(1).f_name(ct) = ar(0)
+                m_groups(1).f_name(ct) = "vehicles\" + ar(0)
                 If ar.Length > 1 Then
                     m_groups(1).package_id(ct) = CInt(ar(1))
                     m_groups(1).group_list(ct) = ar(2)
@@ -1453,7 +1465,7 @@ outahere:
                 m_groups(2).list(ht) = i
                 m_groups(2).m_type = 2
                 ar = fbxgrp(i).name.Split("~")
-                m_groups(2).f_name(ht) = ar(0)
+                m_groups(2).f_name(ht) = "vehicles\" + ar(0)
                 If ar.Length > 1 Then
                     m_groups(2).package_id(ht) = CInt(ar(1))
                 Else
@@ -1470,7 +1482,7 @@ outahere:
                 m_groups(3).list(tt) = i
                 m_groups(3).m_type = 3
                 ar = fbxgrp(i).name.Split("~")
-                m_groups(3).f_name(tt) = ar(0)
+                m_groups(3).f_name(tt) = "vehicles\" + ar(0)
                 If ar.Length > 1 Then
                     m_groups(3).package_id(tt) = CInt(ar(1))
                 Else
@@ -1487,7 +1499,7 @@ outahere:
                 m_groups(4).list(gt) = i
                 m_groups(4).m_type = 4
                 ar = fbxgrp(i).name.Split("~")
-                m_groups(4).f_name(gt) = ar(0)
+                m_groups(4).f_name(gt) = "vehicles\" + ar(0)
                 If ar.Length > 1 Then
                     m_groups(4).package_id(gt) = CInt(ar(1))
                 Else
@@ -1649,10 +1661,9 @@ outahere:
 
         End If
         For i = 1 To fbxgrp.Length - 1
-            If Not fbxgrp(i).name.Contains("vehicles\") Then
-                fbxgrp(i).is_new_model = True
-                fbxgrp(i).is_GAmap = 0 ' not PBS
-                fbxgrp(i).alphaTest = 1
+            If Not fbxgrp(i).is_new_model Then
+                fbxgrp(i).is_GAmap = 1 ' not PBS
+                fbxgrp(i).alphaTest = 0
             Else
                 fbxgrp(i).is_GAmap = 1 'is PBS
                 fbxgrp(i).alphaTest = _group(i).alphaTest
@@ -1687,6 +1698,8 @@ outahere:
 
         End If
         'set which group has new models or changed data
+        frmWritePrimitive.Opacity = 0
+
         frmWritePrimitive.Visible = True
         If CRASH_MODE Then
             frmWritePrimitive.m_write_crashed.Checked = True
@@ -1719,6 +1732,10 @@ outahere:
         'lets create the color picking lists.
         'This should speed up color picking a lot.
         Dim r, b, g, a As Byte
+        'fbx pick list
+        For i = 1 To fbxgrp.Length - 1
+            create_TBNS(i)
+        Next
         For i = 1 To fbxgrp.Length - 1
             fbxgrp(i).visible = True
             Dim cpl = Gl.glGenLists(1)
@@ -1747,6 +1764,7 @@ outahere:
         Next
 
         'create pick lists
+        'model pick list
         For i = 1 To object_count
             Dim cpl = Gl.glGenLists(1)
             _object(i).vertex_pick_list = cpl
@@ -1776,6 +1794,8 @@ outahere:
         frmMain.gun_cb.Checked = True
         frmMain.m_view_res_mods_folder.Enabled = True
         frmWritePrimitive.Visible = False
+        frmWritePrimitive.Opacity = 100
+
         frmMain.find_icon_image(TANK_NAME)
         Application.DoEvents()
         MODEL_LOADED = True
@@ -1783,54 +1803,6 @@ outahere:
         frmMain.m_set_vertex_winding_order.Enabled = True
     End Sub
 
-    Private Sub check_winding_order(ByVal i As Integer)
-
-
-        For k As UInt32 = 0 To fbxgrp(i).nPrimitives_ * 3 - 1 Step 3
-
-            Dim p1 = fbxgrp(i).indices(k + 0).v1
-            Dim p2 = fbxgrp(i).indices(k + 1).v1
-            Dim p3 = fbxgrp(i).indices(k + 2).v1
-            Dim v1, v2, v3 As SharpDX.Vector3
-            v1.X = fbxgrp(i).vertices(p1).x
-            v1.Y = fbxgrp(i).vertices(p1).y
-            v1.Z = fbxgrp(i).vertices(p1).z
-
-            v2.X = fbxgrp(i).vertices(p2).x
-            v2.Y = fbxgrp(i).vertices(p2).y
-            v2.Z = fbxgrp(i).vertices(p2).z
-
-            v3.X = fbxgrp(i).vertices(p3).x
-            v3.Y = fbxgrp(i).vertices(p3).y
-            v3.Z = fbxgrp(i).vertices(p3).z
-
-            Dim Dir = SharpDX.Vector3.Cross(v2 - v1, v3 - v1)
-            Dim n = SharpDX.Vector3.Normalize(Dir)
-            Dim n2 As New FbxVector4
-            n2.X = n.X
-            n2.Y = n.Y
-            n2.Z = n.Z
-
-
-            fbxgrp(i).vertices(p1).nx = n.X
-            fbxgrp(i).vertices(p1).ny = n.Y
-            fbxgrp(i).vertices(p1).nz = n.Z
-            fbxgrp(i).vertices(p1).n = packnormalFBX888(n2)
-
-            fbxgrp(i).vertices(p2).nx = n.X
-            fbxgrp(i).vertices(p2).ny = n.Y
-            fbxgrp(i).vertices(p2).nz = n.Z
-            fbxgrp(i).vertices(p2).n = fbxgrp(i).vertices(p1).n
-
-            fbxgrp(i).vertices(p3).nx = n.X
-            fbxgrp(i).vertices(p3).ny = n.Y
-            fbxgrp(i).vertices(p3).nz = n.Z
-            fbxgrp(i).vertices(p3).n = fbxgrp(i).vertices(p1).n
-
-
-        Next
-
-    End Sub
     Public Sub make_fbx_display_lists(ByVal cnt As Integer, ByVal jj As Integer)
         Gl.glBegin(Gl.GL_TRIANGLES)
         For z As UInt32 = 0 To (cnt) - 1
@@ -1859,6 +1831,255 @@ outahere:
         Gl.glVertex3f(fbxgrp(jj).vertices(i).x, fbxgrp(jj).vertices(i).y, fbxgrp(jj).vertices(i).z)
 
     End Sub
+
+    Public Sub fix_winding_order(ByVal i As Integer)
+        Dim flag As Boolean = False
+
+        ' Loop through the indices buffer
+        For k As Integer = 0 To fbxgrp(i).indices.Length - 1
+            ' Get the indices for p1, p2, p3
+            Dim p1 = fbxgrp(i).indices(k).v1
+            Dim p2 = fbxgrp(i).indices(k).v2
+            Dim p3 = fbxgrp(i).indices(k).v3
+
+            ' Get the vertices for v1, v2, v3
+            Dim v1, v2, v3 As SharpDX.Vector3
+            v1.X = fbxgrp(i).vertices(p1).x
+            v1.Y = fbxgrp(i).vertices(p1).y
+            v1.Z = fbxgrp(i).vertices(p1).z
+
+            v2.X = fbxgrp(i).vertices(p2).x
+            v2.Y = fbxgrp(i).vertices(p2).y
+            v2.Z = fbxgrp(i).vertices(p2).z
+
+            v3.X = fbxgrp(i).vertices(p3).x
+            v3.Y = fbxgrp(i).vertices(p3).y
+            v3.Z = fbxgrp(i).vertices(p3).z
+
+            ' Get the normals for v1, v2, and v3
+            Dim n1, n2, n3 As SharpDX.Vector3
+            n1.X = fbxgrp(i).vertices(p1).nx
+            n1.Y = fbxgrp(i).vertices(p1).ny
+            n1.Z = fbxgrp(i).vertices(p1).nz
+
+            n2.X = fbxgrp(i).vertices(p2).nx
+            n2.Y = fbxgrp(i).vertices(p2).ny
+            n2.Z = fbxgrp(i).vertices(p2).nz
+
+            n3.X = fbxgrp(i).vertices(p3).nx
+            n3.Y = fbxgrp(i).vertices(p3).ny
+            n3.Z = fbxgrp(i).vertices(p3).nz
+
+            ' Calculate the average normal using vertex normals
+            Dim avgNormal As SharpDX.Vector3 = (n1 + n2 + n3) / 3
+
+            ' Calculate the geometric normal using the cross product of the triangle's edges
+            Dim edge1 As SharpDX.Vector3 = v2 - v1
+            Dim edge2 As SharpDX.Vector3 = v3 - v1
+            Dim geometricNormal As SharpDX.Vector3 = SharpDX.Vector3.Cross(edge1, edge2)
+
+            ' Normalize both normals to compare them
+            avgNormal.Normalize()
+            geometricNormal.Normalize()
+
+            ' Compare the normals using the dot product
+            Dim dotProduct As Single = SharpDX.Vector3.Dot(avgNormal, geometricNormal)
+
+            ' If the dot product is negative, the winding order is incorrect (clockwise)
+            If dotProduct < 0 Then
+                flag = True      ' Apply winding order flip
+                fbxgrp(i).indices(k).v2 = p3
+                fbxgrp(i).indices(k).v3 = p2
+            End If
+        Next
+        If flag Then
+            Debug.WriteLine("reversed winding id " + i.ToString)
+        End If
+    End Sub
+    Public Sub fix_winding_order_group(ByVal i As Integer)
+        'Return
+        ' Loop through the indices buffer
+        For k As Integer = 1 To _group(i).indices.Length - 1
+            ' Get the indices for p1, p2, p3
+            Dim p1 = _group(i).indices(k).v1
+            Dim p2 = _group(i).indices(k).v2
+            Dim p3 = _group(i).indices(k).v3
+
+            ' Get the vertices for v1, v2, v3
+            Dim v1, v2, v3 As SharpDX.Vector3
+            v1.X = _group(i).vertices(p1).x
+            v1.Y = _group(i).vertices(p1).y
+            v1.Z = _group(i).vertices(p1).z
+
+            v2.X = _group(i).vertices(p2).x
+            v2.Y = _group(i).vertices(p2).y
+            v2.Z = _group(i).vertices(p2).z
+
+            v3.X = _group(i).vertices(p3).x
+            v3.Y = _group(i).vertices(p3).y
+            v3.Z = _group(i).vertices(p3).z
+
+            ' Get the normals for v1, v2, and v3
+            Dim n1, n2, n3 As SharpDX.Vector3
+            n1.X = _group(i).vertices(p1).nx
+            n1.Y = _group(i).vertices(p1).ny
+            n1.Z = _group(i).vertices(p1).nz
+
+            n2.X = _group(i).vertices(p2).nx
+            n2.Y = _group(i).vertices(p2).ny
+            n2.Z = _group(i).vertices(p2).nz
+
+            n3.X = _group(i).vertices(p3).nx
+            n3.Y = _group(i).vertices(p3).ny
+            n3.Z = _group(i).vertices(p3).nz
+
+            ' Calculate the average normal using vertex normals
+            Dim avgNormal As SharpDX.Vector3 = (n1 + n2 + n3) / 3
+
+            ' Calculate the geometric normal using the cross product of the triangle's edges
+            Dim edge1 As SharpDX.Vector3 = v2 - v1
+            Dim edge2 As SharpDX.Vector3 = v3 - v1
+            Dim geometricNormal As SharpDX.Vector3 = SharpDX.Vector3.Cross(edge1, edge2)
+
+            ' Normalize both normals to compare them
+            avgNormal.Normalize()
+            geometricNormal.Normalize()
+
+            ' Compare the normals using the dot product
+            Dim dotProduct As Single = SharpDX.Vector3.Dot(avgNormal, geometricNormal)
+
+            ' If the dot product is negative, the winding order is incorrect (clockwise)
+            If dotProduct < 0 Then
+                ' Apply winding order flip
+                _group(i).indices(k).v2 = p3
+                _group(i).indices(k).v3 = p2
+            End If
+        Next
+
+    End Sub
+
+    Public Sub check_normal_y(ByVal i As Integer)
+        ' Loop through the indices buffer
+        For k As Integer = 0 To fbxgrp(i).indices.Length - 1 Step 3
+            ' Get the indices for p1, p2, p3
+            Dim p1 = fbxgrp(i).indices(k).v1
+            Dim p2 = fbxgrp(i).indices(k).v1
+            Dim p3 = fbxgrp(i).indices(k).v1
+
+            ' Get the vertices for v1, v2, v3
+            Dim v1, v2, v3 As SharpDX.Vector3
+            v1.X = fbxgrp(i).vertices(p1).x
+            v1.Y = fbxgrp(i).vertices(p1).y
+            v1.Z = fbxgrp(i).vertices(p1).z
+
+            v2.X = fbxgrp(i).vertices(p2).x
+            v2.Y = fbxgrp(i).vertices(p2).y
+            v2.Z = fbxgrp(i).vertices(p2).z
+
+            v3.X = fbxgrp(i).vertices(p3).x
+            v3.Y = fbxgrp(i).vertices(p3).y
+            v3.Z = fbxgrp(i).vertices(p3).z
+
+            ' Get the normals for v1, v2, and v3
+            Dim n1, n2, n3 As SharpDX.Vector3
+            n1.X = fbxgrp(i).vertices(p1).nx
+            n1.Y = fbxgrp(i).vertices(p1).ny
+            n1.Z = fbxgrp(i).vertices(p1).nz
+
+            n2.X = fbxgrp(i).vertices(p2).nx
+            n2.Y = fbxgrp(i).vertices(p2).ny
+            n2.Z = fbxgrp(i).vertices(p2).nz
+
+            n3.X = fbxgrp(i).vertices(p3).nx
+            n3.Y = fbxgrp(i).vertices(p3).ny
+            n3.Z = fbxgrp(i).vertices(p3).nz
+
+            ' Calculate the average normal using vertex normals
+            Dim avgNormal As SharpDX.Vector3 = (n1 + n2 + n3) / 3
+
+            ' Calculate the geometric normal using the cross product of the triangle's edges
+            Dim edge1 As SharpDX.Vector3 = v2 - v1
+            Dim edge2 As SharpDX.Vector3 = v3 - v1
+            Dim geometricNormal As SharpDX.Vector3 = SharpDX.Vector3.Cross(edge1, edge2)
+
+            ' Normalize both normals to compare them
+            If avgNormal.Length() > 0 Then avgNormal.Normalize()
+            geometricNormal.Normalize()
+
+            ' Compare the normals using the dot product
+            Dim dotProduct As Single = SharpDX.Vector3.Dot(avgNormal, geometricNormal)
+
+            ' If the dot product is negative, the normals don't match
+            If dotProduct > 0 Then
+                ' Only flip the Y component of the normals once
+                If fbxgrp(i).vertices(p1).ny > 0 Then fbxgrp(i).vertices(p1).ny = -fbxgrp(i).vertices(p1).ny
+                If fbxgrp(i).vertices(p2).ny > 0 Then fbxgrp(i).vertices(p2).ny = -fbxgrp(i).vertices(p2).ny
+                If fbxgrp(i).vertices(p3).ny > 0 Then fbxgrp(i).vertices(p3).ny = -fbxgrp(i).vertices(p3).ny
+            End If
+        Next
+    End Sub
+
+    Public Sub check_normal_y_group(ByVal i As Integer)
+        ' Loop through the indices buffer
+        For k As Integer = 1 To _group(i).indices.Length - 1 Step 3
+            ' Get the indices for p1, p2, p3
+            Dim p1 = _group(i).indices(k).v1
+            Dim p2 = _group(i).indices(k).v1
+            Dim p3 = _group(i).indices(k).v1
+
+            ' Get the vertices for v1, v2, v3
+            Dim v1, v2, v3 As SharpDX.Vector3
+            v1.X = _group(i).vertices(p1).x
+            v1.Y = _group(i).vertices(p1).y
+            v1.Z = _group(i).vertices(p1).z
+
+            v2.X = _group(i).vertices(p2).x
+            v2.Y = _group(i).vertices(p2).y
+            v2.Z = _group(i).vertices(p2).z
+
+            v3.X = _group(i).vertices(p3).x
+            v3.Y = _group(i).vertices(p3).y
+            v3.Z = _group(i).vertices(p3).z
+
+            ' Get the normals for v1, v2, and v3
+            Dim n1, n2, n3 As SharpDX.Vector3
+            n1.X = _group(i).vertices(p1).nx
+            n1.Y = _group(i).vertices(p1).ny
+            n1.Z = _group(i).vertices(p1).nz
+
+            n2.X = _group(i).vertices(p2).nx
+            n2.Y = _group(i).vertices(p2).ny
+            n2.Z = _group(i).vertices(p2).nz
+
+            n3.X = _group(i).vertices(p3).nx
+            n3.Y = _group(i).vertices(p3).ny
+            n3.Z = _group(i).vertices(p3).nz
+
+            ' Calculate the average normal using vertex normals
+            Dim avgNormal As SharpDX.Vector3 = (n1 + n2 + n3) / 3
+
+            ' Calculate the geometric normal using the cross product of the triangle's edges
+            Dim edge1 As SharpDX.Vector3 = v2 - v1
+            Dim edge2 As SharpDX.Vector3 = v3 - v1
+            Dim geometricNormal As SharpDX.Vector3 = SharpDX.Vector3.Cross(edge1, edge2)
+
+            ' Normalize both normals to compare them, but only if the length > 0
+            If avgNormal.Length() > 0 Then avgNormal.Normalize()
+            geometricNormal.Normalize()
+
+            ' Compare the normals using the dot product
+            Dim dotProduct As Single = SharpDX.Vector3.Dot(avgNormal, geometricNormal)
+
+            ' If the dot product is negative, the normals don't match
+            If dotProduct > 0 Then
+                ' Flip the Y component of the normals only once (if not already flipped)
+                If _group(i).vertices(p1).ny > 0 Then _group(i).vertices(p1).ny = -_group(i).vertices(p1).ny
+                If _group(i).vertices(p2).ny > 0 Then _group(i).vertices(p2).ny = -_group(i).vertices(p2).ny
+                If _group(i).vertices(p3).ny > 0 Then _group(i).vertices(p3).ny = -_group(i).vertices(p3).ny
+            End If
+        Next
+    End Sub
+
 
     Private Sub setFbxMatrix(ByRef m_() As Double, ByRef fb As FbxXMatrix)
         Dim m As New SharpDX.Matrix
@@ -1926,16 +2147,24 @@ outahere:
         Return
     End Sub
     Public Sub create_TBNS2(ByVal id As UInt32)
-        Dim cnt = fbxgrp(id).nPrimitives_ * 3
+        ' Calculate the number of primitives to process
+        Dim cnt As UInt32 = fbxgrp(id).nPrimitives_ - 4
         Dim p1, p2, p3 As UInt32
+
+        ' Iterate through each triangle (assuming primitives are triangles)
         For i As UInt32 = 0 To cnt - 1 Step 3
+            ' Retrieve vertex indices for the current triangle
             p1 = fbxgrp(id).indices(i).v1
             p2 = fbxgrp(id).indices(i + 1).v1
             p3 = fbxgrp(id).indices(i + 2).v1
+
+            ' Initialize vectors for positions and UVs
             Dim tan, bn As vect3
             Dim v1, v2, v3 As vect3
             Dim u1, u2, u3 As vect3
-            v1.x = -fbxgrp(id).vertices(p1).x
+
+            ' Flip the X component of vertex positions for coordinate system conversion
+            v1.x = fbxgrp(id).vertices(p1).x
             v1.y = fbxgrp(id).vertices(p1).y
             v1.z = fbxgrp(id).vertices(p1).z
 
@@ -1943,10 +2172,11 @@ outahere:
             v2.y = fbxgrp(id).vertices(p2).y
             v2.z = fbxgrp(id).vertices(p2).z
 
-            v3.x = -fbxgrp(id).vertices(p3).x
+            v3.x = fbxgrp(id).vertices(p3).x
             v3.y = fbxgrp(id).vertices(p3).y
             v3.z = fbxgrp(id).vertices(p3).z
-            '
+
+            ' Texture coordinates remain unchanged
             u1.x = fbxgrp(id).vertices(p1).u
             u1.y = fbxgrp(id).vertices(p1).v
 
@@ -1955,19 +2185,33 @@ outahere:
 
             u3.x = fbxgrp(id).vertices(p3).u
             u3.y = fbxgrp(id).vertices(p3).v
-            ComputeTangentBasis(v1, v2, v3, u1, u2, u3, tan, bn) ' calculate tan and biTan
 
-            save_tbn(id, tan, bn, p1) ' puts xyz values in vertex
+            ' Compute the tangent and binormal based on transformed positions and UVs
+            ComputeTangentBasis(v1, v2, v3, u1, u2, u3, tan, bn)
+
+            ' **Critical Adjustment**:
+            ' Negate the binormal to account for the change from right-handed to left-handed system
+            bn.x = -bn.x
+            bn.y = -bn.y
+            bn.z = -bn.z
+
+            ' Save the adjusted tangent and binormal for each vertex in the triangle
+            save_tbn(id, tan, bn, p1)
             save_tbn(id, tan, bn, p2)
             save_tbn(id, tan, bn, p3)
 
-            fbxgrp(id).vertices(p1).t = packnormalFBX888(toFBXv(tan)) 'packs and puts the uint value in to the vertex
+            ' Pack and assign the tangent and binormal to the vertex structure
+            fbxgrp(id).vertices(p1).t = packnormalFBX888(toFBXv(tan))
             fbxgrp(id).vertices(p1).bn = packnormalFBX888(toFBXv(bn))
+
             fbxgrp(id).vertices(p2).t = packnormalFBX888(toFBXv(tan))
             fbxgrp(id).vertices(p2).bn = packnormalFBX888(toFBXv(bn))
+
             fbxgrp(id).vertices(p3).t = packnormalFBX888(toFBXv(tan))
             fbxgrp(id).vertices(p3).bn = packnormalFBX888(toFBXv(bn))
         Next
+
+        ' Exit the subroutine
         Return
     End Sub
 
@@ -2754,6 +2998,21 @@ outahere:
         Return myMesh
     End Function
 
+    Public Function packnormalFBX888_(ByVal n As FbxVector4) As UInt32
+        ' Normalize the components to the range [-127, 127]
+        Dim x As Int32 = CInt(Math.Round(n.X * 127))
+        Dim y As Int32 = CInt(Math.Round(n.Y * 127))
+        Dim z As Int32 = CInt(Math.Round(n.Z * 127))
+
+        ' Convert signed values to unsigned (range [0, 255])
+        x = (x And &HFF) Xor 127
+        y = (y And &HFF) Xor 127
+        z = (z And &HFF) Xor 127
+
+        ' Pack the components into a UInt32
+        Dim packed As UInt32 = (CUInt(z) << 16) Or (CUInt(y) << 8) Or CUInt(x)
+        Return packed
+    End Function
     Public Function packnormalFBX888(ByVal n As FbxVector4) As UInt32
         'This took an entire night to get working correctly
         Try

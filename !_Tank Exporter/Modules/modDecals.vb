@@ -726,64 +726,68 @@ Module modDecals
     Dim LOADING As Boolean = False
     Public Sub load_decal_layout()
         Dim filepath = Temp_Storage + "\decal_layout.csv"
+
+        If Not File.Exists(filepath) Then
+            File.Copy(Application.StartupPath + "\resources\decal_layout\decal_layout.csv", filepath)
+        End If
         Try
-            LOADING = True
-            ' Clear existing rows and columns
-            frmMain.dgv.Rows.Clear()
-            frmMain.dgv.Columns.Clear()
-            ' Open the CSV file for reading
-            If Not File.Exists(filepath) Then
-                Return
-            End If
-            Using reader As New System.IO.StreamReader(filepath)
-                ' Read the header line
-                Dim headerLine As String = reader.ReadLine()
-                If headerLine Is Nothing Then
-                    MessageBox.Show("The file is empty.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                LOADING = True
+                ' Clear existing rows and columns
+                frmMain.dgv.Rows.Clear()
+                frmMain.dgv.Columns.Clear()
+                ' Open the CSV file for reading
+                If Not File.Exists(filepath) Then
                     Return
                 End If
-
-                ' Split the header line to create columns
-                Dim headers As String() = headerLine.Split(","c)
-                For Each header As String In headers
-                    frmMain.dgv.Columns.Add(header, header)
-                Next
-
-                ' Read the data rows
-                While Not reader.EndOfStream
-                    Dim line As String = reader.ReadLine()
-                    If Not String.IsNullOrWhiteSpace(line) Then
-                        ' Split the line into values and add to DataGridView
-                        Dim values As String() = line.Split(","c)
-                        frmMain.dgv.Rows.Add(values)
+                Using reader As New System.IO.StreamReader(filepath)
+                    ' Read the header line
+                    Dim headerLine As String = reader.ReadLine()
+                    If headerLine Is Nothing Then
+                        MessageBox.Show("The file is empty.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                        Return
                     End If
-                End While
-            End Using
-            Dim tg = frmMain.dgv
-            PopulateDecalMatrixListFromDataGridView()
-            With frmMain.dgv
-                ' Disable auto resizing of columns
-                .AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None
 
-                ' Set specific widths and disable resizing for column 0
-                .Columns(0).Width = 170
-                .Columns(0).Resizable = DataGridViewTriState.False
-                .Columns(0).SortMode = DataGridViewColumnSortMode.NotSortable
+                    ' Split the header line to create columns
+                    Dim headers As String() = headerLine.Split(","c)
+                    For Each header As String In headers
+                        frmMain.dgv.Columns.Add(header, header)
+                    Next
 
-                ' Set specific widths and disable resizing for column 2
-                .Columns(1).Width = 60
-                .Columns(1).Resizable = DataGridViewTriState.False
-                .Columns(1).SortMode = DataGridViewColumnSortMode.NotSortable
+                    ' Read the data rows
+                    While Not reader.EndOfStream
+                        Dim line As String = reader.ReadLine()
+                        If Not String.IsNullOrWhiteSpace(line) Then
+                            ' Split the line into values and add to DataGridView
+                            Dim values As String() = line.Split(","c)
+                            frmMain.dgv.Rows.Add(values)
+                        End If
+                    End While
+                End Using
+                Dim tg = frmMain.dgv
+                PopulateDecalMatrixListFromDataGridView()
+                With frmMain.dgv
+                    ' Disable auto resizing of columns
+                    .AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None
 
-                ' Optional: Disable user resizing of the entire DataGridView columns
-                .AllowUserToResizeColumns = False
-            End With
-            current_decal_data_pnt = 0
-            frmMain.set_g_decal_current()
-            'Dim dgv2 = frmMain.dgv
-            'MessageBox.Show("Data loaded successfully from CSV.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information)
-        Catch ex As Exception
-            LOADING = False
+                    ' Set specific widths and disable resizing for column 0
+                    .Columns(0).Width = 170
+                    .Columns(0).Resizable = DataGridViewTriState.False
+                    .Columns(0).SortMode = DataGridViewColumnSortMode.NotSortable
+
+                    ' Set specific widths and disable resizing for column 2
+                    .Columns(1).Width = 60
+                    .Columns(1).Resizable = DataGridViewTriState.False
+                    .Columns(1).SortMode = DataGridViewColumnSortMode.NotSortable
+
+                    ' Optional: Disable user resizing of the entire DataGridView columns
+                    .AllowUserToResizeColumns = False
+                End With
+                current_decal_data_pnt = 0
+                frmMain.set_g_decal_current()
+                'Dim dgv2 = frmMain.dgv
+                'MessageBox.Show("Data loaded successfully from CSV.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            Catch ex As Exception
+                LOADING = False
             MessageBox.Show("Error loading data: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
         LOADING = False

@@ -318,9 +318,9 @@ Module ModTankLoader
         Public detail_Id As Integer
         Public color_name As String
         Public AM_in_res_mods As Boolean
-        Public metalGMM_Id As Integer
+        Public GMM_Id As Integer
         Public ANM As Integer
-        Public metalGMM_name As String
+        Public GMM_name As String
         Public GMM_in_res_mods As Boolean
         Public colorIDmap As String
         Public detail_power As Single
@@ -811,7 +811,7 @@ next_m:
             f_name_indices = ordered_names(sg - sub_groups).indi_name
             f_name_uv2 = ordered_names(sg - sub_groups).uv2_name
             Try
-                If ordered_names(sg - sub_groups).uv2_name.Length > 2 Then
+                If Not String.IsNullOrEmpty(ordered_names(sg - sub_groups).uv2_name) Then
                     has_uv2 = True
                     save_has_uv2 = True
                 Else
@@ -824,7 +824,7 @@ next_m:
 
 
 
-            If ordered_names(sg - sub_groups).color_name.Length > 0 Then
+            If Not String.IsNullOrEmpty(ordered_names(sg - sub_groups).color_name.Length) Then
                 has_color = True
             Else
                 has_color = False
@@ -1010,6 +1010,9 @@ next_m:
                 Catch ex As Exception
                     Return False
                 End Try
+                If k = 9 Then
+                    'Stop
+                End If
                 ReDim _group(k).vertices(pos + 1)
                 Dim color_runner As Integer = 0
                 For cnt = 0 To pos
@@ -1022,7 +1025,9 @@ next_m:
                     tbuf(i).x = vb_reader.ReadSingle
                     tbuf(i).y = vb_reader.ReadSingle
                     tbuf(i).z = vb_reader.ReadSingle
-
+                    If i = 21 Then
+                        'Stop
+                    End If
                     round_signed_to(tbuf(i).x, 3)
                     round_signed_to(tbuf(i).y, 3)
                     round_signed_to(tbuf(i).z, 3)
@@ -1312,14 +1317,14 @@ next_m:
                     Dim i1, i2, i3 As Integer
                     i1 = p1 : i2 = p2 : i3 = p3
                     If file_name.ToLower.Contains("hull") Or file_name.ToLower.Contains("turret") Or PRIMITIVES_MODE Then
-                        _group(jj).indices(i).v1 = p2
-                        _group(jj).indices(i).v2 = p1
-                        _group(jj).indices(i).v3 = p3
+                        _group(jj).indices(i).v1 = p2 - _group(jj).startVertex_
+                        _group(jj).indices(i).v2 = p1 - _group(jj).startVertex_
+                        _group(jj).indices(i).v3 = p3 - _group(jj).startVertex_
                     Else
-                        _group(jj).indices(i).v1 = p1
-                        _group(jj).indices(i).v2 = p2
-                        _group(jj).indices(i).v3 = p3
                     End If
+                    _group(jj).indices(i).v1 = p1 - _group(jj).startVertex_
+                    _group(jj).indices(i).v2 = p2 - _group(jj).startVertex_
+                    _group(jj).indices(i).v3 = p3 - _group(jj).startVertex_
                     'If _group(jj).skinned And PRIMITIVES_MODE Then
                     '    p1 = i2
                     '    p2 = i1
@@ -1460,6 +1465,9 @@ next_m:
                 'EchoOpenGLMatrix(_object(jj).matrix)
                 'ReDim _group(jj).matrix(16)
                 loop_count += 1
+                fix_winding_order_group(jj)
+                check_normal_y_group(jj)
+
 
                 If compute_tangents Then
                     get_tangents(jj)
@@ -1504,11 +1512,13 @@ all_done:
                 f_name_vertices = ordered_names(sg - sub_groups).vert_name
                 f_name_indices = ordered_names(sg - sub_groups).indi_name
                 f_name_uv2 = ordered_names(sg - sub_groups).uv2_name
-                If f_name_uv2.Length > 0 Then
-                    has_uv2 = True
-                    f_name_uv2 = ordered_names(sg - sub_groups).uv2_name
-                Else
-                    has_uv2 = False
+                If f_name_uv2 IsNot Nothing Then
+                    If f_name_uv2.Length > 0 Then
+                        has_uv2 = True
+                        f_name_uv2 = ordered_names(sg - sub_groups).uv2_name
+                    Else
+                        has_uv2 = False
+                    End If
                 End If
             End If
         End While ' end of sub_groups loop
@@ -1765,21 +1775,38 @@ all_done:
             If File.Exists(My.Settings.res_mods_path + "\" + filename) And Not LOADING_FBX Then
                 buf = File.ReadAllBytes(My.Settings.res_mods_path + "\" + filename)
                 mstream = New MemoryStream(buf)
+                If openXml_stream(mstream, My.Settings.res_mods_path + "\" + filename) Then
+                    GoTo process
+                End If
             Else
                 ' If the file doesn't exist on the hard drive or LOADING_FBX is True, search the shared packages
-                Dim entry = search_shared_pkgs(filename)
-                If entry IsNot Nothing Then
-                    entry.Extract(mstream)
-                Else
-                    MsgBox("Model file not found: " & vbCrLf & filename, MsgBoxStyle.Critical, "Can't find file")
+                Dim pkname = Find_entry(filename)
+                If Not String.IsNullOrEmpty(pkname) Then
+                    Using zipf As ZipFile = New ZipFile(Path.GetDirectoryName(shared_pkg_search_list(0)) + "\" + pkname)
+                        Dim ent As ZipEntry = zipf(filename)
+                        If ent IsNot Nothing Then
+                            ent.Extract(mstream)
+                            If openXml_stream(mstream, My.Settings.res_mods_path + "\" + filename) Then
+                                GoTo process
+                            End If
+                        End If
+                    End Using
+
+                    Dim entry = search_shared_pkgs(filename)
+                    If entry IsNot Nothing Then
+                        entry.Extract(mstream)
+                    Else
+                        MsgBox("Model file not found: " & vbCrLf & filename, MsgBoxStyle.Critical, "Can't find file")
+                        Return False
+                    End If
+                End If
+
+                ' Open the .model file using openXml_stream
+                If Not openXml_stream(mstream, My.Settings.res_mods_path + "\" + filename) Then
                     Return False
                 End If
             End If
-
-            ' Open the .model file using openXml_stream
-            If Not openXml_stream(mstream, My.Settings.res_mods_path + "\" + filename) Then
-                Return False
-            End If
+process:
             Dim ts = TheXML_String
 
             ' Retrieve the nodefullVisual value from the table
@@ -2124,7 +2151,7 @@ jump_over:
 
         End Try
         _group(id).color_Id = -1
-        _group(id).metalGMM_Id = -1
+        _group(id).GMM_Id = -1
         _group(id).normal_Id = -1
         _group(id).detail_Id = -1
 
@@ -2535,9 +2562,9 @@ jump_over:
             Dim tex1_Epos = InStr(tex1_pos, thestring, "</Texture>")
             Dim newS As String = ""
             newS = Mid(thestring, tex1_pos, tex1_Epos - tex1_pos).Replace("/", "\")
-            _group(id).metalGMM_name = newS
+            _group(id).GMM_name = newS
             _group(id).metal_textured = True
-            _group(id).metalGMM_Id = -1
+            _group(id).GMM_Id = -1
         End If
 
         diff_pos = InStr(primStart, thestring, "glassMap")
@@ -2547,9 +2574,9 @@ jump_over:
             Dim tex1_Epos = InStr(tex1_pos, thestring, "</Texture>")
             Dim newS As String = ""
             newS = Mid(thestring, tex1_pos, tex1_Epos - tex1_pos).Replace("/", "\")
-            _group(id).metalGMM_name = newS
+            _group(id).GMM_name = newS
             _group(id).metal_textured = True
-            _group(id).metalGMM_Id = -1
+            _group(id).GMM_Id = -1
         End If
 
         diff_pos = InStr(primStart, thestring, "specularMap") 'reusing the metal texture as specMap
@@ -2559,9 +2586,9 @@ jump_over:
             Dim tex1_Epos = InStr(tex1_pos, thestring, "</Texture>")
             Dim newS As String = ""
             newS = Mid(thestring, tex1_pos, tex1_Epos - tex1_pos).Replace("/", "\")
-            _group(id).metalGMM_name = newS
+            _group(id).GMM_name = newS
             _group(id).metal_textured = False
-            _group(id).metalGMM_Id = -1
+            _group(id).GMM_Id = -1
         End If
 
 
@@ -2905,14 +2932,17 @@ nope:
         vo.y = (m(1) * v.x) + (m(5) * v.y) + (m(9) * v.z)
         vo.z = (m(2) * v.x) + (m(6) * v.y) + (m(10) * v.z)
 
-        vo.x *= -1.0
-        'vo.x += m(12)
-        'vo.y += m(13)
-        'vo.z += m(14)
-        Return vo
+        ' Debug print the matrix
+        'Debug.WriteLine("Matrix:")
+        'For i As Integer = 0 To 3
+        '    Debug.WriteLine(String.Format("{0}, {1}, {2}, {3}", m(i * 4), m(i * 4 + 1), m(i * 4 + 2), m(i * 4 + 3)))
+        'Next
 
+        ' Return the transformed vector
+        v.x *= -1
+
+        Return v
     End Function
-
     Public Function gun_new_transform(ByVal v As vect3, ByVal m() As Double) As vect3
         Dim vo As vect3
         vo.x = (m(0) * v.x) + (m(4) * v.y) + (m(8) * v.z)

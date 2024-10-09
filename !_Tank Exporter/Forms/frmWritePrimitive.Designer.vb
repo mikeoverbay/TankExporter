@@ -52,6 +52,7 @@ Partial Class frmWritePrimitive
         '
         Me.cew_cb.AutoSize = True
         Me.cew_cb.BackColor = System.Drawing.Color.Transparent
+        Me.cew_cb.Enabled = False
         Me.cew_cb.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.cew_cb.ForeColor = System.Drawing.Color.White
         Me.cew_cb.Location = New System.Drawing.Point(15, 30)

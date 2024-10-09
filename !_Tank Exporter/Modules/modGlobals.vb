@@ -23,7 +23,7 @@ Module modGlobals
     Private Function LoadLibrary(ByVal lpFileName As String) As IntPtr
     End Function
 
-
+    Public DEBUGSTRING As String = ""
     Public updateEvent As New Threading.ManualResetEvent(True) ' Starts in signaled state
     Public fbx_vers As Aspose.ThreeD.FileFormat
     Public formAspectRatio As Double

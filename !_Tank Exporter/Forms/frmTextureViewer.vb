@@ -460,6 +460,7 @@ Public Class frmTextureViewer
         If frmMain.found_triangle_tv > 0 Then
             m_mouse.x = -1000
         End If
+        DEBUGSTRING += " Screen :" + frmMain.found_triangle_tv.ToString
         'Gdi.SwapBuffers(pb2_hDC)
         'frmMain.Text = frmMain.found_triangle_tv.ToString
     End Sub
@@ -602,7 +603,7 @@ Public Class frmTextureViewer
         If current_vertex = 0 Then
             Return
         End If
-        If current_vertex > _object(current_part).tris.Count Then
+        If current_vertex > fbxgrp(current_part).nVertices_ Then
             Return
         End If
         Gl.glEnable(Gl.GL_BLEND)
@@ -611,10 +612,10 @@ Public Class frmTextureViewer
         Dim u1 As New uv_
         Dim u2 As New uv_
         Dim u3 As New uv_
-        Dim cv As Integer = CInt((current_vertex - 1) * 3)
+        Dim cv As Integer = current_vertex
         Dim p1 = fbxgrp(current_tank_part).indices(cv + 0).v1
-        Dim p2 = fbxgrp(current_tank_part).indices(cv + 1).v1
-        Dim p3 = fbxgrp(current_tank_part).indices(cv + 2).v1
+        Dim p2 = fbxgrp(current_tank_part).indices(cv + 0).v2
+        Dim p3 = fbxgrp(current_tank_part).indices(cv + 0).v3
         Dim v1 = fbxgrp(current_tank_part).vertices(p1)
         Dim v2 = fbxgrp(current_tank_part).vertices(p2)
         Dim v3 = fbxgrp(current_tank_part).vertices(p3)
@@ -626,6 +627,8 @@ Public Class frmTextureViewer
         u3.v = v3.v
 
 
+        glutPrint(20, -500, cv.ToString, 1.0, 1.0, 1.0, 1.0)
+
         u1.u = rect_location.X + (u1.u * rect_size.X) + center.x
         u2.u = rect_location.X + (u2.u * rect_size.X) + center.x
         u3.u = rect_location.X + (u3.u * rect_size.X) + center.x
@@ -633,7 +636,7 @@ Public Class frmTextureViewer
         u1.v = -rect_location.Y + (-u1.v * rect_size.Y) - center.y
         u2.v = -rect_location.Y + (-u2.v * rect_size.Y) - center.y
         u3.v = -rect_location.Y + (-u3.v * rect_size.Y) - center.y
-
+        DEBUGSTRING += " draw fbx tri " + current_vertex.ToString
         Gl.glBegin(Gl.GL_TRIANGLES)
         Gl.glVertex2f(u1.u, u1.v)
         Gl.glVertex2f(u2.u, u2.v)
@@ -710,9 +713,6 @@ Public Class frmTextureViewer
         Application.DoEvents()
         drawing_ = False
     End Sub
-
-
-
 
 
     Private Sub frmTextureViewer_ResizeEnd(sender As Object, e As EventArgs) Handles Me.ResizeEnd

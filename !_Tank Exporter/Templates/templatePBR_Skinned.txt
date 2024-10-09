@@ -11,7 +11,7 @@
         <property>normalMap<Texture>NORMAL_NAME</Texture></property>
         <property>diffuseMap<Texture>COLOR_NAME</Texture></property>
         <property>excludeMaskAndAOMap<Texture>AO_NAME</Texture></property>
-        <property>colorIdMap<Texture>COLOR_ID_NAME</Texture></property>
+        <property>colorIdMap<Texture>vehicles/russian/common/common_ID.dds</Texture></property>
         <property>alphaTestEnable<Bool>false</Bool></property>
 		<property>alphaReference<Int>64</Int></property>
         <property>g_useNormalPackDXT1<Bool>false</Bool></property>

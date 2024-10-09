@@ -14,6 +14,7 @@ Imports System.Text.Json.Serialization.JsonAttribute
 Imports System.Text.Json
 Imports System.Text.Json.Serialization.JsonConstructorAttribute
 Imports System.Text.Json.Nodes
+Imports System.Runtime.CompilerServices
 
 Module put_glTF
     Public Class ExtrasData
@@ -54,24 +55,11 @@ Module put_glTF
         frmMain.SaveFileDialog1.AddExtension = True
         frmMain.SaveFileDialog1.RestoreDirectory = False
 
-        Select Case EXPORT_TYPE
-            Case 1
-                frmMain.SaveFileDialog1.Filter = "GLB|*.glb"
-                frmMain.SaveFileDialog1.Title = "Save GLB.."
-                frmMain.SaveFileDialog1.FileName = Path.GetFileName(ar(0)) + ".glb"
-            Case 2
-                frmMain.SaveFileDialog1.Filter = "FBX|*.fbx"
-                frmMain.SaveFileDialog1.Title = "Save FBX.."
-                frmMain.SaveFileDialog1.FileName = Path.GetFileName(ar(0)) + ".fbx"
-            Case 3
-                frmMain.SaveFileDialog1.Filter = "OBJ|*.obj"
-                frmMain.SaveFileDialog1.Title = "Save OBJ.."
-                frmMain.SaveFileDialog1.FileName = Path.GetFileName(ar(0)) + ".obj"
-            Case 4
-                frmMain.SaveFileDialog1.Filter = "Collada|*.dae"
-                frmMain.SaveFileDialog1.Title = "Save Collada.."
-                frmMain.SaveFileDialog1.FileName = Path.GetFileName(ar(0)) + ".dae"
-        End Select
+
+        frmMain.SaveFileDialog1.Filter = "GLB|*.glb"
+        frmMain.SaveFileDialog1.Title = "Save GLB.."
+        frmMain.SaveFileDialog1.FileName = Path.GetFileName(ar(0)) + ".glb"
+
 
         Dim result As DialogResult = frmMain.SaveFileDialog1.ShowDialog()
         Dim out_path As String = frmMain.SaveFileDialog1.FileName
@@ -89,6 +77,19 @@ Module put_glTF
         Dim name As String = Path.GetFileName(ar(0))
         Dim save_path = Path.GetDirectoryName(out_path) + "\" + name
         export_fbx_textures(False, 1) 'export all textures. converts from dds to png.
+        Dim source = System.Windows.Forms.Application.StartupPath + "/resources/"
+
+        'copy dummys for creating BSDF textures
+        If Not File.Exists(save_path + "/dummy_ao.png") Then
+            File.Copy(source + "dummy_ao.png", save_path + "/dummy_ao.png")
+        End If
+        If Not File.Exists(save_path + "/dummy_gmm.png") Then
+            File.Copy(source + "dummy_gmm.png", save_path + "/dummy_gmm.png")
+        End If
+        If Not File.Exists(save_path + "/dummy_normal.png") Then
+            File.Copy(source + "dummy_normal.png", save_path + "/dummy_normal.png")
+        End If
+
 
         Dim MySceneBuilder As New SceneBuilder()
         MySceneBuilder.Name = name
@@ -97,27 +98,28 @@ Module put_glTF
         For item = 1 To object_count
             Dim extras As New ExtrasData()
 
+            fix_winding_order_group(item)
+            check_normal_y_group(item)
+
             ' Create a material and assign texture maps if available
             Dim MyMaterialBuilder As New MaterialBuilder("Material00" + item.ToString) With {.ShaderStyle = "PBRMetallicRoughness"}
 
-
-
-            Dim baseColorTexture = save_path + "\" + Path.GetFileNameWithoutExtension(_group(item).color_name.Replace("\tracks", "")) + ".png"
-            Dim aoTexture As String = save_path + "\" + Path.GetFileNameWithoutExtension(_group(item).ao_name.Replace("\tracks", "")) + ".png"
-            Dim metalRoughTexture = save_path + "\" + Path.GetFileNameWithoutExtension(_group(item).metalGMM_name.Replace("\tracks", "")) + ".png"
-            Dim normalTexture = save_path + "\" + Path.GetFileNameWithoutExtension(_group(item).normal_name.Replace("\tracks", "")) + ".png"
+            Dim baseColorTexture = Path.GetFileNameWithoutExtension(_group(item).color_name.Replace("\tracks", ""))
+            Dim aoTexture As String = Path.GetFileNameWithoutExtension(_group(item).ao_name.Replace("\tracks", ""))
+            Dim metalRoughTexture = Path.GetFileNameWithoutExtension(_group(item).GMM_name.Replace("\tracks", ""))
+            Dim normalTexture = Path.GetFileNameWithoutExtension(_group(item).normal_name.Replace("\tracks", ""))
 
             ' Assign Base Color Texture if exists
             If Not String.IsNullOrEmpty(baseColorTexture) Then
                 Try
-                    MyMaterialBuilder.WithBaseColor(baseColorTexture)
+                    MyMaterialBuilder.WithBaseColor(save_path + "\" + baseColorTexture + ".png")
                 Catch ex As Exception
                 End Try
             End If
             ' Check its there!
             If Not String.IsNullOrEmpty(aoTexture) Then
                 Try
-                    MyMaterialBuilder.WithOcclusion(aoTexture)
+                    MyMaterialBuilder.WithOcclusion(save_path + "\" + aoTexture + ".png")
                 Catch ex As Exception
                 End Try
             End If
@@ -125,14 +127,14 @@ Module put_glTF
             If Not String.IsNullOrEmpty(metalRoughTexture) Then
                 ' GLTF PBR Metallic-Roughness uses a combined texture with metallic in the B channel and roughness in the G channel
                 Try
-                    MyMaterialBuilder.WithMetallicRoughness(metalRoughTexture)
+                    MyMaterialBuilder.WithMetallicRoughness(save_path + "\" + metalRoughTexture + ".png")
                 Catch ex As Exception
                 End Try
             End If
             ' Assign Normal Map if exists
             If Not String.IsNullOrEmpty(normalTexture) Then
                 Try
-                    MyMaterialBuilder.WithNormal(normalTexture)
+                    MyMaterialBuilder.WithNormal(save_path + "\" + normalTexture + ".png")
                 Catch ex As Exception
                 End Try
             End If
@@ -256,20 +258,26 @@ Module put_glTF
 
             'save the actual parts name in the game
             Dim lts As String = _group(item).long_tank_name
-            texturePaths.Add("rootfolder", lts)
+            texturePaths.Add("outfolder", lts + "\")
 
             ' Collect the full texture paths for PBR textures
             If Not String.IsNullOrEmpty(baseColorTexture) Then
-                texturePaths.Add("baseColorTexture", baseColorTexture)
+                texturePaths.Add("base", baseColorTexture)
             End If
             If Not String.IsNullOrEmpty(aoTexture) Then
-                texturePaths.Add("aoTexture", aoTexture)
+                texturePaths.Add("ao", aoTexture)
             End If
             If Not String.IsNullOrEmpty(metalRoughTexture) Then
-                texturePaths.Add("metalRoughTexture", metalRoughTexture)
+                texturePaths.Add("gmm", metalRoughTexture)
             End If
             If Not String.IsNullOrEmpty(normalTexture) Then
-                texturePaths.Add("normalTexture", normalTexture)
+                texturePaths.Add("normal", normalTexture)
+            End If
+            If Not String.IsNullOrEmpty(normalTexture) Then
+                texturePaths.Add("status", "TANK")
+            End If
+            If Not String.IsNullOrEmpty(normalTexture) Then
+                texturePaths.Add("exportfolder", save_path)
             End If
 
             Dim jsonExtras As JsonNode = JsonNode.Parse(JsonSerializer.Serialize(texturePaths))

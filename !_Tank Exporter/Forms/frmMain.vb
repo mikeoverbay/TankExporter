@@ -156,7 +156,7 @@ Public Class frmMain
     End Function
     Sub ShowUpdateMessage()
         ' Show a message box with Yes/No options
-        Dim result As DialogResult = MessageBox.Show("New update available. Do you want to update?", "Update Available", MessageBoxButtons.YesNo, MessageBoxIcon.Information)
+        Dim result As DialogResult = MessageBox.Show("New update available. Do you want to update?", "Update Available", MessageBoxButtons.YesNo, MessageBoxIcon.Information, MessageBoxDefaultButton.Button2)
 
         ' If the user clicks Yes, open the web page
         If result = DialogResult.Yes Then
@@ -2770,7 +2770,7 @@ loaded_jump:
         Gl.glActiveTexture(Gl.GL_TEXTURE0 + 1)
         Gl.glBindTexture(Gl.GL_TEXTURE_2D, _group(jj).normal_Id)
         Gl.glActiveTexture(Gl.GL_TEXTURE0 + 2)
-        Gl.glBindTexture(Gl.GL_TEXTURE_2D, _group(jj).metalGMM_Id)
+        Gl.glBindTexture(Gl.GL_TEXTURE_2D, _group(jj).GMM_Id)
         Gl.glActiveTexture(Gl.GL_TEXTURE0 + 3)
         Gl.glBindTexture(Gl.GL_TEXTURE_2D, _group(jj).g_detailMap_id)
         Gl.glActiveTexture(Gl.GL_TEXTURE0 + 4)
@@ -2850,7 +2850,7 @@ loaded_jump:
                 Gl.glActiveTexture(Gl.GL_TEXTURE0 + 7)
                 Gl.glBindTexture(Gl.GL_TEXTURE_2D, _group(jj).normal_Id)
                 Gl.glActiveTexture(Gl.GL_TEXTURE0 + 8)
-                Gl.glBindTexture(Gl.GL_TEXTURE_2D, _group(jj).metalGMM_Id)
+                Gl.glBindTexture(Gl.GL_TEXTURE_2D, _group(jj).GMM_Id)
                 Gl.glActiveTexture(Gl.GL_TEXTURE0 + 9)
                 Gl.glBindTexture(Gl.GL_TEXTURE_2D, u_brdfLUT)
                 Gl.glActiveTexture(Gl.GL_TEXTURE0 + 10)
@@ -3238,6 +3238,8 @@ loaded_jump:
             If wire_cb.Checked Then
                 Gl.glEnable(Gl.GL_POLYGON_OFFSET_FILL)
             End If
+
+
             If m_load_textures.Checked Then
                 view_status_string += "Textured : "
                 Gl.glUseProgram(shader_list.fbx_shader)
@@ -3283,6 +3285,7 @@ loaded_jump:
                             Gl.glActiveTexture(Gl.GL_TEXTURE0 + 1)
                             Gl.glBindTexture(Gl.GL_TEXTURE_2D, fbxgrp(jj).normal_Id)
                         End If
+                        Gl.glPolygonMode(Gl.GL_FRONT, Gl.GL_FILL)
 
                         Gl.glPushMatrix()
                         Gl.glMultMatrixd(fbxgrp(jj).matrix)
@@ -3511,7 +3514,7 @@ loaded_jump:
                     Gl.glActiveTexture(Gl.GL_TEXTURE0 + 1)
                     Gl.glBindTexture(Gl.GL_TEXTURE_2D, _group(jj).normal_Id)
                     Gl.glActiveTexture(Gl.GL_TEXTURE0 + 2)
-                    Gl.glBindTexture(Gl.GL_TEXTURE_2D, _group(jj).metalGMM_Id)
+                    Gl.glBindTexture(Gl.GL_TEXTURE_2D, _group(jj).GMM_Id)
                     Gl.glActiveTexture(Gl.GL_TEXTURE0 + 3)
                     If GLOBAL_exclusionMask = 1 And Not HD_TANK Then
                         Gl.glBindTexture(Gl.GL_TEXTURE_2D, exclusionMask_id)
@@ -3776,7 +3779,7 @@ nothing_else:
                     Dim v1 = fbxgrp(current_part).vertices(p1)
                     Dim v2 = fbxgrp(current_part).vertices(p2)
                     Dim v3 = fbxgrp(current_part).vertices(p3)
-
+                    'DEBUGSTRING = current_vertex.ToString
                     Gl.glVertex3f(v1.x, v1.y, v1.z)
                     Gl.glVertex3f(v2.x, v2.y, v2.z)
                     Gl.glVertex3f(v3.x, v3.y, v3.z)
@@ -4065,6 +4068,8 @@ fuckit:
             time_flasher.Restart()
         End If
         '######################################################################
+        glutPrint(pb1.Width - 400, -30, DEBUGSTRING, 1.0, 0.0, 0.0, 0.0)
+        DEBUGSTRING = ""
         '######################################################################
         'swat.Stop()
         If MODEL_LOADED And frmTextureViewer.Visible And (frmTextureViewer.m_show_uvs.Checked Or frmTextureViewer.m_uvs_only.Checked) Then
@@ -4149,7 +4154,7 @@ fuckit:
         '====================================
         'has to be AFTER the buffer swap
         Dim et = pick_timer.ElapsedMilliseconds
-        If et > 100 Then 'only do picking so often.. NOT every frame.. its to expensive in render time!
+        If et > 10 Then 'only do picking so often.. NOT every frame.. its to expensive in render time!
             pick_timer.Restart()
             If frmTextureViewer.Visible Then
                 For i = 0 To texture_buttons.Length - 2
@@ -4460,14 +4465,14 @@ fuckit:
             Gl.glColor4f(1.0, 0.0, 0.0, 0.5)
             Gl.glDisable(Gl.GL_LIGHTING)
             Gl.glPolygonMode(Gl.GL_FRONT_AND_BACK, Gl.GL_FILL)
-            Dim tv = CInt((found_triangle_tv - 1) * 3)
+            Dim tv = found_triangle_tv
             If m_show_fbx.Checked Then
                 Gl.glPushMatrix()
                 Gl.glMultMatrixd(fbxgrp(current_tank_part).matrix)
                 Gl.glBegin(Gl.GL_TRIANGLES)
-                Dim p1 = fbxgrp(current_tank_part).indices(tv + 0).v1
-                Dim p2 = fbxgrp(current_tank_part).indices(tv + 1).v1
-                Dim p3 = fbxgrp(current_tank_part).indices(tv + 2).v1
+                Dim p1 = fbxgrp(current_tank_part).indices(tv).v1
+                Dim p2 = fbxgrp(current_tank_part).indices(tv).v2
+                Dim p3 = fbxgrp(current_tank_part).indices(tv).v3
                 Dim v1 = fbxgrp(current_tank_part).vertices(p1)
                 Dim v2 = fbxgrp(current_tank_part).vertices(p2)
                 Dim v3 = fbxgrp(current_tank_part).vertices(p3)
@@ -4560,7 +4565,7 @@ fuckit:
                 Gl.glActiveTexture(Gl.GL_TEXTURE0 + 1)
                 Gl.glBindTexture(Gl.GL_TEXTURE_2D, _group(jj).normal_Id)
                 Gl.glActiveTexture(Gl.GL_TEXTURE0 + 2)
-                Gl.glBindTexture(Gl.GL_TEXTURE_2D, _group(jj).metalGMM_Id)
+                Gl.glBindTexture(Gl.GL_TEXTURE_2D, _group(jj).GMM_Id)
                 Gl.glActiveTexture(Gl.GL_TEXTURE0 + 3)
                 If GLOBAL_exclusionMask = 1 And Not HD_TANK Then
                     Gl.glBindTexture(Gl.GL_TEXTURE_2D, exclusionMask_id)
@@ -5628,7 +5633,7 @@ fuckit:
                 Gl.glFinish()
                 Gl.glDeleteTextures(1, _group(i).ao_id)
                 Gl.glFinish()
-                Gl.glDeleteTextures(1, _group(i).metalGMM_Id)
+                Gl.glDeleteTextures(1, _group(i).GMM_Id)
                 Gl.glFinish()
                 Gl.glDeleteTextures(1, _group(i).g_detailMap_id)
                 Gl.glFinish()
@@ -5804,7 +5809,7 @@ fuckit:
             End If
             If en IsNot Nothing Then
                 en.Extract(ms)
-                exclusionMask_id = get_texture(ms, exclusionMask_name)
+                exclusionMask_id = get_texture_fast(ms)
             Else
                 update_log("unable to locate : " + exclusionMask_name)
 
@@ -7433,8 +7438,8 @@ fuckit:
                 Next
                 For g = 1 To _group.Length - 1
                     For c = 0 To cnt - 1
-                        If _group(g).metalGMM_name.ToLower.Contains(cmpar(c)) Then
-                            Dim nm = _group(g).metalGMM_name
+                        If _group(g).GMM_name.ToLower.Contains(cmpar(c)) Then
+                            Dim nm = _group(g).GMM_name
                             If nm IsNot "" Then
                                 pkg = Find_entry(nm)
                                 Using zip As ZipFile = ZipFile.Read(My.Settings.game_path + "/res/packages/" + pkg)
@@ -9344,7 +9349,7 @@ outta_here:
         End If
         'GMM Map
         If _group(idx).GMM_in_res_mods Then
-            n = _group(idx).metalGMM_name
+            n = _group(idx).GMM_name
             If n Is Nothing Then
                 n = "!"
             End If
@@ -9659,7 +9664,7 @@ outta_here:
 
 #Region "Game Launching"
 
-    Private Sub m_test_wotmod_Click(sender As Object, e As EventArgs) Handles m_test_wotmod.Click
+    Private Sub m_test_wotmod_Click(sender As Object, e As EventArgs)
         launch_test("/res_mods/")
     End Sub
 
@@ -9667,56 +9672,9 @@ outta_here:
         launch_test("/mods/")
     End Sub
     Private Sub launch_test(ByVal find As String)
-        Dim original As String
-        Dim ver = Path.GetFileName(My.Settings.res_mods_path)
-        If Not Directory.Exists(My.Settings.res_mods_path + "\!_test\") Then
-            Directory.CreateDirectory(My.Settings.res_mods_path + "\!_test\")
-        End If
-        If Not Directory.Exists(My.Settings.game_path + "\mods\" + ver + "\!_test\") Then
-            Directory.CreateDirectory(My.Settings.game_path + "\mods\" + ver + "\!_test\")
-        End If
-        If File.Exists(My.Settings.game_path + "\paths.xml") Then
 
-            Dim paths = File.ReadAllText(My.Settings.game_path + "\paths.xml")
-            If Not File.Exists(My.Settings.game_path + "\paths_backup.xml") Then
-                File.WriteAllText(My.Settings.game_path + "\paths_backup.xml", paths)
-                original = paths
-            Else
-                original = File.ReadAllText(My.Settings.game_path + "\paths_backup.xml")
-            End If
-            Dim ar = paths.Split(vbLf)
-            For i = 0 To ar.Length - 1
-                If ar(i).Contains(find) Then
-                    ar(i) = ar(i).Replace("</Path>", "/!_test/</Path>")
-                    Exit For
-                End If
-            Next
-            paths = ""
-            For i = 0 To ar.Length - 2
-                paths += ar(i) + vbLf
-            Next
-            paths += ar(ar.Length - 1)
-            File.WriteAllText(My.Settings.game_path + "\paths.xml", paths)
-            'Return
-            '====================================
-            Me.WindowState = FormWindowState.Minimized
-            Application.DoEvents()
-            '====================================
-            If System.Environment.Is64BitOperatingSystem Then
-                Dim p = Process.Start(My.Settings.game_path + "\win64\WorldOfTanks.exe")
-                p.WaitForExit()
-            Else
-                Dim p = Process.Start(My.Settings.game_path + "\win32\WorldOfTanks.exe")
-                p.WaitForExit()
-            End If
-            '====================================
-            'restore paths.xml
-            File.WriteAllText(My.Settings.game_path + "\paths.xml", original)
-            Me.WindowState = FormWindowState.Normal
-        Else
-            MsgBox("I can not find the paths.xml. Have you set the game path?", MsgBoxStyle.Exclamation, "Check Game Path!")
-            Return
-        End If
+
+        Dim p = Process.Start(My.Settings.game_path + "\WorldOfTanks.exe")
 
     End Sub
     Private Sub m_pythonLog_Click(sender As Object, e As EventArgs) Handles m_pythonLog.Click

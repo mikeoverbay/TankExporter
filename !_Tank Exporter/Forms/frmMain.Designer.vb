@@ -33,8 +33,6 @@ Partial Class frmMain
         Me.MM = New System.Windows.Forms.MenuStrip()
         Me.m_file = New System.Windows.Forms.ToolStripMenuItem()
         Me.m_test = New System.Windows.Forms.ToolStripMenuItem()
-        Me.m_test_wotmod = New System.Windows.Forms.ToolStripMenuItem()
-        Me.ToolStripSeparator20 = New System.Windows.Forms.ToolStripSeparator()
         Me.m_test_res_mods = New System.Windows.Forms.ToolStripMenuItem()
         Me.ToolStripSeparator21 = New System.Windows.Forms.ToolStripSeparator()
         Me.m_pythonLog = New System.Windows.Forms.ToolStripMenuItem()
@@ -255,50 +253,39 @@ Partial Class frmMain
         '
         'm_test
         '
-        Me.m_test.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.m_test_wotmod, Me.ToolStripSeparator20, Me.m_test_res_mods, Me.ToolStripSeparator21, Me.m_pythonLog, Me.ToolStripSeparator22, Me.m_clear_PythonLog})
+        Me.m_test.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.m_test_res_mods, Me.ToolStripSeparator21, Me.m_pythonLog, Me.ToolStripSeparator22, Me.m_clear_PythonLog})
         Me.m_test.Font = New System.Drawing.Font("Segoe UI", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.m_test.ForeColor = System.Drawing.Color.Black
         Me.m_test.Name = "m_test"
         Me.m_test.Size = New System.Drawing.Size(230, 22)
         Me.m_test.Text = "Start Wot"
         '
-        'm_test_wotmod
-        '
-        Me.m_test_wotmod.Name = "m_test_wotmod"
-        Me.m_test_wotmod.Size = New System.Drawing.Size(181, 22)
-        Me.m_test_wotmod.Text = "Test WOTMOD tank"
-        '
-        'ToolStripSeparator20
-        '
-        Me.ToolStripSeparator20.Name = "ToolStripSeparator20"
-        Me.ToolStripSeparator20.Size = New System.Drawing.Size(178, 6)
-        '
         'm_test_res_mods
         '
         Me.m_test_res_mods.Name = "m_test_res_mods"
-        Me.m_test_res_mods.Size = New System.Drawing.Size(181, 22)
-        Me.m_test_res_mods.Text = "Test RES_MODS tank"
+        Me.m_test_res_mods.Size = New System.Drawing.Size(194, 22)
+        Me.m_test_res_mods.Text = "Launch World of Tanks"
         '
         'ToolStripSeparator21
         '
         Me.ToolStripSeparator21.Name = "ToolStripSeparator21"
-        Me.ToolStripSeparator21.Size = New System.Drawing.Size(178, 6)
+        Me.ToolStripSeparator21.Size = New System.Drawing.Size(191, 6)
         '
         'm_pythonLog
         '
         Me.m_pythonLog.Name = "m_pythonLog"
-        Me.m_pythonLog.Size = New System.Drawing.Size(181, 22)
+        Me.m_pythonLog.Size = New System.Drawing.Size(194, 22)
         Me.m_pythonLog.Text = "Load Python.log"
         '
         'ToolStripSeparator22
         '
         Me.ToolStripSeparator22.Name = "ToolStripSeparator22"
-        Me.ToolStripSeparator22.Size = New System.Drawing.Size(178, 6)
+        Me.ToolStripSeparator22.Size = New System.Drawing.Size(191, 6)
         '
         'm_clear_PythonLog
         '
         Me.m_clear_PythonLog.Name = "m_clear_PythonLog"
-        Me.m_clear_PythonLog.Size = New System.Drawing.Size(181, 22)
+        Me.m_clear_PythonLog.Size = New System.Drawing.Size(194, 22)
         Me.m_clear_PythonLog.Text = "Clear Python.log"
         '
         'm_load_file
@@ -1464,7 +1451,7 @@ Partial Class frmMain
         'pb2
         '
         Me.pb2.Anchor = System.Windows.Forms.AnchorStyles.None
-        Me.pb2.Location = New System.Drawing.Point(52, 125)
+        Me.pb2.Location = New System.Drawing.Point(54, 125)
         Me.pb2.Name = "pb2"
         Me.pb2.Size = New System.Drawing.Size(200, 100)
         Me.pb2.TabIndex = 3
@@ -1551,7 +1538,7 @@ Partial Class frmMain
         Me.TC1.Location = New System.Drawing.Point(0, 23)
         Me.TC1.Name = "TC1"
         Me.TC1.SelectedIndex = 0
-        Me.TC1.Size = New System.Drawing.Size(22, 568)
+        Me.TC1.Size = New System.Drawing.Size(22, 574)
         Me.TC1.SizeMode = System.Windows.Forms.TabSizeMode.Fixed
         Me.TC1.TabIndex = 0
         '
@@ -1561,7 +1548,7 @@ Partial Class frmMain
         Me.TabPage1.Location = New System.Drawing.Point(4, 25)
         Me.TabPage1.Name = "TabPage1"
         Me.TabPage1.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage1.Size = New System.Drawing.Size(14, 539)
+        Me.TabPage1.Size = New System.Drawing.Size(14, 545)
         Me.TabPage1.TabIndex = 0
         Me.TabPage1.Text = "1"
         '
@@ -1571,7 +1558,7 @@ Partial Class frmMain
         Me.TabPage2.Location = New System.Drawing.Point(4, 25)
         Me.TabPage2.Name = "TabPage2"
         Me.TabPage2.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage2.Size = New System.Drawing.Size(14, 539)
+        Me.TabPage2.Size = New System.Drawing.Size(14, 545)
         Me.TabPage2.TabIndex = 1
         Me.TabPage2.Text = "2"
         '
@@ -1581,7 +1568,7 @@ Partial Class frmMain
         Me.TabPage3.Location = New System.Drawing.Point(4, 25)
         Me.TabPage3.Name = "TabPage3"
         Me.TabPage3.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage3.Size = New System.Drawing.Size(14, 539)
+        Me.TabPage3.Size = New System.Drawing.Size(14, 545)
         Me.TabPage3.TabIndex = 2
         Me.TabPage3.Text = "3"
         '
@@ -1591,7 +1578,7 @@ Partial Class frmMain
         Me.TabPage4.Location = New System.Drawing.Point(4, 25)
         Me.TabPage4.Name = "TabPage4"
         Me.TabPage4.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage4.Size = New System.Drawing.Size(14, 539)
+        Me.TabPage4.Size = New System.Drawing.Size(14, 545)
         Me.TabPage4.TabIndex = 3
         Me.TabPage4.Text = "4"
         '
@@ -1601,7 +1588,7 @@ Partial Class frmMain
         Me.TabPage5.Location = New System.Drawing.Point(4, 25)
         Me.TabPage5.Name = "TabPage5"
         Me.TabPage5.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage5.Size = New System.Drawing.Size(14, 539)
+        Me.TabPage5.Size = New System.Drawing.Size(14, 545)
         Me.TabPage5.TabIndex = 4
         Me.TabPage5.Text = "5"
         '
@@ -1611,7 +1598,7 @@ Partial Class frmMain
         Me.TabPage6.Location = New System.Drawing.Point(4, 25)
         Me.TabPage6.Name = "TabPage6"
         Me.TabPage6.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage6.Size = New System.Drawing.Size(14, 539)
+        Me.TabPage6.Size = New System.Drawing.Size(14, 545)
         Me.TabPage6.TabIndex = 5
         Me.TabPage6.Text = "6"
         '
@@ -1621,7 +1608,7 @@ Partial Class frmMain
         Me.TabPage7.Location = New System.Drawing.Point(4, 25)
         Me.TabPage7.Name = "TabPage7"
         Me.TabPage7.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage7.Size = New System.Drawing.Size(14, 539)
+        Me.TabPage7.Size = New System.Drawing.Size(14, 545)
         Me.TabPage7.TabIndex = 6
         Me.TabPage7.Text = "7"
         '
@@ -1631,7 +1618,7 @@ Partial Class frmMain
         Me.TabPage8.Location = New System.Drawing.Point(4, 25)
         Me.TabPage8.Name = "TabPage8"
         Me.TabPage8.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage8.Size = New System.Drawing.Size(14, 539)
+        Me.TabPage8.Size = New System.Drawing.Size(14, 545)
         Me.TabPage8.TabIndex = 7
         Me.TabPage8.Text = "8"
         '
@@ -1641,7 +1628,7 @@ Partial Class frmMain
         Me.TabPage9.Location = New System.Drawing.Point(4, 25)
         Me.TabPage9.Name = "TabPage9"
         Me.TabPage9.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage9.Size = New System.Drawing.Size(14, 539)
+        Me.TabPage9.Size = New System.Drawing.Size(14, 545)
         Me.TabPage9.TabIndex = 8
         Me.TabPage9.Text = "9"
         '
@@ -1651,7 +1638,7 @@ Partial Class frmMain
         Me.TabPage10.Location = New System.Drawing.Point(4, 25)
         Me.TabPage10.Name = "TabPage10"
         Me.TabPage10.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage10.Size = New System.Drawing.Size(14, 539)
+        Me.TabPage10.Size = New System.Drawing.Size(14, 545)
         Me.TabPage10.TabIndex = 9
         Me.TabPage10.Text = "10"
         '
@@ -1665,7 +1652,7 @@ Partial Class frmMain
         Me.TC2.Location = New System.Drawing.Point(0, 23)
         Me.TC2.Name = "TC2"
         Me.TC2.SelectedIndex = 0
-        Me.TC2.Size = New System.Drawing.Size(22, 568)
+        Me.TC2.Size = New System.Drawing.Size(22, 574)
         Me.TC2.TabIndex = 0
         Me.TC2.Visible = False
         '
@@ -1675,7 +1662,7 @@ Partial Class frmMain
         Me.TabPage11.Location = New System.Drawing.Point(4, 25)
         Me.TabPage11.Name = "TabPage11"
         Me.TabPage11.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage11.Size = New System.Drawing.Size(14, 539)
+        Me.TabPage11.Size = New System.Drawing.Size(14, 545)
         Me.TabPage11.TabIndex = 0
         Me.TabPage11.Text = "Result"
         '
@@ -1941,8 +1928,6 @@ Partial Class frmMain
     Friend WithEvents m_settings As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents ToolStripSeparator19 As System.Windows.Forms.ToolStripSeparator
     Friend WithEvents m_test As System.Windows.Forms.ToolStripMenuItem
-    Friend WithEvents m_test_wotmod As System.Windows.Forms.ToolStripMenuItem
-    Friend WithEvents ToolStripSeparator20 As System.Windows.Forms.ToolStripSeparator
     Friend WithEvents m_test_res_mods As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents ToolStripSeparator21 As System.Windows.Forms.ToolStripSeparator
     Friend WithEvents m_pythonLog As System.Windows.Forms.ToolStripMenuItem

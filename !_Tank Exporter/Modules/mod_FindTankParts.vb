@@ -31,4 +31,19 @@
         End If
         Return String.Empty
     End Function
+    Public Function find_root(ByVal name As String)
+        Debug.WriteLine("=======" + name)
+        name = name.Replace("\", "/")
+        If xmlPartList IsNot Nothing Then
+            For Each row As DataRow In xmlPartList.Rows
+                If row("filename").ToString().ToLower.Contains(name.ToLower) And
+                    row("filename").ToString().ToLower.Contains(".primitives_processed") And
+                    Not row("filename").ToString().ToLower.Contains("/crash/") Then
+                    Return row("filename").ToString()
+                End If
+            Next
+        End If
+        Return String.Empty
+    End Function
+
 End Module

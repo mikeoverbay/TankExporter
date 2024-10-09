@@ -27,8 +27,8 @@
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>false</MapFileExtensions>
     <OpenBrowserOnPublish>false</OpenBrowserOnPublish>
-    <ApplicationRevision>151</ApplicationRevision>
-    <ApplicationVersion>1.0.0.151</ApplicationVersion>
+    <ApplicationRevision>152</ApplicationRevision>
+    <ApplicationVersion>1.0.0.152</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
@@ -612,7 +612,9 @@
     <None Include="resources\blank_dds.dds">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="resources\decal_layout\decal_layout.csv" />
+    <None Include="resources\decal_layout\decal_layout.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="resources\models\cube.x">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -4382,6 +4384,15 @@
     </Content>
     <Content Include="resources\decals\Zeppelin_Debris_08_NM.dds">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\dummy_ao.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\dummy_gmm.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\dummy_normal.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="resources\splash.png" />
     <Content Include="resources\XMLdata\TheItemList.xml">

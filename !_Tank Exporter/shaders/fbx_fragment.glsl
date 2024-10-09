@@ -35,9 +35,9 @@ void main(void) {
         // Specular lighting
         vec3 reflectDir = reflect(-lightDir, perturbedNormal);
         float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32.0); // Specular exponent (shininess)
-        vec3 specularColor = S_level * spec * lightColor[i] * 4.0;
+        vec3 specularColor = S_level * spec * lightColor[i];
 
-        finalColor += (diffuseColor + specularColor) * baseColor.rgb * 0.6;
+        finalColor += (diffuseColor + specularColor) * baseColor.rgb * 0.4;
     }
 
     // Ambient term

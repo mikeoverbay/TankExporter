@@ -56,7 +56,7 @@ Module get_FBX
                 item = 1
                 For Each mesh As Mesh In scene.Meshes
                     If mesh.Name.ToLower.Contains("~") Then
-                        fbxgrp(item).name = "vehicles\" + mesh.Name 'existing tank part
+                        fbxgrp(item).name = mesh.Name 'existing tank part
                     Else
                         fbxgrp(item).name = mesh.Name ' new model
                     End If

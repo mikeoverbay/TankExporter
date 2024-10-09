@@ -191,7 +191,7 @@ Module mod_Exporter
 
 
                 ' Set up the metallic-roughness texture
-                arr = _group(item).metalGMM_name.Split("\")
+                arr = _group(item).GMM_name.Split("\")
                 DnF = name + "\" + arr(arr.Length - 1)
                 Dim txgm As New Texture(DnF.Replace(".dds", ".png"))
                 txgm.FileName = save_path + "\" + Path.GetFileName(txgm.Name)

@@ -129,10 +129,10 @@ Module modTextureScreen
                         b.add()
                     End If
                     'GMM
-                    If _group(id).metalGMM_Id > 0 Then
+                    If _group(id).GMM_Id > 0 Then
                         Dim b As New TankTexture_btn
-                        b.name = _group(id).metalGMM_name
-                        b.gl_textureID = _group(id).metalGMM_Id
+                        b.name = _group(id).GMM_name
+                        b.gl_textureID = _group(id).GMM_Id
                         b.part_ID = i
                         b.size = New Point(b_size, b_size)
                         b.location = New Point(10, -60 * r_cnt)
@@ -186,12 +186,15 @@ Module modTextureScreen
         Dim butt_width = texture_buttons(0).size.X
         Dim space As Integer = 10
         Dim sw = frmMain.pb1.Width
-        Dim rw = (butt_width * cnt) + (space * (cnt - 1))
+        Dim rw = (butt_width * 4) + (space * 3)
         Dim stepsize = butt_width + space
         Dim ss = (sw / 2.0) - (rw / 2.0)
         For i = 0 To cnt - 1
-            texture_buttons(i).location.X = ss
             'tankpart_buttons(i).location.Y -= WINDOW_HEIGHT_DELTA
+            If texture_buttons(i).name.Contains("_AM") Then
+                ss = (sw / 2.0) - (rw / 2.0)
+            End If
+            texture_buttons(i).location.X = ss
             ss += stepsize
         Next
     End Sub

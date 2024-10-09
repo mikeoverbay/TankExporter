@@ -1345,7 +1345,9 @@ no_UV2EVER:
         Dim parent = m_groups(id).list(0)
         br.Write(total_verts)
         For i = 1 To obj_cnt
-            create_TBNS(i)
+
+            create_TBNS2(i)
+
             pnter = m_groups(id).list(i - 1)
             '-------------------------------------------------------------
             Application.DoEvents()
@@ -1406,14 +1408,7 @@ no_UV2EVER:
                 tb.z = comp.vertices(k).bnz
 
 
-                If fbxgrp(i).name.ToLower.Contains("turret") And Not fbxgrp(i).is_new_model Then
-                    n = gun_new_rotate_transform(n, fbxgrp(pnter).matrix)
-                    tn = gun_new_rotate_transform(tn, fbxgrp(pnter).matrix)
-                    tb = gun_new_rotate_transform(tb, fbxgrp(pnter).matrix)
-                Else
-                    n = rotate_transform(n, fbxgrp(pnter).matrix)
 
-                End If
 
                 comp.vertices(k).n = packnormalFBX888_writePrimitive(toFBXv(n))
                 comp.vertices(k).t = packnormalFBX888_writePrimitive(toFBXv(tn))

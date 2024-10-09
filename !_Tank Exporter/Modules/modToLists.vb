@@ -79,6 +79,7 @@ Module modToLists
             Next
 
             Return comp
+            '==================================================================
 
             frmMain.PG1.Value = 0
             frmMain.PG1.Maximum = fbxgrp(fbx_id).nPrimitives_ * 3 - 1
