@@ -65,7 +65,12 @@ Module get_FBX
 
                     fbxgrp(item).nPrimitives_ = mesh.FaceCount
                     fbxgrp(item).nVertices_ = mesh.VertexCount
-
+                    If mesh.HasVertexColors(0) Then
+                        ReDim fbxgrp(item).vertColor(mesh.VertexCount)
+                    End If
+                    If mesh.HasVertexColors(1) Then
+                        ReDim fbxgrp(item).vertColor(mesh.VertexCount)
+                    End If
                     ' Debug output for mesh data
                     'Debug.WriteLine("Processing Mesh: " & mesh.Name)
                     'Debug.WriteLine("Vertex Count: " & mesh.VertexCount)
@@ -90,26 +95,26 @@ Module get_FBX
                         End If
                     Next
 
-                    cnt = 0
+                    Dim vertexIndex As Integer = 0 ' To keep track of global vertex index across primitives
                     For Each vert In mesh.Vertices
-                        fbxgrp(item).stride = 37
+                        fbxgrp(item).stride = 32
                         If cnt = mesh.VertexCount Then Exit For ' Ensure we do not exceed the array bounds
-                        fbxgrp(item).vertices(cnt) = New vertice_
-                        fbxgrp(item).vertices(cnt).x = vert.X
-                        fbxgrp(item).vertices(cnt).y = vert.Y
-                        fbxgrp(item).vertices(cnt).z = vert.Z
+                        fbxgrp(item).vertices(vertexIndex) = New vertice_
+                        fbxgrp(item).vertices(vertexIndex).x = vert.X
+                        fbxgrp(item).vertices(vertexIndex).y = vert.Y
+                        fbxgrp(item).vertices(vertexIndex).z = vert.Z
                         If mesh.HasNormals Then
-                            fbxgrp(item).vertices(cnt).nx = mesh.Normals(cnt).X
-                            fbxgrp(item).vertices(cnt).ny = mesh.Normals(cnt).Y
-                            fbxgrp(item).vertices(cnt).nz = mesh.Normals(cnt).Z
+                            fbxgrp(item).vertices(vertexIndex).nx = mesh.Normals(vertexIndex).X
+                            fbxgrp(item).vertices(vertexIndex).ny = mesh.Normals(vertexIndex).Y
+                            fbxgrp(item).vertices(vertexIndex).nz = mesh.Normals(vertexIndex).Z
                         End If
                         If mesh.HasTextureCoords(0) Then
-                            fbxgrp(item).vertices(cnt).u = mesh.TextureCoordinateChannels(0)(cnt).X
-                            fbxgrp(item).vertices(cnt).v = -mesh.TextureCoordinateChannels(0)(cnt).Y
+                            fbxgrp(item).vertices(vertexIndex).u = mesh.TextureCoordinateChannels(0)(vertexIndex).X
+                            fbxgrp(item).vertices(vertexIndex).v = -mesh.TextureCoordinateChannels(0)(vertexIndex).Y
                         End If
                         If mesh.HasTextureCoords(1) Then
-                            fbxgrp(item).vertices(cnt).u2 = mesh.TextureCoordinateChannels(1)(cnt).X
-                            fbxgrp(item).vertices(cnt).v2 = -mesh.TextureCoordinateChannels(1)(cnt).Y
+                            fbxgrp(item).vertices(vertexIndex).u2 = mesh.TextureCoordinateChannels(1)(vertexIndex).X
+                            fbxgrp(item).vertices(vertexIndex).v2 = -mesh.TextureCoordinateChannels(1)(vertexIndex).Y
                             fbxgrp(item).has_uv2 = 1
                         Else
                             fbxgrp(item).has_uv2 = 0
@@ -117,21 +122,22 @@ Module get_FBX
                         If mesh.HasVertexColors(1) Then
                             fbxgrp(item).stride = 37
                             fbxgrp(item).has_color = 1
-                            Dim c = mesh.VertexColorChannels(1)(cnt)
-                            fbxgrp(item).vertices(cnt).weight_1 = CByte(c.R * 255)
-                            fbxgrp(item).vertices(cnt).weight_2 = CByte(c.G * 255)
-                            fbxgrp(item).vertices(cnt).weight_3 = CByte(c.B * 255)
-                            fbxgrp(item).vertices(cnt).weight_4 = CByte(c.A * 255)
+                            Dim c = mesh.VertexColorChannels(1)(vertexIndex)
+                            fbxgrp(item).vertColor(vertexIndex) = New Vector4()
+                            fbxgrp(item).vertColor(vertexIndex).X = CByte(c.R * 255)
+                            fbxgrp(item).vertColor(vertexIndex).Y = CByte(c.G * 255)
+                            fbxgrp(item).vertColor(vertexIndex).Z = CByte(c.B * 255)
+                            fbxgrp(item).vertColor(vertexIndex).W = 255
                         End If
                         If mesh.HasVertexColors(0) Then
                             fbxgrp(item).stride = 40
                             fbxgrp(item).has_color = 1
-                            Dim c = mesh.VertexColorChannels(0)(cnt)
-                            fbxgrp(item).vertices(cnt).index_1 = CByte(c.R * 255)
-                            fbxgrp(item).vertices(cnt).index_2 = CByte(c.G * 255)
-                            fbxgrp(item).vertices(cnt).index_3 = CByte(c.B * 255)
+                            Dim c = mesh.VertexColorChannels(0)(vertexIndex)
+                            fbxgrp(item).vertColor(vertexIndex).X = CByte(c.R * 255)
+                            fbxgrp(item).vertColor(vertexIndex).Y = CByte(c.G * 255)
+                            fbxgrp(item).vertColor(vertexIndex).Z = CByte(c.B * 255)
                         End If
-                        cnt += 1
+                        vertexIndex += 1
                     Next
                     'Debug.WriteLine(cnt.ToString + "  " + item.ToString)
 

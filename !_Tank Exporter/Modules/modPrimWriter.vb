@@ -988,11 +988,12 @@ found_section:
         ReDim fbx_uv2s(1000000)
         obj_cnt = m_groups(ID).cnt
         Try
-            r = New FileStream(My.Settings.res_mods_path + "\" + m_groups(ID).f_name(0).Replace(".model", ".primitives_processed"), FileMode.OpenOrCreate, FileAccess.Write)
+            r = New FileStream(My.Settings.res_mods_path + "\" + m_groups(ID).f_name(0).Replace(".model", ".primitives_processed"), FileMode.Truncate, FileAccess.Write)
         Catch e As Exception
             MsgBox("I could not open """ + My.Settings.res_mods_path + "\" + m_groups(ID).f_name(0) + """!" + vbCrLf +
-                    "The Root folder is there but there are no  .primitive_processed files." + vbCrLf _
+                    "The Root folder is there but there are no .primitive_processed files." + vbCrLf _
                     + " Did you delete them?", MsgBoxStyle.Exclamation, "Can find folder!")
+            frmMain.m_extract.PerformClick()
             Return
         End Try
 
@@ -1538,7 +1539,7 @@ no_UV2EVER:
         total_indices = 0
         For i = 1 To obj_cnt
             pnter = m_groups(id).list(i - 1)
-            total_indices += fbxgrp(pnter).comp.indi_cnt
+            total_indices += fbxgrp(pnter).indices.Length
         Next
         Dim h2() = "list".ToArray
         ind_scale = 2
@@ -1548,7 +1549,7 @@ no_UV2EVER:
         End If
         ReDim Preserve h2(63)
         br.Write(h2)
-        br.Write(total_indices)
+        br.Write(total_indices * 3)
         br.Write(Convert.ToUInt32(obj_cnt)) 'write how many objects there are in this model
         Dim off As UInt32 = 0
         For i = 1 To obj_cnt
@@ -1623,6 +1624,7 @@ no_UV2EVER:
             off += comp.vert_cnt
         Next
         Dim s_index, s_vertex As UInt32
+        indi_cnt = 0
         For i = 1 To obj_cnt
             pnter = m_groups(id).list(i - 1)
             Dim pnter2 = pnter

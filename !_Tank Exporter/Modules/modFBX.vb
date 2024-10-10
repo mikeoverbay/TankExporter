@@ -1321,7 +1321,7 @@ outahere:
         fbx_in.specular_id = fbx_out.specular_id
         fbx_in.texture_count = fbx_out.texture_count
         fbx_in.has_uv2 = fbx_out.has_uv2
-        fbx_in.has_Vcolor = fbx_out.has_Vcolor
+        fbx_in.has_color = fbx_out.has_color
         fbx_in.bumped = fbx_out.bumped
         fbx_in.stride = fbx_out.stride
 
