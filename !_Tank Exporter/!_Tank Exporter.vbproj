@@ -27,8 +27,8 @@
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>false</MapFileExtensions>
     <OpenBrowserOnPublish>false</OpenBrowserOnPublish>
-    <ApplicationRevision>152</ApplicationRevision>
-    <ApplicationVersion>1.0.0.152</ApplicationVersion>
+    <ApplicationRevision>153</ApplicationRevision>
+    <ApplicationVersion>1.0.0.153</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
