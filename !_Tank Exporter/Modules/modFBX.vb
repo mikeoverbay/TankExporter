@@ -21,6 +21,8 @@ Imports Skill.FbxSDK
 Imports Skill.FbxSDK.IO
 Imports cttools
 Imports System.Windows.Forms.VisualStyles
+Imports Microsoft.VisualBasic.Devices
+Imports System.Windows.Forms.VisualStyles.VisualStyleElement.TaskbarClock
 Module modFBX
     Public t_fbx(0) As _grps
     Public FBX_Texture_path As String
@@ -1271,7 +1273,7 @@ outahere:
         Dim pnt(30) As Integer
         'move to right locations....
         For i = 1 To fbxgrp.Length - 1
-            If fbxgrp(i).name.ToLower.Contains("vehicles") Then
+            If fbxgrp(i).name.ToLower.Contains("~") Then
 
                 Dim n = fbxgrp(i).name
                 Dim a = n.Split("~")
@@ -1283,7 +1285,7 @@ outahere:
         Next
         'sort tank parts and move any new items to the end.
         For i = 1 To fbxgrp.Length - 1
-            If Not fbxgrp(i).name.ToLower.Contains("vehicles") Then
+            If Not fbxgrp(i).name.ToLower.Contains("~") Then
                 move_fbx_entry(t_fbx(last), fbxgrp(i), last, i)
                 last += 1
             End If
@@ -1308,22 +1310,33 @@ outahere:
         fbx_in = New _grps
 
         fbx_in.name = fbx_out.name
+
         fbx_in.color_name = fbx_out.color_name
-        fbx_in.color_Id = fbx_out.color_Id
         fbx_in.normal_name = fbx_out.normal_name
+        fbx_in.GMM_name = fbx_out.GMM_name
+        fbx_in.ao_name = fbx_out.ao_name
+
+        fbx_in.color_Id = fbx_out.color_Id
         fbx_in.normal_Id = fbx_out.normal_Id
+        fbx_in.GMM_Id = fbx_out.GMM_Id
+        fbx_in.ao_id = fbx_out.ao_id
+
         fbx_in.call_list = fbx_out.call_list
+
         fbx_in.nPrimitives_ = fbx_out.nPrimitives_
         fbx_in.nVertices_ = fbx_out.nVertices_
         fbx_in.startIndex_ = fbx_out.startIndex_
         fbx_in.startVertex_ = fbx_out.startVertex_
+
         fbx_in.specular_name = fbx_out.specular_name
         fbx_in.specular_id = fbx_out.specular_id
+
         fbx_in.texture_count = fbx_out.texture_count
         fbx_in.has_uv2 = fbx_out.has_uv2
         fbx_in.has_color = fbx_out.has_color
         fbx_in.bumped = fbx_out.bumped
         fbx_in.stride = fbx_out.stride
+        fbx_in.is_new_model = fbx_out.is_new_model
 
         If fbx_out.vertColor IsNot Nothing Then
             ReDim fbx_in.vertColor(fbx_out.vertColor.Length - 1)
@@ -1447,11 +1460,9 @@ outahere:
                 ar = fbxgrp(i).name.Split("~")
                 m_groups(1).f_name(ct) = "vehicles\" + ar(0)
                 If ar.Length > 1 Then
-                    m_groups(1).package_id(ct) = CInt(ar(1))
                     m_groups(1).group_list(ct) = ar(2)
                     m_groups(1).section_names(ct) = ar(0)
                 Else
-                    m_groups(1).package_id(ct) = -1
                     m_groups(1).section_names(ct) = ar(0)
                 End If
                 ct += 1
@@ -1466,11 +1477,7 @@ outahere:
                 m_groups(2).m_type = 2
                 ar = fbxgrp(i).name.Split("~")
                 m_groups(2).f_name(ht) = "vehicles\" + ar(0)
-                If ar.Length > 1 Then
-                    m_groups(2).package_id(ht) = CInt(ar(1))
-                Else
-                    m_groups(2).package_id(ht) = -1
-                End If
+
                 ht += 1
             End If
             If fbxgrp(i).name.ToLower.Contains("turret") Then
@@ -1483,11 +1490,7 @@ outahere:
                 m_groups(3).m_type = 3
                 ar = fbxgrp(i).name.Split("~")
                 m_groups(3).f_name(tt) = "vehicles\" + ar(0)
-                If ar.Length > 1 Then
-                    m_groups(3).package_id(tt) = CInt(ar(1))
-                Else
-                    m_groups(3).package_id(tt) = -1
-                End If
+
                 tt += 1
             End If
             If fbxgrp(i).name.ToLower.Contains("gun") Then
@@ -1500,11 +1503,7 @@ outahere:
                 m_groups(4).m_type = 4
                 ar = fbxgrp(i).name.Split("~")
                 m_groups(4).f_name(gt) = "vehicles\" + ar(0)
-                If ar.Length > 1 Then
-                    m_groups(4).package_id(gt) = CInt(ar(1))
-                Else
-                    m_groups(4).package_id(gt) = -1
-                End If
+
                 gt += 1
             End If
         Next
@@ -1516,7 +1515,7 @@ outahere:
             Dim kk As Integer = 0
             For j = 0 To m_groups(i).f_name.Length
                 file_name = ""
-                If m_groups(i).f_name(j).Contains("vehicles") Then
+                If m_groups(i).f_name(j).Contains("\l\") Then
                     file_name = m_groups(i).f_name(j).Replace(".primitives_processed", ".model") 'assuming (0) has the correct name.
                     kk = j
                     Exit For
@@ -1573,45 +1572,67 @@ outahere:
         Next
         For i = 1 To 4
             For cnt = 0 To m_groups(i).cnt - 1
-                file_name = m_groups(i).f_name(cnt)
+
+                Dim tname = m_groups(i).f_name(cnt)
                 Dim fp = Path.GetDirectoryName(file_name)
-                Dim fnm = Path.GetFileName(file_name)
+                Dim fnm = Path.GetFileName(tname)
 
                 Select Case True
                     Case fnm.ToLower.Contains("chass")
                         fnm = "Chassis.model"
+                        tname = fp + "\" + fnm
+                        tname = tname.Replace("\l\", "\lod0\")
+                        file_name = tname
+                        m_groups(i).f_name(cnt) = file_name
                         Exit Select
                     Case fnm.ToLower.Contains("hull")
                         fnm = "Hull.model"
+                        tname = fp + "\" + fnm
+                        tname = tname.Replace("\l\", "\lod0\")
+                        file_name = tname
+                        m_groups(i).f_name(cnt) = file_name
                         Exit Select
                     Case fnm.ToLower.Contains("turr")
                         Dim arr = fnm.Split(".")
                         fnm = arr(0) + ".model"
+                        tname = fp + "\" + fnm
+                        tname = tname.Replace("\l\", "\lod0\")
+                        file_name = tname
+                        m_groups(i).f_name(cnt) = file_name
                         Exit Select
                     Case fnm.ToLower.Contains("gun")
                         Dim arr = fnm.Split(".")
                         fnm = arr(0) + ".model"
+                        tname = fp + "\" + fnm
+                        tname = tname.Replace("\l\", "\lod0\")
+                        file_name = tname
+                        m_groups(i).f_name(cnt) = file_name
                         'fnm = "chassis.model_processed"
                         Exit Select
 
                 End Select
-                file_name = fp + "\" + fnm
-                file_name = file_name.Replace("\l\", "\lod0\")
-
-                m_groups(i).f_name(cnt) = file_name
+                If fbxgrp(m_groups(i).list(cnt)).is_new_model Then
+                    m_groups(i).f_name(cnt) = fnm
+                End If
             Next
+            '---------------------------------------------------------------------------------------------------
+            'get the xml for this tank.
+            file_name = m_groups(i).f_name(0).Replace("\", "/")
+            ar = file_name.Split("/")
+            Try
+                Dim xml_file = ar(0) + "\" + ar(1) + "\" + ar(2) + ".xml"
+                frmMain.get_tank_parts_from_xml(xml_file, New DataSet)
+                frmMain.Text = "File: " + ar(0) + "\" + ar(1) + "\" + ar(2) ' title on main window
+            Catch ex As Exception
+                'MsgBox("" + vbCrLf + "" + vbCrLf + "", MsgBoxStyle.Exclamation, "error..")
+                'Return
+            End Try
         Next
-        '---------------------------------------------------------------------------------------------------
-        'get the xml for this tank.
-        file_name = file_name.Replace("\", "/")
-        ar = file_name.Split("/")
-        Dim xml_file = ar(0) + "\" + ar(1) + "\" + ar(2) + ".xml"
-        frmMain.Text = "File: " + ar(0) + "\" + ar(1) + "\" + ar(2) ' title on main window
 
-        frmMain.get_tank_parts_from_xml(xml_file, New DataSet)
         '---------------------------------------------------------------------------------------------------
         'sort out how many are of what type in the existing model
         For i = 1 To object_count
+
             If _group(i).name.ToLower.Contains("chassis") Then
                 c_cnt += 1
                 m_groups(1).existingCount = c_cnt
@@ -1639,6 +1660,7 @@ outahere:
         Dim c_new, h_new, t_new, g_new As Boolean
         CB = False : HB = False : TB = False : GB = False ' these default to false but set them anyway
         c_new = False : h_new = False : t_new = False : g_new = False
+        Dim fn As String
         If t_fbx <> t_mdl Then
             If c_cnt <> ct Then 'something added?
                 CB = True
@@ -1666,7 +1688,7 @@ outahere:
                 fbxgrp(i).alphaTest = 0
             Else
                 fbxgrp(i).is_GAmap = 1 'is PBS
-                fbxgrp(i).alphaTest = _group(i).alphaTest
+                fbxgrp(i).alphaTest = 1
             End If
         Next
         'need to find out if there is a dangling model that was imported.
@@ -1684,7 +1706,11 @@ outahere:
         'We give the user the opertunity to extract the model. We need some where to write any changed data too.
         file_name = file_name.Replace("/", "\")
         ar = file_name.Split("\")
-        Dim fn = ar(0) + "\" + ar(1) + "\" + ar(2)
+        Try
+            fn = ar(0) + "\" + ar(1) + "\" + ar(2)
+        Catch ex As Exception
+
+        End Try
         current_tank_name = fn ' Path.GetDirectoryName(file_name)
         Dim dp = My.Settings.res_mods_path + "\" + fn
         frmWritePrimitive.SAVE_NAME = dp
@@ -1693,6 +1719,7 @@ outahere:
                       "There is no place to save this new Model." + vbCrLf +
                        "Would you like to extract the data from the .PKG files?", MsgBoxStyle.YesNo, "Extract?") = MsgBoxResult.Yes Then
                 file_name = "1:dummy:" + Path.GetFileNameWithoutExtension(dp.Replace("/", "\"))
+                frmMain.find_icon_image(TANK_NAME)
                 frmMain.m_extract.PerformClick()
             End If
 
@@ -1796,7 +1823,6 @@ outahere:
         frmWritePrimitive.Visible = False
         frmWritePrimitive.Opacity = 100
 
-        frmMain.find_icon_image(TANK_NAME)
         Application.DoEvents()
         MODEL_LOADED = True
         frmMain.m_hide_show_components.Enabled = True
@@ -1832,6 +1858,20 @@ outahere:
 
     End Sub
 
+    Public Sub flip_winding_group(item As Integer)
+        ' Loop through the indices buffer
+        For k As Integer = 0 To _group(item).indices.Length - 1
+            ' Get the indices for p1, p2, p3
+            Dim p1 = _group(item).indices(k).v1
+            _group(item).indices(k).v1 = _group(item).indices(k).v2
+            _group(item).indices(k).v2 = p1
+        Next
+        For k As Integer = 0 To _group(item).vertices.Length - 2
+            _group(item).vertices(k).nx *= -1
+            _group(item).vertices(k).tx *= -1
+            _group(item).vertices(k).bnx *= -1
+        Next
+    End Sub
     Public Sub fix_winding_order(ByVal i As Integer)
         Dim flag As Boolean = False
 
@@ -1899,6 +1939,7 @@ outahere:
     Public Sub fix_winding_order_group(ByVal i As Integer)
         'Return
         ' Loop through the indices buffer
+        Dim c As Integer = 0
         For k As Integer = 1 To _group(i).indices.Length - 1
             ' Get the indices for p1, p2, p3
             Dim p1 = _group(i).indices(k).v1
@@ -1953,8 +1994,10 @@ outahere:
                 ' Apply winding order flip
                 _group(i).indices(k).v2 = p3
                 _group(i).indices(k).v3 = p2
+                c += 1
             End If
         Next
+        Debug.WriteLine("fliped _group winding count: " + c.ToString)
 
     End Sub
 
@@ -2021,6 +2064,7 @@ outahere:
 
     Public Sub check_normal_y_group(ByVal i As Integer)
         ' Loop through the indices buffer
+        Dim c As Integer = 0
         For k As Integer = 1 To _group(i).indices.Length - 1 Step 3
             ' Get the indices for p1, p2, p3
             Dim p1 = _group(i).indices(k).v1
@@ -2072,12 +2116,14 @@ outahere:
 
             ' If the dot product is negative, the normals don't match
             If dotProduct > 0 Then
+                c += 1
                 ' Flip the Y component of the normals only once (if not already flipped)
                 If _group(i).vertices(p1).ny > 0 Then _group(i).vertices(p1).ny = -_group(i).vertices(p1).ny
                 If _group(i).vertices(p2).ny > 0 Then _group(i).vertices(p2).ny = -_group(i).vertices(p2).ny
                 If _group(i).vertices(p3).ny > 0 Then _group(i).vertices(p3).ny = -_group(i).vertices(p3).ny
             End If
         Next
+        Debug.WriteLine("fliped _group normal count: " + c.ToString)
     End Sub
 
 
@@ -2102,6 +2148,7 @@ outahere:
 #Region "TBN Creation functions"
 
     Public Sub create_TBNS(ByVal id As UInt32)
+
         Dim cnt = fbxgrp(id).nPrimitives_
         Dim p1, p2, p3 As UInt32
         For i As UInt32 = 0 To cnt - 1
@@ -2110,7 +2157,7 @@ outahere:
             p3 = fbxgrp(id).indices(i).v3
             Dim tan, bn As vect3
             Dim v1, v2, v3 As vect3
-            Dim u1, u2, u3 As vect3
+            Dim u1, u2, u3, n As vect3
             v1.x = -fbxgrp(id).vertices(p1).x
             v1.y = fbxgrp(id).vertices(p1).y
             v1.z = fbxgrp(id).vertices(p1).z
@@ -2131,40 +2178,34 @@ outahere:
 
             u3.x = fbxgrp(id).vertices(p3).u
             u3.y = fbxgrp(id).vertices(p3).v
+
+            n.x = fbxgrp(id).vertices(p3).x
+            n.y = fbxgrp(id).vertices(p3).y
+            n.z = fbxgrp(id).vertices(p3).z
+
             ComputeTangentBasis(v1, v2, v3, u1, u2, u3, tan, bn) ' calculate tan and biTan
+            'tan = OrthogonalizeTangent(tan, n)
+            'bn = ComputeBinormal(n, tan)
 
             save_tbn(id, tan, bn, p1) ' puts xyz values in vertex
             save_tbn(id, tan, bn, p2)
             save_tbn(id, tan, bn, p3)
-
-            fbxgrp(id).vertices(p1).t = packnormalFBX888(toFBXv(tan)) 'packs and puts the uint value in to the vertex
-            fbxgrp(id).vertices(p1).bn = packnormalFBX888(toFBXv(bn))
-            fbxgrp(id).vertices(p2).t = packnormalFBX888(toFBXv(tan))
-            fbxgrp(id).vertices(p2).bn = packnormalFBX888(toFBXv(bn))
-            fbxgrp(id).vertices(p3).t = packnormalFBX888(toFBXv(tan))
-            fbxgrp(id).vertices(p3).bn = packnormalFBX888(toFBXv(bn))
         Next
         Return
     End Sub
     Public Sub create_TBNS2(ByVal id As UInt32)
-        ' Calculate the number of primitives to process
-        Dim cnt As UInt32 = fbxgrp(id).nPrimitives_ - 4
+
+        Dim cnt As UInt32 = fbxgrp(id).nPrimitives_
         Dim p1, p2, p3 As UInt32
-
         ' Iterate through each triangle (assuming primitives are triangles)
-        For i As UInt32 = 0 To cnt - 1 Step 3
-            ' Retrieve vertex indices for the current triangle
+        For i As UInt32 = 0 To cnt - 1
             p1 = fbxgrp(id).indices(i).v1
-            p2 = fbxgrp(id).indices(i + 1).v1
-            p3 = fbxgrp(id).indices(i + 2).v1
-
-            ' Initialize vectors for positions and UVs
+            p2 = fbxgrp(id).indices(i).v2
+            p3 = fbxgrp(id).indices(i).v3
             Dim tan, bn As vect3
             Dim v1, v2, v3 As vect3
-            Dim u1, u2, u3 As vect3
-
-            ' Flip the X component of vertex positions for coordinate system conversion
-            v1.x = fbxgrp(id).vertices(p1).x
+            Dim u1, u2, u3, n As vect3
+            v1.x = -fbxgrp(id).vertices(p1).x
             v1.y = fbxgrp(id).vertices(p1).y
             v1.z = fbxgrp(id).vertices(p1).z
 
@@ -2172,11 +2213,10 @@ outahere:
             v2.y = fbxgrp(id).vertices(p2).y
             v2.z = fbxgrp(id).vertices(p2).z
 
-            v3.x = fbxgrp(id).vertices(p3).x
+            v3.x = -fbxgrp(id).vertices(p3).x
             v3.y = fbxgrp(id).vertices(p3).y
             v3.z = fbxgrp(id).vertices(p3).z
-
-            ' Texture coordinates remain unchanged
+            '
             u1.x = fbxgrp(id).vertices(p1).u
             u1.y = fbxgrp(id).vertices(p1).v
 
@@ -2186,29 +2226,17 @@ outahere:
             u3.x = fbxgrp(id).vertices(p3).u
             u3.y = fbxgrp(id).vertices(p3).v
 
-            ' Compute the tangent and binormal based on transformed positions and UVs
-            ComputeTangentBasis(v1, v2, v3, u1, u2, u3, tan, bn)
+            n.x = fbxgrp(id).vertices(p3).x
+            n.y = fbxgrp(id).vertices(p3).y
+            n.z = fbxgrp(id).vertices(p3).z
 
-            ' **Critical Adjustment**:
-            ' Negate the binormal to account for the change from right-handed to left-handed system
-            bn.x = -bn.x
-            bn.y = -bn.y
-            bn.z = -bn.z
+            ComputeTangentBasis(v1, v2, v3, u1, u2, u3, tan, bn) ' calculate tan and biTan
+            'tan = OrthogonalizeTangent(tan, n)
+            'bn = ComputeBinormal(n, tan)
 
-            ' Save the adjusted tangent and binormal for each vertex in the triangle
-            save_tbn(id, tan, bn, p1)
+            save_tbn(id, tan, bn, p1) ' puts xyz values in vertex
             save_tbn(id, tan, bn, p2)
             save_tbn(id, tan, bn, p3)
-
-            ' Pack and assign the tangent and binormal to the vertex structure
-            fbxgrp(id).vertices(p1).t = packnormalFBX888(toFBXv(tan))
-            fbxgrp(id).vertices(p1).bn = packnormalFBX888(toFBXv(bn))
-
-            fbxgrp(id).vertices(p2).t = packnormalFBX888(toFBXv(tan))
-            fbxgrp(id).vertices(p2).bn = packnormalFBX888(toFBXv(bn))
-
-            fbxgrp(id).vertices(p3).t = packnormalFBX888(toFBXv(tan))
-            fbxgrp(id).vertices(p3).bn = packnormalFBX888(toFBXv(bn))
         Next
 
         ' Exit the subroutine
@@ -2216,6 +2244,8 @@ outahere:
     End Sub
 
     Private Sub save_tbn(id As Integer, tan As vect3, bn As vect3, i As Integer)
+        tan = normalize(tan)
+        bn = normalize(bn)
         fbxgrp(id).vertices(i).tx = tan.x
         fbxgrp(id).vertices(i).ty = tan.y
         fbxgrp(id).vertices(i).tz = tan.z
@@ -2232,9 +2262,9 @@ outahere:
         Return v
     End Function
 
-    Public Sub ComputeTangentBasis( _
-      ByVal p1 As vect3, ByVal p2 As vect3, ByVal p3 As vect3, _
-      ByVal UV1 As vect3, ByVal UV2 As vect3, ByVal UV3 As vect3, _
+    Public Sub ComputeTangentBasis(
+      ByVal p1 As vect3, ByVal p2 As vect3, ByVal p3 As vect3,
+      ByVal UV1 As vect3, ByVal UV2 As vect3, ByVal UV3 As vect3,
       ByRef tangent As vect3, ByRef bitangent As vect3)
 
         Dim Edge1 As vect3 = subvect3(p2, p1)
@@ -2304,12 +2334,29 @@ outahere:
         Next
 
     End Sub
+    ' Function to convert a normalized float to an 8-bit integer
+    Private Function s_to_int(ByVal n As Single) As Byte
+        ' Scale n from [-1.0, 1.0] to [0, 254]
+        Dim scaled As Double = ((n + 1.0) * 0.5) * 254.0
 
-    Private Function s_to_int(ByRef n As Single) As Int32
-        Dim i As Int32
-        i = lookup(((n + 1.0) * 0.5) * 254)
-        Return i
+        ' Round to the nearest integer
+        Dim index As Integer = CInt(Math.Round(scaled))
+
+        ' Clamp the value to [0, 254] to prevent out-of-range indices
+        If index < 0 Then
+            index = 0
+        ElseIf index > 254 Then
+            index = 254
+        End If
+
+        ' Invert the scaled value as per the original lookup logic
+        Return CByte(254 - index)
     End Function
+    'Private Function s_to_int(ByRef n As Single) As Int32
+    '    Dim i As Int32
+    '    i = lookup(((n + 1.0) * 0.5) * 254)
+    '    Return i
+    'End Function
 
     Public Function packnormalFBX_old(ByVal n As FbxVector4) As UInt32
         'ctz is my special C++ function to pack the vector into a Uint32
@@ -2455,7 +2502,7 @@ outahere:
                 Dim idx = _group(id).g_atlas_indexs.x
                 t_name = FBX_Texture_path + "\" + "Atlas_AM_map_" + id.ToString + ".png"
             Else
-                t_name = FBX_Texture_path + "\" + _
+                t_name = FBX_Texture_path + "\" +
                                             Path.GetFileNameWithoutExtension(_group(id).color_name) + ".png"
             End If
         Catch ex As Exception
@@ -2499,7 +2546,7 @@ outahere:
                 Dim idx = _group(id).g_atlas_indexs.x
                 t_name = FBX_Texture_path + "\" + "Atlas_NM_map_" + id.ToString + ".png"
             Else
-                t_name = FBX_Texture_path + "\" + _
+                t_name = FBX_Texture_path + "\" +
                                             Path.GetFileNameWithoutExtension(_group(id).normal_name) + ".png"
             End If
         Catch ex As Exception
@@ -3059,7 +3106,30 @@ outahere:
         End Try
         Return New Int32
     End Function
+    Public Function packnormalFBX888_writePrimitive_NEWMODEL(ByVal n As FbxVector4) As UInt32
+        Try
+            ' Normalize the vector
+            n.Normalize()
 
+            ' Round each component to 4 decimal places
+            n.X = CSng(Math.Round(n.X, 4))
+            n.Y = CSng(Math.Round(n.Y, 4))
+            n.Z = CSng(Math.Round(n.Z, 4))
+
+            ' Convert each component to an 8-bit integer and print input-output values
+            Dim nx As Byte = s_to_int(n.X)
+            Dim ny As Byte = s_to_int(n.Y)
+            Dim nz As Byte = s_to_int(n.Z)
+            ' Pack the components into a UInt32 (Format: 0x00ZZYYXX)
+            Dim packedValue As UInt32 = CUInt((CInt(nz) << 16) Or (CInt(ny) << 8) Or CInt(nx))
+
+            Return packedValue
+        Catch ex As Exception
+            ' Handle exceptions appropriately (e.g., log the error)
+            Console.WriteLine($"Error in packing function: {ex.Message}")
+            Return 0
+        End Try
+    End Function
     Private Function unpackNormal_8_8_8(ByVal packed As UInt32) As vect3Norm
         'Console.WriteLine(packed.ToString("x"))
         Dim pkz, pky, pkx As Int32

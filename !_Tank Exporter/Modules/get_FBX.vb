@@ -7,10 +7,12 @@ Imports Skill.FbxSDK
 Imports System.Globalization
 Imports System.Numerics
 Imports System.Drawing.Drawing2D
+Imports System.Windows.Forms.VisualStyles.VisualStyleElement
 
 Module get_FBX
+    Public GLB As Boolean = False
     Sub Open_2016_fbx()
-
+        GLB = False
 
         frmMain.OpenFileDialog1.Filter = "FBX|*.fbx"
         frmMain.OpenFileDialog1.Title = "Save FBX.."
@@ -42,6 +44,7 @@ Module get_FBX
 
                 ' Iterate through all meshes in the scene
                 ReDim Preserve fbxgrp(scene.MeshCount)
+                ReDim Preserve _group(scene.MeshCount)
                 Dim item = 1
 
                 For Each mat In scene.Materials
@@ -148,8 +151,17 @@ Module get_FBX
                     item += 1
                 Next
                 For i = 1 To fbxgrp.Length - 1
+                    If Not fbxgrp(i).name.Contains("~") Then
+                        fbxgrp(i).is_new_model = True
+                        _group(i).is_new_model = True
+                    Else
+                        fbxgrp(i).is_new_model = False
+                        _group(i).is_new_model = False
+                    End If
+
                     If fbxgrp(i).color_name IsNot Nothing Then
                         fbxgrp(i).color_Id = get_fbx_texture(Path.GetDirectoryName(open_path) + "\" + fbxgrp(i).color_name)
+
                     Else
                         fbxgrp(i).color_Id = white_id ' fall back so we have something to render :)
                     End If
@@ -260,6 +272,7 @@ Module get_FBX
         End If
 
         ' Accumulate transformations from root to this node
+
         Dim meshTransform As Assimp.Matrix4x4 = GetGlobalTransform(node)
 
         ' Convert the matrix to OpenGL format

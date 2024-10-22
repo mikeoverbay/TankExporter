@@ -222,7 +222,7 @@ Module mod_Exporter
                 End If
                 Select Case EXPORT_TYPE
                     Case 2, 3, 4
-                        Dim m2 = New LambertMaterial("material_" + item.ToString)
+                        Dim m2 = New LambertMaterial("material_" + scene_.RootNode.Materials.Count.ToString)
                         scene_.RootNode.Materials.Add(m2)
 
                         m2.Name = "Material00" + item.ToString
@@ -231,7 +231,7 @@ Module mod_Exporter
                         m2.SetTexture(Material.MapNormal, txn)
                         m2.AmbientColor = New Vector3(0.3, 0.3, 0.3)
                         m2.DiffuseColor = New Vector3(0.7, 0.7, 0.7)
-                        base.Material = scene_.RootNode.Materials(item - 1)
+                        base.Material = scene_.RootNode.Materials(scene_.RootNode.Materials.Count - 1)
                         Exit Select
                     Case 1
                         ' Create a PBR material with a base color
@@ -247,10 +247,10 @@ Module mod_Exporter
                         ' Set PBR material properties
                         m1.MetallicFactor = 0.9
                         m1.RoughnessFactor = 0.9
-                        m1.Name = "Material00" + item.ToString
+                        m1.Name = "Material00" + scene_.RootNode.Materials.Count.ToString
                         m1.SetProperty("Specular", 0.05)
                         m1.SetProperty("Shininess", 0.1)
-                        base.Material = scene_.RootNode.Materials(item - 1)
+                        base.Material = scene_.RootNode.Materials(scene_.RootNode.Materials.Count - 1)
                         Exit Select
 
                 End Select

@@ -975,7 +975,7 @@ next_m:
             i = 0
             Dim p As Integer = 6
             For k As UInt32 = object_start To big_l
-
+                _group (k).stride = stride
                 _group(k).long_tank_name = long_name
 
                 _group(k).bsp2_id = -1
@@ -2952,6 +2952,16 @@ nope:
         vo.x += m(12)
         vo.y += m(13)
         vo.z += m(14)
+        vo.x *= -1.0
+        vo.z *= -1.0
+        Return vo
+
+    End Function
+    Public Function gun_new_transform_lighting(ByVal v As vect3, ByVal m() As Double) As vect3
+        Dim vo As vect3
+        vo.x = (m(0) * v.x) + (m(4) * v.y) + (m(8) * v.z)
+        vo.y = (m(1) * v.x) + (m(5) * v.y) + (m(9) * v.z)
+        vo.z = (m(2) * v.x) + (m(6) * v.y) + (m(10) * v.z)
         vo.x *= -1.0
         vo.z *= -1.0
         Return vo

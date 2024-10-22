@@ -1,25 +1,25 @@
 ﻿</primitiveGroup>
 <primitiveGroup>
 	<PG_ID>0</PG_ID>
-	<material>
-		<identifier>Kustom_mat</identifier>
-		<fx>shaders/std_effects/PBS_tank.fx</fx>
-		<collisionFlags>0</collisionFlags>
-		<materialKind>0</materialKind>
-		<property>doubleSided<Bool>true</Bool></property>
-	    <property>metallicGlossMap<Texture>GMM_NAME</Texture></property>
+    <material>
+        <identifier>Kustom_mat</identifier>
+        <fx>shaders/std_effects/PBS_tank.fx</fx>
+        <collisionFlags>0</collisionFlags>
+        <materialKind>0</materialKind>
+        <property>metallicGlossMap<Texture>GMM_NAME</Texture></property>
         <property>normalMap<Texture>NORMAL_NAME</Texture></property>
         <property>diffuseMap<Texture>COLOR_NAME</Texture></property>
         <property>excludeMaskAndAOMap<Texture>AO_NAME</Texture></property>
         <property>colorIdMap<Texture>vehicles/russian/common/common_ID.dds</Texture></property>
         <property>alphaTestEnable<Bool>false</Bool></property>
-		<property>alphaReference<Int>64</Int></property>
-        <property>g_useNormalPackDXT1<Bool>false</Bool></property>
-        <property>g_detailUVTiling<Vector4>0.000000 0.000000 0.000000 0.000000</Vector4></property>
-        <property>g_maskBias<Float>0.22</Float></property>
-        <property>g_detailPower<Float>0</Float></property>
-        <property>g_detailPowerAlbedo<Float>0.11</Float></property>
+        <property>g_detailUVTiling<Vector4>3.50685 1.75342 0.000000 0.000000</Vector4></property>
         <property>g_detailPowerGloss<Float>0.35</Float></property>
+        <property>g_detailPowerAlbedo<Float>0.11</Float></property>
+        <property>g_maskBias<Float>0.22</Float></property>
+        <property>g_detailPower<Float>5</Float></property>
         <property>metallicDetailMap<Texture>vehicles/russian/Tank_detail/Details_map.dds</Texture></property>
-        <property>g_useDetailMetallic<Bool>false</Bool></property>
+        <property>g_useDetailMetallic<Bool>true</Bool></property>
+        <property>alphaReference<Int>0</Int></property>
+        <property>doubleSided<Bool>false</Bool></property>
+        <property>g_useNormalPackDXT1<Bool>false</Bool></property>
 </material>

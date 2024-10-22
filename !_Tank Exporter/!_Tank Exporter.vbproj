@@ -409,7 +409,7 @@
     <Compile Include="Modules\put_glTF.vb" />
     <Compile Include="Modules\put_STL.vb" />
     <Compile Include="Modules\WorkFBO.vb" />
-    <Compile Include="Modules\put_VglTF.vb" />
+    <Compile Include="Modules\put_fbx.vb" />
     <Compile Include="Settings.vb" />
     <Compile Include="shaders\shader programs\frmShaderEditor.Designer.vb">
       <DependentUpon>frmShaderEditor.vb</DependentUpon>
@@ -4402,9 +4402,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Templates\dummy_GMM.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Templates\dummy_ID.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Templates\meta_template.txt">

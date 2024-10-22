@@ -5,6 +5,8 @@ Imports System.Runtime.InteropServices
 Imports System.Text
 Imports SharpGLTF.Schema2
 Imports Assimp.Configs
+Imports System.Security.Cryptography
+Imports VJson
 
 Module modPrimWriter
     Public OBJECT_WAS_INSERTED As Boolean
@@ -987,14 +989,22 @@ found_section:
         ReDim fbx_uv2s(0)
         ReDim fbx_uv2s(1000000)
         obj_cnt = m_groups(ID).cnt
+
+        Dim pathy = My.Settings.res_mods_path + "\" + m_groups(ID).f_name(0).Replace(".model", ".primitives_processed")
+
         Try
-            r = New FileStream(My.Settings.res_mods_path + "\" + m_groups(ID).f_name(0).Replace(".model", ".primitives_processed"), FileMode.Truncate, FileAccess.Write)
-        Catch e As Exception
-            MsgBox("I could not open """ + My.Settings.res_mods_path + "\" + m_groups(ID).f_name(0) + """!" + vbCrLf +
+            If Not File.Exists(pathy) Then
+                Dim res As MsgBoxResult = MsgBox("I could not open """ + My.Settings.res_mods_path + "\" + m_groups(ID).f_name(0) + """!" + vbCrLf +
                     "The Root folder is there but there are no .primitive_processed files." + vbCrLf _
-                    + " Did you delete them?", MsgBoxStyle.Exclamation, "Can find folder!")
-            frmMain.m_extract.PerformClick()
-            Return
+                    + "Extract them?", MsgBoxStyle.YesNo, "Can find folder!")
+                If res = MsgBoxResult.Yes Then
+                    frmMain.m_extract.PerformClick()
+                Else
+                    Return
+                End If
+            End If
+            r = New FileStream(pathy, FileMode.Truncate, FileAccess.Write)
+        Catch e As Exception
         End Try
 
         br = New BinaryWriter(r)
@@ -1032,7 +1042,7 @@ found_section:
         '##### Write table containing the sizes and names of the sections in the file
         '-------------------------------------------------------------
         'write indices table entry
-        tsa = "indices".ToArray
+        tsa = "indices".ToArray 'default
         If ID = 4 Then
             For i = 0 To section_names(ID).names.Length - 1
                 If section_names(ID).names(i).ToLower.Contains("indices") Then
@@ -1057,8 +1067,7 @@ found_section:
         End If
         '-------------------------------------------------------------
         'write vertice table entry
-        Dim tvn As String = ""
-        tsa = "vertices".ToArray ' convert to char array
+        tsa = "vertices".ToArray ' default
         If ID = 4 Then
             For i = 0 To section_names(ID).names.Length - 1
                 If section_names(ID).names(i).ToLower.Contains("vertices") Then
@@ -1136,10 +1145,10 @@ no_UV2EVER:
                 templatePBR = File.ReadAllText(Application.StartupPath + "\Templates\templatePBR.txt")
             End If
             Dim first, last As Integer
-            first = m_groups(ID).existingCount
+            first = m_groups(ID).existingCount + 1
             last = m_groups(ID).cnt - first
-            For item_num = first To last
-                Dim fbx_id As Integer = m_groups(ID).list(item_num) 'get id for this new item
+            For item_num = first To m_groups(ID).cnt
+                Dim fbx_id As Integer = m_groups(ID).list(item_num - 1) 'get id for this new item
                 Dim new_name = fbxgrp(fbx_id).name ' get objects name
                 Dim primObj As String = ""
 
@@ -1167,19 +1176,13 @@ no_UV2EVER:
                 End Try
 
                 Try
-                    Dim new_s As String = Application.StartupPath + "\templates\dummy_GMM.png"
+                    Dim new_s As String = fbxgrp(fbx_id).GMM_name
                     primObj = primObj.Replace("GMM_NAME", move_convert_new_textures(new_s, fbxgrp(fbx_id).name)) ' update GMM texture name
                 Catch ex As Exception
                 End Try
                 Try
-                    Dim new_s As String = Application.StartupPath + "\templates\dummy_AO.png"
+                    Dim new_s As String = fbxgrp(fbx_id).ao_name
                     primObj = primObj.Replace("AO_NAME", move_convert_new_textures(new_s, fbxgrp(fbx_id).name)) ' update AO texture name
-                Catch ex As Exception
-                End Try
-
-                Try
-                    Dim new_s As String = Application.StartupPath + "\templates\dummy_ID.png"
-                    primObj = primObj.Replace("COLOR_ID_NAME", move_convert_new_textures(new_s, fbxgrp(fbx_id).name)) ' update ID texture name
                 Catch ex As Exception
                 End Try
 
@@ -1212,8 +1215,11 @@ no_UV2EVER:
         Next
 
         f = f.Replace("SceneRoot", "Scene Root")
-        Dim fn As String = m_groups(ID).f_name(0)
+        Dim fn As String = _group(m_groups(ID).list(0)).name
+        Dim ar = fn.Split(":")
+        fn = ar(0)
         fn = fn.Replace(".primitives", ".visual")
+
         File.WriteAllText(My.Settings.res_mods_path + "\" + fn.Replace(".model", ".visual_processed"), f)
 
         updateEvent.Set()
@@ -1224,19 +1230,7 @@ no_UV2EVER:
         Dim new_path As String = ""
         If path_ Is Nothing Then Return Nothing
 
-        Dim t_type As String = ""
-        If t_s.ToLower.Contains("chassis") Then
-            t_type = "chassis"
-        End If
-        If t_s.ToLower.Contains("hull") Then
-            t_type = "hull"
-        End If
-        If t_s.ToLower.Contains("turret") Then
-            t_type = "turret"
-        End If
-        If t_s.ToLower.Contains("gun") Then
-            t_type = "gun"
-        End If
+
         Dim delim As String = "\normal"
         If CRASH_MODE Then delim = "\crash"
         Dim r_path = My.Settings.res_mods_path
@@ -1248,6 +1242,7 @@ no_UV2EVER:
         Try
 
             new_path = IO.Path.GetFileNameWithoutExtension(path_)
+            Dim texture_name = Path.GetFileNameWithoutExtension(path_) + ".dds"
             Dim subf = Path.GetFileName(TANK_NAME)
             Dim folder = Path.GetDirectoryName(frmMain.OpenFileDialog1.FileName) + "\" + subf
             Dim compete_path = folder + "\" + Path.GetFileName(path_)
@@ -1259,11 +1254,8 @@ no_UV2EVER:
             Il.ilBindImage(id)
             Il.ilLoadImage(compete_path)
             Ilu.iluBuildMipmaps()
-            If Not new_path.ToLower.Contains(t_type) Then
-                pat = p + "\" + t_type + "_" + new_path + ".DDS"
-            Else
-                pat = p + "\" + new_path + ".DDS"
-            End If
+
+            pat = p + "\" + new_path + ".DDS"
             pat = pat.Replace("\", "/")
             'If File.Exists(res_path + pat) Then Return pat.Replace("\", "/")
 
@@ -1287,10 +1279,12 @@ no_UV2EVER:
 
             End Select
 
-            Il.ilEnable(Il.IL_FILE_OVERWRITE)
+            Il.ilDisable(Il.IL_FILE_OVERWRITE)
 
             status = Il.ilSave(Il.IL_DDS, res_path + pat)
-
+            If Not status Then
+                MsgBox("Unable to convert texture", MsgBoxStyle.Exclamation, "Conversion error")
+            End If
             Il.ilBindImage(0)
             Il.ilDeleteImage(id)
 
@@ -1310,8 +1304,9 @@ no_UV2EVER:
     Private Sub write_vertex_data(ByVal id As Integer)
         Dim j As Integer
         Dim h() = "                         ".ToArray
-        stride = fbxgrp(id).stride
-        If stride = 40 Then
+
+        stride = fbxgrp(m_groups(id).list(0)).stride
+        If stride = 32 Then
             Dim h1() = "xyznuvtb".ToArray
             h = h1
         Else
@@ -1337,19 +1332,21 @@ no_UV2EVER:
             pnter = m_groups(id).list(i - 1)
             total_verts += fbxgrp(pnter).comp.vert_cnt
         Next
-        Dim idx_size As Integer = 2 '############## this will need to change If the total indice count is > FFFF (65535)
+
         Dim indi_cnt As Integer = 0
         For i = 1 To obj_cnt
             pnter = m_groups(id).list(i - 1)
             indi_cnt += fbxgrp(pnter).comp.indi_cnt
         Next
-        Dim parent = m_groups(id).list(0)
+        Dim parent = m_groups(id).list(0) ' done to find childs parent
         br.Write(total_verts)
         For i = 1 To obj_cnt
 
-            create_TBNS2(i)
-
             pnter = m_groups(id).list(i - 1)
+            create_TBNS2(pnter)
+            'fix_winding_order(pnter)
+            'check_normal_y(pnter)
+            'create_TBNS2(pnter)
             '-------------------------------------------------------------
             Application.DoEvents()
             Dim comp As comp_ = fbxgrp(pnter).comp
@@ -1358,7 +1355,7 @@ no_UV2EVER:
             For k = 0 To j
                 'r.Close()
                 'Return
-                Dim n As vect3
+                Dim n, tn, bn As vect3
                 If fbxgrp(pnter).is_new_model Then
                     Dim v As New vect3
                     v.x = comp.vertices(k).x
@@ -1366,20 +1363,105 @@ no_UV2EVER:
                     v.z = comp.vertices(k).z
                     If id = 4 Then
                         v = gun_new_transform(v, fbxgrp(pnter).matrix)
-                        v.x -= fbxgrp(parent).matrix(12)
-                        v.y -= fbxgrp(parent).matrix(13)
-                        v.z += fbxgrp(parent).matrix(14)
+                        If Not GLB Then
+                            v.x -= fbxgrp(parent).matrix(12)
+                            v.y -= fbxgrp(parent).matrix(13)
+                            v.z += fbxgrp(parent).matrix(14)
+
+                            n.x = -comp.vertices(k).nx
+                            n.y = comp.vertices(k).ny
+                            n.z = -comp.vertices(k).nz
+                            n = gun_new_transform_lighting(n, fbxgrp(pnter).matrix)
+
+                            tn.x = -comp.vertices(k).tx
+                            tn.y = comp.vertices(k).ty
+                            tn.z = -comp.vertices(k).tz
+                            tn = gun_new_transform_lighting(tn, fbxgrp(pnter).matrix)
+
+                            bn.x = -comp.vertices(k).bnx
+                            bn.y = comp.vertices(k).bny
+                            bn.z = -comp.vertices(k).bnz
+                            bn = gun_new_transform_lighting(bn, fbxgrp(pnter).matrix)
+                        Else
+                            v.x -= fbxgrp(parent).matrix(12)
+                            v.y -= fbxgrp(parent).matrix(13)
+                            v.z += fbxgrp(parent).matrix(14)
+
+                            n.x = -comp.vertices(k).nx
+                            n.y = comp.vertices(k).ny
+                            n.z = -comp.vertices(k).nz
+                            n = gun_new_transform_lighting(n, fbxgrp(pnter).matrix)
+
+                            tn.x = -comp.vertices(k).tx
+                            tn.y = comp.vertices(k).ty
+                            tn.z = -comp.vertices(k).tz
+                            tn = gun_new_transform_lighting(tn, fbxgrp(pnter).matrix)
+
+                            bn.x = -comp.vertices(k).bnx
+                            bn.y = comp.vertices(k).bny
+                            bn.z = -comp.vertices(k).bnz
+                            bn = gun_new_transform_lighting(bn, fbxgrp(pnter).matrix)
+
+                        End If
+
                     Else
                         v = transform(v, fbxgrp(pnter).matrix)
-                        v.x -= fbxgrp(parent).matrix(12)
-                        v.y -= fbxgrp(parent).matrix(13)
-                        v.z -= fbxgrp(parent).matrix(14)
+                        If Not GLB Then
+                            v.x -= fbxgrp(parent).matrix(12)
+                            v.y -= fbxgrp(parent).matrix(13)
+                            v.z -= fbxgrp(parent).matrix(14)
+
+                            n.x = -comp.vertices(k).nx
+                            n.y = -comp.vertices(k).ny
+                            n.z = -comp.vertices(k).nz
+                            n = transform_lighting(n, fbxgrp(pnter).matrix)
+                            'n = New vect3
+
+                            tn.x = -comp.vertices(k).tx
+                            tn.y = -comp.vertices(k).ty
+                            tn.z = -comp.vertices(k).tz
+                            tn = transform_lighting(tn, fbxgrp(pnter).matrix)
+                            'tn = New vect3
+
+                            bn.x = -comp.vertices(k).bnx
+                            bn.y = -comp.vertices(k).bny
+                            bn.z = -comp.vertices(k).bnz
+                            bn = transform_lighting(bn, fbxgrp(pnter).matrix)
+
+                        Else
+                            v.x -= fbxgrp(parent).matrix(12)
+                            v.y -= fbxgrp(parent).matrix(13)
+                            v.z -= fbxgrp(parent).matrix(14)
+
+                            n.x = -comp.vertices(k).nx
+                            n.y = -comp.vertices(k).ny
+                            n.z = -comp.vertices(k).nz
+                            n = transform_lighting(n, fbxgrp(pnter).matrix)
+                            'n = New vect3
+
+                            tn.x = -comp.vertices(k).tx
+                            tn.y = -comp.vertices(k).ty
+                            tn.z = -comp.vertices(k).tz
+                            tn = transform_lighting(tn, fbxgrp(pnter).matrix)
+                            'tn = New vect3
+
+                            bn.x = -comp.vertices(k).bnx
+                            bn.y = -comp.vertices(k).bny
+                            bn.z = -comp.vertices(k).bnz
+                            bn = transform_lighting(bn, fbxgrp(pnter).matrix)
+                        End If
+
 
                     End If
 
                     br.Write(v.x)
                     br.Write(v.y)
                     br.Write(v.z)
+                    comp.vertices(k).n = packnormalFBX888_writePrimitive_NEWMODEL(toFBXv(n))
+                    comp.vertices(k).t = packnormalFBX888_writePrimitive_NEWMODEL(toFBXv(tn))
+                    comp.vertices(k).bn = packnormalFBX888_writePrimitive_NEWMODEL(toFBXv(bn))
+
+
 
                 Else
                     If id = 3333 Then 'set to 3 to hide the turret, 2 for hull and so on.
@@ -1392,28 +1474,37 @@ no_UV2EVER:
                         br.Write(comp.vertices(k).z)
 
                     End If
+
+                    n.x = comp.vertices(k).nx
+                    n.y = comp.vertices(k).ny
+                    n.z = comp.vertices(k).nz
+
+                    tn.x = comp.vertices(k).tx
+                    tn.y = comp.vertices(k).ty
+                    tn.z = comp.vertices(k).tz
+
+                    bn.x = comp.vertices(k).bnx
+                    bn.y = comp.vertices(k).bny
+                    bn.z = comp.vertices(k).bnz
+                    comp.vertices(k).n = packnormalFBX888_writePrimitive(toFBXv(n))
+                    comp.vertices(k).t = packnormalFBX888_writePrimitive(toFBXv(tn))
+                    comp.vertices(k).bn = packnormalFBX888_writePrimitive(toFBXv(bn))
+                End If
+                If k < 5 Then
+
+                    ' Display the normal vector n
+                    Debug.WriteLine("n: (" & n.x.ToString("F3") & ", " & n.y.ToString("F3") & ", " & n.z.ToString("F3") & ")")
+
+                    ' Display the tangent vector tn
+                    Debug.WriteLine("tn: (" & tn.x.ToString("F3") & ", " & tn.y.ToString("F3") & ", " & tn.z.ToString("F3") & ")")
+
+                    ' Display the binormal vector tb
+                    Debug.WriteLine("bn: (" & bn.x.ToString("F3") & ", " & bn.y.ToString("F3") & ", " & bn.z.ToString("F3") & ")")
+
+                    ' Optional: Add a separator for clarity
+                    Debug.WriteLine("-----------------------------")
                 End If
 
-                'sucks but we have to transform N, T and Bt
-                n.x = comp.vertices(k).nx
-                n.y = comp.vertices(k).ny
-                n.z = comp.vertices(k).nz
-                Dim tn As vect3
-                tn.x = comp.vertices(k).tx
-                tn.y = comp.vertices(k).ty
-                tn.z = comp.vertices(k).tz
-
-                Dim tb As vect3
-                tb.x = comp.vertices(k).bnx
-                tb.y = comp.vertices(k).bny
-                tb.z = comp.vertices(k).bnz
-
-
-
-
-                comp.vertices(k).n = packnormalFBX888_writePrimitive(toFBXv(n))
-                comp.vertices(k).t = packnormalFBX888_writePrimitive(toFBXv(tn))
-                comp.vertices(k).bn = packnormalFBX888_writePrimitive(toFBXv(tb))
                 'n = rotate_transform(n, fbxgrp(pnter).matrix)
 
                 br.Write(comp.vertices(k).n)
@@ -1630,7 +1721,7 @@ no_UV2EVER:
             Dim pnter2 = pnter
             If i > 1 Then
                 pnter2 = m_groups(id).list(i - 2) 'we have to do it this way because added items wont be in order
-                s_index += (fbxgrp(pnter2).comp.indi_cnt)
+                s_index += fbxgrp(pnter2).comp.indi_cnt
                 s_vertex += fbxgrp(pnter2).comp.vert_cnt
             End If
             pnter = m_groups(id).list(i - 1)
@@ -1683,5 +1774,60 @@ no_UV2EVER:
 
 
     End Sub
+
+    ' Function to transform a vector using a matrix (applies rotation, scaling, translation)
+    Public Function transform(ByVal v As vect3, ByVal m() As Double) As vect3
+        Dim vo As vect3
+        ' Apply rotation and scaling
+        vo.x = (m(0) * v.x) + (m(4) * v.y) + (m(8) * v.z)
+        vo.y = (m(1) * v.x) + (m(5) * v.y) + (m(9) * v.z)
+        vo.z = (m(2) * v.x) + (m(6) * v.y) + (m(10) * v.z)
+        ' Apply translation
+        vo.x += m(12)
+        vo.y += m(13)
+        vo.z += m(14)
+        ' Flip the X component
+        vo.x *= -1.0
+        Return vo
+    End Function
+    Public Function transform_lighting(ByVal v As vect3, ByVal m() As Double) As vect3
+        Dim vo As vect3
+        ' Apply rotation and scaling
+        vo.x = (m(0) * v.x) + (m(4) * v.y) + (m(8) * v.z)
+        vo.y = (m(1) * v.x) + (m(5) * v.y) + (m(9) * v.z)
+        vo.z = (m(2) * v.x) + (m(6) * v.y) + (m(10) * v.z)
+        ' Flip the X component
+        vo.x *= -1.0
+        Return vo
+    End Function
+
+    Public Function transform_turret_gun_shading(ByVal v As vect3) As vect3
+
+        Dim m As Single() = {
+            -1.0F, 0.0F, 0.0F, 0.0F,  ' Column 1: M11, M21, M31, M41
+            0.0F, 1.0F, 0.0F, 0.0F,  ' Column 2: M12, M22, M32, M42
+            0.0F, 0.0F, 1.0F, 0.0F,  ' Column 3: M13, M23, M33, M43
+            0.0F, 0.0F, 0.0F, 1.0F   ' Column 4: M14, M24, M34, M44
+            }
+
+        Dim vo As vect3
+        ' Apply rotation and scaling
+        vo.x = (m(0) * v.x) + (m(4) * v.y) + (m(8) * v.z)
+        vo.y = (m(1) * v.x) + (m(5) * v.y) + (m(9) * v.z)
+        vo.z = (m(2) * v.x) + (m(6) * v.y) + (m(10) * v.z)
+        ' Flip the X component
+        vo.x *= 1.0!
+        vo = normalize(vo)
+        Return vo
+    End Function
+    Function TransposeMatrix(ByVal M(,) As Double) As Double(,)
+        Dim MT(2, 2) As Double
+        For i As Integer = 0 To 2
+            For j As Integer = 0 To 2
+                MT(i, j) = M(j, i)
+            Next
+        Next
+        Return MT
+    End Function
 
 End Module

@@ -16,6 +16,7 @@ Imports Tao.DevIl
 Imports Microsoft.VisualBasic.Strings
 Imports Ionic.Zip
 Imports System.Runtime.InteropServices
+Imports System.Threading
 Module modTextures
     Enum ATLAS_TYPE
         ATLAS_AM
@@ -1003,7 +1004,9 @@ save_it:
     Public Sub build_textures(ByVal id As Integer)
         Dim s = TheXML_String
         Try
-
+            If _group(id).color_name Is Nothing Then
+                Return
+            End If
             'If PRIMITIVES_MODE Then Return
             Dim diffuse As String = _group(id).color_name.Replace(".dds", "_hd.dds")
             Dim normal As String = _group(id).normal_name.Replace(".dds", "_hd.dds")
@@ -1302,7 +1305,7 @@ save_it:
 
         'build the atlas texture.
         For i = 0 To cnt - 1
-            If worker_fbo.mWIDTH <> atlas_images_coords(i).width Or _
+            If worker_fbo.mWIDTH <> atlas_images_coords(i).width Or
                  worker_fbo.mHEIGTH <> atlas_images_coords(i).heigth Then
                 worker_fbo.reset_worker_fbo(atlas_images_coords(i).width, atlas_images_coords(i).heigth)
             End If
@@ -1310,12 +1313,12 @@ save_it:
             worker_fbo.draw_to_fbo_no_clip(atlas_images_coords(i).image_id)
             'copy that image to the atlas
             Gl.glBindTexture(Gl.GL_TEXTURE_2D, img)
-            Gl.glCopyTexSubImage2D(Gl.GL_TEXTURE_2D, 0, _
-                                   atlas_images_coords(i).loc_xs, _
-                                   atlas_images_coords(i).loc_ys, _
-                                   0, _
-                                   0, _
-                                   atlas_images_coords(i).width, _
+            Gl.glCopyTexSubImage2D(Gl.GL_TEXTURE_2D, 0,
+                                   atlas_images_coords(i).loc_xs,
+                                   atlas_images_coords(i).loc_ys,
+                                   0,
+                                   0,
+                                   atlas_images_coords(i).width,
                                    atlas_images_coords(i).heigth)
 
             Gl.glDeleteTextures(1, atlas_images_coords(i).image_id)
@@ -1443,12 +1446,12 @@ save_it:
         End If
         Gl.glBindTexture(Gl.GL_TEXTURE_2D, img)
         Dim e2 = Gl.glGetError
-        Gl.glCopyTexSubImage2D(Gl.GL_TEXTURE_2D, 0, _
-                       0, _
-                       0, _
-                       0, _
-                       0, _
-                       WorkFBO.worker_fbo.mHEIGTH, _
+        Gl.glCopyTexSubImage2D(Gl.GL_TEXTURE_2D, 0,
+                       0,
+                       0,
+                       0,
+                       0,
+                       WorkFBO.worker_fbo.mHEIGTH,
                        WorkFBO.worker_fbo.mHEIGTH)
         Dim e3 = Gl.glGetError
         Gl.glFinish()
@@ -1886,6 +1889,9 @@ skip_hd:
     Public Function get_png_id(ByVal ms As MemoryStream) As Integer
         'Dim s As String = ""
         's = Gl.glGetError
+
+        updateEvent.Reset()
+        Thread.Sleep(200)
         Dim image_id As Integer = -1
         'Dim app_local As String = Application.StartupPath.ToString
 
@@ -1920,8 +1926,8 @@ skip_hd:
             Gl.glTexParameteri(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_WRAP_T, Gl.GL_REPEAT)
             e = Gl.glGetError
 
-            Gl.glTexImage2D(Gl.GL_TEXTURE_2D, 0, Il.ilGetInteger(Il.IL_IMAGE_BPP), Il.ilGetInteger(Il.IL_IMAGE_WIDTH), _
-                            Il.ilGetInteger(Il.IL_IMAGE_HEIGHT), 0, Il.ilGetInteger(Il.IL_IMAGE_FORMAT), Gl.GL_UNSIGNED_BYTE, _
+            Gl.glTexImage2D(Gl.GL_TEXTURE_2D, 0, Il.ilGetInteger(Il.IL_IMAGE_BPP), Il.ilGetInteger(Il.IL_IMAGE_WIDTH),
+                            Il.ilGetInteger(Il.IL_IMAGE_HEIGHT), 0, Il.ilGetInteger(Il.IL_IMAGE_FORMAT), Gl.GL_UNSIGNED_BYTE,
                             Il.ilGetData()) '  Texture specification 
             Gl.glBindTexture(Gl.GL_TEXTURE_2D, 0)
             Il.ilBindImage(0)
@@ -1932,16 +1938,20 @@ skip_hd:
             Il.ilBindImage(0)
             Ilu.iluDeleteImage(texID)
             'GC.Collect()
+            updateEvent.Set()
             Return image_id
         Else
             MsgBox("can't load MS PNG", MsgBoxStyle.Critical, "oops")
         End If
+        updateEvent.Set()
         Return Nothing
     End Function
 
     Public Function load_png_file(ByVal fs As String) As Integer
         Dim image_id As Integer = -1
         Dim texID As UInt32
+
+        updateEvent.Reset()
         texID = Ilu.iluGenImage() ' /* Generation of one image name */
         Il.ilBindImage(texID) '; /* Binding of image name */
         Dim success = Il.ilGetError
@@ -1977,10 +1987,12 @@ skip_hd:
             Gl.glBindTexture(Gl.GL_TEXTURE_2D, 0)
             Il.ilBindImage(0)
             Ilu.iluDeleteImage(texID)
+            updateEvent.Set()
             Return image_id
         Else
             log_text.AppendLine("Png did not load:" + fs)
         End If
+        updateEvent.Set()
         Return Nothing
     End Function
     Dim pass_w, pass_h As Integer

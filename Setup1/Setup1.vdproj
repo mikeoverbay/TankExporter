@@ -4575,12 +4575,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_8AB9755F873A4AA1AB9AC7DB2CC5FEA7"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_8AF3AC015225419F9E5C0ADA4E244213"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -23698,26 +23692,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8AB9755F873A4AA1AB9AC7DB2CC5FEA7"
-            {
-            "SourcePath" = "8:..\\!_Tank Exporter\\Templates\\dummy_ID.png"
-            "TargetName" = "8:dummy_ID.png"
-            "Tag" = "8:"
-            "Folder" = "8:_B092ABA10A694571B4227B890E697743"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8AF3AC015225419F9E5C0ADA4E244213"
             {
             "SourcePath" = "8:..\\!_Tank Exporter\\html\\Images\\JLD_9.jpg"
@@ -37132,7 +37106,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Tank Exporter"
         "ProductCode" = "8:{03ECD0BF-2F11-452A-BD12-4D2C2777A29C}"
-        "PackageCode" = "8:{6C3911BE-725C-4BEE-BAD8-3EC2E4742E53}"
+        "PackageCode" = "8:{3E262DA8-1433-4280-9B43-F23D5601C08E}"
         "UpgradeCode" = "8:{6ABAF23A-CB3D-4411-B78A-4855B5B5A0CD}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
@@ -37691,7 +37665,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_D88F02B810ED4918A9E68229BD46788B"
             {
-            "SourcePath" = "8:..\\!_Tank Exporter\\obj\\x86\\Release\\!_Tank Exporter.exe"
+            "SourcePath" = "8:..\\!_Tank Exporter\\obj\\x86\\Debug\\!_Tank Exporter.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_9BBCA850C4D847C495C4D74DD189C10E"

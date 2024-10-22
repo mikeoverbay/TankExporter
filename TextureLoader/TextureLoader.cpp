@@ -15,6 +15,14 @@ const uint32_t FOURCC_DXT5 = 0x35545844; // "DXT5" in ASCII
 const uint32_t FOURCC_DX10 = 0x30315844; // "DX10" in ASCII
 const uint32_t DDS_MAGIC = 0x20534444;   // "DDS " in ASCII
 
+// Pixel format flags
+const uint32_t DDPF_ALPHAPIXELS = 0x00000001;
+const uint32_t DDPF_ALPHA = 0x00000002;
+const uint32_t DDPF_FOURCC = 0x00000004;
+const uint32_t DDPF_RGB = 0x00000040;
+const uint32_t DDPF_YUV = 0x00000200;
+const uint32_t DDPF_LUMINANCE = 0x00020000;
+
 // DDS file header structure
 struct DDSHeader {
     uint32_t dwSize;
@@ -25,6 +33,7 @@ struct DDSHeader {
     uint32_t dwDepth;
     uint32_t dwMipMapCount;
     uint32_t dwReserved1[11];
+    // DDS_PIXELFORMAT
     uint32_t dwPFSize;
     uint32_t dwPFFlags;
     uint32_t dwFourCC;
@@ -33,6 +42,7 @@ struct DDSHeader {
     uint32_t dwGBitMask;
     uint32_t dwBBitMask;
     uint32_t dwABitMask;
+    // End DDS_PIXELFORMAT
     uint32_t dwCaps;
     uint32_t dwCaps2;
     uint32_t dwCaps3;
@@ -98,44 +108,81 @@ extern "C" __declspec(dllexport) GLuint LoadTextureDDS(const char* filePath) {
     }
 
     GLuint format = 0;
+    GLuint internalFormat = 0;
+    GLuint dataFormat = 0;
+    GLuint dataType = 0;
+    bool isCompressed = false;
+
     DDSHeaderDX10 headerDX10 = { 0 };
 
     // Check for DX10 extended header
     if (header.dwFourCC == FOURCC_DX10) {
         file.read(reinterpret_cast<char*>(&headerDX10), sizeof(headerDX10));
         switch (headerDX10.dxgiFormat) {
-        case DXGI_FORMAT_BC1_UNORM: format = GL_COMPRESSED_RGBA_S3TC_DXT1_EXT; break;
-        case DXGI_FORMAT_BC2_UNORM: format = GL_COMPRESSED_RGBA_S3TC_DXT3_EXT; break;
-        case DXGI_FORMAT_BC3_UNORM: format = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT; break;
+        case DXGI_FORMAT_BC1_UNORM: format = GL_COMPRESSED_RGBA_S3TC_DXT1_EXT; isCompressed = true; break;
+        case DXGI_FORMAT_BC2_UNORM: format = GL_COMPRESSED_RGBA_S3TC_DXT3_EXT; isCompressed = true; break;
+        case DXGI_FORMAT_BC3_UNORM: format = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT; isCompressed = true; break;
         default:
             std::cerr << "Unsupported DXGI format in DX10 header." << std::endl;
             return 0;
         }
     }
-    else {
-        // Handle legacy formats
+    else if (header.dwPFFlags & DDPF_FOURCC) {
+        // Handle legacy compressed formats
+        isCompressed = true;
         switch (header.dwFourCC) {
         case FOURCC_DXT1: format = GL_COMPRESSED_RGBA_S3TC_DXT1_EXT; break;
         case FOURCC_DXT3: format = GL_COMPRESSED_RGBA_S3TC_DXT3_EXT; break;
         case FOURCC_DXT5: format = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT; break;
         default:
-            std::cerr << "Unsupported DDS format." << std::endl;
+            std::cerr << "Unsupported DDS compressed format." << std::endl;
             return 0;
         }
     }
+    else if ((header.dwPFFlags & DDPF_RGB) && (header.dwRGBBitCount == 32)) {
+        // Handle uncompressed 32bpp BGRA
+        if (header.dwRBitMask == 0x00FF0000 &&
+            header.dwGBitMask == 0x0000FF00 &&
+            header.dwBBitMask == 0x000000FF &&
+            header.dwABitMask == 0xFF000000) {
+            internalFormat = GL_RGBA8;
+            dataFormat = GL_BGRA;
+            dataType = GL_UNSIGNED_BYTE;
+            isCompressed = false;
+        }
+        else {
+            std::cerr << "Unsupported 32bpp format." << std::endl;
+            return 0;
+        }
+    }
+    else {
+        std::cerr << "Unsupported DDS format." << std::endl;
+        return 0;
+    }
 
-    // Calculate data size and read compressed texture data
-    uint32_t blockSize = (format == GL_COMPRESSED_RGBA_S3TC_DXT1_EXT) ? 8 : 16;
+    // Calculate data size and read texture data
     uint32_t dataSize = 0;
     uint32_t width = header.dwWidth;
     uint32_t height = header.dwHeight;
     bool hasMipmaps = (header.dwMipMapCount > 1);
+    uint32_t mipMapCount = header.dwMipMapCount ? header.dwMipMapCount : 1;
 
-    for (uint32_t i = 0; i < header.dwMipMapCount && (width || height); ++i) {
-        uint32_t size = ((width + 3) / 4) * ((height + 3) / 4) * blockSize;
-        dataSize += size;
-        width = std::max(1U, width / 2);
-        height = std::max(1U, height / 2);
+    if (isCompressed) {
+        uint32_t blockSize = (format == GL_COMPRESSED_RGBA_S3TC_DXT1_EXT) ? 8 : 16;
+        for (uint32_t i = 0; i < mipMapCount && (width || height); ++i) {
+            uint32_t size = ((width + 3) / 4) * ((height + 3) / 4) * blockSize;
+            dataSize += size;
+            width = std::max(1U, width / 2);
+            height = std::max(1U, height / 2);
+        }
+    }
+    else {
+        for (uint32_t i = 0; i < mipMapCount && (width || height); ++i) {
+            uint32_t size = width * height * 4; // 4 bytes per pixel
+            dataSize += size;
+            width = std::max(1U, width / 2);
+            height = std::max(1U, height / 2);
+        }
     }
 
     std::vector<char> textureData(dataSize);
@@ -146,14 +193,22 @@ extern "C" __declspec(dllexport) GLuint LoadTextureDDS(const char* filePath) {
     glGenTextures(1, &textureID);
     glBindTexture(GL_TEXTURE_2D, textureID);
 
-    // Upload compressed texture data
+    // Upload texture data
     width = header.dwWidth;
     height = header.dwHeight;
     uint32_t offset = 0;
-    for (uint32_t i = 0; i < header.dwMipMapCount && (width || height); ++i) {
-        uint32_t size = ((width + 3) / 4) * ((height + 3) / 4) * blockSize;
-        glCompressedTexImage2D(GL_TEXTURE_2D, i, format, width, height, 0, size, textureData.data() + offset);
-        offset += size;
+    for (uint32_t i = 0; i < mipMapCount && (width || height); ++i) {
+        if (isCompressed) {
+            uint32_t blockSize = (format == GL_COMPRESSED_RGBA_S3TC_DXT1_EXT) ? 8 : 16;
+            uint32_t size = ((width + 3) / 4) * ((height + 3) / 4) * blockSize;
+            glCompressedTexImage2D(GL_TEXTURE_2D, i, format, width, height, 0, size, textureData.data() + offset);
+            offset += size;
+        }
+        else {
+            uint32_t size = width * height * 4; // 4 bytes per pixel
+            glTexImage2D(GL_TEXTURE_2D, i, internalFormat, width, height, 0, dataFormat, dataType, textureData.data() + offset);
+            offset += size;
+        }
         width = std::max(1U, width / 2);
         height = std::max(1U, height / 2);
     }
@@ -202,30 +257,55 @@ extern "C" __declspec(dllexport) GLuint LoadTextureFromMemory(const void* data, 
     }
 
     GLuint format = 0;
+    GLuint internalFormat = 0;
+    GLuint dataFormat = 0;
+    GLuint dataType = 0;
+    bool isCompressed = false;
     const DDSHeaderDX10* headerDX10 = nullptr;
 
     // Check for DX10 extended header
     if (header->dwFourCC == FOURCC_DX10) {
         headerDX10 = reinterpret_cast<const DDSHeaderDX10*>(reinterpret_cast<const char*>(header) + sizeof(DDSHeader));
         switch (headerDX10->dxgiFormat) {
-        case DXGI_FORMAT_BC1_UNORM: format = GL_COMPRESSED_RGBA_S3TC_DXT1_EXT; break;
-        case DXGI_FORMAT_BC2_UNORM: format = GL_COMPRESSED_RGBA_S3TC_DXT3_EXT; break;
-        case DXGI_FORMAT_BC3_UNORM: format = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT; break;
+        case DXGI_FORMAT_BC1_UNORM: format = GL_COMPRESSED_RGBA_S3TC_DXT1_EXT; isCompressed = true; break;
+        case DXGI_FORMAT_BC2_UNORM: format = GL_COMPRESSED_RGBA_S3TC_DXT3_EXT; isCompressed = true; break;
+        case DXGI_FORMAT_BC3_UNORM: format = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT; isCompressed = true; break;
         default:
             std::cerr << "Unsupported DXGI format in DX10 memory data." << std::endl;
             return 0;
         }
     }
-    else {
-        // Handle legacy formats
+    else if (header->dwPFFlags & DDPF_FOURCC) {
+        // Handle legacy compressed formats
+        isCompressed = true;
         switch (header->dwFourCC) {
         case FOURCC_DXT1: format = GL_COMPRESSED_RGBA_S3TC_DXT1_EXT; break;
         case FOURCC_DXT3: format = GL_COMPRESSED_RGBA_S3TC_DXT3_EXT; break;
         case FOURCC_DXT5: format = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT; break;
         default:
-            std::cerr << "Unsupported DDS format in memory data." << std::endl;
+            std::cerr << "Unsupported DDS compressed format in memory data." << std::endl;
             return 0;
         }
+    }
+    else if ((header->dwPFFlags & DDPF_RGB) && (header->dwRGBBitCount == 32)) {
+        // Handle uncompressed 32bpp BGRA
+        if (header->dwRBitMask == 0x00FF0000 &&
+            header->dwGBitMask == 0x0000FF00 &&
+            header->dwBBitMask == 0x000000FF &&
+            header->dwABitMask == 0xFF000000) {
+            internalFormat = GL_RGBA8;
+            dataFormat = GL_BGRA;
+            dataType = GL_UNSIGNED_BYTE;
+            isCompressed = false;
+        }
+        else {
+            std::cerr << "Unsupported 32bpp format in memory data." << std::endl;
+            return 0;
+        }
+    }
+    else {
+        std::cerr << "Unsupported DDS format in memory data." << std::endl;
+        return 0;
     }
 
     // Calculate the header size
@@ -238,9 +318,6 @@ extern "C" __declspec(dllexport) GLuint LoadTextureFromMemory(const void* data, 
     const char* textureData = static_cast<const char*>(data) + headerSize;
     size_t textureDataSize = dataSize - headerSize;
 
-    // Offset within the texture data
-    size_t offset = 0;
-
     // Generate texture
     GLuint textureID;
     glGenTextures(1, &textureID);
@@ -250,16 +327,29 @@ extern "C" __declspec(dllexport) GLuint LoadTextureFromMemory(const void* data, 
     uint32_t width = header->dwWidth;
     uint32_t height = header->dwHeight;
     uint32_t mipMapCount = header->dwMipMapCount ? header->dwMipMapCount : 1; // Ensure at least one mipmap level
-    size_t blockSize = (format == GL_COMPRESSED_RGBA_S3TC_DXT1_EXT) ? 8 : 16;
 
+    size_t offset = 0;
     for (uint32_t i = 0; i < mipMapCount && (width || height); ++i) {
-        size_t mipSize = ((width + 3) / 4) * ((height + 3) / 4) * blockSize;
-        if (offset + mipSize > textureDataSize) {
-            std::cerr << "Texture data overflow." << std::endl;
-            glDeleteTextures(1, &textureID);
-            return 0;
+        size_t mipSize = 0;
+        if (isCompressed) {
+            size_t blockSize = (format == GL_COMPRESSED_RGBA_S3TC_DXT1_EXT) ? 8 : 16;
+            mipSize = ((width + 3) / 4) * ((height + 3) / 4) * blockSize;
+            if (offset + mipSize > textureDataSize) {
+                std::cerr << "Texture data overflow." << std::endl;
+                glDeleteTextures(1, &textureID);
+                return 0;
+            }
+            glCompressedTexImage2D(GL_TEXTURE_2D, i, format, width, height, 0, mipSize, textureData + offset);
         }
-        glCompressedTexImage2D(GL_TEXTURE_2D, i, format, width, height, 0, mipSize, textureData + offset);
+        else {
+            mipSize = width * height * 4; // 4 bytes per pixel
+            if (offset + mipSize > textureDataSize) {
+                std::cerr << "Texture data overflow." << std::endl;
+                glDeleteTextures(1, &textureID);
+                return 0;
+            }
+            glTexImage2D(GL_TEXTURE_2D, i, internalFormat, width, height, 0, dataFormat, dataType, textureData + offset);
+        }
         offset += mipSize;
         width = std::max(1U, width / 2);
         height = std::max(1U, height / 2);
@@ -285,4 +375,3 @@ extern "C" __declspec(dllexport) GLuint LoadTextureFromMemory(const void* data, 
 
     return textureID;
 }
-

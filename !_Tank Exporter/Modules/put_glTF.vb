@@ -139,7 +139,6 @@ Module put_glTF
                 End Try
             End If
 
-
             Dim off = _group(item).startVertex_
 
             Dim model_name = _group(item).name.Replace("/", "\")
@@ -246,12 +245,11 @@ Module put_glTF
             _object(item).matrix(4), _object(item).matrix(5), _object(item).matrix(6), _object(item).matrix(7),
             _object(item).matrix(8), _object(item).matrix(9), _object(item).matrix(10), _object(item).matrix(11),
             _object(item).matrix(12), _object(item).matrix(13), _object(item).matrix(14), _object(item).matrix(15)
-)
+            )
             matrix.M11 *= -1.0
             If _object(item).name.ToLower.Contains("turret") Or _object(item).name.ToLower.Contains("gun") Then
                 matrix.M41 *= -1.0
             End If
-
 
             ' Create a dictionary to hold the texture paths
             Dim texturePaths As New Dictionary(Of String, String)
@@ -274,11 +272,9 @@ Module put_glTF
                 texturePaths.Add("normal", normalTexture)
             End If
             If Not String.IsNullOrEmpty(normalTexture) Then
-                texturePaths.Add("status", "TANK")
-            End If
-            If Not String.IsNullOrEmpty(normalTexture) Then
                 texturePaths.Add("exportfolder", save_path)
             End If
+            texturePaths.Add("status", "TANK")
 
             Dim jsonExtras As JsonNode = JsonNode.Parse(JsonSerializer.Serialize(texturePaths))
 

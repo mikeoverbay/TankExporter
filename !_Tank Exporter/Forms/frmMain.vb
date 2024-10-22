@@ -2364,7 +2364,12 @@ loaded_jump:
             entry.Extract(ms)
             If ms IsNot Nothing Then
                 current_png_path = entry.FileName
-                Return get_png(ms).Clone()
+                Try
+                    Return get_png(ms).Clone()
+
+                Catch ex As Exception
+                    Return New Bitmap(5, 5)
+                End Try
             End If
         Next
         update_log("***************** Tankl Icon Missing: " + name)
@@ -5450,7 +5455,6 @@ fuckit:
                 l_scaler = 1.0!
                 l_scaler = 1.0!
             End If
-            Application.DoEvents()
             If Not gl_busy Then
                 'scale light based on mode
                 If Not spin_light Then
@@ -7234,69 +7238,72 @@ fuckit:
             End If
             '------------------------------------------
             '------------------------------------------
-            Dim tank_sr_name = Path.GetFileName(public_icon_path)
-            If frmExtract.gui_cb.Checked Then
-                Dim ic_160x100 = gui_pkg_part_1(public_icon_path)
-                If ic_160x100 IsNot Nothing Then
-                    ic_160x100.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                End If
-                ic_160x100 = gui_pkg_part_2(public_icon_path)
-                If ic_160x100 IsNot Nothing Then
-                    ic_160x100.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                End If
-                ic_160x100 = gui_pkg_part_3(public_icon_path)
-                If ic_160x100 IsNot Nothing Then
-                    ic_160x100.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                End If
-                Dim an = tank_sr_name.Split("-")
-                If an.Length > 1 Then
-                    tank_sr_name = an(1)
-                End If
-                Dim sss = public_icon_path.Replace(an(0) + "-", "")
-                Dim srs As String
-                If an.Length > 1 Then
-                    srs = Path.GetDirectoryName(sss) + public_icon_path.Replace(public_icon_path.Replace(an(1) + "-", ""), "/420x307/" + tank_sr_name)
-                Else
-                    srs = sss
-                End If
-                Dim ic_420x307 = gui_pkg_part_1(srs)
-                If ic_420x307 Is Nothing Then
-                    ic_420x307 = gui_pkg_part_2(srs)
-                    If ic_420x307 IsNot Nothing Then
-                        ic_420x307.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                    End If
-                    ic_420x307 = gui_pkg_part_3(srs)
-                    If ic_420x307 IsNot Nothing Then
-                        ic_420x307.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
-                    End If
-                End If
-            End If
-            If frmExtract.extract_item_def_cb.Checked Then
-                Dim ts = itemDefXmlString
-                Try ' catch any exception thrown
+            If public_icon_path IsNot Nothing Then
 
-                    Dim ip = My.Settings.res_mods_path + "\" + itemDefPathString.Replace(" ", "")
-                    If File.Exists(ip) Then
+                Dim tank_sr_name = Path.GetFileName(public_icon_path)
+                If frmExtract.gui_cb.Checked Then
+                    Dim ic_160x100 = gui_pkg_part_1(public_icon_path)
+                    If ic_160x100 IsNot Nothing Then
+                        ic_160x100.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
+                    End If
+                    ic_160x100 = gui_pkg_part_2(public_icon_path)
+                    If ic_160x100 IsNot Nothing Then
+                        ic_160x100.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
+                    End If
+                    ic_160x100 = gui_pkg_part_3(public_icon_path)
+                    If ic_160x100 IsNot Nothing Then
+                        ic_160x100.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
+                    End If
+                    Dim an = tank_sr_name.Split("-")
+                    If an.Length > 1 Then
+                        tank_sr_name = an(1)
+                    End If
+                    Dim sss = public_icon_path.Replace(an(0) + "-", "")
+                    Dim srs As String
+                    If an.Length > 1 Then
+                        srs = Path.GetDirectoryName(sss) + public_icon_path.Replace(public_icon_path.Replace(an(1) + "-", ""), "/420x307/" + tank_sr_name)
                     Else
-                        If Not Directory.Exists(Path.GetDirectoryName(ip)) Then
-                            Directory.CreateDirectory(Path.GetDirectoryName(ip))
-                        End If
-                        Using fs = File.Create(ip)
-                            Using sw As New StreamWriter(fs)
-                                sw.Write(ts)
-                            End Using
-                        End Using
+                        srs = sss
                     End If
+                    Dim ic_420x307 = gui_pkg_part_1(srs)
+                    If ic_420x307 Is Nothing Then
+                        ic_420x307 = gui_pkg_part_2(srs)
+                        If ic_420x307 IsNot Nothing Then
+                            ic_420x307.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
+                        End If
+                        ic_420x307 = gui_pkg_part_3(srs)
+                        If ic_420x307 IsNot Nothing Then
+                            ic_420x307.Extract(My.Settings.res_mods_path, ExtractExistingFileAction.DoNotOverwrite)
+                        End If
+                    End If
+                End If
+                If frmExtract.extract_item_def_cb.Checked Then
+                    Dim ts = itemDefXmlString
+                    Try ' catch any exception thrown
 
-                Catch ex As Exception
-                    itemDefXmlString = ts
-                    MsgBox(file_name + vbCrLf + ex.Message, MsgBoxStyle.Critical, "Shit!!")
-                    WORKING = False
-                    Return
-                End Try
+                        Dim ip = My.Settings.res_mods_path + "\" + itemDefPathString.Replace(" ", "")
+                        If File.Exists(ip) Then
+                        Else
+                            If Not Directory.Exists(Path.GetDirectoryName(ip)) Then
+                                Directory.CreateDirectory(Path.GetDirectoryName(ip))
+                            End If
+                            Using fs = File.Create(ip)
+                                Using sw As New StreamWriter(fs)
+                                    sw.Write(ts)
+                                End Using
+                            End Using
+                        End If
 
-                'itemDefXmlString = ts
+                    Catch ex As Exception
+                        itemDefXmlString = ts
+                        MsgBox(file_name + vbCrLf + ex.Message, MsgBoxStyle.Critical, "Shit!!")
+                        WORKING = False
+                        Return
+                    End Try
 
+                    'itemDefXmlString = ts
+
+                End If
             End If
             Dim tar = itemDefXmlString.Split(vbCrLf)
             Dim seg_path As String = ""
@@ -7400,6 +7407,9 @@ fuckit:
 
                 For g = 1 To _group.Length - 1
                     For c = 0 To cnt - 1
+                        If _group(g).color_name Is Nothing Then
+                            Continue For
+                        End If
                         If _group(g).color_name.ToLower.Contains(cmpar(c)) Then
                             Dim nm = _group(g).color_name
                             pkg = Find_entry(nm)
@@ -7412,6 +7422,9 @@ fuckit:
                 Next
                 For g = 1 To _group.Length - 1
                     For c = 0 To cnt - 1
+                        If _group(g).normal_name Is Nothing Then
+                            Continue For
+                        End If
                         If _group(g).normal_name.ToLower.Contains(cmpar(c)) Then
                             Dim nm = _group(g).normal_name
                             pkg = Find_entry(nm)
@@ -7424,6 +7437,9 @@ fuckit:
                 Next
                 For g = 1 To _group.Length - 1
                     For c = 0 To cnt - 1
+                        If _group(g).ao_name Is Nothing Then
+                            Continue For
+                        End If
                         If _group(g).ao_name.ToLower.Contains(cmpar(c)) Then
                             Dim nm = _group(g).ao_name
                             If nm IsNot "" Then
@@ -7438,6 +7454,9 @@ fuckit:
                 Next
                 For g = 1 To _group.Length - 1
                     For c = 0 To cnt - 1
+                        If _group(g).GMM_name Is Nothing Then
+                            Continue For
+                        End If
                         If _group(g).GMM_name.ToLower.Contains(cmpar(c)) Then
                             Dim nm = _group(g).GMM_name
                             If nm IsNot "" Then
@@ -8594,6 +8613,7 @@ fuckit:
             PRIMITIVES_MODE = False
             MODEL_LOADED = False
             m_load_textures.Checked = True
+            m_extract.Enabled = True
             Return
         End If
         MODEL_LOADED = True
@@ -9851,7 +9871,13 @@ outta_here:
     Private Sub m_clear_PythonLog_Click(sender As Object, e As EventArgs) Handles m_clear_PythonLog.Click
         If File.Exists(My.Settings.game_path + "\Python.log") Then
             Dim t As String = ""
-            File.WriteAllText(My.Settings.game_path + "\python.log", t)
+            Try
+                File.WriteAllText(My.Settings.game_path + "\python.log", t)
+
+            Catch ex As Exception
+                MsgBox("world of tanks is running. THe file is locked.", MsgBoxStyle.Exclamation, "Locked File")
+                Return
+            End Try
         Else
             MsgBox("I can not find the Python.log. Have you set the game path?", MsgBoxStyle.Exclamation, "Check Game Path!")
             Return
@@ -9901,10 +9927,8 @@ outta_here:
         make_glTF()
     End Sub
 
-    Private Sub m_2016_fbx_Click(sender As Object, e As EventArgs) Handles m_2016_fbx.Click
-        fbx_vers = FileFormat.FBX7500Binary
-        EXPORT_TYPE = 2
-        make_glTF()
+    Private Sub m_2013_fbx_Click(sender As Object, e As EventArgs) Handles m_2013_fbx.Click
+        write_FBX()
     End Sub
 
     ' Function to open a web page
@@ -9947,11 +9971,6 @@ outta_here:
         Application.DoEvents()
     End Sub
 
-    Private Sub m_2013_fbx_Click(sender As Object, e As EventArgs) Handles m_2013_fbx.Click
-        fbx_vers = FileFormat.FBX7400Binary
-        EXPORT_TYPE = 2
-        make_glTF()
-    End Sub
 
     Private Sub m_rebuild_XML_Click(sender As Object, e As EventArgs) Handles m_rebuild_XML.Click
         frmXMLbuilder.ShowDialog()

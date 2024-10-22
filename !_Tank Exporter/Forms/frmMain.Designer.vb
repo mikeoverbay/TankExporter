@@ -101,7 +101,6 @@ Partial Class frmMain
         Me.ToolStripSeparator32 = New System.Windows.Forms.ToolStripSeparator()
         Me.m_export_to_glTF = New System.Windows.Forms.ToolStripMenuItem()
         Me.m_2013_fbx = New System.Windows.Forms.ToolStripMenuItem()
-        Me.m_2016_fbx = New System.Windows.Forms.ToolStripMenuItem()
         Me.ToolStripSeparator33 = New System.Windows.Forms.ToolStripSeparator()
         Me.m_export_STL = New System.Windows.Forms.ToolStripMenuItem()
         Me.m_export_to_obj = New System.Windows.Forms.ToolStripMenuItem()
@@ -636,7 +635,7 @@ Partial Class frmMain
         '
         'm_ExportExtract
         '
-        Me.m_ExportExtract.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.m_extract, Me.ToolStripSeparator32, Me.m_export_to_glTF, Me.m_2013_fbx, Me.m_2016_fbx, Me.ToolStripSeparator33, Me.m_export_STL, Me.m_export_to_obj, Me.ToolStripSeparator15, Me.m_view_res_mods_folder, Me.ToolStripSeparator6, Me.m_clean_res_mods, Me.ToolStripSeparator17, Me.m_screen_cap})
+        Me.m_ExportExtract.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.m_extract, Me.ToolStripSeparator32, Me.m_export_to_glTF, Me.m_2013_fbx, Me.ToolStripSeparator33, Me.m_export_STL, Me.m_export_to_obj, Me.ToolStripSeparator15, Me.m_view_res_mods_folder, Me.ToolStripSeparator6, Me.m_clean_res_mods, Me.ToolStripSeparator17, Me.m_screen_cap})
         Me.m_ExportExtract.Enabled = False
         Me.m_ExportExtract.Name = "m_ExportExtract"
         Me.m_ExportExtract.Size = New System.Drawing.Size(94, 23)
@@ -664,12 +663,6 @@ Partial Class frmMain
         Me.m_2013_fbx.Name = "m_2013_fbx"
         Me.m_2013_fbx.Size = New System.Drawing.Size(228, 22)
         Me.m_2013_fbx.Text = "Export 2013 FBX"
-        '
-        'm_2016_fbx
-        '
-        Me.m_2016_fbx.Name = "m_2016_fbx"
-        Me.m_2016_fbx.Size = New System.Drawing.Size(228, 22)
-        Me.m_2016_fbx.Text = "Export 2019 FBX"
         '
         'ToolStripSeparator33
         '
@@ -1451,7 +1444,7 @@ Partial Class frmMain
         'pb2
         '
         Me.pb2.Anchor = System.Windows.Forms.AnchorStyles.None
-        Me.pb2.Location = New System.Drawing.Point(54, 125)
+        Me.pb2.Location = New System.Drawing.Point(56, 125)
         Me.pb2.Name = "pb2"
         Me.pb2.Size = New System.Drawing.Size(200, 100)
         Me.pb2.TabIndex = 3
@@ -1538,7 +1531,7 @@ Partial Class frmMain
         Me.TC1.Location = New System.Drawing.Point(0, 23)
         Me.TC1.Name = "TC1"
         Me.TC1.SelectedIndex = 0
-        Me.TC1.Size = New System.Drawing.Size(22, 574)
+        Me.TC1.Size = New System.Drawing.Size(22, 580)
         Me.TC1.SizeMode = System.Windows.Forms.TabSizeMode.Fixed
         Me.TC1.TabIndex = 0
         '
@@ -1548,7 +1541,7 @@ Partial Class frmMain
         Me.TabPage1.Location = New System.Drawing.Point(4, 25)
         Me.TabPage1.Name = "TabPage1"
         Me.TabPage1.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage1.Size = New System.Drawing.Size(14, 545)
+        Me.TabPage1.Size = New System.Drawing.Size(14, 551)
         Me.TabPage1.TabIndex = 0
         Me.TabPage1.Text = "1"
         '
@@ -1558,7 +1551,7 @@ Partial Class frmMain
         Me.TabPage2.Location = New System.Drawing.Point(4, 25)
         Me.TabPage2.Name = "TabPage2"
         Me.TabPage2.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage2.Size = New System.Drawing.Size(14, 545)
+        Me.TabPage2.Size = New System.Drawing.Size(14, 551)
         Me.TabPage2.TabIndex = 1
         Me.TabPage2.Text = "2"
         '
@@ -1568,7 +1561,7 @@ Partial Class frmMain
         Me.TabPage3.Location = New System.Drawing.Point(4, 25)
         Me.TabPage3.Name = "TabPage3"
         Me.TabPage3.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage3.Size = New System.Drawing.Size(14, 545)
+        Me.TabPage3.Size = New System.Drawing.Size(14, 551)
         Me.TabPage3.TabIndex = 2
         Me.TabPage3.Text = "3"
         '
@@ -1578,7 +1571,7 @@ Partial Class frmMain
         Me.TabPage4.Location = New System.Drawing.Point(4, 25)
         Me.TabPage4.Name = "TabPage4"
         Me.TabPage4.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage4.Size = New System.Drawing.Size(14, 545)
+        Me.TabPage4.Size = New System.Drawing.Size(14, 551)
         Me.TabPage4.TabIndex = 3
         Me.TabPage4.Text = "4"
         '
@@ -1588,7 +1581,7 @@ Partial Class frmMain
         Me.TabPage5.Location = New System.Drawing.Point(4, 25)
         Me.TabPage5.Name = "TabPage5"
         Me.TabPage5.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage5.Size = New System.Drawing.Size(14, 545)
+        Me.TabPage5.Size = New System.Drawing.Size(14, 551)
         Me.TabPage5.TabIndex = 4
         Me.TabPage5.Text = "5"
         '
@@ -1598,7 +1591,7 @@ Partial Class frmMain
         Me.TabPage6.Location = New System.Drawing.Point(4, 25)
         Me.TabPage6.Name = "TabPage6"
         Me.TabPage6.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage6.Size = New System.Drawing.Size(14, 545)
+        Me.TabPage6.Size = New System.Drawing.Size(14, 551)
         Me.TabPage6.TabIndex = 5
         Me.TabPage6.Text = "6"
         '
@@ -1608,7 +1601,7 @@ Partial Class frmMain
         Me.TabPage7.Location = New System.Drawing.Point(4, 25)
         Me.TabPage7.Name = "TabPage7"
         Me.TabPage7.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage7.Size = New System.Drawing.Size(14, 545)
+        Me.TabPage7.Size = New System.Drawing.Size(14, 551)
         Me.TabPage7.TabIndex = 6
         Me.TabPage7.Text = "7"
         '
@@ -1618,7 +1611,7 @@ Partial Class frmMain
         Me.TabPage8.Location = New System.Drawing.Point(4, 25)
         Me.TabPage8.Name = "TabPage8"
         Me.TabPage8.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage8.Size = New System.Drawing.Size(14, 545)
+        Me.TabPage8.Size = New System.Drawing.Size(14, 551)
         Me.TabPage8.TabIndex = 7
         Me.TabPage8.Text = "8"
         '
@@ -1628,7 +1621,7 @@ Partial Class frmMain
         Me.TabPage9.Location = New System.Drawing.Point(4, 25)
         Me.TabPage9.Name = "TabPage9"
         Me.TabPage9.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage9.Size = New System.Drawing.Size(14, 545)
+        Me.TabPage9.Size = New System.Drawing.Size(14, 551)
         Me.TabPage9.TabIndex = 8
         Me.TabPage9.Text = "9"
         '
@@ -1638,7 +1631,7 @@ Partial Class frmMain
         Me.TabPage10.Location = New System.Drawing.Point(4, 25)
         Me.TabPage10.Name = "TabPage10"
         Me.TabPage10.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage10.Size = New System.Drawing.Size(14, 545)
+        Me.TabPage10.Size = New System.Drawing.Size(14, 551)
         Me.TabPage10.TabIndex = 9
         Me.TabPage10.Text = "10"
         '
@@ -1652,7 +1645,7 @@ Partial Class frmMain
         Me.TC2.Location = New System.Drawing.Point(0, 23)
         Me.TC2.Name = "TC2"
         Me.TC2.SelectedIndex = 0
-        Me.TC2.Size = New System.Drawing.Size(22, 574)
+        Me.TC2.Size = New System.Drawing.Size(22, 580)
         Me.TC2.TabIndex = 0
         Me.TC2.Visible = False
         '
@@ -1662,7 +1655,7 @@ Partial Class frmMain
         Me.TabPage11.Location = New System.Drawing.Point(4, 25)
         Me.TabPage11.Name = "TabPage11"
         Me.TabPage11.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage11.Size = New System.Drawing.Size(14, 545)
+        Me.TabPage11.Size = New System.Drawing.Size(14, 551)
         Me.TabPage11.TabIndex = 0
         Me.TabPage11.Text = "Result"
         '
@@ -1965,7 +1958,6 @@ Partial Class frmMain
     Friend WithEvents m_import_GLB As ToolStripMenuItem
     Friend WithEvents m_export_STL As ToolStripMenuItem
     Friend WithEvents m_import_2016_fbx As ToolStripMenuItem
-    Friend WithEvents m_2016_fbx As ToolStripMenuItem
     Friend WithEvents m_2013_fbx As ToolStripMenuItem
     Friend WithEvents ToolStripSeparator33 As ToolStripSeparator
     Friend WithEvents dgv As DataGridView
