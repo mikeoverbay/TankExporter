@@ -1660,7 +1660,7 @@ outahere:
         Dim c_new, h_new, t_new, g_new As Boolean
         CB = False : HB = False : TB = False : GB = False ' these default to false but set them anyway
         c_new = False : h_new = False : t_new = False : g_new = False
-        Dim fn As String
+        Dim fn As String = ""
         If t_fbx <> t_mdl Then
             If c_cnt <> ct Then 'something added?
                 CB = True

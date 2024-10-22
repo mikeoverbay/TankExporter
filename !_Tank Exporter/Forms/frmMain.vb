@@ -11,7 +11,6 @@ Imports System.Xml
 Imports Ionic.Zip
 Imports Microsoft.VisualBasic.Strings
 Imports Tao.FreeGlut.Glut
-Imports Aspose.ThreeD
 Imports Tank_Exporter.shader_loader
 Imports System.Runtime.InteropServices
 Imports System.Drawing.Imaging
