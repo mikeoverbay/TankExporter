@@ -9903,7 +9903,6 @@ outta_here:
 
 
     Private Sub m_export_to_glTF_Click(sender As Object, e As EventArgs) Handles m_export_to_glTF.Click
-        EXPORT_TYPE = 1
         Try
             write_glTF()
         Catch ex As Exception
@@ -9911,21 +9910,11 @@ outta_here:
         End Try
 
     End Sub
-    Private Sub m_export_to_FBX_2_Click(sender As Object, e As EventArgs)
-        fbx_vers = FileFormat.FBX7300Binary
-        EXPORT_TYPE = 2
-        make_glTF()
-
-    End Sub
 
     Private Sub m_export_to_obj_Click(sender As Object, e As EventArgs) Handles m_export_to_obj.Click
-        EXPORT_TYPE = 3
-        make_glTF()
+        'make_glTF()
     End Sub
-    Private Sub m_export_to_collada_Click(sender As Object, e As EventArgs)
-        EXPORT_TYPE = 4
-        make_glTF()
-    End Sub
+
 
     Private Sub m_2013_fbx_Click(sender As Object, e As EventArgs) Handles m_2013_fbx.Click
         write_FBX()
@@ -9950,7 +9939,7 @@ outta_here:
     End Sub
 
     Private Sub m_export_STL_Click(sender As Object, e As EventArgs) Handles m_export_STL.Click
-        ExportBinarySTL()
+        'ExportBinarySTL()
     End Sub
 
     Private Sub m_import_2016_fbx_Click(sender As Object, e As EventArgs) Handles m_import_2016_fbx.Click

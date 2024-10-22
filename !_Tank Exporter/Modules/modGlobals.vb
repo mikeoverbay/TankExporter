@@ -25,7 +25,6 @@ Module modGlobals
 
     Public DEBUGSTRING As String = ""
     Public updateEvent As New Threading.ManualResetEvent(True) ' Starts in signaled state
-    Public fbx_vers As Aspose.ThreeD.FileFormat
     Public formAspectRatio As Double
     Public FULL_SCREEN As Boolean = False
     Public AMD_ As Boolean = False
