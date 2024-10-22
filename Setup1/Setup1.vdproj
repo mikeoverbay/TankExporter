@@ -2782,7 +2782,7 @@
         "Entry"
         {
         "MsmKey" = "8:_56EA313D3700BB6E804DF4D5E825201F"
-        "OwnerKey" = "8:_D1EB0120737E025C3572083D49A8A856"
+        "OwnerKey" = "8:_E7899766A6DB2F6E0CFECB5FC12E703B"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -2813,12 +2813,6 @@
         {
         "MsmKey" = "8:_56EA313D3700BB6E804DF4D5E825201F"
         "OwnerKey" = "8:_1EE9BCD2E547ABF7700C85A3382A0736"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_56EA313D3700BB6E804DF4D5E825201F"
-        "OwnerKey" = "8:_E7899766A6DB2F6E0CFECB5FC12E703B"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -3994,7 +3988,7 @@
         "Entry"
         {
         "MsmKey" = "8:_7C478B76D1763D944A7886584550AA25"
-        "OwnerKey" = "8:_56EA313D3700BB6E804DF4D5E825201F"
+        "OwnerKey" = "8:_04DD3D084DD4AB0B9A0D7BCBB2FAD9C8"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -4018,7 +4012,7 @@
         "Entry"
         {
         "MsmKey" = "8:_7C478B76D1763D944A7886584550AA25"
-        "OwnerKey" = "8:_04DD3D084DD4AB0B9A0D7BCBB2FAD9C8"
+        "OwnerKey" = "8:_56EA313D3700BB6E804DF4D5E825201F"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -7053,12 +7047,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_D1EB0120737E025C3572083D49A8A856"
-        "OwnerKey" = "8:_D88F02B810ED4918A9E68229BD46788B"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_D288DFF05B514EF99114D08A52D294ED"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -8566,6 +8554,12 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_44E421C5592B1314600BEABC21672932"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_D88F02B810ED4918A9E68229BD46788B"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -8620,6 +8614,24 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_56EA313D3700BB6E804DF4D5E825201F"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_97512C5231865874CFF9A247FADC5FAD"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_10B3775E7D17976C1E5DB45F40A98212"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_E7BD5664D17E83B460454F3B62D30A89"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -8656,6 +8668,12 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_7C478B76D1763D944A7886584550AA25"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_A49EF73D21F2F9B46F61C5FD7A209F62"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -8663,36 +8681,6 @@
         {
         "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_04506A9CE1FE9ECD66AD092EFD47DDBC"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_D1EB0120737E025C3572083D49A8A856"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_56EA313D3700BB6E804DF4D5E825201F"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_7C478B76D1763D944A7886584550AA25"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_97512C5231865874CFF9A247FADC5FAD"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_10B3775E7D17976C1E5DB45F40A98212"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -8729,12 +8717,6 @@
         {
         "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_CB3B11DAE9A90D5EB814C84C32997A74"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_44E421C5592B1314600BEABC21672932"
         "MsmSig" = "8:_UNDEFINED"
         }
     }
@@ -8782,7 +8764,7 @@
         "DisplayName" = "8:Release"
         "IsDebugOnly" = "11:FALSE"
         "IsReleaseOnly" = "11:TRUE"
-        "OutputFilename" = "8:..\\..\\Tank Exporter MSI\\Tank_Exporter_153.msi"
+        "OutputFilename" = "8:..\\..\\Tank Exporter MSI\\Tank_Exporter_154.msi"
         "PackageFilesAs" = "3:2"
         "PackageFileSize" = "3:-2147483648"
         "CabType" = "3:1"
@@ -31860,37 +31842,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_D1EB0120737E025C3572083D49A8A856"
-            {
-            "AssemblyRegister" = "3:1"
-            "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:Aspose.3D, Version=24.7.1.0, Culture=neutral, PublicKeyToken=f071c641d0b4582b, processorArchitecture=MSIL"
-                "ScatterAssemblies"
-                {
-                    "_D1EB0120737E025C3572083D49A8A856"
-                    {
-                    "Name" = "8:Aspose.3D.dll"
-                    "Attributes" = "3:512"
-                    }
-                }
-            "SourcePath" = "8:Aspose.3D.dll"
-            "TargetName" = "8:"
-            "Tag" = "8:"
-            "Folder" = "8:_9BBCA850C4D847C495C4D74DD189C10E"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:TRUE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D288DFF05B514EF99114D08A52D294ED"
             {
             "SourcePath" = "8:..\\!_Tank Exporter\\resources\\decals\\stone_road_01_NM.dds"
@@ -37105,15 +37056,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Tank Exporter"
-        "ProductCode" = "8:{03ECD0BF-2F11-452A-BD12-4D2C2777A29C}"
-        "PackageCode" = "8:{3E262DA8-1433-4280-9B43-F23D5601C08E}"
+        "ProductCode" = "8:{1EECF189-05FC-4647-B304-F9DE78022E6B}"
+        "PackageCode" = "8:{C33A4A8D-0B31-4274-8C8D-2020B0F31666}"
         "UpgradeCode" = "8:{6ABAF23A-CB3D-4411-B78A-4855B5B5A0CD}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:1.0.153"
+        "ProductVersion" = "8:1.0.154"
         "Manufacturer" = "8:Coffee_"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
@@ -37665,7 +37616,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_D88F02B810ED4918A9E68229BD46788B"
             {
-            "SourcePath" = "8:..\\!_Tank Exporter\\obj\\x86\\Debug\\!_Tank Exporter.exe"
+            "SourcePath" = "8:..\\!_Tank Exporter\\obj\\x86\\Release\\!_Tank Exporter.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_9BBCA850C4D847C495C4D74DD189C10E"

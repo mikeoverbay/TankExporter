@@ -174,9 +174,9 @@ Module put_glTF
                 ' Create mesh primitives using triangle indices
                 For i As UInt32 = 1 To _group(item).nPrimitives_
                     prim.AddTriangle(
-            vertices(_group(item).indices(i).v1 - off),
-            vertices(_group(item).indices(i).v2 - off),
-            vertices(_group(item).indices(i).v3 - off)
+            vertices(_group(item).indices(i).v1),
+            vertices(_group(item).indices(i).v2),
+            vertices(_group(item).indices(i).v3)
         )
                 Next
 
@@ -204,9 +204,9 @@ Module put_glTF
                 ' Create mesh primitives using triangle indices
                 For i As UInt32 = 1 To _group(item).nPrimitives_
                     prim.AddTriangle(
-            vertices(_group(item).indices(i).v1 - off),
-            vertices(_group(item).indices(i).v2 - off),
-            vertices(_group(item).indices(i).v3 - off)
+            vertices(_group(item).indices(i).v1),
+            vertices(_group(item).indices(i).v2),
+            vertices(_group(item).indices(i).v3)
         )
                 Next
 
@@ -231,9 +231,9 @@ Module put_glTF
                 ' Create mesh primitives using triangle indices
                 For i As UInt32 = 1 To _group(item).nPrimitives_
                     prim.AddTriangle(
-            vertices(_group(item).indices(i).v1 - off),
-            vertices(_group(item).indices(i).v2 - off),
-            vertices(_group(item).indices(i).v3 - off)
+            vertices(_group(item).indices(i).v1),
+            vertices(_group(item).indices(i).v2),
+            vertices(_group(item).indices(i).v3)
         )
                 Next
             End If
