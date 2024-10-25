@@ -6,7 +6,6 @@ Imports System.Text
 Imports SharpGLTF.Schema2
 Imports Assimp.Configs
 Imports System.Security.Cryptography
-Imports VJson
 
 Module modPrimWriter
     Public OBJECT_WAS_INSERTED As Boolean
@@ -1433,22 +1432,22 @@ no_UV2EVER:
                             v.y -= fbxgrp(parent).matrix(13)
                             v.z -= fbxgrp(parent).matrix(14)
 
-                            n.x = -comp.vertices(k).nx
+                            n.x = comp.vertices(k).nx
                             n.y = -comp.vertices(k).ny
-                            n.z = -comp.vertices(k).nz
-                            n = transform_lighting(n, fbxgrp(pnter).matrix)
+                            n.z = comp.vertices(k).nz
+                            'n = transform_lighting(n, fbxgrp(pnter).matrix)
                             'n = New vect3
 
-                            tn.x = -comp.vertices(k).tx
+                            tn.x = comp.vertices(k).tx
                             tn.y = -comp.vertices(k).ty
-                            tn.z = -comp.vertices(k).tz
-                            tn = transform_lighting(tn, fbxgrp(pnter).matrix)
+                            tn.z = comp.vertices(k).tz
+                            'tn = transform_lighting(tn, fbxgrp(pnter).matrix)
                             'tn = New vect3
 
                             bn.x = -comp.vertices(k).bnx
                             bn.y = -comp.vertices(k).bny
-                            bn.z = -comp.vertices(k).bnz
-                            bn = transform_lighting(bn, fbxgrp(pnter).matrix)
+                            bn.z = comp.vertices(k).bnz
+                            'bn = transform_lighting(bn, fbxgrp(pnter).matrix)
                         End If
 
 
@@ -1654,7 +1653,7 @@ no_UV2EVER:
                 'note: my routine uses other rotation
                 If fbxgrp(pnter).is_new_model Then
                     If ind_scale = 2 Then
-                        If frmWritePrimitive.flipWindingOrder_cb.Checked And Not id = 4 Then
+                        If frmWritePrimitive.flipWindingOrder_cb.Checked And Not id = 4 And Not id = 4 Then
                             br.Write(Convert.ToUInt16(comp.indices(j + 0) + off))
                             br.Write(Convert.ToUInt16(comp.indices(j + 1) + off))
                             br.Write(Convert.ToUInt16(comp.indices(j + 2) + off))
@@ -1668,7 +1667,7 @@ no_UV2EVER:
                         If comp.indices(j + 1) + off > cnt Then cnt = comp.indices(j + 1) + off
                         If comp.indices(j + 2) + off > cnt Then cnt = comp.indices(j + 2) + off
                     Else
-                        If frmWritePrimitive.flipWindingOrder_cb.Checked Or fbxgrp(pnter).reverse_winding And Not id = 4 Then
+                        If frmWritePrimitive.flipWindingOrder_cb.Checked Or fbxgrp(pnter).reverse_winding And Not id = 4 And Not id = 4 Then
                             br.Write(Convert.ToUInt32(comp.indices(j + 0) + off))
                             br.Write(Convert.ToUInt32(comp.indices(j + 1) + off))
                             br.Write(Convert.ToUInt32(comp.indices(j + 2) + off))
@@ -1684,7 +1683,7 @@ no_UV2EVER:
                     End If
                 Else
                     If ind_scale = 2 Then
-                        If frmWritePrimitive.flipWindingOrder_cb.Checked Or fbxgrp(pnter).reverse_winding Or id = 4 Then
+                        If frmWritePrimitive.flipWindingOrder_cb.Checked Or fbxgrp(pnter).reverse_winding Or id = 4 Or id = 1 Then
                             br.Write(Convert.ToUInt16(comp.indices(j + 1) + off))
                             br.Write(Convert.ToUInt16(comp.indices(j + 0) + off))
                             br.Write(Convert.ToUInt16(comp.indices(j + 2) + off))
@@ -1697,7 +1696,7 @@ no_UV2EVER:
                         If comp.indices(j + 1) + off > cnt Then cnt = comp.indices(j + 1) + off
                         If comp.indices(j + 2) + off > cnt Then cnt = comp.indices(j + 2) + off
                     Else
-                        If frmWritePrimitive.flipWindingOrder_cb.Checked Or fbxgrp(pnter).reverse_winding Or id = 4 Then
+                        If frmWritePrimitive.flipWindingOrder_cb.Checked Or fbxgrp(pnter).reverse_winding Or id = 4 Or id = 1 Then
                             br.Write(Convert.ToUInt32(comp.indices(j + 1) + off))
                             br.Write(Convert.ToUInt32(comp.indices(j + 0) + off))
                             br.Write(Convert.ToUInt32(comp.indices(j + 2) + off))
@@ -1709,6 +1708,7 @@ no_UV2EVER:
                         If comp.indices(j + 0) + off > cnt Then cnt = comp.indices(j + 0) + off
                         If comp.indices(j + 1) + off > cnt Then cnt = comp.indices(j + 1) + off
                         If comp.indices(j + 2) + off > cnt Then cnt = comp.indices(j + 2) + off
+
                     End If
                 End If
             Next

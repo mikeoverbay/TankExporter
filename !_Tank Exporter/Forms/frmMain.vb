@@ -185,13 +185,7 @@ Public Class frmMain
         Catch ex As Exception
 
         End Try
-        Try
-            For i = 1 To 10
-                packages_HD(i).Dispose()
-            Next
-        Catch ex As Exception
 
-        End Try
         '--------------------------------------------------------
         '--------------------------------------------------------
 

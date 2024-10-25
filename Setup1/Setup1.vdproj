@@ -8554,12 +8554,6 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_44E421C5592B1314600BEABC21672932"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_D88F02B810ED4918A9E68229BD46788B"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -8719,6 +8713,12 @@
         "OwnerKey" = "8:_CB3B11DAE9A90D5EB814C84C32997A74"
         "MsmSig" = "8:_UNDEFINED"
         }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_44E421C5592B1314600BEABC21672932"
+        "MsmSig" = "8:_UNDEFINED"
+        }
     }
     "Configurations"
     {
@@ -8764,7 +8764,7 @@
         "DisplayName" = "8:Release"
         "IsDebugOnly" = "11:FALSE"
         "IsReleaseOnly" = "11:TRUE"
-        "OutputFilename" = "8:..\\..\\Tank Exporter MSI\\Tank_Exporter_154.msi"
+        "OutputFilename" = "8:..\\..\\Tank Exporter MSI\\Tank_Exporter_155.msi"
         "PackageFilesAs" = "3:2"
         "PackageFileSize" = "3:-2147483648"
         "CabType" = "3:1"
@@ -9141,11 +9141,6 @@
             "AssemblyAsmDisplayName" = "8:VJson, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_0308082C11603F67D64FE967251CD76B"
-                    {
-                    "Name" = "8:VJson.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:VJson.dll"
             "TargetName" = "8:"
@@ -27585,11 +27580,6 @@
             "AssemblyAsmDisplayName" = "8:System.Text.Json, Version=8.0.0.4, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_AB3C10497F9E11A2CB4AF04DC1242B55"
-                    {
-                    "Name" = "8:System.Text.Json.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:System.Text.Json.dll"
             "TargetName" = "8:"
@@ -37056,15 +37046,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Tank Exporter"
-        "ProductCode" = "8:{1EECF189-05FC-4647-B304-F9DE78022E6B}"
-        "PackageCode" = "8:{C33A4A8D-0B31-4274-8C8D-2020B0F31666}"
+        "ProductCode" = "8:{65099831-1B0B-4ACA-99C4-83A93A29F7CC}"
+        "PackageCode" = "8:{39920699-03B9-4A49-8077-84D5A97DDF1F}"
         "UpgradeCode" = "8:{6ABAF23A-CB3D-4411-B78A-4855B5B5A0CD}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:1.0.154"
+        "ProductVersion" = "8:1.0.155"
         "Manufacturer" = "8:Coffee_"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
@@ -37616,7 +37606,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_D88F02B810ED4918A9E68229BD46788B"
             {
-            "SourcePath" = "8:..\\!_Tank Exporter\\obj\\x86\\Release\\!_Tank Exporter.exe"
+            "SourcePath" = "8:"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_9BBCA850C4D847C495C4D74DD189C10E"

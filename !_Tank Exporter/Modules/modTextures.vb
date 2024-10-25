@@ -1952,6 +1952,7 @@ skip_hd:
         Dim texID As UInt32
 
         updateEvent.Reset()
+        Thread.Sleep(100)
         texID = Ilu.iluGenImage() ' /* Generation of one image name */
         Il.ilBindImage(texID) '; /* Binding of image name */
         Dim success = Il.ilGetError

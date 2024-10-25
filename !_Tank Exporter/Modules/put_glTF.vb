@@ -98,8 +98,8 @@ Module put_glTF
         For item = 1 To object_count
             Dim extras As New ExtrasData()
 
-            fix_winding_order_group(item)
             check_normal_y_group(item)
+            fix_winding_order_group(item)
 
             ' Create a material and assign texture maps if available
             Dim MyMaterialBuilder As New MaterialBuilder("Material00" + item.ToString) With {.ShaderStyle = "PBRMetallicRoughness"}
