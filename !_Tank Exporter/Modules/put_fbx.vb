@@ -42,7 +42,10 @@ Module put_fbx
 
         ' Create a new Assimp scene
         Dim scene As New Assimp.Scene()
-        scene.RootNode = New Assimp.Node("RootNode")
+        ' Ensure the root node exists
+        If scene.RootNode Is Nothing Then
+            scene.RootNode = New Assimp.Node("RootNode")
+        End If
         ' Loop through your model data and create meshes
         For i As Integer = 1 To _group.Length - 1
             Dim model_name = _group(i).name.Replace("/", "\")
@@ -65,17 +68,17 @@ Module put_fbx
                 Dim arr = _group(i).color_name.Split("\")
                 Dim diffuseTexturePath As String = name + "\" + arr(arr.Length - 1).Replace(".dds", ".png")
                 Dim diffuseTextureSlot As New Assimp.TextureSlot(
-                    diffuseTexturePath,
-                    TextureType.Diffuse,
-                    0,
-                    TextureMapping.FromUV,
-                    0,
-                    0.0F,
-                    TextureOperation.Add,
-                    TextureWrapMode.Wrap,
-                    TextureWrapMode.Wrap,
-                    0
-                )
+            diffuseTexturePath,
+            TextureType.Diffuse,
+            0,
+            TextureMapping.FromUV,
+            0,
+            0.0F,
+            TextureOperation.Add,
+            TextureWrapMode.Wrap,
+            TextureWrapMode.Wrap,
+            0
+        )
                 material.AddMaterialTexture(diffuseTextureSlot)
             End If
 
@@ -84,17 +87,17 @@ Module put_fbx
                 Dim arr = _group(i).normal_name.Split("\")
                 Dim normalTexturePath As String = name + "\" + arr(arr.Length - 1).Replace(".dds", ".png")
                 Dim normalTextureSlot As New Assimp.TextureSlot(
-                    normalTexturePath,
-                    TextureType.Normals,
-                    0,
-                    TextureMapping.FromUV,
-                    0,
-                    0.0F,
-                    TextureOperation.Add,
-                    TextureWrapMode.Wrap,
-                    TextureWrapMode.Wrap,
-                    0
-                )
+            normalTexturePath,
+            TextureType.Normals,
+            0,
+            TextureMapping.FromUV,
+            0,
+            0.0F,
+            TextureOperation.Add,
+            TextureWrapMode.Wrap,
+            TextureWrapMode.Wrap,
+            0
+        )
                 material.AddMaterialTexture(normalTextureSlot)
             End If
 
@@ -103,12 +106,11 @@ Module put_fbx
             Dim materialIndex As Integer = scene.Materials.Count - 1
 
             ' Create mesh with assigned material index
-            Dim mesh As New Assimp.Mesh(meshData.name, materialIndex)
-
-
+            Dim mesh As New Assimp.Mesh(meshData.name, PrimitiveType.Triangle)
+            mesh.MaterialIndex = materialIndex
             '==================================================================
             ' Continue with adding vertices, faces, etc.
-            ' Initialize texture coordinate channels.. ect
+            ' Initialize texture coordinate channels.. etc.
             '==================================================================
 
             mesh.TextureCoordinateChannels(0) = New List(Of Assimp.Vector3D)()
@@ -126,22 +128,16 @@ Module put_fbx
                 mesh.VertexColorChannels(0) = New List(Of Assimp.Color4D)()
             End If
 
-            ' Initialize a dictionary to store bones (if weights are used)
-            Dim boneDict As New Dictionary(Of String, Assimp.Bone)()
-
             ' Add vertices
             For j As Integer = 0 To meshData.nVertices_ - 1
                 Dim vert = meshData.vertices(j)
                 ' Add position
                 mesh.Vertices.Add(New Assimp.Vector3D(vert.x, vert.y, vert.z))
-
-                ' Add normals if they exist
-                If Not (vert.nx = 0 AndAlso vert.ny = 0 AndAlso vert.nz = 0) Then
-                    mesh.Normals.Add(New Assimp.Vector3D(vert.nx, vert.ny, vert.nz))
-                End If
+                mesh.Normals.Add(New Assimp.Vector3D(vert.nx, vert.ny, vert.nz))
 
                 ' Add texture coordinates
                 mesh.TextureCoordinateChannels(0).Add(New Assimp.Vector3D(vert.u, vert.v, 0))
+
                 If meshData.has_uv2 = 1 Then
                     mesh.TextureCoordinateChannels(1).Add(New Assimp.Vector3D(vert.u2, vert.v2, 0))
                 End If
@@ -161,75 +157,40 @@ Module put_fbx
                     mesh.VertexColorChannels(0).Add(color1)
                 End If
 
-                ' Handle weights if applicable (code not shown)
-                ' ...
             Next
+
             ' Add faces (triangles)
             For j As Integer = 1 To meshData.indices.Length - 1
                 ' Create an array of indices for the face
                 Dim faceIndices() As Integer = {
-                    CInt(meshData.indices(j).v1),
-                    CInt(meshData.indices(j).v2),
-                    CInt(meshData.indices(j).v3)
-                }
+            CInt(meshData.indices(j).v1),
+            CInt(meshData.indices(j).v2),
+            CInt(meshData.indices(j).v3)
+        }
                 ' Create a new face with these indices
                 Dim face As New Assimp.Face(faceIndices)
                 ' Add the face to the mesh
                 mesh.Faces.Add(face)
             Next
+
             scene.Meshes.Add(mesh)
-
-            ' Create a node for the mesh and attach it to the root node
-            Dim node As New Assimp.Node("Node_" & i)
-            Dim metaNode As New Assimp.Node("Node_" & i)
-
-            ' Add custom metadata (texture paths and status) to the node
-            ' Create a Metadata object
-
-
-            Dim meta = metaNode.Metadata
-
-            ' Add key-value pairs to the metadata using the correct method
-            If Not String.IsNullOrEmpty(_group(i).color_name) Then
-                meta.Add("base", New Assimp.Metadata.Entry(MetaDataType.String, _group(i).color_name))
-            End If
-
-            If Not String.IsNullOrEmpty(_group(i).ao_name) Then
-                meta.Add("ao", New Assimp.Metadata.Entry(MetaDataType.String, _group(i).ao_name))
-            End If
-
-            If Not String.IsNullOrEmpty(_group(i).GMM_name) Then
-                meta.Add("gmm", New Assimp.Metadata.Entry(MetaDataType.String, _group(i).GMM_name))
-            End If
-
-            If Not String.IsNullOrEmpty(_group(i).normal_name) Then
-                meta.Add("normal", New Assimp.Metadata.Entry(MetaDataType.String, _group(i).normal_name))
-            End If
-
-            ' Add export folder and status
-            meta.Add("exportfolder", New Assimp.Metadata.Entry(MetaDataType.String, save_path))
-            meta.Add("status", New Assimp.Metadata.Entry(MetaDataType.String, "TANK"))
-
-
-
-            scene.RootNode.Children.Add(metaNode)
-
+            ' Assign the mesh to the root node
+            scene.RootNode.MeshIndices.Add(scene.Meshes.Count - 1)
         Next
 
         ' Create an AssimpContext for exporting
         Dim exporter As New AssimpContext()
 
-        ' Export options to prevent texture embedding
         ' Try to export the scene
-        Try
-            exporter.ExportFile(scene, savePath, "fbx")
+        Dim status = exporter.ExportFile(scene, out_path, "fbx")
+        Dim fmts = exporter.GetSupportedExportFormats
+        If status Then
             MessageBox.Show("FBX file saved successfully.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information)
-        Catch ex As Exception
-            MessageBox.Show("Error exporting FBX file: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
-        End Try
+        Else
+            MessageBox.Show("Error exporting FBX file: Export returned false.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+        End If
+
     End Sub
-
-
 
 
 End Module

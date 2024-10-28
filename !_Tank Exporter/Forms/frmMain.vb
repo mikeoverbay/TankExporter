@@ -531,6 +531,21 @@ done:
         pb1.Visible = False
         iconbox.Visible = False
         Application.DoEvents()
+
+        TC1.Height = SplitContainer2.Panel1.Height - SearchBox.Height
+        TC1.Width = SplitContainer2.Panel1.Width
+        TC1.Location = New Point(0, SearchBox.Height)
+        TC1.Margin = New Padding(0, 0, 0, 0)
+        TC1.Anchor = AnchorStyles.Top Or AnchorStyles.Left Or AnchorStyles.Right Or AnchorStyles.Bottom
+        TC1.DrawMode = TabDrawMode.OwnerDrawFixed
+
+        TC2.Height = SplitContainer2.Panel1.Height - SearchBox.Height
+        TC2.Width = SplitContainer2.Panel1.Width
+        TC2.Location = New Point(0, SearchBox.Height)
+        TC2.Margin = New Padding(0, 0, 0, 0)
+        TC2.Anchor = AnchorStyles.Top Or AnchorStyles.Left Or AnchorStyles.Right Or AnchorStyles.Bottom
+        TC2.DrawMode = TabDrawMode.OwnerDrawFixed
+
         pb1.Visible = True
         frmState = Me.WindowState
         info_Label.BringToFront()
@@ -538,6 +553,7 @@ done:
         info_Label.Size = MM.Size
         info_Label.Dock = DockStyle.Top
         MM.Location = New Point(0, 0)
+        TC1.Anchor = AnchorStyles.Top Or AnchorStyles.Left Or AnchorStyles.Right Or AnchorStyles.Bottom
         info_Label.Text = ""
         Me.Text = " Tank Exporter Version: " + Application.ProductVersion
         intro_label.Text += Application.ProductVersion
@@ -622,6 +638,8 @@ done:
         m_hide_show_components.Enabled = False
         m_set_vertex_winding_order.Enabled = False
 
+        API_REGION = My.Settings.region_selection
+        m_region_combo.SelectedItem = API_REGION
         '---------------------------------------------------------------------------------------------------------------------
         '---------------------------------------------------------------------------------------------------------------------
         'just to convert to .te binary models;
@@ -9910,7 +9928,7 @@ outta_here:
 
 
     Private Sub m_2013_fbx_Click(sender As Object, e As EventArgs) Handles m_2013_fbx.Click
-        write_FBX()
+        export_aspose_fbx()
     End Sub
 
     ' Function to open a web page
@@ -10070,5 +10088,57 @@ outta_here:
 
         updateGUI()
         decal_matrix_list(current_decal_data_pnt).Set_UI_and_Matrices()
+    End Sub
+
+    Private Sub TC1_DrawItem(sender As Object, e As DrawItemEventArgs) Handles TC1.DrawItem
+        Dim tabPage As TabPage = TC1.TabPages(e.Index)
+        Dim tabBounds As Rectangle = TC1.GetTabRect(e.Index)
+
+        ' Customize background color
+        If e.State = DrawItemState.Selected Then
+            e.Graphics.FillRectangle(Brushes.DarkOrange, tabBounds)
+        Else
+            e.Graphics.FillRectangle(Brushes.Gray, tabBounds)
+        End If
+
+        ' Customize text
+        Dim sf As New StringFormat
+        sf.Alignment = StringAlignment.Center
+        sf.LineAlignment = StringAlignment.Center
+
+        ' Choose text color based on selection
+        Dim textColor As Brush = If(e.State = DrawItemState.Selected, Brushes.Black, Brushes.White)
+
+        ' Draw the tab text
+        e.Graphics.DrawString(tabPage.Text, e.Font, textColor, tabBounds, sf)
+
+        ' Optional: Draw a border around the tab
+        e.Graphics.DrawRectangle(Pens.Black, tabBounds)
+    End Sub
+
+    Private Sub TC2_DrawItem(sender As Object, e As DrawItemEventArgs) Handles TC2.DrawItem
+        Dim tabPage As TabPage = TC2.TabPages(e.Index)
+        Dim tabBounds As Rectangle = TC2.GetTabRect(e.Index)
+
+        ' Customize background color
+        If e.State = DrawItemState.Selected Then
+            e.Graphics.FillRectangle(Brushes.LightBlue, tabBounds)
+        Else
+            e.Graphics.FillRectangle(Brushes.Gray, tabBounds)
+        End If
+
+        ' Customize text
+        Dim sf As New StringFormat
+        sf.Alignment = StringAlignment.Center
+        sf.LineAlignment = StringAlignment.Center
+
+        ' Choose text color based on selection
+        Dim textColor As Brush = If(e.State = DrawItemState.Selected, Brushes.Black, Brushes.White)
+
+        ' Draw the tab text
+        e.Graphics.DrawString(tabPage.Text, e.Font, textColor, tabBounds, sf)
+
+        ' Optional: Draw a border around the tab
+        e.Graphics.DrawRectangle(Pens.Black, tabBounds)
     End Sub
 End Class

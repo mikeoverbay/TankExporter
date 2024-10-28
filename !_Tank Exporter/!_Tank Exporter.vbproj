@@ -27,8 +27,8 @@
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>false</MapFileExtensions>
     <OpenBrowserOnPublish>false</OpenBrowserOnPublish>
-    <ApplicationRevision>155</ApplicationRevision>
-    <ApplicationVersion>1.0.0.155</ApplicationVersion>
+    <ApplicationRevision>158</ApplicationRevision>
+    <ApplicationVersion>1.0.0.158</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
@@ -130,6 +130,9 @@
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Aspose.3D, Version=24.9.0.0, Culture=neutral, PublicKeyToken=f071c641d0b4582b, processorArchitecture=MSIL">
+      <HintPath>..\packages\Aspose.3D.24.9.0\lib\net46\Aspose.3D.dll</HintPath>
+    </Reference>
     <Reference Include="AssimpNet, Version=4.1.0.0, Culture=neutral, PublicKeyToken=0d51b391f59f42a6, processorArchitecture=MSIL">
       <HintPath>..\packages\AssimpNet.4.1.0\lib\net40\AssimpNet.dll</HintPath>
     </Reference>
@@ -390,6 +393,7 @@
     <Compile Include="Modules\get_glTF.vb" />
     <Compile Include="Modules\modBloom.vb" />
     <Compile Include="Modules\mod_DDS_loader.vb" />
+    <Compile Include="Modules\mod_Exporter.vb" />
     <Compile Include="Modules\mod_FindTankParts.vb" />
     <Compile Include="Modules\modDecals.vb" />
     <Compile Include="Modules\modFBX.vb" />
@@ -398,7 +402,6 @@
     <Compile Include="Modules\modTrackUtilites.vb" />
     <Compile Include="Modules\modUpton.vb" />
     <Compile Include="Modules\modVisualParser.vb" />
-    <Compile Include="Modules\mod_Exporter.vb" />
     <Compile Include="Modules\put_glTF.vb" />
     <Compile Include="Modules\put_STL.vb" />
     <Compile Include="Modules\WorkFBO.vb" />
@@ -772,6 +775,7 @@
     <Content Include="7zxa.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="assimp.dll" />
     <Content Include="cttools.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

@@ -62,6 +62,7 @@ Module get_glTF
             Else
 
                 MsgBox("You forgot to export properties.")
+                Return False
             End If
 
             For Each scene In model.LogicalScenes

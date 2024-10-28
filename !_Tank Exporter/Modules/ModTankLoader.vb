@@ -1028,9 +1028,9 @@ next_m:
                     If i = 21 Then
                         'Stop
                     End If
-                    round_signed_to(tbuf(i).x, 3)
-                    round_signed_to(tbuf(i).y, 3)
-                    round_signed_to(tbuf(i).z, 3)
+                    round_signed_to(tbuf(i).x, 4)
+                    round_signed_to(tbuf(i).y, 4)
+                    round_signed_to(tbuf(i).z, 4)
 
 
                     If realNormals Then
