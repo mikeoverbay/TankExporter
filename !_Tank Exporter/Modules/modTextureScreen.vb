@@ -159,6 +159,9 @@ Module modTextureScreen
         TANK_TEXTURES_VISIBLE = True
     End Sub
     Public Sub texture_button_clicked(ByVal tex_id As Integer, ByVal part_id As Integer)
+        If frmMain.m_shadows.Checked Then
+            frmMain.m_shadows.Checked = False
+        End If
         current_image = tex_id
         current_tank_part = part_id
         frmTextureViewer.Visible = True

@@ -2865,12 +2865,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_57B6F95EE0FD478E9EBA4FBEDAFEDD3C"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_58028386591B4E098AE5C11BDF4F2288"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -8397,6 +8391,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_FC8C6ED642DC4EE0954DA84BFA7C04A9"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_FCAFBA7E95B14A0E95981655A961F15F"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -8733,7 +8733,7 @@
         "DisplayName" = "8:Debug"
         "IsDebugOnly" = "11:TRUE"
         "IsReleaseOnly" = "11:FALSE"
-        "OutputFilename" = "8:..\\..\\Tank Exporter MSI\\Tank_Exporter_158.msi"
+        "OutputFilename" = "8:..\\..\\Tank Exporter MSI\\Tank_Exporter_161.msi"
         "PackageFilesAs" = "3:2"
         "PackageFileSize" = "3:-2147483648"
         "CabType" = "3:1"
@@ -8770,7 +8770,7 @@
         "DisplayName" = "8:Release"
         "IsDebugOnly" = "11:FALSE"
         "IsReleaseOnly" = "11:TRUE"
-        "OutputFilename" = "8:..\\..\\Tank Exporter MSI\\Tank_Exporter_157.msi"
+        "OutputFilename" = "8:..\\..\\Tank Exporter MSI\\Tank_Exporter_161.msi"
         "PackageFilesAs" = "3:2"
         "PackageFileSize" = "3:-2147483648"
         "CabType" = "3:1"
@@ -18060,26 +18060,6 @@
             "TargetName" = "8:Paving_Sidewalk_01_GMM.dds"
             "Tag" = "8:"
             "Folder" = "8:_8A7ED6DFBBED4BBAB13BD7B51B86F1EA"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_57B6F95EE0FD478E9EBA4FBEDAFEDD3C"
-            {
-            "SourcePath" = "8:..\\!_Tank Exporter\\tanks\\tanknames.txt"
-            "TargetName" = "8:tanknames.txt"
-            "Tag" = "8:"
-            "Folder" = "8:_868A44CB35C24A0A88284122FF9C7813"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -36310,6 +36290,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_FC8C6ED642DC4EE0954DA84BFA7C04A9"
+            {
+            "SourcePath" = "8:..\\!_Tank Exporter\\assimp.dll"
+            "TargetName" = "8:assimp.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_9BBCA850C4D847C495C4D74DD189C10E"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_FCAFBA7E95B14A0E95981655A961F15F"
             {
             "SourcePath" = "8:..\\!_Tank Exporter\\resources\\decals\\PBS_ASH_01_NM.dds"
@@ -37062,15 +37062,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Tank Exporter"
-        "ProductCode" = "8:{C7733CDA-0B52-4363-9F3B-C3B166F0EEB5}"
-        "PackageCode" = "8:{B2B56410-11C2-4DD9-8E23-05041D6BA6DC}"
+        "ProductCode" = "8:{CFB40C15-87CF-4FDD-8E8D-54C8D363AF2F}"
+        "PackageCode" = "8:{2ECB8F4C-1D90-44DE-A8B7-32679D1F1E03}"
         "UpgradeCode" = "8:{6ABAF23A-CB3D-4411-B78A-4855B5B5A0CD}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:1.0.158"
+        "ProductVersion" = "8:1.0.161"
         "Manufacturer" = "8:Coffee_"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
@@ -37622,7 +37622,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_D88F02B810ED4918A9E68229BD46788B"
             {
-            "SourcePath" = "8:"
+            "SourcePath" = "8:..\\!_Tank Exporter\\obj\\x86\\Release\\!_Tank Exporter.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_9BBCA850C4D847C495C4D74DD189C10E"

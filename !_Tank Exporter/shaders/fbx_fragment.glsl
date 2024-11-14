@@ -6,11 +6,12 @@ uniform vec3 lightColor[3];  // Array for the colors of 3 lights
 uniform vec3 lightPos[3];    // Array for the positions of 3 lights
 uniform float S_level;       // Specular level
 uniform float A_level;       // Ambient level
+uniform int fbx_enableVcolor;
 
+in vec3 Vcolor;
 in vec2 TC1;                 // Texture coordinates
 in vec3 vVertex;             // Vertex position in world space
 in mat3 TBN;                 // Tangent, Bitangent, Normal matrix (TBN)
-
 out vec4 color_out;          // Final output color
 
 void main(void) {
@@ -45,4 +46,13 @@ void main(void) {
 
     // Final color output
     color_out = vec4(finalColor + ambientColor, baseColor.a); // Preserve alpha from the base color
+    if (fbx_enableVcolor == 1)
+    {
+
+        float contrast = 0.99; // Higher than 1.0 increases contrast
+        vec3 adjustedColor = (Vcolor - 0.5) * contrast + 0.5;
+        adjustedColor = smoothstep(0.0, 0.05, adjustedColor);
+        adjustedColor = clamp(adjustedColor, 0.0, 1.0);
+        color_out.rgb = clamp((adjustedColor * 2.0), 0.0, 1.0);
+    }
 }

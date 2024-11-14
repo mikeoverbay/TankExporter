@@ -247,17 +247,17 @@ Module modShadow
         Select Case selected_light
 
             Case 0
-                cx = position0(0)
-                cy = position0(1)
-                cz = position0(2)
+                cx = lightPositions(0)
+                cy = lightPositions(1)
+                cz = lightPositions(2)
             Case 1
-                cx = position1(0)
-                cy = position1(1)
-                cz = position1(2)
+                cx = lightPositions(3)
+                cy = lightPositions(4)
+                cz = lightPositions(5)
             Case 2
-                cx = position2(0)
-                cy = position2(1)
-                cz = position2(2)
+                cx = lightPositions(6)
+                cy = lightPositions(7)
+                cz = lightPositions(8)
         End Select
 
         Gl.glPushMatrix()

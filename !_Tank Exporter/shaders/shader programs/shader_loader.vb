@@ -364,7 +364,7 @@ Module shader_loader
         tank_total = Gl.glGetUniformLocation(shader_list.tank_shader, "T_level")
         tank_lightMatrix = Gl.glGetUniformLocation(shader_list.tank_shader, "shadowProjection")
         tank_use_shadow = Gl.glGetUniformLocation(shader_list.tank_shader, "use_shadow")
-        tank_colorEnable = Gl.glGetUniformLocation(shader_list.tank_shader, "enableVertexColor")
+        tank_colorEnable = Gl.glGetUniformLocation(shader_list.tank_shader, "tank_colorEnable")
         tank_is_Track = Gl.glGetUniformLocation(shader_list.tank_shader, "is_track")
         tank_use_GMM_Toy = Gl.glGetUniformLocation(shader_list.tank_shader, "use_GMM_Toy")
         tank_GMM_Toy_value = Gl.glGetUniformLocation(shader_list.tank_shader, "GMM_Toy")
@@ -374,8 +374,12 @@ Module shader_loader
     '==============================================================================================================
     Public fbx_ambient, fbx_specular, fbx_level As Integer
     Public fbx_colorMap, fbx_specularMap, fbx_normalMap, fbx_is_GAmap, fbx_bumped As Integer
-    Public fbx_alphatest, fbx_enableVcolor As Integer
+    Public fbx_alphatest, fbx_enableVcolor, fbx_cameraPos As Integer
+    Public fbx_lightPosLoc, fbx_lightColorLoc As Integer
     Private Sub set_fbx_shader_variables()
+        fbx_lightPosLoc = Gl.glGetUniformLocation(shader_list.fbx_shader, "lightPos")
+        fbx_lightColorLoc = Gl.glGetUniformLocation(shader_list.fbx_shader, "lightColor")
+        fbx_cameraPos = Gl.glGetUniformLocation(shader_list.fbx_shader, "cameraPos")
         fbx_ambient = Gl.glGetUniformLocation(shader_list.fbx_shader, "A_level")
         fbx_specular = Gl.glGetUniformLocation(shader_list.fbx_shader, "S_level")
         fbx_level = Gl.glGetUniformLocation(shader_list.fbx_shader, "T_level")
@@ -385,7 +389,7 @@ Module shader_loader
         fbx_is_GAmap = Gl.glGetUniformLocation(shader_list.fbx_shader, "is_GAmap")
         fbx_bumped = Gl.glGetUniformLocation(shader_list.fbx_shader, "bumped")
         fbx_alphatest = Gl.glGetUniformLocation(shader_list.fbx_shader, "alphaTest")
-        fbx_enableVcolor = Gl.glGetUniformLocation(shader_list.fbx_shader, "enableVcolor")
+        fbx_enableVcolor = Gl.glGetUniformLocation(shader_list.fbx_shader, "fbx_enableVcolor")
     End Sub
 
     '==============================================================================================================

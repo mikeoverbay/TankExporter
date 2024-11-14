@@ -99,7 +99,7 @@ Partial Class frmExtract
         Me.create_work_area_cb.Size = New System.Drawing.Size(111, 17)
         Me.create_work_area_cb.TabIndex = 7
         Me.create_work_area_cb.Text = "Create Work Area"
-        Me.TT.SetToolTip(Me.create_work_area_cb, "Creates a fold called Work Area in the tanks root folder." & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "It copies the AM map t" & _
+        Me.TT.SetToolTip(Me.create_work_area_cb, "Creates a fold called Work Area in the tanks root folder." & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "It copies the AM map t" &
         "o this folder as a PNG for editing.")
         Me.create_work_area_cb.UseVisualStyleBackColor = True
         '
@@ -119,8 +119,6 @@ Partial Class frmExtract
         'extract_item_def_cb
         '
         Me.extract_item_def_cb.AutoSize = True
-        Me.extract_item_def_cb.Checked = True
-        Me.extract_item_def_cb.CheckState = System.Windows.Forms.CheckState.Checked
         Me.extract_item_def_cb.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.extract_item_def_cb.ForeColor = System.Drawing.Color.FromArgb(CType(CType(0, Byte), Integer), CType(CType(192, Byte), Integer), CType(CType(0, Byte), Integer))
         Me.extract_item_def_cb.Location = New System.Drawing.Point(27, 240)
@@ -147,8 +145,6 @@ Partial Class frmExtract
         'gui_cb
         '
         Me.gui_cb.AutoSize = True
-        Me.gui_cb.Checked = True
-        Me.gui_cb.CheckState = System.Windows.Forms.CheckState.Checked
         Me.gui_cb.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.gui_cb.ForeColor = System.Drawing.Color.FromArgb(CType(CType(0, Byte), Integer), CType(CType(192, Byte), Integer), CType(CType(0, Byte), Integer))
         Me.gui_cb.Location = New System.Drawing.Point(27, 223)
@@ -162,8 +158,7 @@ Partial Class frmExtract
         'ext_chassis
         '
         Me.ext_chassis.AutoSize = True
-        Me.ext_chassis.Checked = True
-        Me.ext_chassis.CheckState = System.Windows.Forms.CheckState.Checked
+        Me.ext_chassis.Enabled = False
         Me.ext_chassis.Location = New System.Drawing.Point(27, 144)
         Me.ext_chassis.Name = "ext_chassis"
         Me.ext_chassis.Size = New System.Drawing.Size(88, 17)
@@ -174,8 +169,6 @@ Partial Class frmExtract
         'ext_hull
         '
         Me.ext_hull.AutoSize = True
-        Me.ext_hull.Checked = True
-        Me.ext_hull.CheckState = System.Windows.Forms.CheckState.Checked
         Me.ext_hull.Location = New System.Drawing.Point(27, 161)
         Me.ext_hull.Name = "ext_hull"
         Me.ext_hull.Size = New System.Drawing.Size(70, 17)
@@ -186,8 +179,6 @@ Partial Class frmExtract
         'ext_turret
         '
         Me.ext_turret.AutoSize = True
-        Me.ext_turret.Checked = True
-        Me.ext_turret.CheckState = System.Windows.Forms.CheckState.Checked
         Me.ext_turret.Location = New System.Drawing.Point(27, 179)
         Me.ext_turret.Name = "ext_turret"
         Me.ext_turret.Size = New System.Drawing.Size(78, 17)
@@ -198,8 +189,6 @@ Partial Class frmExtract
         'ext_gun
         '
         Me.ext_gun.AutoSize = True
-        Me.ext_gun.Checked = True
-        Me.ext_gun.CheckState = System.Windows.Forms.CheckState.Checked
         Me.ext_gun.Location = New System.Drawing.Point(27, 198)
         Me.ext_gun.Name = "ext_gun"
         Me.ext_gun.Size = New System.Drawing.Size(70, 17)

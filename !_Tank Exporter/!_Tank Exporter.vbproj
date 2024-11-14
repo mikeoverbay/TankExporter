@@ -27,8 +27,8 @@
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>false</MapFileExtensions>
     <OpenBrowserOnPublish>false</OpenBrowserOnPublish>
-    <ApplicationRevision>158</ApplicationRevision>
-    <ApplicationVersion>1.0.0.158</ApplicationVersion>
+    <ApplicationRevision>161</ApplicationRevision>
+    <ApplicationVersion>1.0.0.161</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
@@ -775,7 +775,9 @@
     <Content Include="7zxa.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="assimp.dll" />
+    <Content Include="assimp.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="cttools.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -4610,7 +4612,7 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <Content Include="SlimDX.dll" />
-    <Content Include="tanks\tanknames.txt">
+    <Content Include="tanks\_tanknames.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="freeglut.dll">

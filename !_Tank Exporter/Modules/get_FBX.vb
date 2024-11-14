@@ -15,7 +15,7 @@ Module get_FBX
         GLB = False
 
         frmMain.OpenFileDialog1.Filter = "FBX|*.fbx"
-        frmMain.OpenFileDialog1.Title = "Save FBX.."
+        frmMain.OpenFileDialog1.Title = "Open FBX.."
         frmMain.OpenFileDialog1.FileName = My.Settings.fbx_path
         frmMain.OpenFileDialog1.InitialDirectory = Path.GetDirectoryName(My.Settings.fbx_path)
         Dim result = frmMain.OpenFileDialog1.ShowDialog
@@ -32,8 +32,12 @@ Module get_FBX
 
         frmMain.clean_house()
         remove_loaded_fbx()
+        frmMain.info_Label.Visible = True
 
         Try
+            frmMain.info_Label.Text = "loading FBX: " + open_path
+            Application.DoEvents()
+
             Dim scene As Scene = importer.ImportFile(open_path, Assimp.PostProcessSteps.Triangulate _
                                                      Or Assimp.PostProcessSteps.JoinIdenticalVertices)
             Dim materials As List(Of Assimp.Material) = scene.Materials.ToList
@@ -58,10 +62,14 @@ Module get_FBX
                 Next
                 item = 1
                 For Each mesh As Mesh In scene.Meshes
+                    frmMain.info_Label.Text = "reading model: " + item.ToString
+                    Application.DoEvents()
+
                     If mesh.Name.ToLower.Contains("~") Then
-                        fbxgrp(item).name = mesh.Name 'existing tank part
+                        fbxgrp(item).name = scene.RootNode.Children(item - 1).Name 'existing tank part
                     Else
-                        fbxgrp(item).name = mesh.Name ' new model
+                        fbxgrp(item).name = scene.RootNode.Children(item - 1).Name ' new model
+                        fbxgrp(item).is_new_model = True
                     End If
                     ReDim fbxgrp(item).vertices(mesh.VertexCount - 1)
                     ReDim fbxgrp(item).indices(mesh.FaceCount - 1)
@@ -87,9 +95,24 @@ Module get_FBX
                         ' Ensure each face has exactly 3 indices (triangulated mesh)
                         If face.Indices.Count = 3 Then
                             fbxgrp(item).indices(cnt) = New uvect3
-                            fbxgrp(item).indices(cnt).v1 = face.Indices(0)
-                            fbxgrp(item).indices(cnt).v2 = face.Indices(1)
-                            fbxgrp(item).indices(cnt).v3 = face.Indices(2)
+                            If fbxgrp(item).name.ToLower.Contains("turret") Or
+                              fbxgrp(item).name.ToLower.Contains("hull") Or
+                              fbxgrp(item).name.ToLower.Contains("gun") Then
+
+                                If Not fbxgrp(item).name.ToLower.Contains("~") Then
+                                    fbxgrp(item).indices(cnt).v1 = face.Indices(0)
+                                    fbxgrp(item).indices(cnt).v2 = face.Indices(1)
+                                    fbxgrp(item).indices(cnt).v3 = face.Indices(2)
+                                Else
+                                    fbxgrp(item).indices(cnt).v2 = face.Indices(0)
+                                    fbxgrp(item).indices(cnt).v1 = face.Indices(1)
+                                    fbxgrp(item).indices(cnt).v3 = face.Indices(2)
+                                End If
+                            Else
+                                fbxgrp(item).indices(cnt).v1 = face.Indices(0)
+                                fbxgrp(item).indices(cnt).v2 = face.Indices(1)
+                                fbxgrp(item).indices(cnt).v3 = face.Indices(2)
+                            End If
                             cnt += 1
                         Else
                             MsgBox("Non-triangulated face found.", MsgBoxStyle.Critical, "Triangulate before exporting!")
@@ -98,18 +121,49 @@ Module get_FBX
                         End If
                     Next
 
-                    Dim vertexIndex As Integer = 0 ' To keep track of global vertex index across primitives
-                    For Each vert In mesh.Vertices
+                    Dim vertexIndex As Integer = 0
+                    Dim vcnt = mesh.VertexCount ' To keep track of global vertex index across primitives
+                    Debug.WriteLine("---------------------" + item.ToString)
+                    For J = 0 To vcnt - 1
+                        Dim vert = mesh.Vertices(J)
                         fbxgrp(item).stride = 32
-                        If cnt = mesh.VertexCount Then Exit For ' Ensure we do not exceed the array bounds
+
                         fbxgrp(item).vertices(vertexIndex) = New vertice_
                         fbxgrp(item).vertices(vertexIndex).x = vert.X
                         fbxgrp(item).vertices(vertexIndex).y = vert.Y
                         fbxgrp(item).vertices(vertexIndex).z = vert.Z
                         If mesh.HasNormals Then
+
                             fbxgrp(item).vertices(vertexIndex).nx = mesh.Normals(vertexIndex).X
                             fbxgrp(item).vertices(vertexIndex).ny = mesh.Normals(vertexIndex).Y
                             fbxgrp(item).vertices(vertexIndex).nz = mesh.Normals(vertexIndex).Z
+                            Dim vn = New vect3
+                            vn.x = fbxgrp(item).vertices(vertexIndex).nx
+                            vn.y = fbxgrp(item).vertices(vertexIndex).ny
+                            vn.z = fbxgrp(item).vertices(vertexIndex).nz
+                            vn = normalize(vn)
+                            If fbxgrp(item).name.ToLower.Contains("turret") Or
+                              fbxgrp(item).name.ToLower.Contains("hull") Then
+
+                                If Not fbxgrp(item).name.ToLower.Contains("~") Then
+                                    'new
+                                    'vn.x *= -1
+                                    'vn.y *= -1
+                                    'vn.z *= -1
+                                Else
+                                    'old
+                                    vn.x *= -1
+                                    'vn.z *= -1
+                                End If
+                            Else
+                                'chassis
+                                vn.x *= -1
+                                'vn.z *= -1
+                            End If
+                            fbxgrp(item).vertices(vertexIndex).nx = vn.x
+                            fbxgrp(item).vertices(vertexIndex).ny = vn.y
+                            fbxgrp(item).vertices(vertexIndex).nz = vn.z
+
                         End If
                         If mesh.HasTextureCoords(0) Then
                             fbxgrp(item).vertices(vertexIndex).u = mesh.TextureCoordinateChannels(0)(vertexIndex).X
@@ -122,23 +176,29 @@ Module get_FBX
                         Else
                             fbxgrp(item).has_uv2 = 0
                         End If
-                        If mesh.HasVertexColors(1) Then
+                        If mesh.VertexColorChannelCount = 1 Then
                             fbxgrp(item).stride = 37
                             fbxgrp(item).has_color = 1
-                            Dim c = mesh.VertexColorChannels(1)(vertexIndex)
-                            fbxgrp(item).vertColor(vertexIndex) = New Vector4()
-                            fbxgrp(item).vertColor(vertexIndex).X = CByte(c.R * 255)
-                            fbxgrp(item).vertColor(vertexIndex).Y = CByte(c.G * 255)
-                            fbxgrp(item).vertColor(vertexIndex).Z = CByte(c.B * 255)
-                            fbxgrp(item).vertColor(vertexIndex).W = 255
+                            Dim c = mesh.VertexColorChannels(0)(vertexIndex)
+                            fbxgrp(item).vertices(vertexIndex).index_1 = CByte(c.R * 255)
+                            fbxgrp(item).vertices(vertexIndex).index_2 = CByte(c.G * 255)
+                            fbxgrp(item).vertices(vertexIndex).index_3 = CByte(c.B * 255)
+                            fbxgrp(item).vertices(vertexIndex).index_4 = 255
                         End If
-                        If mesh.HasVertexColors(0) Then
+                        If mesh.VertexColorChannelCount = 2 Then
                             fbxgrp(item).stride = 40
                             fbxgrp(item).has_color = 1
                             Dim c = mesh.VertexColorChannels(0)(vertexIndex)
-                            fbxgrp(item).vertColor(vertexIndex).X = CByte(c.R * 255)
-                            fbxgrp(item).vertColor(vertexIndex).Y = CByte(c.G * 255)
-                            fbxgrp(item).vertColor(vertexIndex).Z = CByte(c.B * 255)
+                            fbxgrp(item).vertices(vertexIndex).index_1 = CByte(c.R * 255)
+                            fbxgrp(item).vertices(vertexIndex).index_2 = CByte(c.G * 255)
+                            fbxgrp(item).vertices(vertexIndex).index_3 = CByte(c.B * 255)
+                            fbxgrp(item).vertices(vertexIndex).index_4 = 255
+
+                            c = mesh.VertexColorChannels(1)(vertexIndex)
+                            fbxgrp(item).vertices(vertexIndex).weight_1 = CByte(c.R * 255)
+                            fbxgrp(item).vertices(vertexIndex).weight_2 = CByte(c.G * 255)
+                            fbxgrp(item).vertices(vertexIndex).weight_3 = CByte(c.B * 255)
+                            fbxgrp(item).vertices(vertexIndex).weight_4 = 255
                         End If
                         vertexIndex += 1
                     Next
@@ -147,10 +207,15 @@ Module get_FBX
                     'Console.WriteLine("Mesh Name: " & mesh.Name)
                     'Console.WriteLine("Number of Vertices: " & mesh.VertexCount)
                     'Console.WriteLine("Number of Faces: " & mesh.FaceCount)
-                    create_TBNS(item)
+                    'check_normal(item)
+                    'create_TBNS(item)
+                    Debug.WriteLine("---------------------")
                     item += 1
                 Next
                 For i = 1 To fbxgrp.Length - 1
+                    frmMain.info_Label.Text = "loading texture set: " + i.ToString
+                    Application.DoEvents()
+
                     If Not fbxgrp(i).name.Contains("~") Then
                         fbxgrp(i).is_new_model = True
                         _group(i).is_new_model = True
@@ -180,7 +245,7 @@ Module get_FBX
                 GC.Collect()
                 GC.WaitForFullGCComplete()
 
-                '===================================================================
+                '===================================================================\
                 process_fbx_data()
                 '===================================================================
                 For i = 1 To object_count - 1
@@ -224,6 +289,9 @@ Module get_FBX
             MsgBox(ex.Message, MsgBoxStyle.Exclamation, "error")
             remove_loaded_fbx()
         End Try
+        frmMain.info_Label.Visible = False
+        view_radius = -10.0!
+        look_point_y = 1.0
     End Sub
     Public Sub EchoOpenGLMatrix(openGLMatrix() As Double)
         ' Create a string to store the formatted matrix

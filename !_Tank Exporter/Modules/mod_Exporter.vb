@@ -7,6 +7,7 @@ Imports Aspose.ThreeD.Shading
 'Imports System.Net.WebRequestMethods
 Imports System.IO
 Imports Aspose.ThreeD.Formats
+Imports System.Diagnostics.Eventing.Reader
 'Imports Skill.FbxSDK.FbxAxisSystem
 
 
@@ -69,7 +70,7 @@ Module mod_Exporter
             If item = 23 Then
                 Stop
             End If
-            Dim off = _group(item).startVertex_
+            Dim off = 0 '_group(item).startVertex_
 
             Dim model_name = _group(item).name.Replace("/", "\")
             model_name = model_name.Replace(":", "~")
@@ -82,23 +83,43 @@ Module mod_Exporter
             Dim base = scene_.RootNode.CreateChildNode(model_name)
 
             'create mesh pirmitive face indice set
-            For i As UInteger = 1 To _group(item).nPrimitives_
-                m.CreatePolygon(_group(item).indices(i).v1 - off, _group(item).indices(i).v2 - off,
-                                  _group(item).indices(i).v3 - off)
-            Next
+            If Not String.IsNullOrEmpty(_group(item).color_name) Then
+
+                If _group(item).color_name.Contains("turret") Or
+                        _group(item).color_name.Contains("hull") Then
+
+                    For i As UInteger = 1 To _group(item).nPrimitives_
+                        m.CreatePolygon(_group(item).indices(i).v1 - off, _group(item).indices(i).v2 - off,
+                                      _group(item).indices(i).v3 - off)
+                    Next
+                Else
+                    For i As UInteger = 1 To _group(item).nPrimitives_
+                        m.CreatePolygon(_group(item).indices(i).v1 - off, _group(item).indices(i).v2 - off,
+                                      _group(item).indices(i).v3 - off)
+                    Next
+
+                End If
+            Else
+                For i As UInteger = 1 To _group(item).nPrimitives_
+                    m.CreatePolygon(_group(item).indices(i).v1 - off, _group(item).indices(i).v2 - off,
+                                      _group(item).indices(i).v3 - off)
+                Next
+            End If
 
             Dim norm As New VertexElementNormal
             ReDim normals(_group(item).nVertices_ - 1)
             For i As UInt32 = 0 To _group(item).nVertices_ - 1
                 normals(i).X = _group(item).vertices(i).nx
                 normals(i).Y = _group(item).vertices(i).ny
-                'If _group(item).color_name IsNot Nothing Then
-                '    If _group(item).color_name.ToLower.Contains("track") Or
-                '        _group(item).color_name.ToLower.Contains("turret") Or
-                '        _group(item).color_name.ToLower.Contains("hull") Then
-                '        normals(i).Y *= -1.0F
-                '    End If
-                'End If
+                If _group(item).color_name.Contains("turret") Or
+                        _group(item).color_name.Contains("hull") Or
+                        _group(item).color_name.Contains("gun") Then
+                Else
+                    normals(i).X *= -1
+
+                End If
+
+
                 normals(i).Z = _group(item).vertices(i).nz
             Next
             norm.SetData(normals)
@@ -129,10 +150,10 @@ Module mod_Exporter
                 Dim vcolor As New VertexElementVertexColor
                 ReDim normals(_group(item).nVertices_ - 1)
                 For i As UInt32 = 0 To _group(item).nVertices_ - 1
-                    normals(i).X = _group(item).vertices(i).r
-                    normals(i).Y = _group(item).vertices(i).g
-                    normals(i).X = _group(item).vertices(i).b
-                    normals(i).W = _group(item).vertices(i).a
+                    normals(i).X = _group(item).vertices(i).index_1 / 255.0!
+                    normals(i).Y = _group(item).vertices(i).index_2 / 255.0!
+                    normals(i).Z = _group(item).vertices(i).index_3 / 255.0!
+                    normals(i).W = _group(item).vertices(i).index_4 / 255.0!
                 Next
                 vcolor.SetData(normals)
 
@@ -141,10 +162,10 @@ Module mod_Exporter
                 Dim vcolor2 As New VertexElementVertexColor
                 ReDim normals(_group(item).nVertices_ - 1)
                 For i As UInt32 = 0 To _group(item).nVertices_ - 1
-                    normals(i).X = _group(item).vertices(i).ir
-                    normals(i).Y = _group(item).vertices(i).ig
-                    normals(i).Z = _group(item).vertices(i).ib
-                    normals(i).W = _group(item).vertices(i).ia
+                    normals(i).X = _group(item).vertices(i).weight_1 / 255.0!
+                    normals(i).Y = _group(item).vertices(i).weight_2 / 255.0!
+                    normals(i).Z = _group(item).vertices(i).weight_3 / 255.0!
+                    normals(i).W = _group(item).vertices(i).weight_4 / 255.0!
                 Next
                 vcolor2.SetData(normals)
                 m.AddElement(vcolor2)
@@ -357,7 +378,7 @@ Module mod_Exporter
                 scene_.Save(save_options.FileName, save_options)
                 Exit Select
             Case 2
-                Dim save_options As New FbxSaveOptions(FileFormat.FBX7300Binary)
+                Dim save_options As New FbxSaveOptions(FileFormat.FBX7400Binary)
                 save_options.EmbedTextures = False
                 save_options.VideoForTexture = True
                 save_options.GenerateVertexElementMaterial = True

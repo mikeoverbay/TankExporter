@@ -8,7 +8,7 @@ out vec3 Vcolor;
 out vec3 n;
 void main(void) {
 
-    Vcolor =  gl_MultiTexCoord3.xyz;
+    Vcolor = gl_MultiTexCoord3.xyz;
 
     TC1 = gl_MultiTexCoord0.xy;
 
@@ -19,6 +19,6 @@ void main(void) {
     TBN = mat3(t * invmax, b * invmax, n * invmax);
     vVertex = vec3(gl_ModelViewMatrix * gl_Vertex);
 
-    gl_Position    = ftransform();
+    gl_Position = ftransform();
 
 }

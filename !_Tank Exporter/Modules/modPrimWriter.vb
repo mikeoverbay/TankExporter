@@ -1218,8 +1218,12 @@ no_UV2EVER:
         Dim ar = fn.Split(":")
         fn = ar(0)
         fn = fn.Replace(".primitives", ".visual")
+        If MessageBox.Show("You are about to over write the Visual File!" + vbCrLf _
+                      + "Any changes are about to be lost! Do it Anyway?",
+                      "Warning!", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2) = MsgBoxResult.Yes Then
+            File.WriteAllText(My.Settings.res_mods_path + "\" + fn.Replace(".model", ".visual_processed"), f)
 
-        File.WriteAllText(My.Settings.res_mods_path + "\" + fn.Replace(".model", ".visual_processed"), f)
+        End If
 
         updateEvent.Set()
 
@@ -1300,6 +1304,132 @@ no_UV2EVER:
         Return pat.Replace("\", "/")
     End Function
 
+    Private Sub write_list_data(ByVal id As Integer)
+        Dim xyz As New xyznuvtb_
+        Dim len_vertex As UInt32 = Marshal.SizeOf(xyz)
+        For i = 1 To obj_cnt
+            pnter = m_groups(id).list(i - 1)
+            '-------------------------------------------------------------
+            frmMain.info_Label.Text = "Compacting Data ID=" + pnter.ToString
+            Application.DoEvents()
+            compact_primitive(pnter, fbxgrp(pnter).comp)
+            '-------------------------------------------------------------
+
+        Next
+        total_indices = 0
+        For i = 1 To obj_cnt
+            pnter = m_groups(id).list(i - 1)
+            total_indices += fbxgrp(pnter).indices.Length
+        Next
+        Dim h2() = "list".ToArray
+        ind_scale = 2
+        If total_indices > &HFFFF Then
+            ind_scale = 4
+            h2 = "list32".ToArray
+        End If
+        ReDim Preserve h2(63)
+        br.Write(h2)
+        br.Write(total_indices * 3)
+        br.Write(Convert.ToUInt32(obj_cnt)) 'write how many objects there are in this model
+        Dim off As UInt32 = 0
+        For i = 1 To obj_cnt
+            Dim cnt = 0
+            pnter = m_groups(id).list(i - 1)
+            '-------------------------------------------------------------
+            '-------------------------------------------------------------
+            Dim comp As comp_ = fbxgrp(pnter).comp
+
+            For j As UInt32 = 0 To comp.indi_cnt - 1 Step 3
+                'note: my routine uses other rotation
+                If fbxgrp(pnter).is_new_model Then
+                    If ind_scale = 2 Then
+                        If frmWritePrimitive.flipWindingOrder_cb.Checked And Not id = 4 And Not id = 1 Then
+                            br.Write(Convert.ToUInt16(comp.indices(j + 0) + off))
+                            br.Write(Convert.ToUInt16(comp.indices(j + 1) + off))
+                            br.Write(Convert.ToUInt16(comp.indices(j + 2) + off))
+                        Else
+                            br.Write(Convert.ToUInt16(comp.indices(j + 1) + off))
+                            br.Write(Convert.ToUInt16(comp.indices(j + 0) + off))
+                            br.Write(Convert.ToUInt16(comp.indices(j + 2) + off))
+
+                        End If
+                        If comp.indices(j + 0) + off > cnt Then cnt = comp.indices(j + 0) + off
+                        If comp.indices(j + 1) + off > cnt Then cnt = comp.indices(j + 1) + off
+                        If comp.indices(j + 2) + off > cnt Then cnt = comp.indices(j + 2) + off
+                    Else
+                        If frmWritePrimitive.flipWindingOrder_cb.Checked Or fbxgrp(pnter).reverse_winding And Not id = 4 And Not id = 1 Then
+                            br.Write(Convert.ToUInt32(comp.indices(j + 0) + off))
+                            br.Write(Convert.ToUInt32(comp.indices(j + 1) + off))
+                            br.Write(Convert.ToUInt32(comp.indices(j + 2) + off))
+                        Else
+                            br.Write(Convert.ToUInt32(comp.indices(j + 1) + off))
+                            br.Write(Convert.ToUInt32(comp.indices(j + 0) + off))
+                            br.Write(Convert.ToUInt32(comp.indices(j + 2) + off))
+
+                        End If
+                        If comp.indices(j + 0) + off > cnt Then cnt = comp.indices(j + 0) + off
+                        If comp.indices(j + 1) + off > cnt Then cnt = comp.indices(j + 1) + off
+                        If comp.indices(j + 2) + off > cnt Then cnt = comp.indices(j + 2) + off
+                    End If
+                Else
+                    If ind_scale = 2 Then
+                        If frmWritePrimitive.flipWindingOrder_cb.Checked Or fbxgrp(pnter).reverse_winding Or id = 4 Or id = 1 Then
+                            br.Write(Convert.ToUInt16(comp.indices(j + 0) + off))
+                            br.Write(Convert.ToUInt16(comp.indices(j + 1) + off))
+                            br.Write(Convert.ToUInt16(comp.indices(j + 2) + off))
+                        Else
+                            br.Write(Convert.ToUInt16(comp.indices(j + 1) + off))
+                            br.Write(Convert.ToUInt16(comp.indices(j + 0) + off))
+                            br.Write(Convert.ToUInt16(comp.indices(j + 2) + off))
+                        End If
+                        If comp.indices(j + 0) + off > cnt Then cnt = comp.indices(j + 0) + off
+                        If comp.indices(j + 1) + off > cnt Then cnt = comp.indices(j + 1) + off
+                        If comp.indices(j + 2) + off > cnt Then cnt = comp.indices(j + 2) + off
+                    Else
+                        If frmWritePrimitive.flipWindingOrder_cb.Checked Or fbxgrp(pnter).reverse_winding Or id = 4 Or id = 1 Then
+                            br.Write(Convert.ToUInt32(comp.indices(j + 0) + off))
+                            br.Write(Convert.ToUInt32(comp.indices(j + 1) + off))
+                            br.Write(Convert.ToUInt32(comp.indices(j + 2) + off))
+                        Else
+                            br.Write(Convert.ToUInt32(comp.indices(j + 1) + off))
+                            br.Write(Convert.ToUInt32(comp.indices(j + 0) + off))
+                            br.Write(Convert.ToUInt32(comp.indices(j + 2) + off))
+                        End If
+                        If comp.indices(j + 0) + off > cnt Then cnt = comp.indices(j + 0) + off
+                        If comp.indices(j + 1) + off > cnt Then cnt = comp.indices(j + 1) + off
+                        If comp.indices(j + 2) + off > cnt Then cnt = comp.indices(j + 2) + off
+
+                    End If
+                End If
+            Next
+            off += comp.vert_cnt
+        Next
+        Dim s_index, s_vertex As UInt32
+        indi_cnt = 0
+        For i = 1 To obj_cnt
+            pnter = m_groups(id).list(i - 1)
+            Dim pnter2 = pnter
+            If i > 1 Then
+                pnter2 = m_groups(id).list(i - 2) 'we have to do it this way because added items wont be in order
+                s_index += fbxgrp(pnter2).comp.indi_cnt
+                s_vertex += fbxgrp(pnter2).comp.vert_cnt
+            End If
+            pnter = m_groups(id).list(i - 1)
+            br.Write(s_index)
+            br.Write(CInt(fbxgrp(pnter).comp.nPrimitives))
+            br.Write(s_vertex)
+            br.Write(fbxgrp(pnter).comp.vert_cnt)
+        Next
+        l = (br.BaseStream.Position) Mod 4L
+        Ipadding = l
+        Debug.WriteLine("indices" + vbTab + "base {0} , mod-4 {1} " + vbCrLf, br.BaseStream.Position, (br.BaseStream.Position) Mod 4L)
+        If l > 0 Then
+            For i = 1 To 4 - l
+                br.Write(b)
+            Next
+        End If
+
+    End Sub
     Private Sub write_vertex_data(ByVal id As Integer)
         Dim j As Integer
         Dim h() = "                         ".ToArray
@@ -1342,9 +1472,9 @@ no_UV2EVER:
         For i = 1 To obj_cnt
 
             pnter = m_groups(id).list(i - 1)
-            create_TBNS2(pnter)
+            'create_TBNS2(pnter)
             'fix_winding_order(pnter)
-            'check_normal_y(pnter)
+            'check_normalpnter)
             'create_TBNS2(pnter)
             '-------------------------------------------------------------
             Application.DoEvents()
@@ -1363,25 +1493,27 @@ no_UV2EVER:
                     If id = 4 Then
                         v = gun_new_transform(v, fbxgrp(pnter).matrix)
                         If Not GLB Then
+                            'FBX GUN
                             v.x -= fbxgrp(parent).matrix(12)
                             v.y -= fbxgrp(parent).matrix(13)
                             v.z += fbxgrp(parent).matrix(14)
 
                             n.x = -comp.vertices(k).nx
-                            n.y = comp.vertices(k).ny
+                            n.y = -comp.vertices(k).ny
                             n.z = -comp.vertices(k).nz
-                            n = gun_new_transform_lighting(n, fbxgrp(pnter).matrix)
+                            'n = gun_new_transform_lighting(n, fbxgrp(pnter).matrix)
 
                             tn.x = -comp.vertices(k).tx
-                            tn.y = comp.vertices(k).ty
+                            tn.y = -comp.vertices(k).ty
                             tn.z = -comp.vertices(k).tz
-                            tn = gun_new_transform_lighting(tn, fbxgrp(pnter).matrix)
+                            'tn = gun_new_transform_lighting(tn, fbxgrp(pnter).matrix)
 
                             bn.x = -comp.vertices(k).bnx
-                            bn.y = comp.vertices(k).bny
+                            bn.y = -comp.vertices(k).bny
                             bn.z = -comp.vertices(k).bnz
-                            bn = gun_new_transform_lighting(bn, fbxgrp(pnter).matrix)
+                            'bn = gun_new_transform_lighting(bn, fbxgrp(pnter).matrix)
                         Else
+                            'GLB GUN
                             v.x -= fbxgrp(parent).matrix(12)
                             v.y -= fbxgrp(parent).matrix(13)
                             v.z += fbxgrp(parent).matrix(14)
@@ -1406,41 +1538,38 @@ no_UV2EVER:
                     Else
                         v = transform(v, fbxgrp(pnter).matrix)
                         If Not GLB Then
+                            'FBX NOT GUN
                             v.x -= fbxgrp(parent).matrix(12)
                             v.y -= fbxgrp(parent).matrix(13)
                             v.z -= fbxgrp(parent).matrix(14)
 
                             n.x = -comp.vertices(k).nx
-                            n.y = -comp.vertices(k).ny
+                            n.y = comp.vertices(k).ny
                             n.z = -comp.vertices(k).nz
-                            n = transform_lighting(n, fbxgrp(pnter).matrix)
-                            'n = New vect3
 
                             tn.x = -comp.vertices(k).tx
-                            tn.y = -comp.vertices(k).ty
+                            tn.y = comp.vertices(k).ty
                             tn.z = -comp.vertices(k).tz
-                            tn = transform_lighting(tn, fbxgrp(pnter).matrix)
-                            'tn = New vect3
 
                             bn.x = -comp.vertices(k).bnx
-                            bn.y = -comp.vertices(k).bny
+                            bn.y = comp.vertices(k).bny
                             bn.z = -comp.vertices(k).bnz
-                            bn = transform_lighting(bn, fbxgrp(pnter).matrix)
 
                         Else
+                            'GLB NOT GUN
                             v.x -= fbxgrp(parent).matrix(12)
                             v.y -= fbxgrp(parent).matrix(13)
                             v.z -= fbxgrp(parent).matrix(14)
 
                             n.x = comp.vertices(k).nx
                             n.y = -comp.vertices(k).ny
-                            n.z = comp.vertices(k).nz
+                            n.z = -comp.vertices(k).nz
                             'n = transform_lighting(n, fbxgrp(pnter).matrix)
                             'n = New vect3
 
                             tn.x = comp.vertices(k).tx
                             tn.y = -comp.vertices(k).ty
-                            tn.z = comp.vertices(k).tz
+                            tn.z = -comp.vertices(k).tz
                             'tn = transform_lighting(tn, fbxgrp(pnter).matrix)
                             'tn = New vect3
 
@@ -1452,7 +1581,7 @@ no_UV2EVER:
 
 
                     End If
-
+                    '
                     br.Write(v.x)
                     br.Write(v.y)
                     br.Write(v.z)
@@ -1463,6 +1592,7 @@ no_UV2EVER:
 
 
                 Else
+                    'NOT NEW MODEL
                     If id = 3333 Then 'set to 3 to hide the turret, 2 for hull and so on.
                         br.Write(0.0!)
                         br.Write(0.0!)
@@ -1489,8 +1619,9 @@ no_UV2EVER:
                     comp.vertices(k).t = packnormalFBX888_writePrimitive(toFBXv(tn))
                     comp.vertices(k).bn = packnormalFBX888_writePrimitive(toFBXv(bn))
                 End If
+                'TBN flipping done.
                 If k < 5 Then
-
+                    'TBN echo for debug
                     ' Display the normal vector n
                     Debug.WriteLine("n: (" & n.x.ToString("F3") & ", " & n.y.ToString("F3") & ", " & n.z.ToString("F3") & ")")
 
@@ -1516,7 +1647,7 @@ no_UV2EVER:
                     br.Write(comp.vertices(k).weight_1)
                     br.Write(comp.vertices(k).weight_2)
                 End If
-                If id = 4 Then
+                If id = 4 Then 'stride 40
                     br.Write(comp.vertices(k).index_1)
                     br.Write(comp.vertices(k).index_2)
                     br.Write(comp.vertices(k).index_3)
@@ -1524,10 +1655,11 @@ no_UV2EVER:
 
                     br.Write(comp.vertices(k).weight_1)
                     br.Write(comp.vertices(k).weight_2)
-                    br.Write(CByte(255))
+                    br.Write(comp.vertices(k).weight_3)
                     br.Write(CByte(0))
 
                 End If
+                ' fall thru stride = 32
                 br.Write(comp.vertices(k).t)
                 br.Write(comp.vertices(k).bn)
             Next
@@ -1614,132 +1746,6 @@ no_UV2EVER:
         Dim u, v As Single
         Dim t, b As UInt32
     End Structure
-    Private Sub write_list_data(ByVal id As Integer)
-        Dim xyz As New xyznuvtb_
-        Dim len_vertex As UInt32 = Marshal.SizeOf(xyz)
-        For i = 1 To obj_cnt
-            pnter = m_groups(id).list(i - 1)
-            '-------------------------------------------------------------
-            frmMain.info_Label.Text = "Compacting Data ID=" + pnter.ToString
-            Application.DoEvents()
-            compact_primitive(pnter, fbxgrp(pnter).comp)
-            '-------------------------------------------------------------
-
-        Next
-        total_indices = 0
-        For i = 1 To obj_cnt
-            pnter = m_groups(id).list(i - 1)
-            total_indices += fbxgrp(pnter).indices.Length
-        Next
-        Dim h2() = "list".ToArray
-        ind_scale = 2
-        If total_indices > &HFFFF Then
-            ind_scale = 4
-            h2 = "list32".ToArray
-        End If
-        ReDim Preserve h2(63)
-        br.Write(h2)
-        br.Write(total_indices * 3)
-        br.Write(Convert.ToUInt32(obj_cnt)) 'write how many objects there are in this model
-        Dim off As UInt32 = 0
-        For i = 1 To obj_cnt
-            Dim cnt = 0
-            pnter = m_groups(id).list(i - 1)
-            '-------------------------------------------------------------
-            '-------------------------------------------------------------
-            Dim comp As comp_ = fbxgrp(pnter).comp
-
-            For j As UInt32 = 0 To comp.indi_cnt - 1 Step 3
-                'note: my routine uses other rotation
-                If fbxgrp(pnter).is_new_model Then
-                    If ind_scale = 2 Then
-                        If frmWritePrimitive.flipWindingOrder_cb.Checked And Not id = 4 And Not id = 4 Then
-                            br.Write(Convert.ToUInt16(comp.indices(j + 0) + off))
-                            br.Write(Convert.ToUInt16(comp.indices(j + 1) + off))
-                            br.Write(Convert.ToUInt16(comp.indices(j + 2) + off))
-                        Else
-                            br.Write(Convert.ToUInt16(comp.indices(j + 1) + off))
-                            br.Write(Convert.ToUInt16(comp.indices(j + 0) + off))
-                            br.Write(Convert.ToUInt16(comp.indices(j + 2) + off))
-
-                        End If
-                        If comp.indices(j + 0) + off > cnt Then cnt = comp.indices(j + 0) + off
-                        If comp.indices(j + 1) + off > cnt Then cnt = comp.indices(j + 1) + off
-                        If comp.indices(j + 2) + off > cnt Then cnt = comp.indices(j + 2) + off
-                    Else
-                        If frmWritePrimitive.flipWindingOrder_cb.Checked Or fbxgrp(pnter).reverse_winding And Not id = 4 And Not id = 4 Then
-                            br.Write(Convert.ToUInt32(comp.indices(j + 0) + off))
-                            br.Write(Convert.ToUInt32(comp.indices(j + 1) + off))
-                            br.Write(Convert.ToUInt32(comp.indices(j + 2) + off))
-                        Else
-                            br.Write(Convert.ToUInt32(comp.indices(j + 1) + off))
-                            br.Write(Convert.ToUInt32(comp.indices(j + 0) + off))
-                            br.Write(Convert.ToUInt32(comp.indices(j + 2) + off))
-
-                        End If
-                        If comp.indices(j + 0) + off > cnt Then cnt = comp.indices(j + 0) + off
-                        If comp.indices(j + 1) + off > cnt Then cnt = comp.indices(j + 1) + off
-                        If comp.indices(j + 2) + off > cnt Then cnt = comp.indices(j + 2) + off
-                    End If
-                Else
-                    If ind_scale = 2 Then
-                        If frmWritePrimitive.flipWindingOrder_cb.Checked Or fbxgrp(pnter).reverse_winding Or id = 4 Or id = 1 Then
-                            br.Write(Convert.ToUInt16(comp.indices(j + 1) + off))
-                            br.Write(Convert.ToUInt16(comp.indices(j + 0) + off))
-                            br.Write(Convert.ToUInt16(comp.indices(j + 2) + off))
-                        Else
-                            br.Write(Convert.ToUInt16(comp.indices(j + 0) + off))
-                            br.Write(Convert.ToUInt16(comp.indices(j + 1) + off))
-                            br.Write(Convert.ToUInt16(comp.indices(j + 2) + off))
-                        End If
-                        If comp.indices(j + 0) + off > cnt Then cnt = comp.indices(j + 0) + off
-                        If comp.indices(j + 1) + off > cnt Then cnt = comp.indices(j + 1) + off
-                        If comp.indices(j + 2) + off > cnt Then cnt = comp.indices(j + 2) + off
-                    Else
-                        If frmWritePrimitive.flipWindingOrder_cb.Checked Or fbxgrp(pnter).reverse_winding Or id = 4 Or id = 1 Then
-                            br.Write(Convert.ToUInt32(comp.indices(j + 1) + off))
-                            br.Write(Convert.ToUInt32(comp.indices(j + 0) + off))
-                            br.Write(Convert.ToUInt32(comp.indices(j + 2) + off))
-                        Else
-                            br.Write(Convert.ToUInt32(comp.indices(j + 0) + off))
-                            br.Write(Convert.ToUInt32(comp.indices(j + 1) + off))
-                            br.Write(Convert.ToUInt32(comp.indices(j + 2) + off))
-                        End If
-                        If comp.indices(j + 0) + off > cnt Then cnt = comp.indices(j + 0) + off
-                        If comp.indices(j + 1) + off > cnt Then cnt = comp.indices(j + 1) + off
-                        If comp.indices(j + 2) + off > cnt Then cnt = comp.indices(j + 2) + off
-
-                    End If
-                End If
-            Next
-            off += comp.vert_cnt
-        Next
-        Dim s_index, s_vertex As UInt32
-        indi_cnt = 0
-        For i = 1 To obj_cnt
-            pnter = m_groups(id).list(i - 1)
-            Dim pnter2 = pnter
-            If i > 1 Then
-                pnter2 = m_groups(id).list(i - 2) 'we have to do it this way because added items wont be in order
-                s_index += fbxgrp(pnter2).comp.indi_cnt
-                s_vertex += fbxgrp(pnter2).comp.vert_cnt
-            End If
-            pnter = m_groups(id).list(i - 1)
-            br.Write(s_index)
-            br.Write(CInt(fbxgrp(pnter).comp.nPrimitives))
-            br.Write(s_vertex)
-            br.Write(fbxgrp(pnter).comp.vert_cnt)
-        Next
-        l = (br.BaseStream.Position) Mod 4L
-        Ipadding = l
-        Debug.WriteLine("indices" + vbTab + "base {0} , mod-4 {1} " + vbCrLf, br.BaseStream.Position, (br.BaseStream.Position) Mod 4L)
-        If l > 0 Then
-            For i = 1 To 4 - l
-                br.Write(b)
-            Next
-        End If
-
-    End Sub
 
     Private Sub write_BSP2(ByVal id As Integer)
         'write BSP2 data if it exists
@@ -1797,7 +1803,7 @@ no_UV2EVER:
         vo.y = (m(1) * v.x) + (m(5) * v.y) + (m(9) * v.z)
         vo.z = (m(2) * v.x) + (m(6) * v.y) + (m(10) * v.z)
         ' Flip the X component
-        vo.x *= -1.0
+        'vo.x *= -1.0
         Return vo
     End Function
 

@@ -105,7 +105,7 @@ vec3 spec;
         vec3 l = normalize(u_LightDirection - v_Position);// Vector from surface point to light
         
         float len = length(v_Position - u_LightDirection);
-        float d = 300;
+        float d = 5000;
         if (len < d) { falloff = 1.0-(len/d); }
 
         spec = vec3(1.0) * pow(max(dot(r,l),0.0),4.0) * falloff * 0.030;

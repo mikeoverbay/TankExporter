@@ -168,7 +168,6 @@ Partial Class frmMain
         Me.current_decal_lable = New System.Windows.Forms.Label()
         Me.PB3 = New System.Windows.Forms.PictureBox()
         Me.font_holder = New System.Windows.Forms.Label()
-        Me.PG1 = New System.Windows.Forms.ProgressBar()
         Me.pb2 = New System.Windows.Forms.Panel()
         Me.pb1 = New System.Windows.Forms.PictureBox()
         Me.info_Label = New System.Windows.Forms.Label()
@@ -308,7 +307,7 @@ Partial Class frmMain
         '
         Me.m_import_2016_fbx.Name = "m_import_2016_fbx"
         Me.m_import_2016_fbx.Size = New System.Drawing.Size(230, 22)
-        Me.m_import_2016_fbx.Text = "Import 2013 FBX"
+        Me.m_import_2016_fbx.Text = "Import 2014 FBX"
         '
         'm_import_GLB
         '
@@ -615,6 +614,7 @@ Partial Class frmMain
         Me.m_dump_tanks.Name = "m_dump_tanks"
         Me.m_dump_tanks.Size = New System.Drawing.Size(230, 22)
         Me.m_dump_tanks.Text = "Dump All Tanks as FBX"
+        Me.m_dump_tanks.Visible = False
         '
         'm_enable_tarrain_decals
         '
@@ -662,7 +662,7 @@ Partial Class frmMain
         '
         Me.m_2013_fbx.Name = "m_2013_fbx"
         Me.m_2013_fbx.Size = New System.Drawing.Size(228, 22)
-        Me.m_2013_fbx.Text = "Export 2013 FBX"
+        Me.m_2013_fbx.Text = "Export 2014 FBX"
         '
         'ToolStripSeparator33
         '
@@ -839,7 +839,6 @@ Partial Class frmMain
         '
         Me.SplitContainer1.Panel1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center
         Me.SplitContainer1.Panel1.Controls.Add(Me.SplitContainer3)
-        Me.SplitContainer1.Panel1.Controls.Add(Me.info_Label)
         '
         'SplitContainer1.Panel2
         '
@@ -858,7 +857,7 @@ Partial Class frmMain
         Me.SplitContainer3.FixedPanel = System.Windows.Forms.FixedPanel.Panel1
         Me.SplitContainer3.ForeColor = System.Drawing.Color.White
         Me.SplitContainer3.IsSplitterFixed = True
-        Me.SplitContainer3.Location = New System.Drawing.Point(0, 23)
+        Me.SplitContainer3.Location = New System.Drawing.Point(0, 0)
         Me.SplitContainer3.Name = "SplitContainer3"
         '
         'SplitContainer3.Panel1
@@ -880,10 +879,10 @@ Partial Class frmMain
         Me.SplitContainer3.Panel2.Controls.Add(Me.decal_panel)
         Me.SplitContainer3.Panel2.Controls.Add(Me.PB3)
         Me.SplitContainer3.Panel2.Controls.Add(Me.font_holder)
-        Me.SplitContainer3.Panel2.Controls.Add(Me.PG1)
         Me.SplitContainer3.Panel2.Controls.Add(Me.pb2)
         Me.SplitContainer3.Panel2.Controls.Add(Me.pb1)
-        Me.SplitContainer3.Size = New System.Drawing.Size(942, 483)
+        Me.SplitContainer3.Panel2.Controls.Add(Me.info_Label)
+        Me.SplitContainer3.Size = New System.Drawing.Size(942, 506)
         Me.SplitContainer3.SplitterDistance = 56
         Me.SplitContainer3.SplitterWidth = 1
         Me.SplitContainer3.TabIndex = 3
@@ -1035,7 +1034,7 @@ Partial Class frmMain
         Me.intro_label.BackColor = System.Drawing.Color.FromArgb(CType(CType(255, Byte), Integer), CType(CType(128, Byte), Integer), CType(CType(0, Byte), Integer))
         Me.intro_label.Font = New System.Drawing.Font("Segoe Print", 20.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.intro_label.ForeColor = System.Drawing.Color.Black
-        Me.intro_label.Location = New System.Drawing.Point(25, 23)
+        Me.intro_label.Location = New System.Drawing.Point(25, 33)
         Me.intro_label.Name = "intro_label"
         Me.intro_label.Size = New System.Drawing.Size(296, 47)
         Me.intro_label.TabIndex = 6
@@ -1435,19 +1434,10 @@ Partial Class frmMain
         Me.font_holder.Text = "For font only"
         Me.font_holder.Visible = False
         '
-        'PG1
-        '
-        Me.PG1.Dock = System.Windows.Forms.DockStyle.Top
-        Me.PG1.Location = New System.Drawing.Point(0, 0)
-        Me.PG1.Name = "PG1"
-        Me.PG1.Size = New System.Drawing.Size(881, 23)
-        Me.PG1.TabIndex = 2
-        Me.PG1.Visible = False
-        '
         'pb2
         '
         Me.pb2.Anchor = System.Windows.Forms.AnchorStyles.None
-        Me.pb2.Location = New System.Drawing.Point(61, 125)
+        Me.pb2.Location = New System.Drawing.Point(70, 137)
         Me.pb2.Name = "pb2"
         Me.pb2.Size = New System.Drawing.Size(200, 100)
         Me.pb2.TabIndex = 3
@@ -1455,11 +1445,11 @@ Partial Class frmMain
         '
         'pb1
         '
-        Me.pb1.BackColor = System.Drawing.Color.FromArgb(CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer), CType(CType(64, Byte), Integer))
+        Me.pb1.BackColor = System.Drawing.Color.Black
         Me.pb1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
         Me.pb1.Dock = System.Windows.Forms.DockStyle.Fill
         Me.pb1.InitialImage = Nothing
-        Me.pb1.Location = New System.Drawing.Point(0, 0)
+        Me.pb1.Location = New System.Drawing.Point(0, 23)
         Me.pb1.Name = "pb1"
         Me.pb1.Size = New System.Drawing.Size(881, 479)
         Me.pb1.TabIndex = 0
@@ -1467,13 +1457,13 @@ Partial Class frmMain
         '
         'info_Label
         '
-        Me.info_Label.BackColor = System.Drawing.Color.FromArgb(CType(CType(30, Byte), Integer), CType(CType(30, Byte), Integer), CType(CType(30, Byte), Integer))
+        Me.info_Label.BackColor = System.Drawing.Color.Black
         Me.info_Label.Dock = System.Windows.Forms.DockStyle.Top
         Me.info_Label.Font = New System.Drawing.Font("Microsoft Sans Serif", 14.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.info_Label.ForeColor = System.Drawing.Color.Silver
         Me.info_Label.Location = New System.Drawing.Point(0, 0)
         Me.info_Label.Name = "info_Label"
-        Me.info_Label.Size = New System.Drawing.Size(942, 23)
+        Me.info_Label.Size = New System.Drawing.Size(881, 23)
         Me.info_Label.TabIndex = 1
         Me.info_Label.Text = "Label1"
         '
@@ -1973,7 +1963,6 @@ Partial Class frmMain
     Friend WithEvents DataColumn2 As DataColumn
     Friend WithEvents ToolStripSeparator34 As ToolStripSeparator
     Friend WithEvents m_open_wot_temp_folder As ToolStripMenuItem
-    Friend WithEvents PG1 As ProgressBar
     Friend WithEvents intro_label As Label
     Friend WithEvents decalName As DataGridViewTextBoxColumn
     Friend WithEvents decalID As DataGridViewTextBoxColumn

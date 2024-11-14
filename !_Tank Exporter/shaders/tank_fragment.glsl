@@ -30,7 +30,7 @@ uniform int is_track;
 uniform vec4 u_ScaleFGDSpec;
 uniform vec4 u_ScaleDiffBaseMR;
 uniform int use_shadow;
-uniform int enableVertexColor;
+uniform int tank_colorEnable;
 // if camo is active  1 = yes 0 = no
 uniform int use_CM;
 // if using the CM mask 1 = yes 0 = no
@@ -439,9 +439,14 @@ void main(void) {
         colorMix = mix(colorMix, vec3(metallic), u_ScaleDiffBaseMR.z);
         colorMix = mix(colorMix, vec3(perceptualRoughness), u_ScaleDiffBaseMR.w);
         gColor += vec4(pow(colorMix, vec3(1.0 / 2.2)), 1.0) * T_level;
-        if (enableVertexColor == 1)
+        if (tank_colorEnable == 1)
         {
-            gColor.rgb = (gColor.rgb * 0.0) + clamp((vertexColor * 2.0), 0.0, 1.0);
+
+            float contrast = 0.99; // Higher than 1.0 increases contrast
+            vec3 adjustedColor = (vertexColor - 0.5) * contrast + 0.5;
+            adjustedColor = smoothstep(0.0, 0.05, adjustedColor);
+            adjustedColor = clamp(adjustedColor, 0.0, 1.0);
+            gColor.rgb = clamp((adjustedColor * 2.0), 0.0, 1.0);
         }
 
 

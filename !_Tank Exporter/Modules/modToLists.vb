@@ -80,11 +80,7 @@ Module modToLists
 
             Return comp
             '==================================================================
-
-            frmMain.PG1.Value = 0
-            frmMain.PG1.Maximum = fbxgrp(fbx_id).nPrimitives_ * 3 - 1
             For i As Integer = 0 To fbxgrp(fbx_id).nPrimitives_
-                frmMain.PG1.Value = i
                 Dim id As Integer = get_vert(fbxgrp(fbx_id).vertices(i), indx, v_cnt, comp)
                 If id > -1 Then
                     comp.indices(i_cnt) = indx

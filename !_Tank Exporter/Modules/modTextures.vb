@@ -1062,7 +1062,8 @@ save_it:
 
 
             Dim n_id, c_id, m_id, ao_id, detail_id, g_det_id As Integer
-
+            updateEvent.Reset()
+            Thread.Sleep(100)
             c_id = get_texture_id(diffuse, id)
             n_id = get_texture_id(normal, id)
             m_id = get_texture_id(metal, id)
@@ -1117,8 +1118,11 @@ save_it:
                 _group(id).use_normapMap = 1
             End If
         Catch ex As Exception
+            updateEvent.Set()
             Return
         End Try
+        updateEvent.Set()
+
     End Sub
 
     Public Function get_packed_atlas(ByVal p As String, ByVal idx As Integer, atlas_mode As Integer) As String

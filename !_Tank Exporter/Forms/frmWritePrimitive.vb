@@ -28,10 +28,8 @@ Public Class frmWritePrimitive
         End If
         Dim wrote_something = cew_cb.Checked Or hew_cb.Checked Or tew_cb.Checked Or gew_cb.Checked
         If wrote_something Then
-            frmMain.info_Label.Parent = frmMain.pb1
+            'frmMain.info_Label.Parent = frmMain.pb1
             frmMain.info_Label.Visible = True
-            frmMain.PG1.Value = 0
-            frmMain.PG1.Visible = True
 
 
             If cew_cb.Checked Then
@@ -52,8 +50,7 @@ Public Class frmWritePrimitive
                 write_primitives(4)
             End If
             frmMain.info_Label.Visible = False
-            frmMain.info_Label.Parent = frmMain
-            frmMain.PG1.Visible = False
+            'frmMain.info_Label.Parent = frmMain
 
         End If
 

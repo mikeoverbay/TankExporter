@@ -292,6 +292,7 @@ Module ModTankLoader
     End Class
     Public _group() As _grps
     Public Structure _grps
+        Public identifier As String
         Public indices() As uvect3
         Public vertices() As vertice_
         Public vertColor() As Vector4
@@ -804,6 +805,7 @@ next_m:
                     color_rgb(i).a = CSng(ordered_names(sg - sub_groups).color_data((i * 4) + 3) / 255)
                 Next
                 frmMain.update_log("color data read")
+                MsgBox("Old format. TE may not save thise as a primitve correctly", MsgBoxStyle.Information, "Warning")
             End If
 
             ' changed july 7/11/14
@@ -975,7 +977,7 @@ next_m:
             i = 0
             Dim p As Integer = 6
             For k As UInt32 = object_start To big_l
-                _group (k).stride = stride
+                _group(k).stride = stride
                 _group(k).long_tank_name = long_name
 
                 _group(k).bsp2_id = -1
@@ -1135,14 +1137,14 @@ next_m:
 
                     End If
                     'obsolete
-                    'If ordered_names(sg - sub_groups).has_color Then
-                    '    _group(k).has_color = 1
-                    '    _group(k).vertices(cnt).r = color_rgb(color_runner).r
-                    '    _group(k).vertices(cnt).g = color_rgb(color_runner).g
-                    '    _group(k).vertices(cnt).b = color_rgb(color_runner).b
-                    '    _group(k).vertices(cnt).a = color_rgb(color_runner).a
-                    '    color_runner += 1
-                    'End If
+                    If ordered_names(sg - sub_groups).has_color Then
+                        _group(k).has_color = 1
+                        _group(k).vertices(cnt).r = color_rgb(color_runner).r
+                        _group(k).vertices(cnt).g = color_rgb(color_runner).g
+                        _group(k).vertices(cnt).b = color_rgb(color_runner).b
+                        _group(k).vertices(cnt).a = color_rgb(color_runner).a
+                        color_runner += 1
+                    End If
                     i += 1
                 Next cnt
             Next k
@@ -1274,7 +1276,7 @@ next_m:
                 _group(jj).component_visible = True
 
                 Dim tn = _group(jj).name.Split(":")
-                frmComponentView.add_to_group_list(jj, Path.GetFileNameWithoutExtension(tn(0)))
+                frmComponentView.add_to_group_list(jj, _group(jj).identifier)
 
                 _object(jj).ID = jj
                 cnt = pGroups(jj - object_start).nPrimitives_
@@ -1466,7 +1468,7 @@ next_m:
                 'ReDim _group(jj).matrix(16)
                 loop_count += 1
                 fix_winding_order_group(jj)
-                check_normal_y_group(jj)
+                check_normal_group(jj)
 
 
                 If compute_tangents Then
@@ -1937,7 +1939,7 @@ jump_over:
         Dim tbl_transform As New DataTable
         tbl_transform = t.Tables("transform")
         tbl_transform.CaseSensitive = False
-        identifier += "*"
+        'identifier += "*"
         Dim pnt As Integer = 0
         Try
             Dim r1 = From node_row In tbl_nodes.AsEnumerable
@@ -2255,6 +2257,14 @@ jump_over:
         End If
         Dim diff_pos As Integer
         '===================================================================================
+        diff_pos = InStr(primStart, thestring, "<identifier>")
+        If diff_pos > 0 Then
+            Dim tex1_pos = InStr(diff_pos, thestring, "<identifier>") + "<identifier>".Length
+            Dim tex1_Epos = InStr(tex1_pos, thestring, "</identifier>")
+            Dim newS As String = ""
+            newS = Mid(thestring, tex1_pos, tex1_Epos - tex1_pos).Replace("/", "\")
+            _group(id).identifier = newS
+        End If
         'July 14th, 2019.. Started on stand alone primtive loading
         diff_pos = InStr(primStart, thestring, "atlasNormalGlossSpec")
         If diff_pos > 0 Then
@@ -2816,7 +2826,11 @@ jump_over:
             Gl.glMultiTexCoord3f(Gl.GL_TEXTURE1, _object(jj).tris(i).t1.x, _object(jj).tris(i).t1.y, _object(jj).tris(i).t1.z) 'tangent
             Gl.glMultiTexCoord3f(Gl.GL_TEXTURE2, _object(jj).tris(i).b1.x, _object(jj).tris(i).b1.y, _object(jj).tris(i).b1.z) ' bitangent
             Gl.glMultiTexCoord2f(Gl.GL_TEXTURE4, _object(jj).tris(i).uv1_2.u, _object(jj).tris(i).uv1_2.v) 'uv2
-            'must have these for AMD!!!
+            If _group(jj).has_color Then
+                Gl.glMultiTexCoord3f(Gl.GL_TEXTURE5, _object(jj).tris(i).color1.x, _object(jj).tris(i).color1.y, _object(jj).tris(i).color1.z)
+            Else
+                Gl.glMultiTexCoord3f(Gl.GL_TEXTURE5, 0.00, 0.0, 0.0!)
+            End If            'must have these for AMD!!!
             Gl.glTexCoord2f(_object(jj).tris(i).uv1.u, _object(jj).tris(i).uv1.v)
 
             Gl.glVertex3f(_object(jj).tris(i).v1.x, _object(jj).tris(i).v1.y, _object(jj).tris(i).v1.z) 'vertex
@@ -2834,7 +2848,11 @@ jump_over:
             Gl.glMultiTexCoord2f(Gl.GL_TEXTURE4, _object(jj).tris(i).uv2_2.u, _object(jj).tris(i).uv2_2.v) 'uv2
             'must have these for AMD!!!
             Gl.glTexCoord2f(_object(jj).tris(i).uv2.u, _object(jj).tris(i).uv2.v)
-
+            If _group(jj).has_color Then
+                Gl.glMultiTexCoord3f(Gl.GL_TEXTURE5, _object(jj).tris(i).color2.x, _object(jj).tris(i).color2.y, _object(jj).tris(i).color2.z)
+            Else
+                Gl.glMultiTexCoord3f(Gl.GL_TEXTURE5, 0.00, 0.0, 0.0!)
+            End If
             Gl.glVertex3f(_object(jj).tris(i).v2.x, _object(jj).tris(i).v2.y, _object(jj).tris(i).v2.z)
 
             'e = Gl.glGetError
@@ -2850,6 +2868,11 @@ jump_over:
             Gl.glMultiTexCoord2f(Gl.GL_TEXTURE4, _object(jj).tris(i).uv3_2.u, _object(jj).tris(i).uv3_2.v) 'uv2
             'must have these for AMD!!!
             Gl.glTexCoord2f(_object(jj).tris(i).uv3.u, _object(jj).tris(i).uv3.v)
+            If _group(jj).has_color Then
+                Gl.glMultiTexCoord3f(Gl.GL_TEXTURE5, _object(jj).tris(i).color3.x, _object(jj).tris(i).color3.y, _object(jj).tris(i).color3.z)
+            Else
+                Gl.glMultiTexCoord3f(Gl.GL_TEXTURE5, 0.00, 0.0, 0.0!)
+            End If
 
             Gl.glVertex3f(_object(jj).tris(i).v3.x, _object(jj).tris(i).v3.y, _object(jj).tris(i).v3.z)
 nope:
@@ -2962,8 +2985,8 @@ nope:
         vo.x = (m(0) * v.x) + (m(4) * v.y) + (m(8) * v.z)
         vo.y = (m(1) * v.x) + (m(5) * v.y) + (m(9) * v.z)
         vo.z = (m(2) * v.x) + (m(6) * v.y) + (m(10) * v.z)
-        vo.x *= -1.0
-        vo.z *= -1.0
+        'vo.x *= -1.0
+        'vo.z *= -1.0
         Return vo
 
     End Function

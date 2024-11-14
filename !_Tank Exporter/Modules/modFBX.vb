@@ -108,7 +108,6 @@ Module modFBX
         My.Settings.Save()
         frmMain.clean_house()
         remove_loaded_fbx()
-
         frmMain.info_Label.Text = frmMain.OpenFileDialog1.FileName
         Application.DoEvents()
         Application.DoEvents()
@@ -1361,6 +1360,11 @@ outahere:
             fbx_in.vertices(j).index_3 = fbx_out.vertices(j).index_3
             fbx_in.vertices(j).index_4 = fbx_out.vertices(j).index_4
 
+            fbx_in.vertices(j).weight_1 = fbx_out.vertices(j).weight_1
+            fbx_in.vertices(j).weight_2 = fbx_out.vertices(j).weight_2
+            fbx_in.vertices(j).weight_3 = fbx_out.vertices(j).weight_3
+            fbx_in.vertices(j).weight_4 = fbx_out.vertices(j).weight_4
+
             fbx_in.vertices(j).n = fbx_out.vertices(j).n
 
             fbx_in.vertices(j).x = fbx_out.vertices(j).x
@@ -1844,12 +1848,12 @@ outahere:
         Gl.glMultiTexCoord2f(Gl.GL_TEXTURE0, -fbxgrp(jj).vertices(i).u, fbxgrp(jj).vertices(i).v)
         Gl.glMultiTexCoord3f(Gl.GL_TEXTURE1, fbxgrp(jj).vertices(i).tx, fbxgrp(jj).vertices(i).ty, fbxgrp(jj).vertices(i).tz)
         Gl.glMultiTexCoord3f(Gl.GL_TEXTURE2, fbxgrp(jj).vertices(i).bnx, fbxgrp(jj).vertices(i).bny, fbxgrp(jj).vertices(i).bnz)
-        If fbxgrp(jj).has_Vcolor Then
-            Gl.glMultiTexCoord3f(Gl.GL_TEXTURE3, CSng(fbxgrp(jj).vertices(i).r),
-                                                 CSng(fbxgrp(jj).vertices(i).g),
-                                                 CSng(fbxgrp(jj).vertices(i).b))
+        If fbxgrp(jj).has_color Then
+            Gl.glMultiTexCoord3f(Gl.GL_TEXTURE3, CSng(fbxgrp(jj).vertices(i).index_1 / 255.0),
+                                                 CSng(fbxgrp(jj).vertices(i).index_2 / 255.0),
+                                                 CSng(fbxgrp(jj).vertices(i).index_3 / 255.0))
         Else
-            Gl.glMultiTexCoord3f(Gl.GL_TEXTURE3, 0.0!, 0.0!, 0.0!)
+            Gl.glMultiTexCoord3f(Gl.GL_TEXTURE3, 0.0!, 0.00!, 0.00!)
         End If
 
         Gl.glTexCoord2f(-fbxgrp(jj).vertices(i).u, fbxgrp(jj).vertices(i).v)
@@ -2001,129 +2005,38 @@ outahere:
 
     End Sub
 
-    Public Sub check_normal_y(ByVal i As Integer)
-        ' Loop through the indices buffer
-        For k As Integer = 0 To fbxgrp(i).indices.Length - 1 Step 3
-            ' Get the indices for p1, p2, p3
-            Dim p1 = fbxgrp(i).indices(k).v1
-            Dim p2 = fbxgrp(i).indices(k).v1
-            Dim p3 = fbxgrp(i).indices(k).v1
-
-            ' Get the vertices for v1, v2, v3
-            Dim v1, v2, v3 As SharpDX.Vector3
-            v1.X = fbxgrp(i).vertices(p1).x
-            v1.Y = fbxgrp(i).vertices(p1).y
-            v1.Z = fbxgrp(i).vertices(p1).z
-
-            v2.X = fbxgrp(i).vertices(p2).x
-            v2.Y = fbxgrp(i).vertices(p2).y
-            v2.Z = fbxgrp(i).vertices(p2).z
-
-            v3.X = fbxgrp(i).vertices(p3).x
-            v3.Y = fbxgrp(i).vertices(p3).y
-            v3.Z = fbxgrp(i).vertices(p3).z
-
-            ' Get the normals for v1, v2, and v3
-            Dim n1, n2, n3 As SharpDX.Vector3
-            n1.X = fbxgrp(i).vertices(p1).nx
-            n1.Y = fbxgrp(i).vertices(p1).ny
-            n1.Z = fbxgrp(i).vertices(p1).nz
-
-            n2.X = fbxgrp(i).vertices(p2).nx
-            n2.Y = fbxgrp(i).vertices(p2).ny
-            n2.Z = fbxgrp(i).vertices(p2).nz
-
-            n3.X = fbxgrp(i).vertices(p3).nx
-            n3.Y = fbxgrp(i).vertices(p3).ny
-            n3.Z = fbxgrp(i).vertices(p3).nz
-
-            ' Calculate the average normal using vertex normals
-            Dim avgNormal As SharpDX.Vector3 = (n1 + n2 + n3) / 3
-
-            ' Calculate the geometric normal using the cross product of the triangle's edges
-            Dim edge1 As SharpDX.Vector3 = v2 - v1
-            Dim edge2 As SharpDX.Vector3 = v3 - v1
-            Dim geometricNormal As SharpDX.Vector3 = SharpDX.Vector3.Cross(edge1, edge2)
-
-            ' Normalize both normals to compare them
-            If avgNormal.Length() > 0 Then avgNormal.Normalize()
-            geometricNormal.Normalize()
-
-            ' Compare the normals using the dot product
-            Dim dotProduct As Single = SharpDX.Vector3.Dot(avgNormal, geometricNormal)
-
-            ' If the dot product is negative, the normals don't match
-            If dotProduct > 0 Then
-                ' Only flip the Y component of the normals once
-                If fbxgrp(i).vertices(p1).ny > 0 Then fbxgrp(i).vertices(p1).ny = -fbxgrp(i).vertices(p1).ny
-                If fbxgrp(i).vertices(p2).ny > 0 Then fbxgrp(i).vertices(p2).ny = -fbxgrp(i).vertices(p2).ny
-                If fbxgrp(i).vertices(p3).ny > 0 Then fbxgrp(i).vertices(p3).ny = -fbxgrp(i).vertices(p3).ny
+    Public Sub check_normal(ByVal i As Integer)
+        Dim flip As Single = 1.0!
+        If fbxgrp(i).color_name.ToLower.Contains("turret") Or fbxgrp(i).color_name.ToLower.Contains("hull") Then
+            If Not fbxgrp(i).name.Contains("~") Then
+                flip = -1.0!
             End If
+        End If
+
+        For p1 As Integer = 0 To fbxgrp(i).nVertices_ - 1
+            fbxgrp(i).vertices(p1).nx *= flip
+            fbxgrp(i).vertices(p1).ny *= flip
+            fbxgrp(i).vertices(p1).nz *= flip
         Next
     End Sub
 
-    Public Sub check_normal_y_group(ByVal i As Integer)
-        ' Loop through the indices buffer
-        Dim c As Integer = 0
-        For k As Integer = 1 To _group(i).indices.Length - 1 Step 3
-            ' Get the indices for p1, p2, p3
-            Dim p1 = _group(i).indices(k).v1
-            Dim p2 = _group(i).indices(k).v1
-            Dim p3 = _group(i).indices(k).v1
+    Public Sub check_normal_group(ByVal i As Integer)
+        If _group(i).color_name Is Nothing Then
+            Return
+        End If
+        Dim flip As Single = -1.0!
+        If _group(i).color_name.ToLower.Contains("turret") Or _group(i).color_name.ToLower.Contains("hull") Then
+            If Not _group(i).name.Contains("new") Then
+                flip = -1.0
+            Else
+                flip = 1.0
 
-            ' Get the vertices for v1, v2, v3
-            Dim v1, v2, v3 As SharpDX.Vector3
-            v1.X = _group(i).vertices(p1).x
-            v1.Y = _group(i).vertices(p1).y
-            v1.Z = _group(i).vertices(p1).z
-
-            v2.X = _group(i).vertices(p2).x
-            v2.Y = _group(i).vertices(p2).y
-            v2.Z = _group(i).vertices(p2).z
-
-            v3.X = _group(i).vertices(p3).x
-            v3.Y = _group(i).vertices(p3).y
-            v3.Z = _group(i).vertices(p3).z
-
-            ' Get the normals for v1, v2, and v3
-            Dim n1, n2, n3 As SharpDX.Vector3
-            n1.X = _group(i).vertices(p1).nx
-            n1.Y = _group(i).vertices(p1).ny
-            n1.Z = _group(i).vertices(p1).nz
-
-            n2.X = _group(i).vertices(p2).nx
-            n2.Y = _group(i).vertices(p2).ny
-            n2.Z = _group(i).vertices(p2).nz
-
-            n3.X = _group(i).vertices(p3).nx
-            n3.Y = _group(i).vertices(p3).ny
-            n3.Z = _group(i).vertices(p3).nz
-
-            ' Calculate the average normal using vertex normals
-            Dim avgNormal As SharpDX.Vector3 = (n1 + n2 + n3) / 3
-
-            ' Calculate the geometric normal using the cross product of the triangle's edges
-            Dim edge1 As SharpDX.Vector3 = v2 - v1
-            Dim edge2 As SharpDX.Vector3 = v3 - v1
-            Dim geometricNormal As SharpDX.Vector3 = SharpDX.Vector3.Cross(edge1, edge2)
-
-            ' Normalize both normals to compare them, but only if the length > 0
-            If avgNormal.Length() > 0 Then avgNormal.Normalize()
-            geometricNormal.Normalize()
-
-            ' Compare the normals using the dot product
-            Dim dotProduct As Single = SharpDX.Vector3.Dot(avgNormal, geometricNormal)
-
-            ' If the dot product is negative, the normals don't match
-            If dotProduct > 0 Then
-                c += 1
-                ' Flip the Y component of the normals only once (if not already flipped)
-                If _group(i).vertices(p1).ny > 0 Then _group(i).vertices(p1).ny = -_group(i).vertices(p1).ny
-                If _group(i).vertices(p2).ny > 0 Then _group(i).vertices(p2).ny = -_group(i).vertices(p2).ny
-                If _group(i).vertices(p3).ny > 0 Then _group(i).vertices(p3).ny = -_group(i).vertices(p3).ny
             End If
+        End If
+
+        For p1 As Integer = 0 To _group(i).nVertices_ - 1
+            _group(i).vertices(p1).nx *= flip
         Next
-        Debug.WriteLine("fliped _group normal count: " + c.ToString)
     End Sub
 
 
@@ -2263,9 +2176,9 @@ outahere:
     End Function
 
     Public Sub ComputeTangentBasis(
-      ByVal p1 As vect3, ByVal p2 As vect3, ByVal p3 As vect3,
-      ByVal UV1 As vect3, ByVal UV2 As vect3, ByVal UV3 As vect3,
-      ByRef tangent As vect3, ByRef bitangent As vect3)
+   ByVal p1 As vect3, ByVal p2 As vect3, ByVal p3 As vect3,
+   ByVal UV1 As vect3, ByVal UV2 As vect3, ByVal UV3 As vect3,
+   ByRef tangent As vect3, ByRef bitangent As vect3)
 
         Dim Edge1 As vect3 = subvect3(p2, p1)
         Dim Edge2 As vect3 = subvect3(p3, p1)
@@ -2284,7 +2197,6 @@ outahere:
         End If
 
     End Sub
-
     Public Function normalize(ByVal normal As vect3) As vect3
         Dim len As Single = Sqrt((normal.x * normal.x) + (normal.y * normal.y) + (normal.z * normal.z))
 
@@ -3109,12 +3021,12 @@ outahere:
     Public Function packnormalFBX888_writePrimitive_NEWMODEL(ByVal n As FbxVector4) As UInt32
         Try
             ' Normalize the vector
-            n.Normalize()
 
             ' Round each component to 4 decimal places
             n.X = CSng(Math.Round(n.X, 4))
             n.Y = CSng(Math.Round(n.Y, 4))
             n.Z = CSng(Math.Round(n.Z, 4))
+            n.Normalize()
 
             ' Convert each component to an 8-bit integer and print input-output values
             Dim nx As Byte = s_to_int(n.X)

@@ -9,6 +9,7 @@ Imports System.Numerics
 Imports Tank_Exporter.modGlobals
 Imports System.Text.Json
 Imports System.Text.Json.Nodes
+Imports Assimp
 
 Module get_glTF
     Private rootpath_locked As Boolean = False
@@ -38,9 +39,10 @@ Module get_glTF
         My.Settings.GLTF_path = Path.GetDirectoryName(frmMain.OpenFileDialog1.FileName)
         My.Settings.Save()
 
-
-
+        frmMain.info_Label.Text = ""
+        frmMain.info_Label.Visible = True
         Dim filename As String = frmMain.OpenFileDialog1.FileName
+        Application.DoEvents()
         Try
             ' Load the GLTF model
             Dim model As ModelRoot = ModelRoot.Load(frmMain.OpenFileDialog1.FileName)
@@ -71,6 +73,8 @@ Module get_glTF
                 ReDim Preserve _group(scene.VisualChildren.Count)
 
                 For Each node In scene.VisualChildren
+                    frmMain.info_Label.Text = "Loading Model: " + cnt.ToString
+                    Application.DoEvents()
                     ReDim Preserve fbxgrp(cnt)
                     fbxgrp(cnt) = New _grps
                     _group(cnt) = New _grps
@@ -82,6 +86,7 @@ Module get_glTF
 
             Next
         Catch ex As Exception
+            frmMain.info_Label.Visible = False
             Console.WriteLine($"Error loading GLTF file: {ex.Message}")
             Return False
         End Try
@@ -113,9 +118,10 @@ Module get_glTF
         LOADING_FBX = False ' so we dont read from the res_Mods folder
         view_radius = -10.0!
         look_point_y = 1.0
+        frmMain.info_Label.Visible = False
         Return True
     End Function
-    Private Sub ProcessNode(node As Node, id As Integer)
+    Private Sub ProcessNode(node As SharpGLTF.Schema2.Node, id As Integer)
 
         Dim extrasJsonNode As JsonNode = node.VisualRoot.Mesh.Extras
         Dim extrasJsonObject As JsonObject = TryCast(extrasJsonNode, JsonObject)
@@ -227,9 +233,34 @@ Module get_glTF
 
                 ' Assign normals if available
                 If norms IsNot Nothing Then
-                    fbxgrp(id).vertices(vertexIndex).nx = norms(i).X
-                    fbxgrp(id).vertices(vertexIndex).ny = norms(i).Y
-                    fbxgrp(id).vertices(vertexIndex).nz = norms(i).Z
+                    Dim vn = New vect3
+                    vn.x = norms(i).X
+                    vn.y = norms(i).Y
+                    vn.z = norms(i).Z
+                    vn = normalize(vn)
+
+                    If fbxgrp(id).name.ToLower.Contains("turret") Or
+                       fbxgrp(id).name.ToLower.Contains("hull") Or
+                       fbxgrp(id).name.ToLower.Contains("gun") Then
+
+                        If Not fbxgrp(id).name.ToLower.Contains("~") Then
+                            'new
+                            vn.x *= -1
+                            vn.y *= -1
+                            vn.z *= -1
+                        Else
+                            'old
+                            vn.z *= -1
+                            'vn.z *= -1
+                        End If
+                    Else
+                        'chassis
+                        vn.z *= -1
+                        'vn.z *= -1
+                    End If
+                    fbxgrp(id).vertices(vertexIndex).nx = vn.x
+                    fbxgrp(id).vertices(vertexIndex).ny = vn.y
+                    fbxgrp(id).vertices(vertexIndex).nz = vn.z
                 End If
 
                 ' Assign vertex colors if available
@@ -262,6 +293,7 @@ Module get_glTF
 
                 vertexIndex += 1
             Next
+            check_normal(id)
 
             ' Process indices
             Dim indis = primitive.GetIndices()
@@ -270,10 +302,26 @@ Module get_glTF
 
 
             Dim cnt = 0
+
             For i = 0 To indis.Count - 1 Step 3
-                fbxgrp(id).indices(cnt).v1 = indis(i + 0)
-                fbxgrp(id).indices(cnt).v2 = indis(i + 1)
-                fbxgrp(id).indices(cnt).v3 = indis(i + 2)
+                If fbxgrp(id).name.ToLower.Contains("turret") Or
+                              fbxgrp(id).name.ToLower.Contains("hull") Or
+                              fbxgrp(id).name.ToLower.Contains("gun") Then
+
+                    If Not fbxgrp(id).name.ToLower.Contains("~") Then
+                        fbxgrp(id).indices(cnt).v1 = indis(i + 0)
+                        fbxgrp(id).indices(cnt).v2 = indis(i + 1)
+                        fbxgrp(id).indices(cnt).v3 = indis(i + 2)
+                    Else
+                        fbxgrp(id).indices(cnt).v2 = indis(i + 0)
+                        fbxgrp(id).indices(cnt).v1 = indis(i + 1)
+                        fbxgrp(id).indices(cnt).v3 = indis(i + 2)
+                    End If
+                Else
+                    fbxgrp(id).indices(cnt).v1 = indis(i + 0)
+                    fbxgrp(id).indices(cnt).v2 = indis(i + 1)
+                    fbxgrp(id).indices(cnt).v3 = indis(i + 2)
+                End If
                 cnt += 1
             Next
             'fix_winding_order(id)
@@ -304,7 +352,7 @@ Module get_glTF
 
 
 
-    Public Function ConvertMatrixToOpenGLArray(matrix As Matrix4x4) As Double()
+    Public Function ConvertMatrixToOpenGLArray(matrix As System.Numerics.Matrix4x4) As Double()
         Dim openGLArray(15) As Double
 
         openGLArray(0) = matrix.M11

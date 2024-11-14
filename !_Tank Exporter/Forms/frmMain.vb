@@ -549,9 +549,8 @@ done:
         pb1.Visible = True
         frmState = Me.WindowState
         info_Label.BringToFront()
-        info_Label.Parent = Me
-        info_Label.Size = MM.Size
         info_Label.Dock = DockStyle.Top
+
         MM.Location = New Point(0, 0)
         TC1.Anchor = AnchorStyles.Top Or AnchorStyles.Left Or AnchorStyles.Right Or AnchorStyles.Bottom
         info_Label.Text = ""
@@ -588,6 +587,9 @@ done:
         tanklist.Font = TreeView1.Font
         tanklist.SendToBack()
         Me.Show()
+        Me.BringToFront()
+        Application.DoEvents()
+
         PB3.Parent = Me
         PB3.SendToBack()
         PB3.Visible = False
@@ -683,15 +685,8 @@ done:
         'I'M SAVING ALL CODE RELATED TO THE OLD TANK LIST IN CASE I WORK ON TERRA AGAIN!
         decal_path = Application.StartupPath
 
-        'TankListTempFolder = Temp_Storage + "\tanklist\"
-        'If Not System.IO.Directory.Exists(TankListTempFolder) Then
-        '    System.IO.Directory.CreateDirectory(TankListTempFolder)
-        'End If
-
         If My.Settings.firstRun Then ' check for possible update to tank list.
             My.Settings.firstRun = False
-            Dim ts = IO.File.ReadAllText(Application.StartupPath + "\tanks\tanknames.txt")
-            File.WriteAllText(TankListTempFolder + "tanknames.txt", ts)
         End If
         '====================================================================================================
         Try
@@ -888,15 +883,15 @@ done:
 
         '===================================================================================
 
+        TERRAIN_DECALS = My.Settings.stop_loading_decals
         If Not My.Settings.stop_Loading_set Then
             If Not TERRAIN_DECALS Then
                 show_decal_load_form()
                 My.Settings.stop_Loading_set = True
             End If
         End If
-        TERRAIN_DECALS = Not My.Settings.stop_loading_decals
 
-        If TERRAIN_DECALS Then
+        If Not TERRAIN_DECALS Then
             m_decal.Visible = True
         Else
             m_decal.Visible = False
@@ -1078,7 +1073,7 @@ done:
         update_log("T = " + tt + "ms")
         t.Restart()
         '==========
-        If TERRAIN_DECALS Then
+        If Not TERRAIN_DECALS Then
 
             CreateCube() 'decal projection cube.
 
@@ -1231,18 +1226,6 @@ done:
         Return b
 
     End Function
-
-    Private Sub save_progress(ByVal sender As Object, ByVal e As SaveProgressEventArgs)
-        If e.EventType = Ionic.Zip.ZipProgressEventType.Saving_BeforeWriteEntry Then
-            PG1.Visible = True
-            PG1.Maximum = e.EntriesTotal
-            PG1.Value = e.EntriesSaved + 1
-            Application.DoEvents()
-        End If
-        If e.EventType = ZipProgressEventType.Saving_Completed Then
-            PG1.Visible = False
-        End If
-    End Sub
 
     Dim nations() As String = {"usa.xml", "uk.xml",
                              "china.xml", "czech.xml",
@@ -2449,6 +2432,8 @@ loaded_jump:
         Gl.glFrontFace(Gl.GL_CCW)
         Gl.glEnable(Gl.GL_BLEND)
         Gl.glUseProgram(shader_list.terrainShader_shader)
+
+        ' Pass light positions and colors to the shader
         Gl.glUniform1i(terrain_textureMap, 0)
         Gl.glUniform1i(terrain_depthMap, 1)
         Gl.glUniform1i(terrain_normalMap, 2)
@@ -2566,7 +2551,7 @@ loaded_jump:
         If frmScreenCap.RENDER_OUT And Not frmScreenCap.r_terrain Then
             Return
         End If
-        If Not TERRAIN_DECALS Then
+        If TERRAIN_DECALS Then
             Return
         End If
         Dim w, h As Integer
@@ -3192,19 +3177,19 @@ loaded_jump:
         If Show_lights Then
             '0
             Gl.glPushMatrix()
-            Gl.glTranslatef(position0(0), position0(1), position0(2))
+            Gl.glTranslatef(lightPositions(0), lightPositions(1), lightPositions(2))
             Gl.glColor3f(1.0, 0.0, 0.0) 'red
             glutSolidSphere(0.2, 10, 10)
             Gl.glPopMatrix()
             '1
             Gl.glPushMatrix()
-            Gl.glTranslatef(position1(0), position1(1), position1(2))
+            Gl.glTranslatef(lightPositions(3), lightPositions(4), lightPositions(5))
             Gl.glColor3f(0.0, 1.0, 0.0) 'green
             glutSolidSphere(0.2, 10, 10)
             Gl.glPopMatrix()
             '2
             Gl.glPushMatrix()
-            Gl.glTranslatef(position2(0), position2(1), position2(2))
+            Gl.glTranslatef(lightPositions(6), lightPositions(7), lightPositions(8))
             Gl.glColor3f(0.0, 0.0, 1.0) 'blue
             glutSolidSphere(0.2, 10, 10)
             Gl.glPopMatrix()
@@ -3260,12 +3245,13 @@ loaded_jump:
                 view_status_string += "Textured : "
                 Gl.glUseProgram(shader_list.fbx_shader)
 
+                Gl.glUniform3f(fbx_cameraPos, cam_x, cam_y, cam_z)
                 Gl.glUniform1i(fbx_colorMap, 0)
                 Gl.glUniform1i(fbx_normalMap, 1)
-                Gl.glUniform1i(fbx_specularMap, 2)
+                'Gl.glUniform1i(fbx_specularMap, 2)
                 Gl.glUniform1f(fbx_specular, S_level)
                 Gl.glUniform1f(fbx_ambient, A_level)
-                Gl.glUniform1f(fbx_level, T_level)
+                'Gl.glUniform1f(fbx_level, T_level)
                 If VertexColor_cb.Checked Then
                     Gl.glUniform1i(fbx_enableVcolor, 1)
                 Else
@@ -3273,24 +3259,20 @@ loaded_jump:
                 End If
                 For jj = 1 To fbxgrp.Length - 1
                     If fbxgrp(jj).visible And fbxgrp(jj).component_visible Then
-                        If m_tangent_normalMaps.Checked Then
-                            Gl.glUniform1i(fbx_is_GAmap, 0)
-                        Else
-                            Gl.glUniform1i(fbx_is_GAmap, 1)
-                        End If
-                        If fbxgrp(jj).bumped Then
-                            Gl.glUniform1i(fbx_bumped, 1)
-                        Else
-                            Gl.glUniform1i(fbx_bumped, 0)
-                        End If
-
-                        ' Get uniform locations
-                        Dim lightPosLoc As Integer = Gl.glGetUniformLocation(shader_list.fbx_shader, "lightPos")
-                        Dim lightColorLoc As Integer = Gl.glGetUniformLocation(shader_list.fbx_shader, "lightColor")
+                        'If m_tangent_normalMaps.Checked Then
+                        '    Gl.glUniform1i(fbx_is_GAmap, 0)
+                        'Else
+                        '    Gl.glUniform1i(fbx_is_GAmap, 1)
+                        'End If
+                        'If fbxgrp(jj).bumped Then
+                        '    Gl.glUniform1i(fbx_bumped, 1)
+                        'Else
+                        '    Gl.glUniform1i(fbx_bumped, 0)
+                        'End If
 
                         ' Pass light positions and colors to the shader
-                        Gl.glUniform3fv(lightPosLoc, 3, lightPositions)
-                        Gl.glUniform3fv(lightColorLoc, 3, lightColors)
+                        Gl.glUniform3fv(fbx_lightPosLoc, 3, lightPositions)
+                        Gl.glUniform3fv(fbx_lightColorLoc, 3, lightColors)
 
                         Gl.glUniform3fv(Gl.glGetUniformLocation(shader_list.fbx_shader, "lightColor"), 3, lightColors)
                         Gl.glUniform1i(fbx_alphatest, fbxgrp(jj).alphaTest)
@@ -5469,22 +5451,15 @@ fuckit:
             If Not gl_busy Then
                 'scale light based on mode
                 If Not spin_light Then
-                    position0(0) = W_position0(0) * l_scaler
-                    position0(1) = W_position0(1) * y_scaler
-                    position0(2) = W_position0(2) * l_scaler
+                    lightPositions(0) = position0(0)
+                    lightPositions(1) = position0(1)
+                    lightPositions(2) = position0(2)
+
                 End If
-
-                position1(0) = W_position1(0) * l_scaler
-                position1(1) = W_position1(1) * y_scaler
-                position1(2) = W_position1(2) * l_scaler
-
-                position2(0) = W_position2(0) * l_scaler
-                position2(1) = W_position2(1) * y_scaler
-                position2(2) = W_position2(2) * l_scaler
 
                 If Not w_changing And Not stop_updating Then
                     If spin_light And l_timer.ElapsedMilliseconds > 32 Then
-                        l_radius = Sqrt(position0(0) ^ 2 + position0(2) ^ 2)
+                        l_radius = Sqrt(lightPositions(0) ^ 2 + lightPositions(2) ^ 2)
                         l_timer.Restart()
                         If Not paused Then
                             l_rot += 0.02
@@ -5496,10 +5471,11 @@ fuckit:
                         x = Cos(l_rot) * l_radius
                         z = Sin(l_rot) * l_radius
 
+                        lightPositions(0) = x
                         position0(0) = x
                         'position0(1) = 14.0
+                        lightPositions(2) = z
                         position0(2) = z
-
                     End If
 
                     If spin_camera And l_timer.ElapsedMilliseconds > 10 Then
@@ -5956,6 +5932,7 @@ fuckit:
         End If
         ReDim Preserve turrets(cnt)
         Application.DoEvents()
+        Dim shadow_state = m_shadows.Checked
 
         '-------------------------------------------------------
         '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -6056,6 +6033,9 @@ fuckit:
         If frmFBX.Visible Then
             frmFBX.Location = Me.Location
         End If
+
+        m_shadows.Checked = False
+
         clean_house()
         remove_loaded_fbx()
 
@@ -6575,6 +6555,9 @@ fuckit:
         update_log("Exiting Processes Tank" + vbCrLf)
         MODEL_LOADED = True
         view_radius = -10.0!
+
+        m_shadows.Checked = shadow_state
+
         Return True
     End Function
 
@@ -7609,12 +7592,12 @@ fuckit:
                 Gl.glDeleteTextures(1, textures(i).detail_id)
             End If
         Next
+        log_text.AppendLine("---- Reloading Textures -----")
         ReDim textures(0) ' resize so it can be rebuild
         For i = 1 To _group.Length - 1
             build_textures(i) 'get the textures for this model. If its in the cache, use them.
         Next
         MODEL_LOADED = True ' enable drawing the tank
-        log_text.AppendLine("---- Reloading Textures -----")
     End Sub
     Private Sub ToolStripMenuItem1_Click(sender As Object, e As EventArgs) Handles ToolStripMenuItem1.Click
         Dim s_text = get_tank_info_from_api(tank_api_id)
@@ -7816,214 +7799,7 @@ fuckit:
         Application.DoEvents()
     End Sub
 
-    Private Sub m_load_file_Click(sender As Object, e As EventArgs) Handles m_load_file.Click
-        out_string.Length = 0
-        Dim in_s = IO.File.ReadAllText(TankListTempFolder + "tanknames.txt")
-        If in_s = "" Then
-            Return
-        End If
-        tanklist.Text = ""
-        file_name = ""
-        Dim tank As String = ""
-        '1
-        For Each n As TreeNode In TreeView1.Nodes
-            If in_s.Contains(n.Text + ":") Then
-                tanklist.Text += (n.Text) + vbCrLf
-                n.ForeColor = Color.White
-            Else
-                n.ForeColor = Color.Black
-            End If
-        Next
 
-        '2
-        For Each n As TreeNode In TreeView2.Nodes
-            If in_s.Contains(n.Text + ":") Then
-                tanklist.Text += (n.Text) + vbCrLf
-                n.ForeColor = Color.White
-            Else
-                n.ForeColor = Color.Black
-            End If
-        Next
-
-        '3
-        For Each n As TreeNode In TreeView3.Nodes
-            If in_s.Contains(n.Text + ":") Then
-                tanklist.Text += (n.Text) + vbCrLf
-                n.ForeColor = Color.White
-            Else
-                n.ForeColor = Color.Black
-            End If
-        Next
-
-        '4
-        For Each n As TreeNode In TreeView4.Nodes
-            If in_s.Contains(n.Text + ":") Then
-                tanklist.Text += (n.Text) + vbCrLf
-                n.ForeColor = Color.White
-            Else
-                n.ForeColor = Color.Black
-            End If
-        Next
-
-        '5
-        For Each n As TreeNode In TreeView5.Nodes
-            If in_s.Contains(n.Text + ":") Then
-                tanklist.Text += (n.Text) + vbCrLf
-                n.ForeColor = Color.White
-            Else
-                n.ForeColor = Color.Black
-            End If
-        Next
-
-        '6
-        For Each n As TreeNode In TreeView6.Nodes
-            If in_s.Contains(n.Text + ":") Then
-                tanklist.Text += (n.Text) + vbCrLf
-                n.ForeColor = Color.White
-            Else
-                n.ForeColor = Color.Black
-            End If
-        Next
-
-        '7
-        For Each n As TreeNode In TreeView7.Nodes
-            If in_s.Contains(n.Text + ":") Then
-                tanklist.Text += (n.Text) + vbCrLf
-                n.ForeColor = Color.White
-            Else
-                n.ForeColor = Color.Black
-            End If
-        Next
-
-        '8
-        For Each n As TreeNode In TreeView8.Nodes
-            If in_s.Contains(n.Text + ":") Then
-                tanklist.Text += (n.Text) + vbCrLf
-                n.ForeColor = Color.White
-            Else
-                n.ForeColor = Color.Black
-            End If
-        Next
-
-        '9
-        For Each n As TreeNode In TreeView9.Nodes
-            If in_s.Contains(n.Text + ":") Then
-                tanklist.Text += (n.Text) + vbCrLf
-                n.ForeColor = Color.White
-            Else
-                n.ForeColor = Color.Black
-            End If
-        Next
-
-        '10
-        For Each n As TreeNode In TreeView10.Nodes
-            If in_s.Contains(n.Text + ":") Then
-                tanklist.Text += (n.Text) + vbCrLf
-                n.ForeColor = Color.White
-            Else
-                n.ForeColor = Color.Black
-            End If
-        Next
-        'm_export_tank_list.Visible = True
-        Application.DoEvents()
-    End Sub
-
-    Private Sub m_save_Click(sender As Object, e As EventArgs) Handles m_save.Click
-        out_string.Length = 0
-        If tanklist.Text = "" Then
-            Return
-        End If
-        Dim tank As String = ""
-        file_name = ""
-        Dim ta = tanklist.Text.Split(vbCr)
-
-        For i = 0 To ta.Length - 2
-            tank = ta(i)
-            tank = tank.Replace(vbLf, "")
-            '1
-            For Each n As TreeNode In TreeView1.Nodes
-                If n.Text = tank Then
-                    get_tank_xml_data(n)
-                    out_string.Append(icons(1).img(n.Index).img.Tag.ToString + vbCrLf)
-                End If
-            Next
-
-            '2
-            For Each n As TreeNode In TreeView2.Nodes
-                If n.Text = tank Then
-                    get_tank_xml_data(n)
-                    out_string.Append(icons(2).img(n.Index).img.Tag.ToString + vbCrLf)
-                End If
-            Next
-
-            '3
-            For Each n As TreeNode In TreeView3.Nodes
-                If n.Text = tank Then
-                    get_tank_xml_data(n)
-                    out_string.Append(icons(3).img(n.Index).img.Tag.ToString + vbCrLf)
-                End If
-            Next
-
-            '4
-            For Each n As TreeNode In TreeView4.Nodes
-                If n.Text = tank Then
-                    get_tank_xml_data(n)
-                    out_string.Append(icons(4).img(n.Index).img.Tag.ToString + vbCrLf)
-                End If
-            Next
-
-            '5
-            For Each n As TreeNode In TreeView5.Nodes
-                If n.Text = tank Then
-                    get_tank_xml_data(n)
-                    out_string.Append(icons(5).img(n.Index).img.Tag.ToString + vbCrLf)
-                End If
-            Next
-
-            '6
-            For Each n As TreeNode In TreeView6.Nodes
-                If n.Text = tank Then
-                    get_tank_xml_data(n)
-                    out_string.Append(icons(6).img(n.Index).img.Tag.ToString + vbCrLf)
-                End If
-            Next
-
-            '7
-            For Each n As TreeNode In TreeView7.Nodes
-                If n.Text = tank Then
-                    get_tank_xml_data(n)
-                    out_string.Append(icons(7).img(n.Index).img.Tag.ToString + vbCrLf)
-                End If
-            Next
-
-            '8
-            For Each n As TreeNode In TreeView8.Nodes
-                If n.Text = tank Then
-                    get_tank_xml_data(n)
-                    out_string.Append(icons(8).img(n.Index).img.Tag.ToString + vbCrLf)
-                End If
-            Next
-
-            '9
-            For Each n As TreeNode In TreeView9.Nodes
-                If n.Text = tank Then
-                    get_tank_xml_data(n)
-                    out_string.Append(icons(9).img(n.Index).img.Tag.ToString + vbCrLf)
-                End If
-            Next
-
-            '10
-            For Each n As TreeNode In TreeView10.Nodes
-                If n.Text = tank Then
-                    get_tank_xml_data(n)
-                    out_string.Append(icons(10).img(n.Index).img.Tag.ToString + vbCrLf)
-                End If
-            Next
-
-        Next
-
-        File.WriteAllText(TankListTempFolder + "tanknames.txt", out_string.ToString)
-    End Sub
 
     Private Sub m_open_Game_folder_Click(sender As Object, e As EventArgs) Handles m_Open_game_folder.Click
         Process.Start("explorer.exe", My.Settings.game_path)
@@ -8139,12 +7915,12 @@ fuckit:
         MM.Enabled = False
         TC1.Enabled = False
         SearchBox.Enabled = False
-        info_Label.Parent = pb1
+        'info_Label.Parent = pb1
         info_Label.Text = "Select Tank to import...."
         info_Label.Visible = True
         import_FBX()
         info_Label.Visible = False
-        info_Label.Parent = Me
+        'info_Label.Parent = Me
         MM.Enabled = True
         m_ExportExtract.Enabled = True
         TC1.Enabled = True
@@ -8345,6 +8121,7 @@ fuckit:
 
     Private Sub m_shadows_Click(sender As Object, e As EventArgs) Handles m_shadows.Click
         shadow_fbo.reset_shadowFbo()
+        BlurShadowFBO.init()
         If stop_updating Then draw_scene()
     End Sub
 
@@ -8477,20 +8254,20 @@ fuckit:
             SaveFileDialog1.FileName = Path.GetFileNameWithoutExtension(OpenFileDialog1.FileName)
             FBX_NAME = SaveFileDialog1.FileName
         End If
-        info_Label.Parent = pb1
+        'info_Label.Parent = pb1
 
         If SaveFileDialog1.ShowDialog = Forms.DialogResult.OK Then
             My.Settings.fbx_path = SaveFileDialog1.FileName
         Else
             info_Label.Visible = False
-            info_Label.Parent = Me
+            'info_Label.Parent = Me
             Return
         End If
         File.WriteAllText(Temp_Storage + "\Fbx_out_folder.txt", Path.GetDirectoryName(SaveFileDialog1.FileName))
 
         frmFBX.ShowDialog(Me)
         info_Label.Visible = False
-        info_Label.Parent = Me
+        'info_Label.Parent = Me
 
     End Sub
 
@@ -8641,12 +8418,12 @@ fuckit:
         MM.Enabled = False
         TC1.Enabled = False
         SearchBox.Enabled = False
-        info_Label.Parent = pb1
+        'info_Label.Parent = pb1
         info_Label.Text = "Select Tank to import...."
         info_Label.Visible = True
         import_primitives_FBX()
         info_Label.Visible = False
-        info_Label.Parent = Me
+        'info_Label.Parent = Me
         MM.Enabled = True
         m_ExportExtract.Enabled = True
         TC1.Enabled = True
@@ -9465,7 +9242,7 @@ outta_here:
         File.WriteAllText(Temp_Storage + "\meta.xml", meta)
 
         info_Label.Visible = True
-        info_Label.Parent = pb1
+        'info_Label.Parent = pb1
         info_Label.Text = "Select location and name for the wotmod file..."
         Application.DoEvents()
         SaveFileDialog1.FileName = frmAuthor.mod_name_tb.Text.Replace(".", "_")
@@ -9476,7 +9253,7 @@ outta_here:
             My.Settings.wotmod_path = SaveFileDialog1.FileName
         Else
             info_Label.Visible = False
-            info_Label.Parent = Me
+            'info_Label.Parent = Me
             Return
         End If
         My.Settings.wotmod_path = Path.GetDirectoryName(SaveFileDialog1.FileName)
@@ -9608,7 +9385,7 @@ outta_here:
         Directory.Delete(My.Settings.res_mods_path + "\temp", True)
         MsgBox("< wotmod built >", MsgBoxStyle.OkOnly, "DONE!")
         info_Label.Visible = False
-        info_Label.Parent = Me
+        'info_Label.Parent = Me
     End Sub
     Private Sub extract_tanks_xml_file()
         Dim ts = itemDefXmlString
@@ -9721,9 +9498,11 @@ outta_here:
     Private Sub m_enable_tarrain_decals_Click(sender As Object, e As EventArgs) Handles m_enable_tarrain_decals.Click
         If MsgBox("This will close Tank Exporter and allow resetting the flag." + vbCrLf +
                   "Continue?", MsgBoxStyle.YesNo, "Reset") = MsgBoxResult.No Then
+            My.Settings.stop_Loading_set = False
             Return
+        Else
+            My.Settings.stop_Loading_set = True
         End If
-        My.Settings.stop_Loading_set = False
         Me.Close()
     End Sub
 
