@@ -184,11 +184,11 @@ Public Class frmXMLbuilder
         fb.AppendLine("</FileList>")
         IO.File.WriteAllText(Application.StartupPath + "\resources\XMLdata\TheItemList.xml", fb.ToString)
         go_btn.Enabled = True
-skip_searching:
-        DATA_TABLE = New DataTable
-        DATA_TABLE.Columns.Add("filename", GetType(String))
-        DATA_TABLE.Columns.Add("package", GetType(String))
-        DATA_TABLE.ReadXml(Application.StartupPath + "\resources\XMLdata\TheItemList.xml")
+        fb.Clear()
+        'DATA_TABLE = New DataTable
+        'DATA_TABLE.Columns.Add("filename", GetType(String))
+        'DATA_TABLE.Columns.Add("package", GetType(String))
+        'DATA_TABLE.ReadXml(Application.StartupPath + "\resources\XMLdata\TheItemList.xml")
         go_btn.Enabled = True
     End Sub
 
@@ -226,6 +226,16 @@ skip_searching:
         Dim nonInvariantCulture As CultureInfo = New CultureInfo("en-US")
         nonInvariantCulture.NumberFormat.NumberDecimalSeparator = "."
         Thread.CurrentThread.CurrentCulture = nonInvariantCulture
+
+    End Sub
+
+
+    Private Sub frmXMLbuilder_Validated(sender As Object, e As EventArgs) Handles Me.Validated
+
+    End Sub
+
+    Private Sub frmXMLbuilder_Shown(sender As Object, e As EventArgs) Handles Me.Shown
+        unique.Text = " Click Update or X to cancel..."
 
     End Sub
 End Class
