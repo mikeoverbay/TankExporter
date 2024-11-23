@@ -58,7 +58,11 @@ Module put_glTF
 
         frmMain.SaveFileDialog1.Filter = "GLB|*.glb"
         frmMain.SaveFileDialog1.Title = "Save GLB.."
-        frmMain.SaveFileDialog1.FileName = Path.GetFileName(ar(0)) + ".glb"
+        If CRASH_MODE Then
+            frmMain.SaveFileDialog1.FileName = Path.GetFileName(ar(0)) + "_CRASHED.glb"
+        Else
+            frmMain.SaveFileDialog1.FileName = Path.GetFileName(ar(0)) + ".glb"
+        End If
 
 
         Dim result As DialogResult = frmMain.SaveFileDialog1.ShowDialog()
@@ -70,25 +74,26 @@ Module put_glTF
         If Not result = DialogResult.OK Then
             Return
         End If
-
+        result = MsgBox("Yes for editing. No to view in Apps." _
+                + vbCrLf + "Write vertex colors?", MsgBoxStyle.YesNo Or MsgBoxStyle.DefaultButton1, "Option")
 
         My.Settings.GLTF_path = out_path
 
-        Dim name As String = Path.GetFileName(ar(0))
+        Dim name As String = Path.GetFileNameWithoutExtension(out_path).Replace("CRASHED", "CRASH")
         Dim save_path = Path.GetDirectoryName(out_path) + "\" + name
         export_fbx_textures(False, 1) 'export all textures. converts from dds to png.
         Dim source = System.Windows.Forms.Application.StartupPath + "/resources/"
 
-        'copy dummys for creating BSDF textures
-        If Not File.Exists(save_path + "/dummy_ao.png") Then
-            File.Copy(source + "dummy_ao.png", save_path + "/dummy_ao.png")
-        End If
-        If Not File.Exists(save_path + "/dummy_gmm.png") Then
-            File.Copy(source + "dummy_gmm.png", save_path + "/dummy_gmm.png")
-        End If
-        If Not File.Exists(save_path + "/dummy_normal.png") Then
-            File.Copy(source + "dummy_normal.png", save_path + "/dummy_normal.png")
-        End If
+        ''copy dummys for creating BSDF textures
+        'If Not File.Exists(save_path + "/dummy_ao.png") Then
+        '    File.Copy(source + "dummy_ao.png", save_path + "/dummy_ao.png")
+        'End If
+        'If Not File.Exists(save_path + "/dummy_gmm.png") Then
+        '    File.Copy(source + "dummy_gmm.png", save_path + "/dummy_gmm.png")
+        'End If
+        'If Not File.Exists(save_path + "/dummy_normal.png") Then
+        '    File.Copy(source + "dummy_normal.png", save_path + "/dummy_normal.png")
+        'End If
 
 
         Dim MySceneBuilder As New SceneBuilder()
@@ -98,16 +103,23 @@ Module put_glTF
         For item = 1 To object_count
             Dim extras As New ExtrasData()
 
-            check_normal_group(item)
+            'check_normal_group(item)
             fix_winding_order_group(item)
 
             ' Create a material and assign texture maps if available
             Dim MyMaterialBuilder As New MaterialBuilder("Material00" + item.ToString) With {.ShaderStyle = "PBRMetallicRoughness"}
+            Dim baseColorTexture = ""
+            Dim aoTexture As String = ""
+            Dim metalRoughTexture = ""
+            Dim normalTexture = ""
+            If _group(item).color_name IsNot Nothing Then
+                baseColorTexture = Path.GetFileNameWithoutExtension(_group(item).color_name.Replace("\tracks", ""))
+                aoTexture = Path.GetFileNameWithoutExtension(_group(item).ao_name.Replace("\tracks", ""))
+                metalRoughTexture = Path.GetFileNameWithoutExtension(_group(item).GMM_name.Replace("\tracks", ""))
+                normalTexture = Path.GetFileNameWithoutExtension(_group(item).normal_name.Replace("\tracks", ""))
+            Else
 
-            Dim baseColorTexture = Path.GetFileNameWithoutExtension(_group(item).color_name.Replace("\tracks", ""))
-            Dim aoTexture As String = Path.GetFileNameWithoutExtension(_group(item).ao_name.Replace("\tracks", ""))
-            Dim metalRoughTexture = Path.GetFileNameWithoutExtension(_group(item).GMM_name.Replace("\tracks", ""))
-            Dim normalTexture = Path.GetFileNameWithoutExtension(_group(item).normal_name.Replace("\tracks", ""))
+            End If
 
             ' Assign Base Color Texture if exists
             If Not String.IsNullOrEmpty(baseColorTexture) Then
@@ -151,7 +163,15 @@ Module put_glTF
             Dim MyMeshBuilder As Object = Nothing
             Dim prim As Object = Nothing
 
-            If Not _group(item).has_uv2 = 1 And _group(item).has_color = 1 Then 'gun
+            Dim COLOR1 As Boolean = (_group(item).has_color = 1)
+            Dim COLOR2 As Boolean = (_group(item).header = "BPVTxyznuviiiwwtb")
+            If result = DialogResult.No Then
+                COLOR1 = False
+                COLOR2 = False
+            End If
+
+
+            If Not COLOR2 And COLOR1 Then 'gun
                 MyMeshBuilder = New MeshBuilder(Of VertexPositionNormal, VertexColor1Texture1, VertexEmpty)(model_name)
                 prim = MyMeshBuilder.UsePrimitive(MyMaterialBuilder)
 
@@ -159,14 +179,14 @@ Module put_glTF
                 Dim vertices As New List(Of VertexBuilder(Of VertexPositionNormal, VertexColor1Texture1, VertexEmpty))()
 
                 For i As UInt32 = 0 To _group(item).nVertices_ - 1
-                    Dim color1 = New Vector4(_group(item).vertices(i).r, _group(item).vertices(i).g, _group(item).vertices(i).b, _group(item).vertices(i).a)
+                    Dim color_1 = New Vector4(_group(item).vertices(i).r, _group(item).vertices(i).g, _group(item).vertices(i).b, _group(item).vertices(i).a)
 
                     Dim v As New VertexBuilder(Of VertexPositionNormal, VertexColor1Texture1, VertexEmpty)(
             New VertexPositionNormal(
                 New Vector3(_group(item).vertices(i).x, _group(item).vertices(i).y, _group(item).vertices(i).z),
                 New Vector3(_group(item).vertices(i).nx, _group(item).vertices(i).ny, _group(item).vertices(i).nz)
             ),
-            New VertexColor1Texture1(color1, New Vector2(_group(item).vertices(i).u, _group(item).vertices(i).v))
+            New VertexColor1Texture1(color_1, New Vector2(_group(item).vertices(i).u, _group(item).vertices(i).v))
         )
                     vertices.Add(v)
                 Next
@@ -180,7 +200,7 @@ Module put_glTF
         )
                 Next
 
-            ElseIf _group(item).has_uv2 = 1 Then ' chassis
+            ElseIf COLOR2 Then ' chassis
                 MyMeshBuilder = New MeshBuilder(Of VertexPositionNormal, VertexColor2Texture2, VertexEmpty)(model_name)
                 prim = MyMeshBuilder.UsePrimitive(MyMaterialBuilder)
 
@@ -188,15 +208,15 @@ Module put_glTF
                 Dim vertices As New List(Of VertexBuilder(Of VertexPositionNormal, VertexColor2Texture2, VertexEmpty))()
 
                 For i As UInt32 = 0 To _group(item).nVertices_ - 1
-                    Dim color1 = New Vector4(_group(item).vertices(i).r, _group(item).vertices(i).g, _group(item).vertices(i).b, _group(item).vertices(i).a)
-                    Dim color2 = New Vector4(_group(item).vertices(i).ir, _group(item).vertices(i).ig, _group(item).vertices(i).ib, _group(item).vertices(i).ia)
+                    Dim color_1 = New Vector4(_group(item).vertices(i).r, _group(item).vertices(i).g, _group(item).vertices(i).b, _group(item).vertices(i).a)
+                    Dim color_2 = New Vector4(_group(item).vertices(i).ir, _group(item).vertices(i).ig, _group(item).vertices(i).ib, _group(item).vertices(i).ia)
 
                     Dim v As New VertexBuilder(Of VertexPositionNormal, VertexColor2Texture2, VertexEmpty)(
             New VertexPositionNormal(
                 New Vector3(_group(item).vertices(i).x, _group(item).vertices(i).y, _group(item).vertices(i).z),
                 New Vector3(_group(item).vertices(i).nx, _group(item).vertices(i).ny, _group(item).vertices(i).nz)
             ),
-            New VertexColor2Texture2(color1, color2, New Vector2(_group(item).vertices(i).u, _group(item).vertices(i).v), New Vector2(_group(item).vertices(i).u2, _group(item).vertices(i).v2))
+            New VertexColor2Texture2(color_1, color_2, New Vector2(_group(item).vertices(i).u, _group(item).vertices(i).v), New Vector2(_group(item).vertices(i).u2, _group(item).vertices(i).v2))
         )
                     vertices.Add(v)
                 Next
@@ -210,7 +230,7 @@ Module put_glTF
         )
                 Next
 
-            ElseIf Not _group(item).has_color = 1 Then 'hull and turret
+            ElseIf Not COLOR1 Then 'hull and turret
                 MyMeshBuilder = New MeshBuilder(Of VertexPositionNormal, VertexTexture1, VertexEmpty)(model_name)
                 prim = MyMeshBuilder.UsePrimitive(MyMaterialBuilder)
 
@@ -299,6 +319,8 @@ Module put_glTF
         settings.MergeBuffers = False
 
         MySceneBuilder.ToGltf2().SaveGLB(out_path, settings)
+        GC.Collect()
+        GC.WaitForFullGCComplete()
     End Sub
 
 End Module

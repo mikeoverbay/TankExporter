@@ -11,6 +11,7 @@ Imports System.Windows.Forms.VisualStyles.VisualStyleElement
 
 Module get_FBX
     Public GLB As Boolean = False
+    Dim mesh_is_chassis As Boolean = False
     Sub Open_2016_fbx()
         GLB = False
 
@@ -23,7 +24,11 @@ Module get_FBX
             Return
         End If
         My.Settings.fbx_path = frmMain.OpenFileDialog1.FileName
+
         Dim open_path = My.Settings.fbx_path
+        If open_path.ToLower.Contains("chassis") Then
+            CRASH_MODE = True
+        End If
         My.Settings.Save()
         My.Settings.Save()
         My.Settings.Save()
@@ -87,7 +92,6 @@ Module get_FBX
                     'Debug.WriteLine("Vertex Count: " & mesh.VertexCount)
                     'Debug.WriteLine("Face Count: " & mesh.FaceCount)
 
-                    GetMeshTransformations(scene, item)
 
                     Dim cnt = 0
                     For Each face In mesh.Faces
@@ -143,21 +147,22 @@ Module get_FBX
                             vn.z = fbxgrp(item).vertices(vertexIndex).nz
                             vn = normalize(vn)
                             If fbxgrp(item).name.ToLower.Contains("turret") Or
-                              fbxgrp(item).name.ToLower.Contains("hull") Then
+                              fbxgrp(item).name.ToLower.Contains("hull") Or
+                              fbxgrp(item).name.ToLower.Contains("gun") Then
 
-                                If Not fbxgrp(item).name.ToLower.Contains("~") Then
+                                If fbxgrp(item).name.ToLower.Contains("~") Then
                                     'new
-                                    'vn.x *= -1
-                                    'vn.y *= -1
-                                    'vn.z *= -1
+                                    vn.x *= -1
+                                    vn.y *= 1
+                                    vn.z *= 1
                                 Else
                                     'old
-                                    vn.x *= -1
+                                    vn.x *= 1
                                     'vn.z *= -1
                                 End If
                             Else
                                 'chassis
-                                vn.x *= -1
+                                vn.x *= 1
                                 'vn.z *= -1
                             End If
                             fbxgrp(item).vertices(vertexIndex).nx = vn.x
@@ -202,6 +207,19 @@ Module get_FBX
                         End If
                         vertexIndex += 1
                     Next
+                    mesh_is_chassis = False
+                    If CRASH_MODE Then
+                        If fbxgrp(item).color_name IsNot Nothing Then
+                            If fbxgrp(item).color_name.ToLower.Contains("chassis") Then
+                                'mesh_is_chassis = True
+                            End If
+                            If fbxgrp(item).color_name.ToLower.Contains("gun") Then
+                                'mesh_is_chassis = True
+                            End If
+                        End If
+                    End If
+                    GetMeshTransformations(scene, item)
+
                     'Debug.WriteLine(cnt.ToString + "  " + item.ToString)
 
                     'Console.WriteLine("Mesh Name: " & mesh.Name)
@@ -377,19 +395,23 @@ Module get_FBX
         Dim m33 As Single = assimpMatrix.D4
 
         ' Construct the OpenGL matrix in column-major order
-        openGLMatrix(0) = m00
+        Dim factor = 1.0
+        If mesh_is_chassis Then
+            factor = -1.0
+        End If
+        openGLMatrix(0) = m00 * factor
         openGLMatrix(1) = m10
         openGLMatrix(2) = m20
         openGLMatrix(3) = m30
 
         openGLMatrix(4) = m01
-        openGLMatrix(5) = m11
+        openGLMatrix(5) = m11 * factor
         openGLMatrix(6) = m21
         openGLMatrix(7) = m31
 
         openGLMatrix(8) = m02
         openGLMatrix(9) = m12
-        openGLMatrix(10) = m22
+        openGLMatrix(10) = m22 * factor
         openGLMatrix(11) = m32
 
         openGLMatrix(12) = m03

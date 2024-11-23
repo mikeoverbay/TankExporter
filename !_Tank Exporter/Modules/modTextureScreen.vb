@@ -96,65 +96,128 @@ Module modTextureScreen
         Dim id As Integer = -1
         Dim r_cnt As Integer = 0
         Dim b_size As Integer = 50
-        For i = 1 To object_count
-            Dim ar = _object(i).name.Split(":")
-            Dim fn = Path.GetFileName(ar(0))
-            If fn.ToLower.Contains(part) Then
+        If frmMain.m_show_fbx.Checked Then
+            For i = 1 To fbxgrp.Length - 1
+                Dim ar = fbxgrp(i).name.Split(":")
+                Dim fn = Path.GetFileName(ar(0))
+                If fn.ToLower.Contains(part) Then
 
-                id = i
-                r_cnt += 1
-                If id > -1 Then
-                    'DIFFUSE
-                    If _group(id).color_Id > 0 Then
-                        Dim b As New TankTexture_btn
-                        b.name = _group(id).color_name
-                        b.gl_textureID = _group(id).color_Id
-                        b.part_ID = i
-                        b.size = New Point(b_size, b_size)
-                        b.location = New Point(10, -60 * r_cnt)
-                        b.state = 0
-                        b.selected = 0
-                        b.add()
-                    End If
-                    'AO
-                    If _group(id).ao_id > 0 Then
-                        Dim b As New TankTexture_btn
-                        b.name = _group(id).ao_name
-                        b.gl_textureID = _group(id).ao_id
-                        b.part_ID = i
-                        b.size = New Point(b_size, b_size)
-                        b.location = New Point(10, -60 * r_cnt)
-                        b.state = 0
-                        b.selected = 0
-                        b.add()
-                    End If
-                    'GMM
-                    If _group(id).GMM_Id > 0 Then
-                        Dim b As New TankTexture_btn
-                        b.name = _group(id).GMM_name
-                        b.gl_textureID = _group(id).GMM_Id
-                        b.part_ID = i
-                        b.size = New Point(b_size, b_size)
-                        b.location = New Point(10, -60 * r_cnt)
-                        b.state = 0
-                        b.selected = 0
-                        b.add()
-                    End If
-                    'NORMAL
-                    If _group(id).normal_Id > 0 Then
-                        Dim b As New TankTexture_btn
-                        b.name = _group(id).normal_name
-                        b.gl_textureID = _group(id).normal_Id
-                        b.part_ID = i
-                        b.size = New Point(b_size, b_size)
-                        b.location = New Point(10, -60 * r_cnt)
-                        b.state = 0
-                        b.selected = 0
-                        b.add()
+                    id = i
+                    r_cnt += 1
+                    If id > -1 Then
+                        'DIFFUSE
+                        If fbxgrp(id).color_Id > 0 Then
+                            Dim b As New TankTexture_btn
+                            b.name = fbxgrp(id).color_name
+                            b.gl_textureID = fbxgrp(id).color_Id
+                            b.part_ID = i
+                            b.size = New Point(b_size, b_size)
+                            b.location = New Point(10, -60 * r_cnt)
+                            b.state = 0
+                            b.selected = 0
+                            b.add()
+                        End If
+                        'AO
+                        If fbxgrp(id).ao_id > 0 Then
+                            Dim b As New TankTexture_btn
+                            b.name = fbxgrp(id).ao_name
+                            b.gl_textureID = fbxgrp(id).ao_id
+                            b.part_ID = i
+                            b.size = New Point(b_size, b_size)
+                            b.location = New Point(10, -60 * r_cnt)
+                            b.state = 0
+                            b.selected = 0
+                            b.add()
+                        End If
+                        'GMM
+                        If fbxgrp(id).GMM_Id > 0 Then
+                            Dim b As New TankTexture_btn
+                            b.name = fbxgrp(id).GMM_name
+                            b.gl_textureID = fbxgrp(id).GMM_Id
+                            b.part_ID = i
+                            b.size = New Point(b_size, b_size)
+                            b.location = New Point(10, -60 * r_cnt)
+                            b.state = 0
+                            b.selected = 0
+                            b.add()
+                        End If
+                        'NORMAL
+                        If fbxgrp(id).normal_Id > 0 Then
+                            Dim b As New TankTexture_btn
+                            b.name = fbxgrp(id).normal_name
+                            b.gl_textureID = fbxgrp(id).normal_Id
+                            b.part_ID = i
+                            b.size = New Point(b_size, b_size)
+                            b.location = New Point(10, -60 * r_cnt)
+                            b.state = 0
+                            b.selected = 0
+                            b.add()
+                        End If
                     End If
                 End If
-            End If
-        Next
+            Next
+        Else
+
+            For i = 1 To object_count
+                Dim ar = _object(i).name.Split(":")
+                Dim fn = Path.GetFileName(ar(0))
+                If fn.ToLower.Contains(part) Then
+
+                    id = i
+                    r_cnt += 1
+                    If id > -1 Then
+                        'DIFFUSE
+                        If _group(id).color_Id > 0 Then
+                            Dim b As New TankTexture_btn
+                            b.name = _group(id).color_name
+                            b.gl_textureID = _group(id).color_Id
+                            b.part_ID = i
+                            b.size = New Point(b_size, b_size)
+                            b.location = New Point(10, -60 * r_cnt)
+                            b.state = 0
+                            b.selected = 0
+                            b.add()
+                        End If
+                        'AO
+                        If _group(id).ao_id > 0 Then
+                            Dim b As New TankTexture_btn
+                            b.name = _group(id).ao_name
+                            b.gl_textureID = _group(id).ao_id
+                            b.part_ID = i
+                            b.size = New Point(b_size, b_size)
+                            b.location = New Point(10, -60 * r_cnt)
+                            b.state = 0
+                            b.selected = 0
+                            b.add()
+                        End If
+                        'GMM
+                        If _group(id).GMM_Id > 0 Then
+                            Dim b As New TankTexture_btn
+                            b.name = _group(id).GMM_name
+                            b.gl_textureID = _group(id).GMM_Id
+                            b.part_ID = i
+                            b.size = New Point(b_size, b_size)
+                            b.location = New Point(10, -60 * r_cnt)
+                            b.state = 0
+                            b.selected = 0
+                            b.add()
+                        End If
+                        'NORMAL
+                        If _group(id).normal_Id > 0 Then
+                            Dim b As New TankTexture_btn
+                            b.name = _group(id).normal_name
+                            b.gl_textureID = _group(id).normal_Id
+                            b.part_ID = i
+                            b.size = New Point(b_size, b_size)
+                            b.location = New Point(10, -60 * r_cnt)
+                            b.state = 0
+                            b.selected = 0
+                            b.add()
+                        End If
+                    End If
+                End If
+            Next
+        End If
         relocate_texturebuttons()
         TANK_TEXTURES_VISIBLE = True
     End Sub

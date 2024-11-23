@@ -27,8 +27,8 @@
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>false</MapFileExtensions>
     <OpenBrowserOnPublish>false</OpenBrowserOnPublish>
-    <ApplicationRevision>161</ApplicationRevision>
-    <ApplicationVersion>1.0.0.161</ApplicationVersion>
+    <ApplicationRevision>166</ApplicationRevision>
+    <ApplicationVersion>1.0.0.166</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
@@ -82,6 +82,7 @@
     <Optimize>false</Optimize>
     <WarningLevel>1</WarningLevel>
     <RemoveIntegerChecks>false</RemoveIntegerChecks>
+    <CodeAnalysisIgnoreGeneratedCode>true</CodeAnalysisIgnoreGeneratedCode>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
     <DefineTrace>true</DefineTrace>

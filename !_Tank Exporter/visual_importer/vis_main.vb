@@ -168,7 +168,6 @@ remove_more:
         TheXML_String = fbr.ReadChars(fileS.Length)
         TheXML_String = PrettyPrint(TheXML_String)
 
-
         Id = xmlroot.Name + "/hull/armor"
         node = xDoc.SelectSingleNode(Id)
         If node IsNot Nothing Then

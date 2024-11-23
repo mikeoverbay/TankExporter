@@ -792,6 +792,7 @@ done:
         tank_label.Location = New Point(5, 10)
         '===================================================================================
         info_Label.Text = "Getting Camo Textures..."
+        Application.DoEvents()
         'load_camo()
         '===================================================================================
         load_customization_files()

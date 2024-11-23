@@ -805,7 +805,7 @@ next_m:
                     color_rgb(i).a = CSng(ordered_names(sg - sub_groups).color_data((i * 4) + 3) / 255)
                 Next
                 frmMain.update_log("color data read")
-                MsgBox("Old format. TE may not save thise as a primitve correctly", MsgBoxStyle.Information, "Warning")
+                'MsgBox("Old format. TE may not save thise as a primitve correctly", MsgBoxStyle.Information, "Warning")
             End If
 
             ' changed july 7/11/14
@@ -1363,9 +1363,15 @@ next_m:
                             v3 = unpackNormal(tbuf(p1).n)   ' unpack normals
 
                         End If
-                        _object(jj).tris(i).n1.x = v3.x
-                        _object(jj).tris(i).n1.y = v3.y
-                        _object(jj).tris(i).n1.z = v3.z
+                        If _group(jj).identifier.Contains("!") Then
+                            _object(jj).tris(i).n1.x = v3.x
+                            _object(jj).tris(i).n1.y = v3.y
+                            _object(jj).tris(i).n1.z = -v3.z
+                        Else
+                            _object(jj).tris(i).n1.x = v3.x
+                            _object(jj).tris(i).n1.y = v3.y
+                            _object(jj).tris(i).n1.z = v3.z
+                        End If
                     End If
                     '
                     _object(jj).tris(i).uv1 = New uv_
@@ -1405,9 +1411,15 @@ next_m:
                         Else
                             v3 = unpackNormal(tbuf(p2).n)   ' unpack normals
                         End If
-                        _object(jj).tris(i).n2.x = v3.x
-                        _object(jj).tris(i).n2.y = v3.y
-                        _object(jj).tris(i).n2.z = v3.z
+                        If _group(jj).identifier.Contains("!") Then
+                            _object(jj).tris(i).n2.x = v3.x
+                            _object(jj).tris(i).n2.y = v3.y
+                            _object(jj).tris(i).n2.z = -v3.z
+                        Else
+                            _object(jj).tris(i).n2.x = v3.x
+                            _object(jj).tris(i).n2.y = v3.y
+                            _object(jj).tris(i).n2.z = v3.z
+                        End If
                     End If
                     '
                     _object(jj).tris(i).uv2 = New uv_
@@ -1446,12 +1458,19 @@ next_m:
                         Else
                             v3 = unpackNormal(tbuf(p3).n)   ' unpack nromals
                         End If
-                        _object(jj).tris(i).n3.x = v3.x
-                        _object(jj).tris(i).n3.y = v3.y
-                        _object(jj).tris(i).n3.z = v3.z
+                        If _group(jj).identifier.Contains("!") Then
+                            _object(jj).tris(i).n3.x = v3.x
+                            _object(jj).tris(i).n3.y = v3.y
+                            _object(jj).tris(i).n3.z = -v3.z
+                        Else
+                            _object(jj).tris(i).n3.x = v3.x
+                            _object(jj).tris(i).n3.y = v3.y
+                            _object(jj).tris(i).n3.z = v3.z
+                        End If
+
                     End If
-                    '
-                    _object(jj).tris(i).uv3 = New uv_
+                        '
+                        _object(jj).tris(i).uv3 = New uv_
                     _object(jj).tris(i).uv3.u = tbuf(p3).u
                     _object(jj).tris(i).uv3.v = tbuf(p3).v
                     _object(jj).tris(i).t3 = unpackNormal(tbuf(p3).t)

@@ -1265,44 +1265,55 @@ outahere:
 
 
     Public Sub process_fbx_data()
-        'we need to reorder the FBX read by its ID tag
-        Dim total = fbxgrp.Length
-        ReDim t_fbx(total)
-        Dim last As Integer = 1
-        Dim pnt(30) As Integer
-        'move to right locations....
-        For i = 1 To fbxgrp.Length - 1
-            If fbxgrp(i).name.ToLower.Contains("~") Then
+        Try
 
-                Dim n = fbxgrp(i).name
-                Dim a = n.Split("~")
-                Dim idx = Convert.ToInt32(a(2))
-                move_fbx_entry(t_fbx(idx), fbxgrp(i), i, idx)
-                last += 1
+            'we need to reorder the FBX read by its ID tag
+            Dim total = fbxgrp.Length
+            ReDim t_fbx(total)
+            Dim last As Integer = 1
+            Dim pnt(30) As Integer
+            'move to right locations....
+            For i = 1 To fbxgrp.Length - 1
+                If fbxgrp(i).name.ToLower.Contains("~") Then
 
-            End If
-        Next
-        'sort tank parts and move any new items to the end.
-        For i = 1 To fbxgrp.Length - 1
-            If Not fbxgrp(i).name.ToLower.Contains("~") Then
-                move_fbx_entry(t_fbx(last), fbxgrp(i), last, i)
-                last += 1
-            End If
-        Next
-        ' write back the sorted fbx entries.
-        For i = 1 To fbxgrp.Length - 1
-            move_fbx_entry(fbxgrp(i), t_fbx(i), last, i)
-            Dim tn = fbxgrp(i).name.Split("~")
-            frmComponentView.add_to_fbx_list(i, Path.GetFileNameWithoutExtension(tn(0)))
-            frmReverseVertexWinding.add_to_fbx_list(i, Path.GetFileNameWithoutExtension(tn(0)))
-        Next
+                    Dim n = fbxgrp(i).name
+                    Dim a = n.Split("~")
+                    Dim idx = Convert.ToInt32(a(2))
+                    move_fbx_entry(t_fbx(idx), fbxgrp(i), i, idx)
+                    last += 1
 
-        ReDim t_fbx(0) ' clean up some memory
+                End If
+            Next
+            'sort tank parts and move any new items to the end.
+            For i = 1 To fbxgrp.Length - 1
+                If Not fbxgrp(i).name.ToLower.Contains("~") Then
+                    move_fbx_entry(t_fbx(last), fbxgrp(i), last, i)
+                    last += 1
+                End If
+            Next
+            ' write back the sorted fbx entries.
+            For i = 1 To fbxgrp.Length - 1
+                move_fbx_entry(fbxgrp(i), t_fbx(i), last, i)
+                Dim tn = fbxgrp(i).name.Split("~")
+                frmComponentView.add_to_fbx_list(i, Path.GetFileNameWithoutExtension(tn(0)))
+                frmReverseVertexWinding.add_to_fbx_list(i, Path.GetFileNameWithoutExtension(tn(0)))
+            Next
+
+            ReDim t_fbx(0) ' clean up some memory
 
 
-        GC.Collect()
+            GC.Collect()
+        Catch ex As Exception
+            MsgBox(ex.Message, MsgBoxStyle.Exclamation, "error")
+            Return
+        End Try
+        Try
+            get_component_index() 'build indexing table
 
-        get_component_index() 'build indexing table
+        Catch ex As Exception
+            MsgBox(ex.Message, MsgBoxStyle.Exclamation, "error")
+
+        End Try
     End Sub
     Private Sub move_fbx_entry(ByRef fbx_in As _grps, ByRef fbx_out As _grps, ByVal i As Integer, ByVal idx As Integer)
         'sorts the tankk parts by id in file name.
@@ -2007,7 +2018,7 @@ outahere:
 
     Public Sub check_normal(ByVal i As Integer)
         Dim flip As Single = 1.0!
-        If fbxgrp(i).color_name.ToLower.Contains("turret") Or fbxgrp(i).color_name.ToLower.Contains("hull") Then
+        If fbxgrp(i).name.ToLower.Contains("turret") Or fbxgrp(i).name.ToLower.Contains("hull") Then
             If Not fbxgrp(i).name.Contains("~") Then
                 flip = -1.0!
             End If
@@ -2024,10 +2035,10 @@ outahere:
         If _group(i).color_name Is Nothing Then
             Return
         End If
-        Dim flip As Single = -1.0!
-        If _group(i).color_name.ToLower.Contains("turret") Or _group(i).color_name.ToLower.Contains("hull") Then
-            If Not _group(i).name.Contains("new") Then
-                flip = -1.0
+        Dim flip As Single = 1.0!
+        If _group(i).name.ToLower.Contains("turret") Or _group(i).name.ToLower.Contains("hull") Then
+            If Not _group(i).name.Contains("!") Then
+                flip = 1.0
             Else
                 flip = 1.0
 

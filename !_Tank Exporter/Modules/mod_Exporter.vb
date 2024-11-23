@@ -34,7 +34,13 @@ Module mod_Exporter
             Case 2
                 frmMain.SaveFileDialog1.Filter = "FBX|*.fbx"
                 frmMain.SaveFileDialog1.Title = "Save FBX.."
-                frmMain.SaveFileDialog1.FileName = Path.GetFileName(ar(0)) + ".fbx"
+
+                If CRASH_MODE Then
+                    frmMain.SaveFileDialog1.FileName = Path.GetFileName(ar(0)) + "_CRASHED.fbx"
+                Else
+                    frmMain.SaveFileDialog1.FileName = Path.GetFileName(ar(0)) + ".fbx"
+                End If
+
                 Exit Select
             Case 3
                 frmMain.SaveFileDialog1.Filter = "OBJ|*.obj"
@@ -60,7 +66,7 @@ Module mod_Exporter
         My.Settings.fbx_path = out_path
 
         Dim name As String = Path.GetFileName(ar(0))
-        Dim save_path = Path.GetDirectoryName(My.Settings.fbx_path) + "\" + name
+        Dim save_path = Path.GetDirectoryName(out_path) + "\" + name
         export_fbx_textures(False, 0) 'export all textures
 
         Dim scene_ As New Scene()
@@ -111,15 +117,17 @@ Module mod_Exporter
             For i As UInt32 = 0 To _group(item).nVertices_ - 1
                 normals(i).X = _group(item).vertices(i).nx
                 normals(i).Y = _group(item).vertices(i).ny
-                If _group(item).color_name.Contains("turret") Or
-                        _group(item).color_name.Contains("hull") Or
-                        _group(item).color_name.Contains("gun") Then
-                Else
-                    normals(i).X *= -1
+                If _group(item).color_name IsNot Nothing Then
 
+                    If _group(item).color_name.Contains("turret") Or
+                            _group(item).color_name.Contains("hull") Or
+                            _group(item).color_name.Contains("gun") Then
+                        normals(i).X *= -1
+                    Else
+                        normals(i).X *= -1
+
+                    End If
                 End If
-
-
                 normals(i).Z = _group(item).vertices(i).nz
             Next
             norm.SetData(normals)
@@ -189,8 +197,7 @@ Module mod_Exporter
             If _group(item).color_name IsNot Nothing Then
 
                 ' Set up the base color texture
-                Dim arr = _group(item).color_name.Split("\")
-                Dim DnF = name + "\" + arr(arr.Length - 1)
+                Dim DnF = Path.GetFileName(_group(item).color_name)
                 Dim tx As New Texture(DnF.Replace(".dds", ".png"))
                 tx.FileName = save_path + "\" + Path.GetFileName(tx.Name)
                 'tx.Name = tx.FileName
@@ -201,8 +208,7 @@ Module mod_Exporter
 
 
                 ' Set up the normal texture
-                arr = _group(item).normal_name.Split("\")
-                DnF = name + "\" + arr(arr.Length - 1)
+                DnF = Path.GetFileName(_group(item).normal_name)
                 Dim txn As New Texture(DnF.Replace(".dds", ".png"))
                 txn.FileName = save_path + "\" + Path.GetFileName(txn.Name)
                 'txn.Name = txn.FileName
@@ -213,8 +219,7 @@ Module mod_Exporter
 
 
                 ' Set up the metallic-roughness texture
-                arr = _group(item).GMM_name.Split("\")
-                DnF = name + "\" + arr(arr.Length - 1)
+                DnF = Path.GetFileName(_group(item).GMM_name)
                 Dim txgm As New Texture(DnF.Replace(".dds", ".png"))
                 txgm.FileName = save_path + "\" + Path.GetFileName(txgm.Name)
                 'txgm.Name = txgm.FileName
@@ -228,8 +233,7 @@ Module mod_Exporter
 
                 If _group(item).ao_name IsNot Nothing Then
 
-                    arr = _group(item).ao_name.Split("\")
-                    DnF = name + "\" + arr(arr.Length - 1)
+                    DnF = Path.GetFileName(_group(item).ao_name)
                     txao = New Texture(DnF.Replace(".dds", ".png"))
                     txao.FileName = save_path + "\" + Path.GetFileName(txao.Name)
                     'txao.Name = txao.FileName
@@ -325,15 +329,16 @@ Module mod_Exporter
                 Dim s_v = New Vector3(-ss.X, ss.Y, ss.Z)
                 If _group(item).color_name IsNot Nothing Then
 
-                    If _group(item).color_name.ToLower.Contains("chassis") Then
+                    If _group(item).color_name.ToLower.Contains("chassis") And Not CRASH_MODE Then
                         s_v.Z *= -1.0
                         s_v.Y *= -1.0
                     End If
+
                     If _group(item).color_name.ToLower.Contains("tracks") Then
                         s_v.Z *= -1.0
                         s_v.Y *= -1.0
                     End If
-                    If _group(item).color_name.ToLower.Contains("gun") Then
+                    If _group(item).color_name.ToLower.Contains("gun") And Not CRASH_MODE Then
                         s_v.Z *= -1.0
                         s_v.Y *= -1.0
                     End If

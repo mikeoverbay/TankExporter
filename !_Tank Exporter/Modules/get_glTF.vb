@@ -250,7 +250,7 @@ Module get_glTF
                             vn.z *= -1
                         Else
                             'old
-                            vn.z *= -1
+                            'vn.z *= -1
                             'vn.z *= -1
                         End If
                     Else
@@ -328,21 +328,23 @@ Module get_glTF
 
             ' Base color texture
         Next
-        If fbxgrp(id).color_Id = 0 Then
-            MsgBox("missing Base Color texture." + vbCrLf + fbxgrp(id).color_name + vbCrLf +
+        If fbxgrp(id).color_name IsNot Nothing Then
+            If fbxgrp(id).color_Id = 0 Then
+                MsgBox("missing Base Color texture." + vbCrLf + fbxgrp(id).color_name + vbCrLf +
+                                    "object:" + id.ToString + " Looked in folder " + GLFT_outfolder, MsgBoxStyle.Exclamation, "Missing Textures")
+            End If
+            If fbxgrp(id).normal_Id = 0 Then
+                MsgBox("missing Normal texture." + vbCrLf + fbxgrp(id).normal_name + vbCrLf +
                                 "object:" + id.ToString + " Looked in folder " + GLFT_outfolder, MsgBoxStyle.Exclamation, "Missing Textures")
-        End If
-        If fbxgrp(id).normal_Id = 0 Then
-            MsgBox("missing Normal texture." + vbCrLf + fbxgrp(id).normal_name + vbCrLf +
-                                "object:" + id.ToString + " Looked in folder " + GLFT_outfolder, MsgBoxStyle.Exclamation, "Missing Textures")
-        End If
-        If fbxgrp(id).ao_id = 0 And Not node.Mesh.Name.ToLower.Contains("chassis") Then
-            MsgBox("missing AO texture." + vbCrLf + fbxgrp(id).ao_name + vbCrLf +
+            End If
+            If fbxgrp(id).ao_id = 0 And Not node.Mesh.Name.ToLower.Contains("chassis") Then
+                MsgBox("missing AO texture." + vbCrLf + fbxgrp(id).ao_name + vbCrLf +
                                "object:" + id.ToString + " Looked in folder " + GLFT_outfolder, MsgBoxStyle.Exclamation, "Missing Textures")
-        End If
-        If fbxgrp(id).GMM_Id = 0 Then
-            MsgBox("missing GMM texture." + vbCrLf + fbxgrp(id).GMM_name + vbCrLf +
+            End If
+            If fbxgrp(id).GMM_Id = 0 Then
+                MsgBox("missing GMM texture." + vbCrLf + fbxgrp(id).GMM_name + vbCrLf +
                                "object:" + id.ToString + " Looked in folder " + GLFT_outfolder, MsgBoxStyle.Exclamation, "Missing Textures")
+            End If
         End If
 
 

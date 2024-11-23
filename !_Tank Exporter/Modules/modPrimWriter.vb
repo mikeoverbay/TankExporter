@@ -1004,6 +1004,8 @@ found_section:
             End If
             r = New FileStream(pathy, FileMode.Truncate, FileAccess.Write)
         Catch e As Exception
+            MsgBox("file not found:" + vbCrLf + pathy, MsgBoxStyle.Exclamation, "Can find file!")
+            Return
         End Try
 
         br = New BinaryWriter(r)
@@ -1343,13 +1345,13 @@ no_UV2EVER:
                 'note: my routine uses other rotation
                 If fbxgrp(pnter).is_new_model Then
                     If ind_scale = 2 Then
-                        If frmWritePrimitive.flipWindingOrder_cb.Checked And Not id = 4 And Not id = 1 Then
+                        If frmWritePrimitive.flipWindingOrder_cb.Checked And Not id = 1 Then
                             br.Write(Convert.ToUInt16(comp.indices(j + 0) + off))
                             br.Write(Convert.ToUInt16(comp.indices(j + 1) + off))
                             br.Write(Convert.ToUInt16(comp.indices(j + 2) + off))
                         Else
-                            br.Write(Convert.ToUInt16(comp.indices(j + 1) + off))
                             br.Write(Convert.ToUInt16(comp.indices(j + 0) + off))
+                            br.Write(Convert.ToUInt16(comp.indices(j + 1) + off))
                             br.Write(Convert.ToUInt16(comp.indices(j + 2) + off))
 
                         End If
@@ -1373,7 +1375,8 @@ no_UV2EVER:
                     End If
                 Else
                     If ind_scale = 2 Then
-                        If frmWritePrimitive.flipWindingOrder_cb.Checked Or fbxgrp(pnter).reverse_winding Or id = 4 Or id = 1 Then
+                        If Not CRASH_MODE And (frmWritePrimitive.flipWindingOrder_cb.Checked Or fbxgrp(pnter).reverse_winding Or id = 4 Or id = 1) Then
+
                             br.Write(Convert.ToUInt16(comp.indices(j + 0) + off))
                             br.Write(Convert.ToUInt16(comp.indices(j + 1) + off))
                             br.Write(Convert.ToUInt16(comp.indices(j + 2) + off))
@@ -1544,16 +1547,16 @@ no_UV2EVER:
                             v.z -= fbxgrp(parent).matrix(14)
 
                             n.x = -comp.vertices(k).nx
-                            n.y = comp.vertices(k).ny
-                            n.z = -comp.vertices(k).nz
+                            n.y = -comp.vertices(k).ny
+                            n.z = comp.vertices(k).nz
 
                             tn.x = -comp.vertices(k).tx
-                            tn.y = comp.vertices(k).ty
-                            tn.z = -comp.vertices(k).tz
+                            tn.y = -comp.vertices(k).ty
+                            tn.z = comp.vertices(k).tz
 
                             bn.x = -comp.vertices(k).bnx
-                            bn.y = comp.vertices(k).bny
-                            bn.z = -comp.vertices(k).bnz
+                            bn.y = -comp.vertices(k).bny
+                            bn.z = comp.vertices(k).bnz
 
                         Else
                             'GLB NOT GUN
@@ -1635,11 +1638,14 @@ no_UV2EVER:
                     Debug.WriteLine("-----------------------------")
                 End If
 
-                'n = rotate_transform(n, fbxgrp(pnter).matrix)
-
                 br.Write(comp.vertices(k).n)
-                br.Write(comp.vertices(k).u)
-                br.Write(comp.vertices(k).v)
+                If fbxgrp(pnter).is_new_model Then
+                    br.Write(comp.vertices(k).u)
+                    br.Write(comp.vertices(k).v)
+                Else
+                    br.Write(comp.vertices(k).u)
+                    br.Write(comp.vertices(k).v)
+                End If
                 If stride = 37 Then
                     br.Write(comp.vertices(k).index_1)
                     br.Write(comp.vertices(k).index_2)

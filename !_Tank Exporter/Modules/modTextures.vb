@@ -225,6 +225,9 @@ Module modTextures
             ar = TANK_NAME.Split(":")
 
         End If
+        If CRASH_MODE Then
+            ar(0) = ar(0) + "_CRASH"
+        End If
         Dim name As String = Path.GetFileName(ar(0))
         FBX_Texture_path = Path.GetDirectoryName(My.Settings.fbx_path) + "\" + name
         If Not IO.Directory.Exists(FBX_Texture_path) Then
@@ -1956,7 +1959,7 @@ skip_hd:
         Dim texID As UInt32
 
         updateEvent.Reset()
-        Thread.Sleep(100)
+
         texID = Ilu.iluGenImage() ' /* Generation of one image name */
         Il.ilBindImage(texID) '; /* Binding of image name */
         Dim success = Il.ilGetError
