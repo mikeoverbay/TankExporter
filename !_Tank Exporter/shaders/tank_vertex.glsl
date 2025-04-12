@@ -21,7 +21,7 @@ void main(void) {
     vec3 n = normalize(gl_NormalMatrix * gl_Normal);
     vec3 t = normalize(gl_NormalMatrix * gl_MultiTexCoord1.xyz);
     vec3 b = normalize(gl_NormalMatrix * gl_MultiTexCoord2.xyz);
-    vertexColor = gl_MultiTexCoord5.str;
+    vertexColor.xyz = gl_MultiTexCoord5.xyz;
     v_Normal = n;
     float invmax = inversesqrt(max(dot(t, t), dot(b, b)));
     TBN = mat3(t * invmax, b * invmax, n * invmax);

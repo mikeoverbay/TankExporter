@@ -41,8 +41,8 @@ Partial Class frmMain
         Me.m_load_file = New System.Windows.Forms.ToolStripMenuItem()
         Me.m_save = New System.Windows.Forms.ToolStripMenuItem()
         Me.ToolStripSeparator7 = New System.Windows.Forms.ToolStripSeparator()
-        Me.m_import_2016_fbx = New System.Windows.Forms.ToolStripMenuItem()
         Me.m_import_GLB = New System.Windows.Forms.ToolStripMenuItem()
+        Me.m_import_2016_fbx = New System.Windows.Forms.ToolStripMenuItem()
         Me.ToolStripSeparator8 = New System.Windows.Forms.ToolStripSeparator()
         Me.m_import_primitives_fbx = New System.Windows.Forms.ToolStripMenuItem()
         Me.ToolStripSeparator29 = New System.Windows.Forms.ToolStripSeparator()
@@ -255,136 +255,136 @@ Partial Class frmMain
         Me.m_test.Font = New System.Drawing.Font("Segoe UI", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.m_test.ForeColor = System.Drawing.Color.Black
         Me.m_test.Name = "m_test"
-        Me.m_test.Size = New System.Drawing.Size(230, 22)
+        Me.m_test.Size = New System.Drawing.Size(231, 22)
         Me.m_test.Text = "Start Wot"
         '
         'm_test_res_mods
         '
         Me.m_test_res_mods.Name = "m_test_res_mods"
-        Me.m_test_res_mods.Size = New System.Drawing.Size(194, 22)
+        Me.m_test_res_mods.Size = New System.Drawing.Size(195, 22)
         Me.m_test_res_mods.Text = "Launch World of Tanks"
         '
         'ToolStripSeparator21
         '
         Me.ToolStripSeparator21.Name = "ToolStripSeparator21"
-        Me.ToolStripSeparator21.Size = New System.Drawing.Size(191, 6)
+        Me.ToolStripSeparator21.Size = New System.Drawing.Size(192, 6)
         '
         'm_pythonLog
         '
         Me.m_pythonLog.Name = "m_pythonLog"
-        Me.m_pythonLog.Size = New System.Drawing.Size(194, 22)
+        Me.m_pythonLog.Size = New System.Drawing.Size(195, 22)
         Me.m_pythonLog.Text = "Load Python.log"
         '
         'ToolStripSeparator22
         '
         Me.ToolStripSeparator22.Name = "ToolStripSeparator22"
-        Me.ToolStripSeparator22.Size = New System.Drawing.Size(191, 6)
+        Me.ToolStripSeparator22.Size = New System.Drawing.Size(192, 6)
         '
         'm_clear_PythonLog
         '
         Me.m_clear_PythonLog.Name = "m_clear_PythonLog"
-        Me.m_clear_PythonLog.Size = New System.Drawing.Size(194, 22)
+        Me.m_clear_PythonLog.Size = New System.Drawing.Size(195, 22)
         Me.m_clear_PythonLog.Text = "Clear Python.log"
         '
         'm_load_file
         '
         Me.m_load_file.Name = "m_load_file"
-        Me.m_load_file.Size = New System.Drawing.Size(230, 22)
+        Me.m_load_file.Size = New System.Drawing.Size(231, 22)
         Me.m_load_file.Text = "Load"
         '
         'm_save
         '
         Me.m_save.Name = "m_save"
-        Me.m_save.Size = New System.Drawing.Size(230, 22)
+        Me.m_save.Size = New System.Drawing.Size(231, 22)
         Me.m_save.Text = "Save"
         '
         'ToolStripSeparator7
         '
         Me.ToolStripSeparator7.Name = "ToolStripSeparator7"
-        Me.ToolStripSeparator7.Size = New System.Drawing.Size(227, 6)
-        '
-        'm_import_2016_fbx
-        '
-        Me.m_import_2016_fbx.Font = New System.Drawing.Font("Segoe UI", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.m_import_2016_fbx.Name = "m_import_2016_fbx"
-        Me.m_import_2016_fbx.Size = New System.Drawing.Size(230, 22)
-        Me.m_import_2016_fbx.Text = "Import 2014 FBX"
+        Me.ToolStripSeparator7.Size = New System.Drawing.Size(228, 6)
         '
         'm_import_GLB
         '
         Me.m_import_GLB.Font = New System.Drawing.Font("Segoe UI", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.m_import_GLB.Name = "m_import_GLB"
-        Me.m_import_GLB.Size = New System.Drawing.Size(230, 22)
+        Me.m_import_GLB.Size = New System.Drawing.Size(231, 22)
         Me.m_import_GLB.Text = "Import GLB"
+        '
+        'm_import_2016_fbx
+        '
+        Me.m_import_2016_fbx.Font = New System.Drawing.Font("Segoe UI", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.m_import_2016_fbx.Name = "m_import_2016_fbx"
+        Me.m_import_2016_fbx.Size = New System.Drawing.Size(231, 22)
+        Me.m_import_2016_fbx.Text = "Import 2014 FBX"
         '
         'ToolStripSeparator8
         '
         Me.ToolStripSeparator8.Name = "ToolStripSeparator8"
-        Me.ToolStripSeparator8.Size = New System.Drawing.Size(227, 6)
+        Me.ToolStripSeparator8.Size = New System.Drawing.Size(228, 6)
         '
         'm_import_primitives_fbx
         '
         Me.m_import_primitives_fbx.Font = New System.Drawing.Font("Segoe UI", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.m_import_primitives_fbx.Name = "m_import_primitives_fbx"
-        Me.m_import_primitives_fbx.Size = New System.Drawing.Size(230, 22)
+        Me.m_import_primitives_fbx.Size = New System.Drawing.Size(231, 22)
         Me.m_import_primitives_fbx.Text = "Import Primitives FBX"
         '
         'ToolStripSeparator29
         '
         Me.ToolStripSeparator29.Name = "ToolStripSeparator29"
-        Me.ToolStripSeparator29.Size = New System.Drawing.Size(227, 6)
+        Me.ToolStripSeparator29.Size = New System.Drawing.Size(228, 6)
         '
         'm_remove_fbx
         '
         Me.m_remove_fbx.Name = "m_remove_fbx"
-        Me.m_remove_fbx.Size = New System.Drawing.Size(230, 22)
+        Me.m_remove_fbx.Size = New System.Drawing.Size(231, 22)
         Me.m_remove_fbx.Text = "Remove Models"
         '
         'ToolStripSeparator1
         '
         Me.ToolStripSeparator1.Name = "ToolStripSeparator1"
-        Me.ToolStripSeparator1.Size = New System.Drawing.Size(227, 6)
+        Me.ToolStripSeparator1.Size = New System.Drawing.Size(228, 6)
         '
         'm_write_primitive
         '
         Me.m_write_primitive.Enabled = False
         Me.m_write_primitive.Name = "m_write_primitive"
-        Me.m_write_primitive.Size = New System.Drawing.Size(230, 22)
+        Me.m_write_primitive.Size = New System.Drawing.Size(231, 22)
         Me.m_write_primitive.Text = "Write Primitive"
         '
         'm_write_non_tank_primitive
         '
         Me.m_write_non_tank_primitive.Enabled = False
         Me.m_write_non_tank_primitive.Name = "m_write_non_tank_primitive"
-        Me.m_write_non_tank_primitive.Size = New System.Drawing.Size(230, 22)
+        Me.m_write_non_tank_primitive.Size = New System.Drawing.Size(231, 22)
         Me.m_write_non_tank_primitive.Text = "Write NON tank Primitive"
         '
         'ToolStripSeparator18
         '
         Me.ToolStripSeparator18.Name = "ToolStripSeparator18"
-        Me.ToolStripSeparator18.Size = New System.Drawing.Size(227, 6)
+        Me.ToolStripSeparator18.Size = New System.Drawing.Size(228, 6)
         '
         'm_build_wotmod
         '
         Me.m_build_wotmod.Name = "m_build_wotmod"
-        Me.m_build_wotmod.Size = New System.Drawing.Size(230, 22)
+        Me.m_build_wotmod.Size = New System.Drawing.Size(231, 22)
         Me.m_build_wotmod.Text = "Build wotmod file"
         '
         'ToolStripSeparator9
         '
         Me.ToolStripSeparator9.Name = "ToolStripSeparator9"
-        Me.ToolStripSeparator9.Size = New System.Drawing.Size(227, 6)
+        Me.ToolStripSeparator9.Size = New System.Drawing.Size(228, 6)
         '
         'm_load_primitive
         '
         Me.m_load_primitive.Name = "m_load_primitive"
-        Me.m_load_primitive.Size = New System.Drawing.Size(230, 22)
+        Me.m_load_primitive.Size = New System.Drawing.Size(231, 22)
         Me.m_load_primitive.Text = "Load primitives_processed"
         '
         'ToolStripSeparator28
         '
         Me.ToolStripSeparator28.Name = "ToolStripSeparator28"
-        Me.ToolStripSeparator28.Size = New System.Drawing.Size(227, 6)
+        Me.ToolStripSeparator28.Size = New System.Drawing.Size(228, 6)
         '
         'm_tangent_normalMaps
         '
@@ -392,43 +392,43 @@ Partial Class frmMain
         Me.m_tangent_normalMaps.CheckOnClick = True
         Me.m_tangent_normalMaps.CheckState = System.Windows.Forms.CheckState.Checked
         Me.m_tangent_normalMaps.Name = "m_tangent_normalMaps"
-        Me.m_tangent_normalMaps.Size = New System.Drawing.Size(230, 22)
+        Me.m_tangent_normalMaps.Size = New System.Drawing.Size(231, 22)
         Me.m_tangent_normalMaps.Text = "Tangent FBX Normal Maps"
         '
         'm_edit_visual
         '
         Me.m_edit_visual.Font = New System.Drawing.Font("Segoe UI", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.m_edit_visual.Name = "m_edit_visual"
-        Me.m_edit_visual.Size = New System.Drawing.Size(230, 22)
+        Me.m_edit_visual.Size = New System.Drawing.Size(231, 22)
         Me.m_edit_visual.Text = "Show Visual Files"
         '
         'm_show_log
         '
         Me.m_show_log.Name = "m_show_log"
-        Me.m_show_log.Size = New System.Drawing.Size(230, 22)
+        Me.m_show_log.Size = New System.Drawing.Size(231, 22)
         Me.m_show_log.Text = "Show Log File"
         '
         'ToolStripSeparator34
         '
         Me.ToolStripSeparator34.Name = "ToolStripSeparator34"
-        Me.ToolStripSeparator34.Size = New System.Drawing.Size(227, 6)
+        Me.ToolStripSeparator34.Size = New System.Drawing.Size(228, 6)
         '
         'm_Open_game_folder
         '
         Me.m_Open_game_folder.Name = "m_Open_game_folder"
-        Me.m_Open_game_folder.Size = New System.Drawing.Size(230, 22)
+        Me.m_Open_game_folder.Size = New System.Drawing.Size(231, 22)
         Me.m_Open_game_folder.Text = "Open WOT Folder"
         '
         'm_open_wot_temp_folder
         '
         Me.m_open_wot_temp_folder.Name = "m_open_wot_temp_folder"
-        Me.m_open_wot_temp_folder.Size = New System.Drawing.Size(230, 22)
+        Me.m_open_wot_temp_folder.Size = New System.Drawing.Size(231, 22)
         Me.m_open_wot_temp_folder.Text = "Open wot_temp folder"
         '
         'ToolStripSeparator4
         '
         Me.ToolStripSeparator4.Name = "ToolStripSeparator4"
-        Me.ToolStripSeparator4.Size = New System.Drawing.Size(227, 6)
+        Me.ToolStripSeparator4.Size = New System.Drawing.Size(228, 6)
         '
         'm_region_combo
         '
@@ -440,56 +440,56 @@ Partial Class frmMain
         'ToolStripSeparator11
         '
         Me.ToolStripSeparator11.Name = "ToolStripSeparator11"
-        Me.ToolStripSeparator11.Size = New System.Drawing.Size(227, 6)
+        Me.ToolStripSeparator11.Size = New System.Drawing.Size(228, 6)
         Me.ToolStripSeparator11.Visible = False
         '
         'M_Path
         '
         Me.M_Path.Name = "M_Path"
-        Me.M_Path.Size = New System.Drawing.Size(230, 22)
+        Me.M_Path.Size = New System.Drawing.Size(231, 22)
         Me.M_Path.Text = "Path to Game folder"
         '
         'm_res_mods_path
         '
         Me.m_res_mods_path.Name = "m_res_mods_path"
-        Me.m_res_mods_path.Size = New System.Drawing.Size(230, 22)
+        Me.m_res_mods_path.Size = New System.Drawing.Size(231, 22)
         Me.m_res_mods_path.Text = "Path to res_mods "
         '
         'ToolStripSeparator2
         '
         Me.ToolStripSeparator2.Name = "ToolStripSeparator2"
-        Me.ToolStripSeparator2.Size = New System.Drawing.Size(227, 6)
+        Me.ToolStripSeparator2.Size = New System.Drawing.Size(228, 6)
         '
         'm_rebuild_XML
         '
         Me.m_rebuild_XML.Font = New System.Drawing.Font("Segoe UI", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.m_rebuild_XML.Name = "m_rebuild_XML"
-        Me.m_rebuild_XML.Size = New System.Drawing.Size(230, 22)
+        Me.m_rebuild_XML.Size = New System.Drawing.Size(231, 22)
         Me.m_rebuild_XML.Text = "Rebuild lookup XML"
         '
         'm_clear_temp_folder_data
         '
         Me.m_clear_temp_folder_data.Name = "m_clear_temp_folder_data"
-        Me.m_clear_temp_folder_data.Size = New System.Drawing.Size(230, 22)
+        Me.m_clear_temp_folder_data.Size = New System.Drawing.Size(231, 22)
         Me.m_clear_temp_folder_data.Text = "Clear Temp Folder"
         '
         'm_reload_api_data
         '
         Me.m_reload_api_data.Name = "m_reload_api_data"
-        Me.m_reload_api_data.Size = New System.Drawing.Size(230, 22)
+        Me.m_reload_api_data.Size = New System.Drawing.Size(231, 22)
         Me.m_reload_api_data.Text = "Reload WoT API data"
         '
         'ToolStripSeparator3
         '
         Me.ToolStripSeparator3.Name = "ToolStripSeparator3"
-        Me.ToolStripSeparator3.Size = New System.Drawing.Size(227, 6)
+        Me.ToolStripSeparator3.Size = New System.Drawing.Size(228, 6)
         '
         'm_UI_settings
         '
         Me.m_UI_settings.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.m_settings, Me.m_hide_show_components, Me.ToolStripSeparator27, Me.m_set_vertex_winding_order, Me.ToolStripSeparator26, Me.m_FXAA, Me.m_bloom_off, Me.ToolStripSeparator23, Me.m_shadows, Me.m_shadowQuality, Me.m_select_light, Me.ToolStripSeparator24, Me.m_simple_lighting, Me.m_enableBloom, Me.m_show_environment, Me.m_shadow_preview, Me.ToolStripSeparator25, Me.m_Shader_Debug, Me.m_edit_shaders})
         Me.m_UI_settings.Font = New System.Drawing.Font("Segoe UI", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.m_UI_settings.Name = "m_UI_settings"
-        Me.m_UI_settings.Size = New System.Drawing.Size(230, 22)
+        Me.m_UI_settings.Size = New System.Drawing.Size(231, 22)
         Me.m_UI_settings.Text = "UI and View Settings"
         '
         'm_settings
@@ -613,30 +613,30 @@ Partial Class frmMain
         'ToolStripSeparator31
         '
         Me.ToolStripSeparator31.Name = "ToolStripSeparator31"
-        Me.ToolStripSeparator31.Size = New System.Drawing.Size(227, 6)
+        Me.ToolStripSeparator31.Size = New System.Drawing.Size(228, 6)
         '
         'm_dump_tanks
         '
         Me.m_dump_tanks.Name = "m_dump_tanks"
-        Me.m_dump_tanks.Size = New System.Drawing.Size(230, 22)
+        Me.m_dump_tanks.Size = New System.Drawing.Size(231, 22)
         Me.m_dump_tanks.Text = "Dump All Tanks as FBX"
         Me.m_dump_tanks.Visible = False
         '
         'm_enable_tarrain_decals
         '
         Me.m_enable_tarrain_decals.Name = "m_enable_tarrain_decals"
-        Me.m_enable_tarrain_decals.Size = New System.Drawing.Size(230, 22)
+        Me.m_enable_tarrain_decals.Size = New System.Drawing.Size(231, 22)
         Me.m_enable_tarrain_decals.Text = "Enable Loading Terrain Decals"
         '
         'ToolStripSeparator19
         '
         Me.ToolStripSeparator19.Name = "ToolStripSeparator19"
-        Me.ToolStripSeparator19.Size = New System.Drawing.Size(227, 6)
+        Me.ToolStripSeparator19.Size = New System.Drawing.Size(228, 6)
         '
         'M_Exit
         '
         Me.M_Exit.Name = "M_Exit"
-        Me.M_Exit.Size = New System.Drawing.Size(230, 22)
+        Me.M_Exit.Size = New System.Drawing.Size(231, 22)
         Me.M_Exit.Text = "Exit"
         '
         'm_ExportExtract
@@ -644,7 +644,7 @@ Partial Class frmMain
         Me.m_ExportExtract.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.m_extract, Me.ToolStripSeparator32, Me.m_export_to_glTF, Me.m_2013_fbx, Me.ToolStripSeparator33, Me.m_export_STL, Me.m_export_to_obj, Me.ToolStripSeparator15, Me.m_view_res_mods_folder, Me.ToolStripSeparator6, Me.m_clean_res_mods, Me.ToolStripSeparator17, Me.m_screen_cap})
         Me.m_ExportExtract.Enabled = False
         Me.m_ExportExtract.Name = "m_ExportExtract"
-        Me.m_ExportExtract.Size = New System.Drawing.Size(94, 23)
+        Me.m_ExportExtract.Size = New System.Drawing.Size(92, 23)
         Me.m_ExportExtract.Text = "Export/Extract"
         '
         'm_extract
@@ -767,7 +767,7 @@ Partial Class frmMain
         '
         Me.m_GMM_toy_cb.CheckOnClick = True
         Me.m_GMM_toy_cb.Name = "m_GMM_toy_cb"
-        Me.m_GMM_toy_cb.Size = New System.Drawing.Size(70, 23)
+        Me.m_GMM_toy_cb.Size = New System.Drawing.Size(71, 23)
         Me.m_GMM_toy_cb.Text = "GMM Toy"
         Me.m_GMM_toy_cb.Visible = False
         '
@@ -791,7 +791,7 @@ Partial Class frmMain
         Me.m_decal.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right
         Me.m_decal.CheckOnClick = True
         Me.m_decal.Name = "m_decal"
-        Me.m_decal.Size = New System.Drawing.Size(73, 23)
+        Me.m_decal.Size = New System.Drawing.Size(74, 23)
         Me.m_decal.Text = "Decal Tool"
         Me.m_decal.Visible = False
         '
@@ -1445,7 +1445,7 @@ Partial Class frmMain
         'pb2
         '
         Me.pb2.Anchor = System.Windows.Forms.AnchorStyles.None
-        Me.pb2.Location = New System.Drawing.Point(72, 137)
+        Me.pb2.Location = New System.Drawing.Point(78, 137)
         Me.pb2.Name = "pb2"
         Me.pb2.Size = New System.Drawing.Size(200, 100)
         Me.pb2.TabIndex = 3
@@ -1690,45 +1690,45 @@ Partial Class frmMain
         '
         Me.conMenu.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.m_load, Me.ToolStripSeparator13, Me.m_load_crashed, Me.ToolStripSeparator16, Me.m_reload_textures, Me.ToolStripSeparator30, Me.ToolStripMenuItem1})
         Me.conMenu.Name = "conMenu"
-        Me.conMenu.Size = New System.Drawing.Size(167, 110)
+        Me.conMenu.Size = New System.Drawing.Size(168, 110)
         '
         'm_load
         '
         Me.m_load.Name = "m_load"
-        Me.m_load.Size = New System.Drawing.Size(166, 22)
+        Me.m_load.Size = New System.Drawing.Size(167, 22)
         Me.m_load.Text = "Load This.."
         '
         'ToolStripSeparator13
         '
         Me.ToolStripSeparator13.Name = "ToolStripSeparator13"
-        Me.ToolStripSeparator13.Size = New System.Drawing.Size(163, 6)
+        Me.ToolStripSeparator13.Size = New System.Drawing.Size(164, 6)
         '
         'm_load_crashed
         '
         Me.m_load_crashed.Name = "m_load_crashed"
-        Me.m_load_crashed.Size = New System.Drawing.Size(166, 22)
+        Me.m_load_crashed.Size = New System.Drawing.Size(167, 22)
         Me.m_load_crashed.Text = "Load Crashed..."
         '
         'ToolStripSeparator16
         '
         Me.ToolStripSeparator16.Name = "ToolStripSeparator16"
-        Me.ToolStripSeparator16.Size = New System.Drawing.Size(163, 6)
+        Me.ToolStripSeparator16.Size = New System.Drawing.Size(164, 6)
         '
         'm_reload_textures
         '
         Me.m_reload_textures.Name = "m_reload_textures"
-        Me.m_reload_textures.Size = New System.Drawing.Size(166, 22)
+        Me.m_reload_textures.Size = New System.Drawing.Size(167, 22)
         Me.m_reload_textures.Text = "Reload Textures"
         '
         'ToolStripSeparator30
         '
         Me.ToolStripSeparator30.Name = "ToolStripSeparator30"
-        Me.ToolStripSeparator30.Size = New System.Drawing.Size(163, 6)
+        Me.ToolStripSeparator30.Size = New System.Drawing.Size(164, 6)
         '
         'ToolStripMenuItem1
         '
         Me.ToolStripMenuItem1.Name = "ToolStripMenuItem1"
-        Me.ToolStripMenuItem1.Size = New System.Drawing.Size(166, 22)
+        Me.ToolStripMenuItem1.Size = New System.Drawing.Size(167, 22)
         Me.ToolStripMenuItem1.Text = "Tanks Description"
         '
         'OpenFileDialog1

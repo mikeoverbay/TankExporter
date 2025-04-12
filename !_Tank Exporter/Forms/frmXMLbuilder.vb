@@ -23,7 +23,7 @@ Public Class frmXMLbuilder
     Public used_pkg_cnt As Integer
     Public DATA_TABLE As New DataTable("items")
 
-    Private Sub Button1_Click(sender As Object, e As EventArgs) Handles go_btn.Click
+    Public Sub Button1_Click(sender As Object, e As EventArgs) Handles go_btn.Click
 
         Dim pkgFolder As String = My.Settings.game_path + "\res\packages\"
         Dim st As New Stopwatch
@@ -189,6 +189,7 @@ Public Class frmXMLbuilder
         'DATA_TABLE.Columns.Add("filename", GetType(String))
         'DATA_TABLE.Columns.Add("package", GetType(String))
         'DATA_TABLE.ReadXml(Application.StartupPath + "\resources\XMLdata\TheItemList.xml")
+        Load_partList()
         go_btn.Enabled = True
     End Sub
 

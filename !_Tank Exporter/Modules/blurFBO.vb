@@ -96,7 +96,7 @@ Module blurFBO
             If fbo > 0 Then
                 Gl.glDeleteFramebuffersEXT(1, fbo)
             End If
-
+            Gl.glFinish()
         End Sub
 
         Public Sub create_textures()
@@ -110,6 +110,7 @@ Module blurFBO
             Gl.glTexParameterf(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_WRAP_T, Gl.GL_CLAMP)
 
             Gl.glTexImage2D(Gl.GL_TEXTURE_2D, 0, Gl.GL_RGB16F_ARB, CInt(shadowMapSize), CInt(shadowMapSize), 0, Gl.GL_RGB, Gl.GL_FLOAT, Nothing)
+            Gl.glFinish()
 
 
         End Sub
@@ -121,7 +122,10 @@ Module blurFBO
             Me.width = shadowMapSize / 2
             Me.height = Me.width
             updateEvent.Reset()
+
             Thread.Sleep(60)
+            Gl.glFinish()
+
             ' Unbind any currently bound framebuffer
             Gl.glBindFramebufferEXT(Gl.GL_FRAMEBUFFER_EXT, 0)
 

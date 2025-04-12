@@ -565,9 +565,6 @@ done:
             System.IO.Directory.CreateDirectory(Temp_Storage)
         End If
 
-
-
-
         Dim f = File.Open(Temp_Storage + "\log_text.txt", FileMode.Create)
         f.Close()
         '====================================================================================================
@@ -681,8 +678,6 @@ done:
         '====================================================================================================
         _Started = True
         '====================================================================================================
-        ' Setup loaction for tank data.. sucks to do it this way but UAC wont allow it any other way.
-        'I'M SAVING ALL CODE RELATED TO THE OLD TANK LIST IN CASE I WORK ON TERRA AGAIN!
         decal_path = Application.StartupPath
 
         If My.Settings.firstRun Then ' check for possible update to tank list.
@@ -807,6 +802,10 @@ done:
 
         If Not File.Exists(Temp_Storage + "\in_shortnames.txt") Then
             update_log("Getting DEV API data.")
+            frmXMLbuilder.Show()
+            frmXMLbuilder.go_btn.PerformClick()
+            frmXMLbuilder.Hide()
+
             get_tank_names()
         Else
             get_tank_info_from_temp_folder()
@@ -1543,17 +1542,16 @@ loaded_jump:
         shared_contents_build.Dispose()
         GC.Collect()
         GC.WaitForFullGCComplete()
-        If f.Exists Then
-            For Each fi In f.GetFiles
-                If fi.Name.Contains("Path.txt") Then
-                Else
-                    fi.Delete()
-
-                End If
-            Next
-        End If
         Try
-            f.Delete()
+            If f.Exists Then
+                For Each fi In f.GetFiles
+                    If fi.Name.Contains("Path.txt") Then
+                    Else
+                        fi.Delete()
+
+                    End If
+                Next
+            End If
         Catch ex As Exception
         End Try
         DisableOpenGL()
@@ -2056,13 +2054,19 @@ loaded_jump:
             node_list(i).item(cnt).package = 1
             icons(i).img(cnt) = New entry_
             Dim i_fnd As Boolean = True
-            If File.Exists(Temp_Storage + "\" + t.tag + ".png") Then
+            Dim filePath As String = Temp_Storage + "\" + t.tag + ".png"
+            If File.Exists(filePath) Then
                 i_fnd = True
-                icons(i).img(cnt).img = CType(Image.FromFile(Temp_Storage + "\" + t.tag + ".png"), Bitmap)
+                ' Use a FileStream to avoid locking the file
+                Using fs As New FileStream(filePath, FileMode.Open, FileAccess.Read)
+                    icons(i).img(cnt).img = CType(Bitmap.FromStream(fs), Bitmap)
+                End Using
             Else
-                icons(i).img(cnt).img = get_tank_icon(n.Text + ".").Clone
-                icons(i).img(cnt).img.Save(Temp_Storage + "\" + t.tag + ".png", ImageFormat.Png)
+                ' Load and save the new image if the file doesn't exist
+                icons(i).img(cnt).img = CType(get_tank_icon(n.Text + ".").Clone, Bitmap)
+                icons(i).img(cnt).img.Save(filePath, ImageFormat.Png)
             End If
+
             icons(i).img(cnt).name = t.tag
 
             If icons(i).img(cnt) IsNot Nothing Then

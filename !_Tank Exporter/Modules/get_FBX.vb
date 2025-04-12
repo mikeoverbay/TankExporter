@@ -18,6 +18,9 @@ Module get_FBX
         frmMain.OpenFileDialog1.Filter = "FBX|*.fbx"
         frmMain.OpenFileDialog1.Title = "Open FBX.."
         frmMain.OpenFileDialog1.FileName = My.Settings.fbx_path
+        If My.Settings.fbx_path.Length = 0 Then
+            My.Settings.fbx_path = "C:\"
+        End If
         frmMain.OpenFileDialog1.InitialDirectory = Path.GetDirectoryName(My.Settings.fbx_path)
         Dim result = frmMain.OpenFileDialog1.ShowDialog
         If result = DialogResult.Cancel Then
@@ -181,24 +184,26 @@ Module get_FBX
                         Else
                             fbxgrp(item).has_uv2 = 0
                         End If
+                        Dim scaler As Single = 1.292
                         If mesh.VertexColorChannelCount = 1 Then
                             fbxgrp(item).stride = 37
                             fbxgrp(item).has_color = 1
                             Dim c = mesh.VertexColorChannels(0)(vertexIndex)
-                            fbxgrp(item).vertices(vertexIndex).index_1 = CByte(c.R * 255)
-                            fbxgrp(item).vertices(vertexIndex).index_2 = CByte(c.G * 255)
-                            fbxgrp(item).vertices(vertexIndex).index_3 = CByte(c.B * 255)
+                            fbxgrp(item).vertices(vertexIndex).index_1 = CByte(c.R * 255 * scaler)
+                            fbxgrp(item).vertices(vertexIndex).index_2 = CByte(c.G * 255 * scaler)
+                            fbxgrp(item).vertices(vertexIndex).index_3 = CByte(c.B * 255 * scaler)
                             fbxgrp(item).vertices(vertexIndex).index_4 = 255
                         End If
                         If mesh.VertexColorChannelCount = 2 Then
                             fbxgrp(item).stride = 40
                             fbxgrp(item).has_color = 1
                             Dim c = mesh.VertexColorChannels(0)(vertexIndex)
-                            fbxgrp(item).vertices(vertexIndex).index_1 = CByte(c.R * 255)
-                            fbxgrp(item).vertices(vertexIndex).index_2 = CByte(c.G * 255)
-                            fbxgrp(item).vertices(vertexIndex).index_3 = CByte(c.B * 255)
+                            fbxgrp(item).vertices(vertexIndex).index_1 = CByte(c.R * 255 * scaler)
+                            fbxgrp(item).vertices(vertexIndex).index_2 = CByte(c.G * 255 * scaler)
+                            fbxgrp(item).vertices(vertexIndex).index_3 = CByte(c.B * 255 * scaler)
                             fbxgrp(item).vertices(vertexIndex).index_4 = 255
-
+                            Dim cout = c.R * 255 * scaler
+                            'Debug.WriteLine(cout.ToString)
                             c = mesh.VertexColorChannels(1)(vertexIndex)
                             fbxgrp(item).vertices(vertexIndex).weight_1 = CByte(c.R * 255)
                             fbxgrp(item).vertices(vertexIndex).weight_2 = CByte(c.G * 255)

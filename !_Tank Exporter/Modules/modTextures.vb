@@ -872,7 +872,7 @@ save_it:
                 For k = id - 1 To 1 Step -1
                     'Loop and search for matching atlas name. if it matches, copy it or set flag to load new set.
                     'All other variables are loaded when the textures are searched for in ModTankLoader.vb
-                    If _group(id).atlasAlbedoHeight = _group(k).atlasAlbedoHeight Then
+                    If _group(id).albedoHeightTile0 = _group(k).albedoHeightTile0 Then
                         If _group(k).is_atlas_type = 1 Then
                             diff_atlas_names = False
                             _group(id).AM_atlas = _group(k).AM_atlas
@@ -890,7 +890,7 @@ save_it:
                 Next
             End If
             If diff_atlas_names Or id = 1 Then
-                get_packed_atlas(_group(id).atlasAlbedoHeight, id, ATLAS_TYPE.ATLAS_AM)
+                get_packed_atlas(_group(id).albedoHeightTile0, id, ATLAS_TYPE.ATLAS_AM)
             End If
         End If
         '===========================================================================================
@@ -899,7 +899,7 @@ save_it:
             Dim diff_atlas_names As Boolean = True
             If id > 1 Then
                 For k = id - 1 To 1 Step -1
-                    If _group(id).atlasNormalGlossSpec = _group(k).atlasNormalGlossSpec Then
+                    If _group(id).normalGlossSpecTile0 = _group(k).normalGlossSpecTile0 Then
                         If _group(k).is_atlas_type = 1 Then
                             diff_atlas_names = False
                             _group(id).GBMT_atlas = _group(k).GBMT_atlas
@@ -916,7 +916,7 @@ save_it:
                 Next
             End If
             If diff_atlas_names Or id = 1 Then
-                get_packed_atlas(_group(id).atlasNormalGlossSpec, id, ATLAS_TYPE.ATLAS_GBMT)
+                get_packed_atlas(_group(id).normalGlossSpecTile0, id, ATLAS_TYPE.ATLAS_GBMT)
             End If
         End If
         '===========================================================================================
@@ -925,7 +925,7 @@ save_it:
             Dim diff_atlas_names As Boolean = True
             If id > 1 Then
                 For k = id - 1 To 1 Step -1
-                    If _group(id).atlasMetallicAO = _group(k).atlasMetallicAO Then
+                    If _group(id).metallicAOTile0 = _group(k).metallicAOTile0 Then
                         If _group(k).is_atlas_type = 1 Then
                             diff_atlas_names = False
                             _group(id).MAO_atlas = _group(k).MAO_atlas
@@ -942,7 +942,7 @@ save_it:
                 Next
             End If
             If diff_atlas_names Or id = 1 Then
-                get_packed_atlas(_group(id).atlasMetallicAO, id, ATLAS_TYPE.ATLAS_MAO)
+                get_packed_atlas(_group(id).metallicAOTile0, id, ATLAS_TYPE.ATLAS_MAO)
             End If
         End If
         '===========================================================================================
@@ -951,7 +951,7 @@ save_it:
             Dim diff_atlas_names As Boolean = True
             If id > 1 Then
                 For k = id - 1 To 1 Step -1
-                    If _group(id).atlasBlend = _group(k).atlasBlend Then
+                    If _group(id).blendMask = _group(k).blendMask Then
                         If _group(k).is_atlas_type = 1 Then
                             diff_atlas_names = False
                             _group(id).ATLAS_BLEND_ID = _group(k).ATLAS_BLEND_ID
@@ -962,9 +962,9 @@ save_it:
             End If
             If diff_atlas_names Or id = 1 Then
 
-                _group(id).ATLAS_BLEND_ID = get_DDS_search_option(_group(id).atlasBlend.Replace(".png", "_hd.dds"))
+                _group(id).ATLAS_BLEND_ID = get_DDS_search_option(_group(id).blendMask.Replace(".png", "_hd.dds"))
                 If _group(id).ATLAS_BLEND_ID = 0 Then
-                    _group(id).ATLAS_BLEND_ID = get_DDS_search_option(_group(id).atlasBlend.Replace(".png", ".dds"))
+                    _group(id).ATLAS_BLEND_ID = get_DDS_search_option(_group(id).blendMask.Replace(".png", ".dds"))
                 End If
                 Gl.glBindFramebufferEXT(Gl.GL_FRAMEBUFFER_EXT, worker_fbo.worker_fbo)
                 worker_fbo.blur(_group(id).ATLAS_BLEND_ID)
@@ -1007,6 +1007,12 @@ save_it:
     Public Sub build_textures(ByVal id As Integer)
         Dim s = TheXML_String
         Try
+            If PRIMITIVES_MODE Then 'only if loaded a stand alone
+                get_atlas_stuff(id)
+            End If
+            If _group(id).is_atlas_type = 1 Then
+                Return
+            End If
             If _group(id).color_name Is Nothing Then
                 Return
             End If
@@ -1031,12 +1037,6 @@ save_it:
             End If
             'This stops loading textures already loaded....
             '===========================================================================================
-            If PRIMITIVES_MODE Then 'only if loaded a stand alone
-                get_atlas_stuff(id)
-            End If
-            If _group(id).is_atlas_type = 1 Then
-                Return
-            End If
             Dim i As Integer = 0
             For i = 0 To textures.Length - 1
 
@@ -1067,6 +1067,8 @@ save_it:
             Dim n_id, c_id, m_id, ao_id, detail_id, g_det_id As Integer
             updateEvent.Reset()
             Thread.Sleep(100)
+            Gl.glFinish()
+
             c_id = get_texture_id(diffuse, id)
             n_id = get_texture_id(normal, id)
             m_id = get_texture_id(metal, id)

@@ -292,133 +292,133 @@ Module ModTankLoader
     End Class
     Public _group() As _grps
     Public Structure _grps
-        Public identifier As String
-        Public indices() As uvect3
-        Public vertices() As vertice_
-        Public vertColor() As Vector4
-        Public weight0() As Vector4
-        Public comp As comp_
-        Public cPoints() As FbxVector4
-        Public vertex_pick_list As Integer
-        Public is_GAmap As Integer
-        Public texture_count As Integer
-        Public is_new_model As Boolean
-        Public bsp2_id As Integer
-        Public bsp2_tree_id As Integer
-        Public texture_id As Integer
-        Public name As String
-        Public table_entry_name As String
-        Public BPVT_mode As Boolean
-        ' Public mfm_path As String
-        Public matrix() As Double
-        Public shadowMapID As Integer
+        Public albedoHeightTile0 As String
+        Public albedoHeightTile1 As String
         Public alphaRef As Integer
         Public alphaTest As Integer
-        Public color_Id As Integer
-        Public is_glass As Integer
-        Public detail_Id As Integer
-        Public color_name As String
-        Public AM_in_res_mods As Boolean
-        Public GMM_Id As Integer
-        Public ANM As Integer
-        Public GMM_name As String
-        Public GMM_in_res_mods As Boolean
-        Public colorIDmap As String
-        Public detail_power As Single
-        Public doubleSided As Boolean
-        Public ao_name As String
-        Public AO_in_res_mods As Boolean
-        Public ao_id As Integer
-        Public normal_Id As Integer
-        Public specular_id As Integer
-        Public normal_name As String
-        Public ANM_in_res_mods As Boolean
-        Public specular_name As String
-        Public Spec_in_res_mods
-        Public detail_name As String
-        Public multi_textured As Boolean
-        Public metal_textured As Boolean
-        Public hasColorID As Integer
-        Public bumped As Boolean
-        Public blend_only As Boolean
-        Public bsp2_data() As Byte
-        Public color_data() As Byte
-        Public bsp2_material_data() As Byte
-        Public startVertex_ As UInt32
-        Public startIndex_ As UInt32
-        Public nVertices_ As UInt32
-        Public nPrimitives_ As UInt32
-        Public is_tank As Boolean
-        Public tank_shift As vect3
-        Public detail_tile As vec2
-        Public has_uv2 As Integer
-        Public use_uv2 As Integer
-        Public has_color As Integer
-        Public stride As Integer
-        Public has_Vcolor As Integer
-        Public header As String
-        Public call_list As Integer
-        Public rotation As Skill.FbxSDK.FbxVector4
-        Public translation As Skill.FbxSDK.FbxVector4
-        Public scale As Skill.FbxSDK.FbxVector4
-        Public is_carraige As Boolean
-        Public visible As Boolean
-        Public component_visible As Boolean
-        Public reverse_winding As Boolean
-        Public tank_part As String
-
-        Public skinned As Boolean
-        Public long_tank_name As String
-        Public is_atlas_type As Integer
-        Public g_atlas_size As vect4
-        Public g_atlas_indexs As vect4
-        Public atlasNormalGlossSpec As String
-        Public atlasMetallicAO As String
-        Public atlasBlend As String
-        Public atlasAlbedoHeight As String
+        Public AM_atlas As Integer
         Public AM_Height_id As Integer
-        Public GBMT_Height_id As Integer
-        Public MAO_Height_id As Integer
-        Public atlas_uv_coords As vect4
-        Public g_dirtColor As vect4
-        Public g_tile2Tint As vect4
-        Public g_tile1Tint As vect4
-        Public g_tile0Tint As vect4
-        Public g_dirtParams As vect4
-
-        Public is_detail_type As Integer
-        Public g_detailMap As String
-        Public g_detailMap_id As Integer
-        Public g_detailInfluences As vect4
-        Public g_detailRejectTiling As vect4
-
-        Public dirtMap As String
-        'Public ATLAS_AM_ID As Integer
-        'Public ATLAS_GBMT_ID As Integer
-        'Public ATLAS_MAO_ID As Integer
         Public AM_ID As Integer
         Public AM_ID_name As String
-        Public GBMT_ID As Integer
-        Public GBMT_ID_name As String
-        Public MAO_ID As Integer
-        Public MAO_ID_name As String
+        Public AM_in_res_mods As Boolean
+        Public ANM As Integer
+        Public ANM_in_res_mods As Boolean
+        Public ao_id As Integer
+        Public ao_name As String
+        Public AO_in_res_mods As Boolean
+        Public atlasAlbedoHeight As String
+        Public atlasBlend As String
+        Public atlasMetallicAO As String
+        Public atlasNormalGlossSpec As String
+        Public atlas_size As vec2
+        Public atlas_uv_coords As vect4
         Public ATLAS_BLEND_ID As Integer
         Public ATLAS_DIRT_ID As Integer
+        Public blendMask As String
+        Public blend_only As Boolean
+        Public BPVT_mode As Boolean
+        Public bumped As Boolean
+        Public bsp2_data() As Byte
+        Public bsp2_id As Integer
+        Public bsp2_material_data() As Byte
+        Public bsp2_tree_id As Integer
+        Public call_list As Integer
+        Public color_data() As Byte
+        Public color_Id As Integer
+        Public colorIDmap As String
+        Public color_name As String
+        Public colorTex As String
+        Public comp As comp_
+        Public component_visible As Boolean
+        Public cPoints() As FbxVector4
+        Public detail_Id As Integer
+        Public detail_name As String
+        Public detail_power As Single
+        Public detail_tile As vec2
+        Public dirtMap As String
+        Public doubleSided As Boolean
+        Public fbx_N_texture_id As Integer
+        Public fbx_texture_id As Integer
+        Public GBMT_atlas As Integer
+        Public GBMT_Height_id As Integer
+        Public GBMT_ID As Integer
+        Public GBMT_ID_name As String
+        Public GMM_Id As Integer
+        Public GMM_in_res_mods As Boolean
+        Public GMM_name As String
+        Public g_atlas_indexs As vect4
+        Public g_atlas_size As vect4
+        Public g_detailInfluences As vect4
+        Public g_detailMap As String
+        Public g_detailMap_id As Integer
+        Public g_detailRejectTiling As vect4
+        Public g_dirtColor As vect4
+        Public g_dirtParams As vect4
+        Public g_tile0Tint As vect4
+        Public g_tile1Tint As vect4
+        Public g_tile2Tint As vect4
+        Public header As String
+        Public has_color As Integer
+        Public hasColorID As Integer
+        Public has_uv2 As Integer
+        Public has_Vcolor As Integer
+        Public identifier As String
+        Public image_size As vec2
+        Public indices() As uvect3
+        Public is_atlas_type As Integer
+        Public is_carraige As Boolean
+        Public is_detail_type As Integer
+        Public is_GAmap As Integer
+        Public is_glass As Integer
+        Public is_new_model As Boolean
+        Public is_tank As Boolean
+        Public long_tank_name As String
+        Public MAO_atlas As Integer
+        Public MAO_Height_id As Integer
+        Public MAO_ID As Integer
+        Public MAO_ID_name As String
+        Public matrix() As Double
+        Public metal_textured As Boolean
+        Public metallicAOTile0 As String
+        Public metallicAOTile1 As String
+        Public multi_textured As Boolean
+        Public name As String
+        Public normalGlossSpecTile0 As String
+        Public normalGlossSpecTile1 As String
+        Public normalGlossSpecTile2 As String
+        Public normal_Id As Integer
+        Public normal_name As String
+        Public nPrimitives_ As UInt32
+        Public nVertices_ As UInt32
+        Public rendered As Boolean
+        Public reverse_winding As Boolean
+        Public rotation As Skill.FbxSDK.FbxVector4
+        Public scale As Skill.FbxSDK.FbxVector4
+        Public shadowMapID As Integer
+        Public skinned As Boolean
+        Public Spec_in_res_mods As Boolean
+        Public specular_id As Integer
+        Public specular_name As String
+        Public startIndex_ As UInt32
+        Public startVertex_ As UInt32
+        Public stride As Integer
+        Public swizzle() As Integer
+        Public table_entry_name As String
+        Public tank_part As String
+        Public tank_shift As vect3
+        Public texture_count As Integer
+        Public texture_id As Integer
+        Public translation As Skill.FbxSDK.FbxVector4
         Public use_normapMap As Integer
+        Public use_uv2 As Integer
+        Public vertColor() As Vector4
+        Public vertex_pick_list As Integer
+        Public vertices() As vertice_
+        Public visible As Boolean
+        Public weight0() As Vector4
+        Public weight() As Vector4
         Public x_repete As Single
         Public y_repete As Single
-
-        Public AM_atlas As Integer
-        Public GBMT_atlas As Integer
-        Public MAO_atlas As Integer
-        Public atlas_size As vec2
-        Public image_size As vec2
-
-        Public swizzle() As Integer
-
-        Public fbx_texture_id As Integer
-        Public fbx_N_texture_id As Integer
-        Public rendered As Boolean
     End Structure
     Public Structure uvect3
         Public v1 As UInt32
@@ -560,10 +560,15 @@ Module ModTankLoader
         '============================'============================
         'open visual
         Dim old_file_name = file_name
-        If Not openVisual(file_name) Then
-            log_text.Append("File Not Found :" + file_name + vbCrLf)
-            Return False
-        End If
+        Try
+
+            If Not openVisual(file_name) Then
+                log_text.Append("File Not Found :" + file_name + vbCrLf)
+                Return False
+            End If
+        Catch ex As Exception
+
+        End Try
         file_name = old_file_name.Replace("model", "primitives_processed")
 
 
@@ -799,10 +804,10 @@ next_m:
             If ordered_names(sg - sub_groups).has_color Then ' we need to convert them in to RGBA so they can he wrote to a FBX as vertex colors
                 ReDim color_rgb(ordered_names(sg - sub_groups).color_count - 1)
                 For i = 0 To (ordered_names(sg - sub_groups).color_count - 1)
-                    color_rgb(i).r = CSng(ordered_names(sg - sub_groups).color_data((i * 4) + 0) / 255)
-                    color_rgb(i).g = CSng(ordered_names(sg - sub_groups).color_data((i * 4) + 1) / 255)
-                    color_rgb(i).b = CSng(ordered_names(sg - sub_groups).color_data((i * 4) + 2) / 255)
-                    color_rgb(i).a = CSng(ordered_names(sg - sub_groups).color_data((i * 4) + 3) / 255)
+                    color_rgb(i).r = CSng(ordered_names(sg - sub_groups).color_data((i * 4) + 0))
+                    color_rgb(i).g = CSng(ordered_names(sg - sub_groups).color_data((i * 4) + 1))
+                    color_rgb(i).b = CSng(ordered_names(sg - sub_groups).color_data((i * 4) + 2))
+                    color_rgb(i).a = CSng(ordered_names(sg - sub_groups).color_data((i * 4) + 3))
                 Next
                 frmMain.update_log("color data read")
                 'MsgBox("Old format. TE may not save thise as a primitve correctly", MsgBoxStyle.Information, "Warning")
@@ -976,6 +981,7 @@ next_m:
             ReDim tbuf(vh.nVertice_count)
             i = 0
             Dim p As Integer = 6
+            Dim color_buf_pointer As Integer = 0
             For k As UInt32 = object_start To big_l
                 _group(k).stride = stride
                 _group(k).long_tank_name = long_name
@@ -1139,10 +1145,17 @@ next_m:
                     'obsolete
                     If ordered_names(sg - sub_groups).has_color Then
                         _group(k).has_color = 1
-                        _group(k).vertices(cnt).r = color_rgb(color_runner).r
-                        _group(k).vertices(cnt).g = color_rgb(color_runner).g
-                        _group(k).vertices(cnt).b = color_rgb(color_runner).b
-                        _group(k).vertices(cnt).a = color_rgb(color_runner).a
+                        _group(k).vertices(cnt).r = color_rgb(color_runner).r / 255.0
+                        _group(k).vertices(cnt).g = color_rgb(color_runner).g / 255.0
+                        _group(k).vertices(cnt).b = color_rgb(color_runner).b / 255.0
+                        _group(k).vertices(cnt).a = color_rgb(color_runner).a / 255.0
+
+                        _group(k).vertices(cnt).index_1 = color_rgb(color_runner).r
+                        _group(k).vertices(cnt).index_2 = color_rgb(color_runner).g
+                        _group(k).vertices(cnt).index_3 = color_rgb(color_runner).b
+                        _group(k).vertices(cnt).index_4 = color_rgb(color_runner).a
+
+
                         color_runner += 1
                     End If
                     i += 1
@@ -1803,8 +1816,8 @@ all_done:
                 ' If the file doesn't exist on the hard drive or LOADING_FBX is True, search the shared packages
                 Dim pkname = Find_entry(filename)
                 If Not String.IsNullOrEmpty(pkname) Then
-                    Using zipf As ZipFile = New ZipFile(Path.GetDirectoryName(shared_pkg_search_list(0)) + "\" + pkname)
-                        Dim ent As ZipEntry = zipf(filename)
+                    Using zipf As ZipFile = New ZipFile(My.Settings.game_path + "\res\packages\" + pkname)
+                        Dim ent As ZipEntry = zipf(filename.Replace("/", "\"))
                         If ent IsNot Nothing Then
                             ent.Extract(mstream)
                             If openXml_stream(mstream, My.Settings.res_mods_path + "\" + filename) Then
@@ -2243,6 +2256,7 @@ jump_over:
         _group(id).g_atlas_indexs.y = 0
         _group(id).g_atlas_indexs.z = 0
         _group(id).g_atlas_indexs.w = 0
+        _group(id).is_atlas_type = 0
 
         'so we dont use the diffusedmap2 as diffused in search
         thestring = thestring.Replace("diffuseMap2", "difffuseMap2")
@@ -2285,6 +2299,82 @@ jump_over:
             _group(id).identifier = newS
         End If
         'July 14th, 2019.. Started on stand alone primtive loading
+        'update dec 9th 2024
+        diff_pos = InStr(primStart, thestring, "albedoHeightTile0")
+        If diff_pos > 0 Then
+            Dim tex1_pos = InStr(diff_pos, thestring, "<Texture>") + "<Texture>".Length
+            Dim tex1_Epos = InStr(tex1_pos, thestring, "</Texture>")
+            Dim newS As String = ""
+            newS = Mid(thestring, tex1_pos, tex1_Epos - tex1_pos).Replace("/", "\")
+            _group(id).albedoHeightTile0 = newS
+            _group(id).is_atlas_type = 1
+        End If
+        diff_pos = InStr(primStart, thestring, "normalGlossSpecTile0")
+        If diff_pos > 0 Then
+            Dim tex1_pos = InStr(diff_pos, thestring, "<Texture>") + "<Texture>".Length
+            Dim tex1_Epos = InStr(tex1_pos, thestring, "</Texture>")
+            Dim newS As String = ""
+            newS = Mid(thestring, tex1_pos, tex1_Epos - tex1_pos).Replace("/", "\")
+            _group(id).normalGlossSpecTile0 = newS
+        End If
+
+        diff_pos = InStr(primStart, thestring, "metallicAOTile0")
+        If diff_pos > 0 Then
+            Dim tex1_pos = InStr(diff_pos, thestring, "<Texture>") + "<Texture>".Length
+            Dim tex1_Epos = InStr(tex1_pos, thestring, "</Texture>")
+            Dim newS As String = ""
+            newS = Mid(thestring, tex1_pos, tex1_Epos - tex1_pos).Replace("/", "\")
+            _group(id).metallicAOTile0 = newS
+        End If
+        diff_pos = InStr(primStart, thestring, "albedoHeightTile1")
+        If diff_pos > 0 Then
+            Dim tex1_pos = InStr(diff_pos, thestring, "<Texture>") + "<Texture>".Length
+            Dim tex1_Epos = InStr(tex1_pos, thestring, "</Texture>")
+            Dim newS As String = ""
+            newS = Mid(thestring, tex1_pos, tex1_Epos - tex1_pos).Replace("/", "\")
+            _group(id).albedoHeightTile1 = newS
+        End If
+        diff_pos = InStr(primStart, thestring, "normalGlossSpecTile1")
+        If diff_pos > 0 Then
+            Dim tex1_pos = InStr(diff_pos, thestring, "<Texture>") + "<Texture>".Length
+            Dim tex1_Epos = InStr(tex1_pos, thestring, "</Texture>")
+            Dim newS As String = ""
+            newS = Mid(thestring, tex1_pos, tex1_Epos - tex1_pos).Replace("/", "\")
+            _group(id).normalGlossSpecTile1 = newS
+        End If
+        diff_pos = InStr(primStart, thestring, "metallicAOTile1")
+        If diff_pos > 0 Then
+            Dim tex1_pos = InStr(diff_pos, thestring, "<Texture>") + "<Texture>".Length
+            Dim tex1_Epos = InStr(tex1_pos, thestring, "</Texture>")
+            Dim newS As String = ""
+            newS = Mid(thestring, tex1_pos, tex1_Epos - tex1_pos).Replace("/", "\")
+            _group(id).metallicAOTile1 = newS
+        End If
+        diff_pos = InStr(primStart, thestring, "colorTex")
+        If diff_pos > 0 Then
+            Dim tex1_pos = InStr(diff_pos, thestring, "<Texture>") + "<Texture>".Length
+            Dim tex1_Epos = InStr(tex1_pos, thestring, "</Texture>")
+            Dim newS As String = ""
+            newS = Mid(thestring, tex1_pos, tex1_Epos - tex1_pos).Replace("/", "\")
+            _group(id).colortex = newS
+        End If
+        diff_pos = InStr(primStart, thestring, "normalGlossSpecTile2")
+        If diff_pos > 0 Then
+            Dim tex1_pos = InStr(diff_pos, thestring, "<Texture>") + "<Texture>".Length
+            Dim tex1_Epos = InStr(tex1_pos, thestring, "</Texture>")
+            Dim newS As String = ""
+            newS = Mid(thestring, tex1_pos, tex1_Epos - tex1_pos).Replace("/", "\")
+            _group(id).normalGlossSpecTile2 = newS
+        End If
+        diff_pos = InStr(primStart, thestring, "blendMask")
+        If diff_pos > 0 Then
+            Dim tex1_pos = InStr(diff_pos, thestring, "<Texture>") + "<Texture>".Length
+            Dim tex1_Epos = InStr(tex1_pos, thestring, "</Texture>")
+            Dim newS As String = ""
+            newS = Mid(thestring, tex1_pos, tex1_Epos - tex1_pos).Replace("/", "\")
+            _group(id).blendMask = newS
+        End If
+        '==================================
         diff_pos = InStr(primStart, thestring, "atlasNormalGlossSpec")
         If diff_pos > 0 Then
             Dim tex1_pos = InStr(diff_pos, thestring, "<Texture>") + "<Texture>".Length

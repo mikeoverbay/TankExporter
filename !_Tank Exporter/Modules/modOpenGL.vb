@@ -37,6 +37,9 @@ Module modOpenGL
     Public pb5_hDC As System.IntPtr
     Public pb5_hRC As System.IntPtr
 
+    Public pb6_hDC As System.IntPtr
+    Public pb6_hRC As System.IntPtr
+
     Public position0() As Single = {2.843F, 10.0F, 9.596F, 1.0F}
     Public position1() As Single = {-5.0F, 8.0F, -5.0F, 1.0F}
     Public position2() As Single = {5.0F, 12.0F, 0.0F, -5.0F}
@@ -85,6 +88,7 @@ Module modOpenGL
         pb3_hDC = User.GetDC(frmMain.PB3.Handle)
         pb4_hDC = User.GetDC(frmPickDecal.pb4.Handle) ' Get the device context of the form
         pb5_hDC = User.GetDC(frmFullScreen.fs_render_box.Handle) ' Get the device context of the form
+        pb6_hDC = User.GetDC(frmMain.iconbox.Handle) ' Get the device context of the form
 
         frmMain.Controls.Add(frmMain.pb2)
         Application.DoEvents()
@@ -189,12 +193,29 @@ Module modOpenGL
             Return
         End If
 
+        '================================================================4
+
+        If Not (Gdi.SetPixelFormat(pb6_hDC, PixelFormat, pfd)) Then
+            MessageBox.Show("Unable to set pixel format 6")
+            Return
+        End If
+        pb6_hRC = Wgl.wglCreateContext(pb6_hDC)
+        If pb6_hRC.ToInt32 = 0 Then
+            MessageBox.Show("Unable to get rendering context 6")
+            Return
+        End If
+        If Not (Wgl.wglMakeCurrent(pb6_hDC, pb6_hRC)) Then
+            MessageBox.Show("Unable to make rendering context current 6")
+            Return
+        End If
+
         '================================================================
         ' Share resources among contexts
         Wgl.wglShareLists(pb1_hRC, pb2_hRC)
         Wgl.wglShareLists(pb1_hRC, pb3_hRC)
         Wgl.wglShareLists(pb1_hRC, pb4_hRC) ' Share with the fourth context
         Wgl.wglShareLists(pb1_hRC, pb5_hRC) ' Share with the fifth context
+        Wgl.wglShareLists(pb1_hRC, pb6_hRC) ' Share with the sixth context
 
         ' Go back to context 1
         If Not (Wgl.wglMakeCurrent(pb1_hDC, pb1_hRC)) Then

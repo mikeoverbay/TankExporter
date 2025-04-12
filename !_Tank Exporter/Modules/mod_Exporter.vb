@@ -158,10 +158,10 @@ Module mod_Exporter
                 Dim vcolor As New VertexElementVertexColor
                 ReDim normals(_group(item).nVertices_ - 1)
                 For i As UInt32 = 0 To _group(item).nVertices_ - 1
-                    normals(i).X = _group(item).vertices(i).index_1 / 255.0!
-                    normals(i).Y = _group(item).vertices(i).index_2 / 255.0!
-                    normals(i).Z = _group(item).vertices(i).index_3 / 255.0!
-                    normals(i).W = _group(item).vertices(i).index_4 / 255.0!
+                    normals(i).X = CDbl(_group(item).vertices(i).r)
+                    normals(i).Y = CDbl(_group(item).vertices(i).g)
+                    normals(i).Z = CDbl(_group(item).vertices(i).b)
+                    normals(i).W = CDbl(_group(item).vertices(i).a)
                 Next
                 vcolor.SetData(normals)
 
@@ -170,10 +170,10 @@ Module mod_Exporter
                 Dim vcolor2 As New VertexElementVertexColor
                 ReDim normals(_group(item).nVertices_ - 1)
                 For i As UInt32 = 0 To _group(item).nVertices_ - 1
-                    normals(i).X = _group(item).vertices(i).weight_1 / 255.0!
-                    normals(i).Y = _group(item).vertices(i).weight_2 / 255.0!
-                    normals(i).Z = _group(item).vertices(i).weight_3 / 255.0!
-                    normals(i).W = _group(item).vertices(i).weight_4 / 255.0!
+                    normals(i).X = _group(item).vertices(i).ir
+                    normals(i).Y = _group(item).vertices(i).ig
+                    normals(i).Z = _group(item).vertices(i).ib
+                    normals(i).W = _group(item).vertices(i).ia
                 Next
                 vcolor2.SetData(normals)
                 m.AddElement(vcolor2)

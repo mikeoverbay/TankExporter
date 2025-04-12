@@ -17,6 +17,9 @@ Module get_glTF
     Public GLTF_infolder As String = Nothing
     Public Function open_glTF()
         GLB = True
+        If My.Settings.fbx_path.Length = 0 Then
+            frmMain.OpenFileDialog1.InitialDirectory = "C:\"
+        End If
         frmMain.OpenFileDialog1.InitialDirectory = My.Settings.fbx_path
         ' Set the file dialog filter to show GLTF files
         frmMain.OpenFileDialog1.Filter = "GLTF Files (*.gltf; *.glb)|*.gltf;*.glb"
