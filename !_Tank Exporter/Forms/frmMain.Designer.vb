@@ -184,8 +184,9 @@ Partial Class frmMain
         Me.TabPage8 = New System.Windows.Forms.TabPage()
         Me.TabPage9 = New System.Windows.Forms.TabPage()
         Me.TabPage10 = New System.Windows.Forms.TabPage()
-        Me.TC2 = New System.Windows.Forms.TabControl()
         Me.TabPage11 = New System.Windows.Forms.TabPage()
+        Me.TC2 = New System.Windows.Forms.TabControl()
+        Me.TabPage12 = New System.Windows.Forms.TabPage()
         Me.tank_label = New System.Windows.Forms.Label()
         Me.iconbox = New System.Windows.Forms.PictureBox()
         Me.conMenu = New System.Windows.Forms.ContextMenuStrip(Me.components)
@@ -1445,7 +1446,7 @@ Partial Class frmMain
         'pb2
         '
         Me.pb2.Anchor = System.Windows.Forms.AnchorStyles.None
-        Me.pb2.Location = New System.Drawing.Point(78, 137)
+        Me.pb2.Location = New System.Drawing.Point(82, 137)
         Me.pb2.Name = "pb2"
         Me.pb2.Size = New System.Drawing.Size(200, 100)
         Me.pb2.TabIndex = 3
@@ -1524,6 +1525,7 @@ Partial Class frmMain
         Me.TC1.Controls.Add(Me.TabPage8)
         Me.TC1.Controls.Add(Me.TabPage9)
         Me.TC1.Controls.Add(Me.TabPage10)
+        Me.TC1.Controls.Add(Me.TabPage11)
         Me.TC1.ItemSize = New System.Drawing.Size(24, 21)
         Me.TC1.Location = New System.Drawing.Point(0, 23)
         Me.TC1.Name = "TC1"
@@ -1641,9 +1643,18 @@ Partial Class frmMain
         Me.TabPage10.TabIndex = 9
         Me.TabPage10.Text = "10"
         '
+        'TabPage11
+        '
+        Me.TabPage11.Location = New System.Drawing.Point(4, 25)
+        Me.TabPage11.Name = "TabPage11"
+        Me.TabPage11.Size = New System.Drawing.Size(14, 371)
+        Me.TabPage11.TabIndex = 10
+        Me.TabPage11.Text = "11"
+        Me.TabPage11.UseVisualStyleBackColor = True
+        '
         'TC2
         '
-        Me.TC2.Controls.Add(Me.TabPage11)
+        Me.TC2.Controls.Add(Me.TabPage12)
         Me.TC2.ItemSize = New System.Drawing.Size(24, 21)
         Me.TC2.Location = New System.Drawing.Point(0, 23)
         Me.TC2.Name = "TC2"
@@ -1652,16 +1663,16 @@ Partial Class frmMain
         Me.TC2.TabIndex = 0
         Me.TC2.Visible = False
         '
-        'TabPage11
+        'TabPage12
         '
-        Me.TabPage11.BackColor = System.Drawing.Color.DimGray
-        Me.TabPage11.Location = New System.Drawing.Point(4, 25)
-        Me.TabPage11.Margin = New System.Windows.Forms.Padding(0)
-        Me.TabPage11.Name = "TabPage11"
-        Me.TabPage11.Padding = New System.Windows.Forms.Padding(3, 3, 0, 0)
-        Me.TabPage11.Size = New System.Drawing.Size(14, 451)
-        Me.TabPage11.TabIndex = 0
-        Me.TabPage11.Text = "Result"
+        Me.TabPage12.BackColor = System.Drawing.Color.DimGray
+        Me.TabPage12.Location = New System.Drawing.Point(4, 25)
+        Me.TabPage12.Margin = New System.Windows.Forms.Padding(0)
+        Me.TabPage12.Name = "TabPage12"
+        Me.TabPage12.Padding = New System.Windows.Forms.Padding(3, 3, 0, 0)
+        Me.TabPage12.Size = New System.Drawing.Size(14, 451)
+        Me.TabPage12.TabIndex = 0
+        Me.TabPage12.Text = "Result"
         '
         'tank_label
         '
@@ -1822,7 +1833,7 @@ Partial Class frmMain
     Friend WithEvents TabPage8 As System.Windows.Forms.TabPage
     Friend WithEvents TabPage9 As System.Windows.Forms.TabPage
     Friend WithEvents TabPage10 As System.Windows.Forms.TabPage
-    Friend WithEvents TabPage11 As System.Windows.Forms.TabPage
+    Friend WithEvents TabPage12 As System.Windows.Forms.TabPage
     Friend WithEvents iconbox As System.Windows.Forms.PictureBox
     Friend WithEvents info_Label As System.Windows.Forms.Label
     Friend WithEvents conMenu As System.Windows.Forms.ContextMenuStrip
@@ -1974,4 +1985,5 @@ Partial Class frmMain
     Friend WithEvents intro_label As Label
     Friend WithEvents decalName As DataGridViewTextBoxColumn
     Friend WithEvents decalID As DataGridViewTextBoxColumn
+    Friend WithEvents TabPage11 As TabPage
 End Class

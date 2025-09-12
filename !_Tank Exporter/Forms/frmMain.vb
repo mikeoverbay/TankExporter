@@ -1,8 +1,11 @@
 ﻿#Region "imports"
-Imports System.Net
+Imports System.Drawing.Imaging
 Imports System.Globalization
 Imports System.IO
 Imports System.Math
+Imports System.Net
+Imports System.Runtime.InteropServices
+Imports System.Security.Policy
 Imports System.Text
 Imports System.Threading
 Imports System.Threading.Tasks
@@ -10,10 +13,9 @@ Imports System.Windows
 Imports System.Xml
 Imports Ionic.Zip
 Imports Microsoft.VisualBasic.Strings
-Imports Tao.FreeGlut.Glut
 Imports Tank_Exporter.shader_loader
-Imports System.Runtime.InteropServices
-Imports System.Drawing.Imaging
+Imports Tao.FreeGlut.Glut
+
 
 
 
@@ -70,9 +72,10 @@ Public Class frmMain
     Public gui_pkg_part_1 As Ionic.Zip.ZipFile
     Public gui_pkg_part_2 As Ionic.Zip.ZipFile
     Public gui_pkg_part_3 As Ionic.Zip.ZipFile
+    Public gui_pkg_part_4 As Ionic.Zip.ZipFile
     Public scripts_pkg As Ionic.Zip.ZipFile
-    Dim treeviews(11) As TreeView
-    Public icons(11) As pngs
+    Dim treeviews(12) As TreeView
+    Public icons(12) As pngs
     Public view_status_string As String
     Public tank_mini_icons As New ImageList
     Public GMM_R, GMM_B As Single
@@ -118,6 +121,7 @@ Public Class frmMain
     Dim TreeView9 As New TreeView
     Dim TreeView10 As New TreeView
     Dim TreeView11 As New TreeView
+    Dim TreeView12 As New TreeView
     Public spin_light As Boolean = False
 #End Region
 
@@ -179,6 +183,7 @@ Public Class frmMain
             gui_pkg_part_1.Dispose()
             gui_pkg_part_2.Dispose()
             gui_pkg_part_3.Dispose()
+            gui_pkg_part_4.Dispose()
             scripts_pkg.Dispose()
             'shared_pkg.Dispose()
             'shared_sandbox_pkg.Dispose()
@@ -523,7 +528,7 @@ done:
 
 
         tank_label.Text = ""
-        SplitContainer1.SplitterDistance = 720
+        SplitContainer1.SplitterDistance = 700
         SplitContainer2.SplitterDistance = SplitContainer2.Height - 160
         Application.DoEvents()
         Me.Width = 1280
@@ -740,6 +745,7 @@ done:
                 gui_pkg_part_1 = New Ionic.Zip.ZipFile(My.Settings.game_path + "\res\packages\gui-part1.pkg")
                 gui_pkg_part_2 = New Ionic.Zip.ZipFile(My.Settings.game_path + "\res\packages\gui-part2.pkg")
                 gui_pkg_part_3 = New Ionic.Zip.ZipFile(My.Settings.game_path + "\res\packages\gui-part3.pkg")
+                gui_pkg_part_4 = New Ionic.Zip.ZipFile(My.Settings.game_path + "\res\packages\gui-part4.pkg")
                 update_log("Loaded: " + My.Settings.game_path + "\res\packages\gui.pkgs")
 
                 scripts_pkg = New Ionic.Zip.ZipFile(My.Settings.game_path + "\res\packages\scripts.pkg")
@@ -832,6 +838,8 @@ done:
         set_treeview(TreeView9, TC1)
         Application.DoEvents()
         set_treeview(TreeView10, TC1)
+        Application.DoEvents()
+        set_treeview(TreeView11, TC1)
         '-----------------------------
         Application.DoEvents()
         treeviews(1) = TreeView1
@@ -853,6 +861,8 @@ done:
         treeviews(9) = TreeView9
         Application.DoEvents()
         treeviews(10) = TreeView10
+        Application.DoEvents()
+        treeviews(11) = TreeView11
         '-----------------------------
         Application.DoEvents()
         load_tabs()
@@ -1629,30 +1639,6 @@ loaded_jump:
         'e = Gl.glGetError
 
     End Sub
-
-    Private Sub set_treeview(ByRef tv As TreeView, ByVal tc As TabControl)
-        Dim st_index = tc.SelectedIndex
-        tc.SelectedTab.Controls.Clear()
-        Dim st = tc.SelectedTab
-        update_log("creating treeview :" + st_index.ToString("00"))
-        tv = New mytreeview
-        tv.Font = font_holder.Font.Clone
-        tv.ContextMenuStrip = conMenu
-        tv.DrawMode = TreeViewDrawMode.OwnerDrawText
-        tv.ImageList = tank_mini_icons
-        tv.Dock = DockStyle.Fill
-        tv.Nodes.Clear()
-        tv.BackColor = Color.DimGray
-        tv.ForeColor = Color.Black
-        tv.HotTracking = False
-        tv.HideSelection = True
-        st.Controls.Add(tv)
-        If st_index < 9 Then
-            tc.SelectedIndex = st_index + 1
-        End If
-        Application.DoEvents()
-    End Sub
-
     Public Sub get_tank_parts_from_xml(ByVal tank As String, ByRef data_set As DataSet)
         'once again the non-standard name calling causes issues
         'Why not use USA for the nation in all paths???? czech, japan, sweeden, poland are ok as is
@@ -1860,19 +1846,45 @@ loaded_jump:
         fm.Dispose()
     End Sub
 
+    Private Sub set_treeview(ByRef tv As TreeView, ByVal tc As TabControl)
+        Dim st_index = tc.SelectedIndex
+        tc.SelectedTab.Controls.Clear()
+        Dim st = tc.SelectedTab
+        update_log("creating treeview :" + st_index.ToString("00"))
+        tv = New mytreeview
+        tv.Font = font_holder.Font.Clone
+        tv.ContextMenuStrip = conMenu
+        tv.DrawMode = TreeViewDrawMode.OwnerDrawText
+        tv.ImageList = tank_mini_icons
+        tv.Dock = DockStyle.Fill
+        tv.Nodes.Clear()
+        tv.BackColor = Color.DimGray
+        tv.ForeColor = Color.Black
+        tv.HotTracking = False
+        tv.HideSelection = True
+        st.Controls.Add(tv)
+        If st_index < 10 Then
+            tc.SelectedIndex = st_index + 1
+        End If
+        Application.DoEvents()
+    End Sub
+
+
     Private Sub load_tabs()
         'Try
-        For i = 1 To 10
+        For i = 1 To 11 ' Extended to support Tier 11
             info_Label.Text = " Creating Nodes by tier (" + i.ToString("00") + ")"
             Application.DoEvents()
             store_in_treeview(i, treeviews(i))
             Application.DoEvents()
         Next
+
         'add count to log
         update_log("Total Tanks Found:" + TOTAL_TANKS_FOUND.ToString("000"))
         log_text.AppendLine("-= TANKS FOUND IN GAME =-")
+
         'get_tanks_sandbox()
-        For i = 1 To 10
+        For i = 1 To 11 ' Extended to support Tier 11
             info_Label.Text = "Adding Nodes to TreeView Lists (" + i.ToString("00") + ")"
             Dim l = node_list(i).item.Length - 2
             ReDim Preserve node_list(i).item(l) ' remove last empty item
@@ -2348,7 +2360,7 @@ loaded_jump:
     Private Function get_tank_icon(ByVal name As String) As Bitmap
         Dim lowerName As String = name.ToLower()
 
-        Dim allEntries = gui_pkg_part_1.Concat(gui_pkg_part_2).Concat(gui_pkg_part_3)
+        Dim allEntries = gui_pkg_part_1.Concat(gui_pkg_part_2).Concat(gui_pkg_part_3).Concat(gui_pkg_part_4)
 
         Dim filteredEntries = From entry In allEntries
                               Where entry.FileName.ToLower().Contains(lowerName) _
@@ -7799,6 +7811,26 @@ fuckit:
                 n.ForeColor = Color.Black
             End If
         Next
+
+        '11
+        For Each n As TreeNode In TreeView11.Nodes
+            If in_s.Contains(n.Text + ":") Then
+                Dim s = get_shortname(n)
+                Dim ar = s.Split(":")
+                tank_label.Text = ar(0)
+                old_tank_name = ar(0)
+                iconbox.Visible = True
+
+                ' use index 11 instead of 10
+                old_backgound_icon = icons(11).img(n.Index).img
+                public_icon_path = icons(11).img(n.Index).img.Tag
+
+                iconbox.BackgroundImage = old_backgound_icon
+                n.ForeColor = Color.White
+            Else
+                n.ForeColor = Color.Black
+            End If
+        Next
         'm_export_tank_list.Visible = True
         Return
         Application.DoEvents()
@@ -9528,9 +9560,9 @@ outta_here:
             Dim ts As String = SearchBox.Text
             searching_tanks(ts)
             Application.DoEvents()
-            set_treeview(TreeView11, TC2)
+            set_treeview(TreeView12, TC2)
             Application.DoEvents()
-            treeviews(11) = TreeView11
+            treeviews(11) = TreeView12
 
             Application.DoEvents()
             research_result_treeview(0, treeviews(11))
