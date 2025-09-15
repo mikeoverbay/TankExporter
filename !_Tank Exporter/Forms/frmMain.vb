@@ -3535,6 +3535,13 @@ loaded_jump:
                         Gl.glBindTexture(Gl.GL_TEXTURE_2D, exclusionMask_id)
                     Else
                         Gl.glBindTexture(Gl.GL_TEXTURE_2D, _group(jj).ao_id)
+                        'bug fix for missing AO on net texture WZ_111_5A
+                        If _group(jj).ao_id > 0 Then
+                            Gl.glUniform1i(TANK_ao_exist, 1)
+                        Else
+                            Gl.glUniform1i(TANK_ao_exist, 0)
+
+                        End If
                     End If
                     Gl.glActiveTexture(Gl.GL_TEXTURE0 + 4)
                     Gl.glBindTexture(Gl.GL_TEXTURE_2D, _group(jj).detail_Id)

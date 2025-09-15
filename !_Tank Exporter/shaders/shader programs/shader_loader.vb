@@ -331,7 +331,7 @@ Module shader_loader
     Public tank_ambient, tank_specular, tank_total, tank_cubeMap, tank_LUT, tank_shadowMap As Integer
     Public tank_a_group, tank_b_group, tank_lightMatrix, tank_use_shadow As Integer
     Public tank_colorEnable, tank_is_Track As Integer
-    Public tank_GMM_Toy_value, tank_use_GMM_Toy As Integer
+    Public tank_GMM_Toy_value, tank_use_GMM_Toy, TANK_ao_exist As Integer
     Private Sub set_tank_shader_variables()
         tank_a_group = Gl.glGetUniformLocation(shader_list.tank_shader, "u_ScaleFGDSpec")
         tank_b_group = Gl.glGetUniformLocation(shader_list.tank_shader, "u_ScaleDiffBaseMR")
@@ -368,7 +368,7 @@ Module shader_loader
         tank_is_Track = Gl.glGetUniformLocation(shader_list.tank_shader, "is_track")
         tank_use_GMM_Toy = Gl.glGetUniformLocation(shader_list.tank_shader, "use_GMM_Toy")
         tank_GMM_Toy_value = Gl.glGetUniformLocation(shader_list.tank_shader, "GMM_Toy")
-
+        TANK_ao_exist = Gl.glGetUniformLocation(shader_list.tank_shader, "ao_exist")
     End Sub
 
     '==============================================================================================================
@@ -465,7 +465,7 @@ Module shader_loader
         shadowTest_alphaTest = Gl.glGetUniformLocation(shader_list.shadowTest_shader, "alphaTest")
     End Sub
 
-    Public terrain_depthMap, terrain_shadowProjection, terrain_textureMap, _
+    Public terrain_depthMap, terrain_shadowProjection, terrain_textureMap,
         terrain_normalMap, terrain_use_shadow, terrain_gradient, terrain_noise, terain_animation, terrain_camPosition As Integer
     '==============================================================================================================
     Public Sub set_terrain_variables()
