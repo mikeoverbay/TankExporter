@@ -181,6 +181,22 @@ Public Class frmXMLbuilder
             fb.AppendLine("<package>" + thelist(i).pkg_name + "</package>")
             fb.AppendLine("</items>")
         Next
+        'add missing files that are not in the pkgs but are needed for the mod to work. I will add them as I find them missing.
+        fb.AppendLine("<items>")
+        fb.AppendLine("<filename>" + "\vehicles\american\Ares_90_track_AM_hd.dds" + "</filename>")
+        fb.AppendLine("<package>" + "vehicles_level_10-part1.pkg" + "</package>")
+        fb.AppendLine("</items>")
+
+        fb.AppendLine("<items>")
+        fb.AppendLine("<filename>" + "\vehicles\american\Ares_90_track_ANM_hd.dds" + "</filename>")
+        fb.AppendLine("<package>" + "vehicles_level_10-part1.pkg" + "</package>")
+        fb.AppendLine("</items>")
+
+        fb.AppendLine("<items>")
+        fb.AppendLine("<filename>" + "\vehicles\american\Ares_90_track_AO_hd.dds" + "</filename>")
+        fb.AppendLine("<package>" + "vehicles_level_10-part2.pkg" + "</package>")
+        fb.AppendLine("</items>")
+
         fb.AppendLine("</FileList>")
         IO.File.WriteAllText(Application.StartupPath + "\resources\XMLdata\TheItemList.xml", fb.ToString)
         go_btn.Enabled = True

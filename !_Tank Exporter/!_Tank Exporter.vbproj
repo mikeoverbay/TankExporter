@@ -27,8 +27,8 @@
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>false</MapFileExtensions>
     <OpenBrowserOnPublish>false</OpenBrowserOnPublish>
-    <ApplicationRevision>169</ApplicationRevision>
-    <ApplicationVersion>1.0.0.169</ApplicationVersion>
+    <ApplicationRevision>170</ApplicationRevision>
+    <ApplicationVersion>1.0.0.170</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
@@ -790,6 +790,9 @@
     <None Include="glew32.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <Content Include="fbx_reader.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="html\addingmodels.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

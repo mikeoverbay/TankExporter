@@ -7,6 +7,11 @@
 #include <thread>
 #include <mutex>
 #include <condition_variable>
+#include <algorithm>
+#define NOMINMAX
+#include <windows.h>
+#define TDBG(msg) OutputDebugStringA("[TL] " msg "\n")
+#define TDBGF(fmt, ...) { char _b[256]; sprintf_s(_b, "[TL] " fmt "\n", __VA_ARGS__); OutputDebugStringA(_b); }
 
 #ifndef GL_COMPRESSED_RED_RGTC1
 #define GL_COMPRESSED_RED_RGTC1 0x8DBB
@@ -122,7 +127,9 @@ enum DXGI_FORMAT {
 
 // ---------------------------------------------------------
 extern "C" __declspec(dllexport) int initGlew() {
+    glewExperimental = GL_TRUE;
     GLenum err = glewInit();
+    while (glGetError() != GL_NO_ERROR) {}  // glewInit generates GL_INVALID_ENUM on core profile
     if (err != GLEW_OK) {
         std::cerr << "GLEW initialization failed: " << glewGetErrorString(err) << std::endl;
         return -1;
@@ -186,6 +193,8 @@ extern "C" __declspec(dllexport) GLuint LoadTextureDDS(const char* filePath) {
     GLuint dataFormat = 0;
     GLuint dataType = 0;
     bool isCompressed = false;
+
+    GLuint er = glGetError();
 
     DDSHeaderDX10 headerDX10 = { 0 };
 
@@ -284,8 +293,15 @@ extern "C" __declspec(dllexport) GLuint LoadTextureDDS(const char* filePath) {
     file.read(tex.data(), totalSize);
     file.close();
 
-    GLuint texId;
+    // flush + count stale GL errors before touching GL
+    int flushed = 0;
+    while (glGetError() != GL_NO_ERROR) { flushed++; }
+    TDBGF("LoadTextureDDS: %s  w=%u h=%u mips=%u compressed=%d flushed=%d",
+        filePath, width, height, mipMapCount, (int)isCompressed, flushed);
+
+    GLuint texId = 0;
     glGenTextures(1, &texId);
+    TDBGF("  glGenTextures -> %u", texId);
     glBindTexture(GL_TEXTURE_2D, texId);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
@@ -312,14 +328,15 @@ extern "C" __declspec(dllexport) GLuint LoadTextureDDS(const char* filePath) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, mipMapCount - 1);
-    if (!hasMipmaps) glGenerateMipmap(GL_TEXTURE_2D);
+    if (!hasMipmaps && !isCompressed) glGenerateMipmap(GL_TEXTURE_2D);
 
     GLenum err = glGetError();
     if (err != GL_NO_ERROR) {
-        std::cerr << "OpenGL Error: " << err << std::endl;
+        TDBGF("  FAIL GL error: 0x%X", err);
         glDeleteTextures(1, &texId);
         return 0;
     }
+    TDBGF("  SUCCESS texId=%u", texId);
     return texId;
 }
 
@@ -473,7 +490,7 @@ extern "C" __declspec(dllexport) GLuint LoadTextureFromMemory(const void* data, 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, mipMapCount - 1);
-    if (mipMapCount <= 1) glGenerateMipmap(GL_TEXTURE_2D);
+    if (mipMapCount <= 1 && !isCompressed) glGenerateMipmap(GL_TEXTURE_2D);
 
     GLenum err = glGetError();
     if (err != GL_NO_ERROR) {

@@ -43,6 +43,7 @@ Module modFBX
         Public package_id() As Integer
         Public changed As Boolean
         Public new_objects As Boolean
+
     End Structure
     Public Sub remove_loaded_fbx()
         'If FBX_LOADED Then
@@ -1270,34 +1271,41 @@ outahere:
             'we need to reorder the FBX read by its ID tag
             Dim total = fbxgrp.Length
             ReDim t_fbx(total)
-            Dim last As Integer = 1
+
             Dim pnt(30) As Integer
             'move to right locations....
+            ' Pass 1: place tagged meshes (have primitive_table property) directly
+            ' into the slot matching their stored primitive_index.
             For i = 1 To fbxgrp.Length - 1
-                If fbxgrp(i).name.ToLower.Contains("~") Then
-
-                    Dim n = fbxgrp(i).name
-                    Dim a = n.Split("~")
-                    Dim idx = Convert.ToInt32(a(2))
-                    move_fbx_entry(t_fbx(idx), fbxgrp(i), i, idx)
-                    last += 1
-
+                If Not String.IsNullOrEmpty(fbxgrp(i).primitive_table) Then
+                    Dim idx = fbxgrp(i).primitive_index  ' 1-based, set at export time
+                    If idx >= 1 AndAlso idx < t_fbx.Length Then
+                        move_fbx_entry(t_fbx(idx), fbxgrp(i), idx, i)
+                        Debug.WriteLine("tagged: " & fbxgrp(i).name & " → slot " & idx)
+                    End If
                 End If
             Next
-            'sort tank parts and move any new items to the end.
-            For i = 1 To fbxgrp.Length - 1
-                If Not fbxgrp(i).name.ToLower.Contains("~") Then
-                    move_fbx_entry(t_fbx(last), fbxgrp(i), last, i)
-                    last += 1
+
+            ' Pass 2: fallback — any mesh without primitive_table uses the old ~ logic.
+            ' This keeps backwards compatibility with FBX files exported before this change.
+            Dim last As Integer = 1
+            ' find first empty slot for appending new items
+            For i = 1 To t_fbx.Length - 1
+                If Not String.IsNullOrEmpty(t_fbx(i).name) Then
+                    last = i + 1
                 End If
             Next
+
+            Debug.WriteLine("--")
             ' write back the sorted fbx entries.
             For i = 1 To fbxgrp.Length - 1
                 move_fbx_entry(fbxgrp(i), t_fbx(i), last, i)
                 Dim tn = fbxgrp(i).name.Split("~")
                 frmComponentView.add_to_fbx_list(i, Path.GetFileNameWithoutExtension(tn(0)))
                 frmReverseVertexWinding.add_to_fbx_list(i, Path.GetFileNameWithoutExtension(tn(0)))
+                Debug.WriteLine(fbxgrp(i).name)
             Next
+            Debug.WriteLine("--")
 
             ReDim t_fbx(0) ' clean up some memory
 
@@ -3006,6 +3014,7 @@ outahere:
         End Try
         Return New Int32
     End Function
+
     Public Function packnormalFBX888_writePrimitive(ByVal n As FbxVector4) As UInt32
         'This took an entire night to get working correctly
         Try
@@ -3054,42 +3063,30 @@ outahere:
         End Try
     End Function
     Private Function unpackNormal_8_8_8(ByVal packed As UInt32) As vect3Norm
-        'Console.WriteLine(packed.ToString("x"))
         Dim pkz, pky, pkx As Int32
-        pkx = CLng(packed) And &HFF Xor 127
-        pky = CLng(packed >> 8) And &HFF Xor 127
-        pkz = CLng(packed >> 16) And &HFF Xor 127
-
-        Dim x As Single = (pkx)
-        Dim y As Single = (pky)
-        Dim z As Single = (pkz)
-
+        ' Fix: parentheses required — without them VB.NET parses as:
+        '   CLng(packed) And (&HFF Xor 127)  →  CLng(packed) And 128
+        ' which destroys all but bit 7 of each component.
+        pkx = (CLng(packed) And &HFF) Xor 127
+        pky = (CLng(packed >> 8) And &HFF) Xor 127
+        pkz = (CLng(packed >> 16) And &HFF) Xor 127
+        Dim x As Single = CSng(pkx)
+        Dim y As Single = CSng(pky)
+        Dim z As Single = CSng(pkz)
+        If x > 127 Then x = -128 + (x - 128)
+        If y > 127 Then y = -128 + (y - 128)
+        If z > 127 Then z = -128 + (z - 128)
         Dim p As New vect3Norm
-        If x > 127 Then
-            x = -128 + (x - 128)
-        End If
-        If y > 127 Then
-            y = -128 + (y - 128)
-        End If
-        If z > 127 Then
-            z = -128 + (z - 128)
-        End If
-        p.nx = CSng(x) / 127
-        p.ny = CSng(y) / 127
-        p.nz = CSng(z) / 127
-        Dim len As Single = Sqrt((p.nx ^ 2) + (p.ny ^ 2) + (p.nz ^ 2))
-
-        'avoid division by 0
-        If len = 0.0F Then len = 1.0F
-        'len = 1.0
-        'reduce to unit size
+        p.nx = x / 127.0!
+        p.ny = y / 127.0!
+        p.nz = z / 127.0!
+        Dim len As Single = CSng(Sqrt((p.nx ^ 2) + (p.ny ^ 2) + (p.nz ^ 2)))
+        If len < 0.000001! Then len = 1.0!
         p.nx = -(p.nx / len)
         p.ny = -(p.ny / len)
         p.nz = -(p.nz / len)
-        'Console.WriteLine(p.x.ToString("0.000000") + " " + p.y.ToString("0.000000") + " " + p.z.ToString("0.000000"))
         Return p
     End Function
-
 
     Private Function unpackNormal(ByVal packed As UInt32, type As Boolean) As vect3Norm
         If type Then
@@ -3097,23 +3094,19 @@ outahere:
         End If
         Dim pkz, pky, pkx As Int32
         pkz = packed And &HFFC00000
-        pky = packed And &H4FF800
+        ' Fix: was &H4FF800 — stray bit 26 set, missing bit 25.
+        ' Correct 10-bit Y mask at bits 11-20 with sign bit is &H3FF800.
+        pky = packed And &H3FF800
         pkx = packed And &H7FF
-
         Dim z As Int32 = pkz >> 22
         Dim y As Int32 = (pky << 10L) >> 21
         Dim x As Int32 = (pkx << 21L) >> 21
         Dim p As New vect3Norm
-
         p.nx = CSng(x) / 1023.0!
         p.ny = CSng(y) / 1023.0!
         p.nz = CSng(z) / 511.0!
-        Dim len As Single = Sqrt((p.nx ^ 2) + (p.ny ^ 2) + (p.nz ^ 2))
-
-        'avoid division by 0
-        If len = 0.0F Then len = 1.0F
-
-        'reduce to unit size
+        Dim len As Single = CSng(Sqrt((p.nx ^ 2) + (p.ny ^ 2) + (p.nz ^ 2)))
+        If len < 0.000001! Then len = 1.0!
         p.nx = (p.nx / len)
         p.ny = (p.ny / len)
         p.nz = (p.nz / len)

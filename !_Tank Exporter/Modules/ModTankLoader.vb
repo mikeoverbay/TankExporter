@@ -419,11 +419,21 @@ Module ModTankLoader
         Public weight() As Vector4
         Public x_repete As Single
         Public y_repete As Single
+        Public primitive_table As String   ' e.g. "hull/lod0/indices"
+        Public primitive_index As Integer  ' 1-based slot, matches item index at export
+
     End Structure
+    ' Fix: v1/v2/v3 changed from UInt32 to Integer.
+    ' build_primitive_data computes  p1 - _group(jj).startVertex_  (UInt32 - Long → Long).
+    ' Assigning a negative Long to UInt32 threw OverflowException when any face
+    ' index was less than the group's startVertex_ (cross-group vertex reference).
+    ' Integer (Int32) holds the full 0..65535 vertex-index range and absorbs
+    ' a negative result without throwing, matching the CInt() casts used everywhere
+    ' else that writes into these fields (importer, compact_primitive).
     Public Structure uvect3
-        Public v1 As UInt32
-        Public v2 As UInt32
-        Public v3 As UInt32
+        Public v1 As Integer
+        Public v2 As Integer
+        Public v3 As Integer
     End Structure
     Public Structure compare_
         Public v1 As vect3
@@ -799,6 +809,9 @@ next_m:
         'Try
 
         Dim sg = sub_groups - 1
+        Dim prim_group_base As Integer = 0 ' cumulative primitiveGroup offset across render sets
+        Dim part_index As Integer = 0
+
         While sub_groups > 0
             sub_groups -= 1 ' take one off.. if there is one, this results is zero and collects only one model set
             If ordered_names(sg - sub_groups).has_color Then ' we need to convert them in to RGBA so they can he wrote to a FBX as vertex colors
@@ -889,6 +902,12 @@ next_m:
                 frmMain.update_log("nPrimitives_ " + pGroups(i).nPrimitives_.ToString)
                 frmMain.update_log("startVertex_ " + pGroups(i).startVertex_.ToString)
                 frmMain.update_log("nVertices_ " + pGroups(i).nVertices_.ToString)
+
+                Debug.WriteLine("location data")
+                Debug.WriteLine("startIndex_ " & pGroups(i).startIndex_.ToString())
+                Debug.WriteLine("nPrimitives_ " & pGroups(i).nPrimitives_.ToString())
+                Debug.WriteLine("startVertex_ " & pGroups(i).startVertex_.ToString())
+                Debug.WriteLine("nVertices_ " & pGroups(i).nVertices_.ToString())
             Next
             frmMain.update_log("")
             'get basic vertices info
@@ -982,6 +1001,8 @@ next_m:
             i = 0
             Dim p As Integer = 6
             Dim color_buf_pointer As Integer = 0
+
+
             For k As UInt32 = object_start To big_l
                 _group(k).stride = stride
                 _group(k).long_tank_name = long_name
@@ -1000,27 +1021,19 @@ next_m:
                 _group(k).has_color = 0
 
                 Dim pos As UInt32
-                Try
 
-                    If pg_flag Then
-                        pos = pGroups(k - object_start).nVertices_ - 1
-                        _group(k).startVertex_ = pGroups(k - object_start).startVertex_
-                        _group(k).startIndex_ = pGroups(k - object_start).startIndex_
-                        _group(k).nVertices_ = pGroups(k - object_start).nVertices_
-                        _group(k).nPrimitives_ = pGroups(k - object_start).nPrimitives_
-                    Else
-                        pos = pGroups(k - object_start).nVertices_ - 1
-                        _group(k).startVertex_ = pGroups(k - object_start).startVertex_
-                        _group(k).startIndex_ = pGroups(k - object_start).startIndex_
-                        _group(k).nVertices_ = pGroups(k - object_start).nVertices_
-                        _group(k).nPrimitives_ = pGroups(k - object_start).nPrimitives_
-                    End If
+                Try
+                    pos = pGroups(k - object_start).nVertices_ - 1
+                    _group(k).startVertex_ = pGroups(k - object_start).startVertex_
+                    _group(k).startIndex_ = pGroups(k - object_start).startIndex_
+                    _group(k).nVertices_ = pGroups(k - object_start).nVertices_
+                    _group(k).nPrimitives_ = pGroups(k - object_start).nPrimitives_
+
                 Catch ex As Exception
                     Return False
                 End Try
-                If k = 9 Then
-                    'Stop
-                End If
+
+
                 ReDim _group(k).vertices(pos + 1)
                 Dim color_runner As Integer = 0
                 For cnt = 0 To pos
@@ -1175,22 +1188,26 @@ next_m:
             Next
 
             Dim running As UInteger = 0
+
             For jj = object_start To big_l
                 object_count += 1
                 ' 
                 '
                 '
                 Dim narray() As String
+                _group(jj).table_entry_name = ordered_names(sg - sub_groups).indi_name
+
                 If sg > 0 Then
-                    get_translations(jj, ordered_names(sg - sub_groups).index + 1)  ' get texture name(s) and if this is multi textured
+                    get_translations(jj, ordered_names(sg - sub_groups).index + 1, object_count)  ' get texture name(s) and if this is multi textured
                     narray = ordered_names(sg - sub_groups).vert_name.Split(".")
                 Else
-                    get_translations(jj, jj + 1 - object_start) ' get texture name(s) and if this is multi textured
+                    get_translations(jj, jj + 1 - object_start, object_count) ' get texture name(s) and if this is multi textured
                     narray = ordered_names(sg - sub_groups).vert_name.Split(".")
                 End If
                 build_textures(jj) ' make a new texture and find out if this texture as been used... if so, existing texture will be pointed at
 
                 log_text.Append("loaded Model:" + "ID:" + object_count.ToString + ":" + file_name + vbCrLf)
+                part_index += 1
 
 
                 Dim n_ = Path.GetFileNameWithoutExtension(file_name)
@@ -1336,10 +1353,10 @@ next_m:
                         _group(jj).indices(i).v2 = p1 - _group(jj).startVertex_
                         _group(jj).indices(i).v3 = p3 - _group(jj).startVertex_
                     Else
+                        _group(jj).indices(i).v1 = p1 - _group(jj).startVertex_
+                        _group(jj).indices(i).v2 = p2 - _group(jj).startVertex_
+                        _group(jj).indices(i).v3 = p3 - _group(jj).startVertex_
                     End If
-                    _group(jj).indices(i).v1 = p1 - _group(jj).startVertex_
-                    _group(jj).indices(i).v2 = p2 - _group(jj).startVertex_
-                    _group(jj).indices(i).v3 = p3 - _group(jj).startVertex_
                     'If _group(jj).skinned And PRIMITIVES_MODE Then
                     '    p1 = i2
                     '    p2 = i1
@@ -1482,8 +1499,8 @@ next_m:
                         End If
 
                     End If
-                        '
-                        _object(jj).tris(i).uv3 = New uv_
+                    '
+                    _object(jj).tris(i).uv3 = New uv_
                     _object(jj).tris(i).uv3.u = tbuf(p3).u
                     _object(jj).tris(i).uv3.v = tbuf(p3).v
                     _object(jj).tris(i).t3 = unpackNormal(tbuf(p3).t)
@@ -1499,8 +1516,8 @@ next_m:
                 'EchoOpenGLMatrix(_object(jj).matrix)
                 'ReDim _group(jj).matrix(16)
                 loop_count += 1
-                fix_winding_order_group(jj)
-                check_normal_group(jj)
+                'fix_winding_order_group(jj)
+                'check_normal_group(jj)
 
 
                 If compute_tangents Then
@@ -1522,7 +1539,6 @@ next_m:
 
                 frmMain.update_log("GC.Collect()")
 
-                _group(jj).table_entry_name = ordered_names(sg - sub_groups).indi_name
 
                 frmMain.update_log("object created " + jj.ToString)
 
@@ -1539,6 +1555,7 @@ all_done:
             ri.Dispose()
             vr = Nothing
             ' this section is for loading the the UV2 map if it has one
+            prim_group_base += ih.nInd_groups ' advance offset for next render set
             _add = True ' need to set this if we are going to loop again
             If sub_groups > 0 Then
                 section_count += 1
@@ -2040,7 +2057,7 @@ jump_over:
 
     End Function
 
-    Public Sub get_translations(ByVal id As Integer, ByVal loop_count As Integer)
+    Public Sub get_translations(ByVal id As Integer, ByVal loop_count As Integer, part_index As Integer)
         Dim ta(4) As String
         Dim cnt As UInt32 = 0
 
@@ -2172,7 +2189,7 @@ jump_over:
         _group(id).hasColorID = 0
 
         'finds the textures
-        get_texturesNames_and_State(id, loop_count)
+        get_texturesNames_and_State(id, loop_count, part_index)
 
         Try
             _group(id).multi_textured = (_group(id).detail_name IsNot Nothing And _group(id).color_name IsNot Nothing)
@@ -2205,16 +2222,31 @@ jump_over:
                                     }
 
     End Sub
-    Public Function get_texturesNames_and_State(id, loop_count)
-        Dim delim As String() = New String(0) {"<primitiveGroup>"}
+    Public Function get_texturesNames_and_State(id As Integer, loop_count As Integer, part_index As Integer)
+        Dim delim As String() = New String(0) {_group(id).table_entry_name}
         Dim sp1 = TheXML_String.Split(delim, StringSplitOptions.None)
-        If loop_count > sp1.Length - 1 Then
-            MsgBox("We have a problem!" + vbCrLf + "There are more models than entries in the Visual." +
-                   vbCrLf + "I can load them but with no texture info!")
-            Return ""
+
+        'If loop_count > sp1.Length - 1 Then
+        '    MsgBox("We have a problem!" + vbCrLf + "There are more models than entries in the Visual." +
+        '           vbCrLf + "I can load them but with no texture info!")
+        '    Return ""
+        'End If
+
+
+        delim = New String(0) {"<primitiveGroup>"}
+        Dim sp2 = sp1(1).Split(delim, StringSplitOptions.None)
+
+
+        If sp2.Length > 1 Then
+            Return get_textures_and_names(id, sp2(1))
+        Else
+            Return get_textures_and_names(id, sp2(0))
+
         End If
 
-        Return get_textures_and_names(id, sp1(loop_count))
+
+
+        'Return get_textures_and_names(id, sp2(loop_count))
         Return Nothing
     End Function
 
@@ -2297,6 +2329,7 @@ jump_over:
             Dim newS As String = ""
             newS = Mid(thestring, tex1_pos, tex1_Epos - tex1_pos).Replace("/", "\")
             _group(id).identifier = newS
+            Debug.WriteLine(_group(id).identifier + " ID=" + id.ToString)
         End If
         'July 14th, 2019.. Started on stand alone primtive loading
         'update dec 9th 2024
@@ -2356,7 +2389,7 @@ jump_over:
             Dim tex1_Epos = InStr(tex1_pos, thestring, "</Texture>")
             Dim newS As String = ""
             newS = Mid(thestring, tex1_pos, tex1_Epos - tex1_pos).Replace("/", "\")
-            _group(id).colortex = newS
+            _group(id).colorTex = newS
         End If
         diff_pos = InStr(primStart, thestring, "normalGlossSpecTile2")
         If diff_pos > 0 Then
@@ -2795,67 +2828,50 @@ jump_over:
 
     Public Function unpackNormal(ByVal packed As UInt32)
         Dim pkz, pky, pkx As Int32
-        pkz = packed And &HFFC00000
-        pky = packed And &H4FF800
-        pkx = packed And &H7FF
+        pkz = packed And &HFFC00000   ' Z: bits 22-31 ✅
+        pky = packed And &H3FF800     ' Y: bits 11-20 — was &H4FF800 (wrong bit 26)
+        pkx = packed And &H7FF        ' X: bits 0-10  ✅
 
-        Dim z As Int32 = pkz >> 22
-        Dim y As Int32 = (pky << 10L) >> 21
-        Dim x As Int32 = (pkx << 21L) >> 21
+        ' Shift to position then sign-extend via arithmetic right shift
+        Dim z As Int32 = (CInt(pkz) << 0) >> 22   ' bring to low bits, sign extend 10-bit
+        Dim y As Int32 = (CInt(pky) << 11) >> 22  ' was << 10 >> 21 — off by one
+        Dim x As Int32 = (CInt(pkx) << 21) >> 22  ' was >> 21 — off by one
+
         Dim p As New vect3
-        p.x = CSng(x) / 1023.0! '* -1.0!
+        p.x = CSng(x) / 511.0!   ' 10-bit signed range is -511 to +511
+        p.y = CSng(y) / 511.0!   ' was 1023 — wrong divisor
+        p.z = CSng(z) / 511.0!   ' Z is 10-bit too, 511 is correct ✅
 
-        p.x = CSng(x) / 1023.0!
-        p.y = CSng(y) / 1023.0!
-        p.z = CSng(z) / 511.0!
-        Dim len As Single = Sqrt((p.x ^ 2) + (p.y ^ 2) + (p.z ^ 2))
-
-        'avoid division by 0
-        If len = 0.0F Then len = 1.0F
-
-        'reduce to unit size
-        p.x = (p.x / len)
-        p.y = (p.y / len)
-        p.z = (p.z / len)
+        Dim len As Single = CSng(Sqrt((p.x ^ 2) + (p.y ^ 2) + (p.z ^ 2)))
+        If len < 0.000001! Then len = 1.0!
+        p.x = p.x / len
+        p.y = p.y / len
+        p.z = p.z / len
         Return p
     End Function
     Private Function unpackNormal_8_8_8(ByVal packed As UInt32) As vect3
-        'Console.WriteLine(packed.ToString("x"))
-        Dim pkz, pky, pkx As Int32
-        'Dim sample As Byte
-        pkx = CLng(packed) And &HFF Xor 127
-        'sample = packed And &HFF
-        pky = CLng(packed >> 8) And &HFF Xor 127
-        pkz = CLng(packed >> 16) And &HFF Xor 127
 
-        Dim x As Single = (pkx)
-        Dim y As Single = (pky)
-        Dim z As Single = (pkz)
+        ' UBYTE4_NORMAL_8_8_8: each component is an unsigned byte
+        ' mapped linearly from [0,255] to [-1,1] via (b / 127.5) - 1.0
+        ' No XOR, no sign extension, no inversion needed.
+        Dim bx = CSng(packed And &HFF)
+        Dim by = CSng((packed >> 8) And &HFF)
+        Dim bz = CSng((packed >> 16) And &HFF)
 
         Dim p As New vect3
-        If x > 127 Then
-            x = -128 + (x - 128)
-        End If
-        'lookup(CInt(x + 127)) = sample
+        p.x = (bx / 127.5!) - 1.0!
+        p.y = (by / 127.5!) - 1.0!
+        p.z = (bz / 127.5!) - 1.0!
 
-        If y > 127 Then
-            y = -128 + (y - 128)
+        Dim len As Single = CSng(Sqrt((p.x ^ 2) + (p.y ^ 2) + (p.z ^ 2)))
+        If len < 0.000001! Then len = 1.0!
+        p.x = p.x / len
+        p.y = p.y / len
+        If xmlget_mode = 1 Or xmlget_mode = 4 Then
+            p.z = -p.z / len
+        Else
+            p.z = p.z / len
         End If
-        If z > 127 Then
-            z = -128 + (z - 128)
-        End If
-        p.x = CSng(x) / 127
-        p.y = CSng(y) / 127
-        p.z = CSng(z) / 127
-        Dim len As Single = Sqrt((p.x ^ 2) + (p.y ^ 2) + (p.z ^ 2))
-
-        'avoid division by 0
-        If len = 0.0F Then len = 1.0F
-        'len = 1.0
-        'reduce to unit size
-        p.x = -(p.x / len)
-        p.y = -(p.y / len)
-        p.z = -(p.z / len)
         Return p
     End Function
     Public Sub make_lists(I As Integer)

@@ -1,0 +1,166 @@
+[b][size=150]WoT .primitives_processed File Format[/size][/b]
+Reverse-engineered from ModTankLoader.vb — build_primitive_data function.
+
+[b]─────────────────────────────────────────[/b]
+[b]OVERALL FILE LAYOUT[/b]
+[b]─────────────────────────────────────────[/b]
+[code]
+[ 4-byte tag       ]  <- file start, read and discarded
+[ Section data 1   ]  <- raw binary blobs, 4-byte aligned
+[ Section data 2   ]
+  ...
+[ Section Table    ]  <- describes all sections
+[ UInt32           ]  <- LAST 4 bytes: offset from EOF to section table
+[/code]
+
+
+[b]─────────────────────────────────────────[/b]
+[b]FILE FOOTER — SECTION TABLE POINTER[/b]
+[b]─────────────────────────────────────────[/b]
+The very last 4 bytes of the file are an [b]Int32[/b] that tells you how far back
+from position [i](FileLen - 4)[/i] the Section Table starts.
+
+[code]
+seek position = FileLen - 4 - value_of_last_4_bytes
+[/code]
+
+
+[b]─────────────────────────────────────────[/b]
+[b]SECTION TABLE[/b]
+[b]─────────────────────────────────────────[/b]
+Up to 100 entries. Each entry:
+[code]
+ 4 bytes  UInt32        Section data size (bytes)
+16 bytes  UInt32 x4     Unused padding
+ 4 bytes  UInt32        Section name string length
+ N bytes  Chars         Section name (ASCII)
+ 0-3 bytes              Padding to 4-byte boundary
+[/code]
+
+Section data positions are calculated from start of file:
+[code]
+base_location = 4   (skip the file tag)
+for each section:
+    section_location  = base_location
+    base_location    += section_size
+    base_location    += base_location MOD 4   (align to 4 bytes)
+[/code]
+
+[b]Known section name types:[/b]
+[list]
+[*][b]vertices[/b]  — vertex buffer
+[*][b]indices[/b]   — index buffer and primitive groups
+[*][b]uv2[/b]       — secondary UV coordinates
+[*][b]colour[/b]    — vertex colour data
+[/list]
+
+
+[b]─────────────────────────────────────────[/b]
+[b]VERTEX SECTION[/b]
+[b]─────────────────────────────────────────[/b]
+
+[b]Format Header (64 bytes)[/b]
+ASCII string identifying vertex layout. Null-terminated, padded to 64 bytes.
+[code]
+Format string            Stride  Normals          Notes
+-----------------------------------------------------------------
+xyznuv                     32    Float32 x3       Basic, compute tangents
+xyznuvtb                   32    Packed UInt32    Tangent + bitangent stored
+BPVTxyznuv                 24    Packed 8_8_8     BPVT compressed
+BPVTxyznuvtb               32    Packed 8_8_8     BPVT + tangent/bitangent
+xyznuviiiwwtb              37    Packed UInt32    Skinned + tangent/bitangent
+BPVTxyznuviiiww            32    Packed 8_8_8     BPVT skinned, no tangents
+BPVTxyznuviiiwwtb          40    Packed 8_8_8     BPVT skinned + tangents
+[/code]
+[i]Note: BPVT formats have an extra header block — seek to byte 132 before reading vertex count.[/i]
+
+[b]Vertex Count[/b]
+[code]
+4 bytes  UInt32   Number of vertices
+[/code]
+
+[b]Per-Vertex Layout (all formats):[/b]
+[code]
+--- Position (all formats) ---
+4  Float32   X
+4  Float32   Y
+4  Float32   Z
+
+--- Normals: xyznuv only (real floats) ---
+4  Float32   NX
+4  Float32   NY
+4  Float32   NZ
+
+--- Normals: all other formats (packed) ---
+4  UInt32    Packed normal
+               BPVT formats = 8 bits per channel (8_8_8)
+               Others       = 10_10_10_2
+
+--- UVs (all formats) ---
+4  Float32   U
+4  Float32   V
+
+--- Skinning: formats with "iiiww" in name ---
+1  Byte      Bone index 1
+1  Byte      Bone index 2
+1  Byte      Bone index 3
+1  Byte      Bone index 4
+1  Byte      Bone weight 1
+1  Byte      Bone weight 2
+1  Byte      Bone weight 3
+1  Byte      Bone weight 4
+
+--- Tangents: formats with "tb" in name ---
+4  UInt32    Packed tangent
+4  UInt32    Packed bitangent
+[/code]
+
+
+[b]─────────────────────────────────────────[/b]
+[b]INDEX SECTION[/b]
+[b]─────────────────────────────────────────[/b]
+
+[b]Index Header (64 bytes)[/b]
+ASCII string, null-terminated, padded to 64 bytes.
+[list]
+[*]Contains [b]"list32"[/b] → indices are [b]UInt32[/b] (4 bytes each)
+[*]Otherwise → indices are [b]UInt16[/b] (2 bytes each)
+[/list]
+
+[b]After the header:[/b]
+[code]
+4 bytes   UInt32              nIndices   — total number of indices
+4 bytes   UInt32              nInd_groups — number of sub-meshes (primitive groups)
+N bytes   UInt16 or UInt32    raw index data  (nIndices x ind_scale bytes)
+
+--- seek to: (nIndices x ind_scale) + 72 ---
+
+Primitive Groups (one per sub-mesh):
+4 bytes   UInt32   startIndex_   first index in the index buffer
+4 bytes   UInt32   nPrimitives_  number of triangles in this group
+4 bytes   UInt32   startVertex_  first vertex in the vertex buffer
+4 bytes   UInt32   nVertices_    number of vertices in this group
+[/code]
+
+
+[b]─────────────────────────────────────────[/b]
+[b]UV2 SECTION[/b]
+[b]─────────────────────────────────────────[/b]
+[code]
+132 bytes  —        Header block (skipped)
+  4 bytes  UInt32   UV2 entry count
+  N bytes  Bytes    UV2 data  (section_size - 136 bytes)
+[/code]
+
+
+[b]─────────────────────────────────────────[/b]
+[b]COLOUR SECTION[/b]
+[b]─────────────────────────────────────────[/b]
+[code]
+132 bytes  —        Header block (skipped)
+  4 bytes  UInt32   Colour entry count
+  N bytes  Bytes    RGBA colour data, 4 bytes per vertex  (section_size - 136 bytes)
+[/code]
+
+
+[i]Reverse-engineered by Coffee — Tank Exporter project.[/i]

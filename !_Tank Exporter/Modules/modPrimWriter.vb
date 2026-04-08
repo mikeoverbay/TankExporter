@@ -1,11 +1,12 @@
 ﻿
 Imports System.IO
-Imports System.Windows
 Imports System.Runtime.InteropServices
-Imports System.Text
-Imports SharpGLTF.Schema2
-Imports Assimp.Configs
 Imports System.Security.Cryptography
+Imports System.Text
+Imports System.Windows
+Imports Assimp.Configs
+Imports SharpGLTF.Schema2
+Imports Tank_Exporter.modToLists
 
 Module modPrimWriter
     Public OBJECT_WAS_INSERTED As Boolean
@@ -135,9 +136,9 @@ found_it:
         Dim r As FileStream = Nothing
         obj_cnt = m_groups(id).cnt
         Try
-            r = New FileStream(My.Settings.res_mods_path + "\" + m_groups(id).f_name(0), FileMode.Create, FileAccess.Write)
+            r = New FileStream(My.Settings.res_mods_path + "\" + m_groups(id).f_name(0).Replace(".model", ".primitives_processed"), FileMode.Create, FileAccess.Write)
         Catch e As Exception
-            MsgBox("I could not open """ + My.Settings.res_mods_path + "\" + m_groups(id).f_name(0) + """!" + vbCrLf +
+            MsgBox("I could not open """ + My.Settings.res_mods_path + "\" + m_groups(id).f_name(0).Replace(".model", ".primitives_processed") + """!" + vbCrLf +
                     "The Root folder is there but there are no  .primitive_processed files." + vbCrLf _
                     + " Did you delete them?", MsgBoxStyle.Exclamation, "Can find folder!")
             Return
@@ -154,7 +155,7 @@ found_it:
             For section = 1 To CHASSIS_COUNT
                 Dim pnt_id = (m_groups(id).group_list.Length - m_groups(id).group_list(section - 1)) + 1
                 '================================================================ TRACK
-                'All data for the tracks comes from the original file. There is no reason to 
+                'All data for the tracks comes from the original file. There is no reason to
                 'change any of this as it cant be edited anyway!
                 If _group(pnt_id).table_entry_name.ToLower.Contains("track") And
                     _group(pnt_id).table_entry_name = section_names(1).names(k) Then
@@ -361,7 +362,6 @@ found_it:
         br.Dispose()
 
     End Sub
-
     Public Sub write_chassis_primitives(id)
         Dim i As UInt32
         If False Then ' set true to write out comparision file
@@ -400,9 +400,9 @@ found_it:
         Dim r As FileStream = Nothing
         obj_cnt = m_groups(id).cnt
         Try
-            r = New FileStream(My.Settings.res_mods_path + "\" + m_groups(id).f_name(0), FileMode.Create, FileAccess.Write)
+            r = New FileStream(My.Settings.res_mods_path + "\" + m_groups(id).f_name(0).Replace(".model", ".primitives_processed"), FileMode.Create, FileAccess.Write)
         Catch e As Exception
-            MsgBox("I could not open """ + My.Settings.res_mods_path + "\" + m_groups(id).f_name(0) + """!" + vbCrLf +
+            MsgBox("I could not open """ + My.Settings.res_mods_path + "\" + m_groups(id).f_name(0).Replace(".model", ".primitives_processed") + """!" + vbCrLf +
                     "The Root folder is there but there are no  .primitive_processed files." + vbCrLf _
                     + " Did you delete them?", MsgBoxStyle.Exclamation, "Can find folder!")
             Return
@@ -417,329 +417,308 @@ found_it:
         Dim t_writer As New BinaryWriter(ms_table)
 
         For k = 0 To section_names(1).names.Length - 1
-            For section = 1 To CHASSIS_COUNT
-                Dim pnt_id = (m_groups(id).group_list.Length - m_groups(id).group_list(section - 1)) + 1
-                '================================================================ TRACK
-                'All data for the tracks comes from the original file. There is no reason to 
-                'change any of this as it cant be edited anyway!
-                If _group(pnt_id).table_entry_name.ToLower.Contains("track") And
-                    _group(pnt_id).table_entry_name = section_names(1).names(k) Then
-                    'save current position
-                    Dim sect_start = br.BaseStream.Position
-                    'assuming there will never be a "list2" in these files!
-                    Dim n = System.Text.Encoding.Default.GetBytes("list")
-                    ReDim Preserve n(63) 'pad by resizing
-                    br.Write(n) ' save string as padded binary
-                    br.Write((_group(pnt_id).indices.Length - 1) * 3)
-                    br.Write(1) ' write group count
-                    'write indices
-                    For i = 1 To _group(pnt_id).indices.Length - 1
-                        If Not frmWritePrimitive.flipWindingOrder_cb.Checked Then
-                            br.Write(Convert.ToUInt16(_group(pnt_id).indices(i).v2))
-                            br.Write(Convert.ToUInt16(_group(pnt_id).indices(i).v1))
-                            br.Write(Convert.ToUInt16(_group(pnt_id).indices(i).v3))
-                        Else
-                            br.Write(Convert.ToUInt16(_group(pnt_id).indices(i).v1))
-                            br.Write(Convert.ToUInt16(_group(pnt_id).indices(i).v2))
-                            br.Write(Convert.ToUInt16(_group(pnt_id).indices(i).v3))
-                        End If
-                    Next
+            Dim sname = section_names(1).names(k)
+            Debug.WriteLine(sname)
+            ' Only trigger on .indices section names — vertices and uv2 are written inline below
+            If Not sname.ToLower.EndsWith(".indices") Then Continue For
 
-                    'Write entry for each model in this group
-                    'tracks and chassis only have ONE per entry
-                    br.Write(CInt(0)) ' indices start index
-                    br.Write(CUInt(_group(pnt_id).indices.Length - 1)) ' indice count
-                    br.Write(CInt(0)) ' vertices start index
-                    br.Write(CUInt(_group(pnt_id).nVertices_))
-
-                    p = br.BaseStream.Position - sect_start ' get size of this chunk of data
-                    l = (br.BaseStream.Position) Mod 4L
-                    padding = l
-                    'writing padding bytes if needed
-                    If l > 0 Then
-                        For i = 1 To 4 - l
-                            br.Write(b)
-                        Next
-                    End If
-                    'first entry in table at end ==================================================
-                    t_writer.Write(CUInt(p))
-                    t_writer.Write(New Long)
-                    t_writer.Write(New Long)
-                    Dim r_name = Path.GetFileNameWithoutExtension(_group(pnt_id).table_entry_name) + ".indices"
-                    n = System.Text.Encoding.Default.GetBytes(r_name)
-                    t_writer.Write(CInt(n.Length))
-                    t_writer.Write(n)
-                    l = (t_writer.BaseStream.Position) Mod 4L
-                    'writing padding bytes if needed
-                    If l > 0 Then
-                        For i = 1 To 4 - l
-                            t_writer.Write(b)
-                        Next
-                    End If
-
-                    sect_start = br.BaseStream.Position
-
-                    Dim h1() = "BPVTxyznuviiiwwtb".ToArray
-                    Dim h2() = "set3/xyznuviiiwwtbpc".ToArray
-                    ReDim Preserve h1(67)
-                    ReDim Preserve h2(63)
-                    br.Write(h1)
-                    br.Write(h2)
-                    'write primitive count
-                    br.Write(_group(pnt_id).nVertices_)
-                    For i = 0 To _group(pnt_id).nVertices_ - 1
-                        If frmWritePrimitive.hide_tracks_cb.Checked Then
-                            br.Write(0.0!)
-                            br.Write(0.0!)
-                            br.Write(0.0!)
-                        Else
-                            br.Write(_group(pnt_id).vertices(i).x)
-                            br.Write(_group(pnt_id).vertices(i).y)
-                            br.Write(_group(pnt_id).vertices(i).z)
-                        End If
-
-                        br.Write(_group(pnt_id).vertices(i).n)
-                        br.Write(_group(pnt_id).vertices(i).u)
-                        br.Write(_group(pnt_id).vertices(i).v)
-                        If False Then ' fills vertex color and weight to stop deforming of mesh.
-                            Dim b0 As Byte = 0
-                            Dim b255 As Byte = 0
-                            br.Write(b0)
-                            br.Write(b0)
-                            br.Write(b0)
-                            br.Write(b0)
-
-                            br.Write(b0)
-                            br.Write(b0)
-                            br.Write(b255)
-                            br.Write(b0)
-                        Else
-
-                            br.Write(_group(pnt_id).vertices(i).index_1)
-                            br.Write(_group(pnt_id).vertices(i).index_2)
-                            br.Write(_group(pnt_id).vertices(i).index_3)
-                            br.Write(_group(pnt_id).vertices(i).index_4)
-
-                            br.Write(_group(pnt_id).vertices(i).weight_1)
-                            br.Write(_group(pnt_id).vertices(i).weight_2)
-                            br.Write(_group(pnt_id).vertices(i).weight_3)
-                            br.Write(_group(pnt_id).vertices(i).weight_4)
-                        End If
-
-                        br.Write(_group(pnt_id).vertices(i).t)
-                        br.Write(_group(pnt_id).vertices(i).bn)
-
-
-                    Next
-                    p = br.BaseStream.Position - sect_start
-                    l = (br.BaseStream.Position) Mod 4L
-                    Dim padding2 = CUInt(l)
-                    'writing padding bytes if needed
-                    If l > 0 Then
-                        For i = 1 To 4 - l
-                            br.Write(b)
-                        Next
-                    End If
-                    'second entry in table at end ==================================================
-                    'write entry in table
-                    t_writer.Write(CUInt(p))
-                    t_writer.Write(New Long)
-                    t_writer.Write(New Long)
-                    r_name = Path.GetFileNameWithoutExtension(_group(pnt_id).table_entry_name) + ".vertices"
-                    n = System.Text.Encoding.Default.GetBytes(r_name)
-                    t_writer.Write(CInt(n.Length))
-                    t_writer.Write(n)
-                    l = (t_writer.BaseStream.Position) Mod 4L
-                    'writing padding bytes if needed
-                    If l > 0 Then
-                        For i = 1 To 4 - l
-                            t_writer.Write(b)
-                        Next
-                    End If
-                    sect_start = br.BaseStream.Position
-                    'write uv2s
-                    'write UV2 section header
-                    Dim h3() = "BPVSuv2".ToArray
-                    Dim h4() = "set3/uv2pc".ToArray
-                    ReDim Preserve h3(67)
-                    ReDim Preserve h4(63)
-                    br.Write(h3)
-                    br.Write(h4)
-                    'write count
-                    br.Write(_group(pnt_id).nVertices_)
-                    'write UV2s
-                    For i = 0 To _group(pnt_id).nVertices_ - 1
-                        br.Write(_group(pnt_id).vertices(i).u2)
-                        br.Write(_group(pnt_id).vertices(i).v2)
-                    Next
-                    'third entry in table at end ==================================================
-                    'write entry in table
-                    p = br.BaseStream.Position - sect_start
-                    t_writer.Write(CUInt(p))
-                    t_writer.Write(New Long)
-                    t_writer.Write(New Long)
-                    r_name = Path.GetFileNameWithoutExtension(_group(pnt_id).table_entry_name) + ".uv2"
-                    n = System.Text.Encoding.Default.GetBytes(r_name)
-                    t_writer.Write(CInt(n.Length))
-                    t_writer.Write(n)
-                    l = (t_writer.BaseStream.Position) Mod 4L
-                    If l > 0 Then
-                        For i = 1 To 4 - l
-                            t_writer.Write(b)
-                        Next
-                    End If
-                    'section += 1
+            ' Find ALL _group entries whose table_entry_name matches this .indices section name.
+            ' This replaces the old pnt_id formula and correctly handles render sets with
+            ' more than one primitiveGroup (e.g. tanks where tracks have 2 prim groups each).
+            Dim grp_ids As New List(Of Integer)
+            For g = 1 To _group.Length - 1
+                If _group(g).table_entry_name = sname Then
+                    grp_ids.Add(g)
                 End If
-                '================================================================ CARRAIGE
+            Next
+            If grp_ids.Count = 0 Then Continue For
 
-                If _group(pnt_id).table_entry_name.ToLower.Contains("chass") And
-                    _group(pnt_id).table_entry_name = section_names(1).names(k) Then
-                    'save current position
-                    '-------------------------------------------------------------
-                    frmMain.info_Label.Text = "Compacting Data ID=" + pnt_id.ToString
-                    Application.DoEvents()
-                    Dim comp As comp_ = compact_primitive(pnt_id, fbxgrp(pnt_id).comp)
-                    '-------------------------------------------------------------
-                    Dim sect_start = br.BaseStream.Position
-                    'assuming there will never be a "list2" in these files
-                    Dim n = System.Text.Encoding.Default.GetBytes("list")
-                    ReDim Preserve n(63) 'pad by resizing
-                    br.Write(n) ' save string as padded binary
-                    br.Write(comp.indi_cnt)
-                    br.Write(1) ' write group count
-                    'write indices
-                    Dim c As Integer = 0
-                    Try
-                        For i = 0 To comp.indi_cnt - 1 Step 3
-                            c = i + 2
-                            If Not frmWritePrimitive.flipWindingOrder_cb.Checked Then
-                                br.Write(Convert.ToUInt16(comp.indices(i + 1)))
-                                br.Write(Convert.ToUInt16(comp.indices(i + 0)))
-                                br.Write(Convert.ToUInt16(comp.indices(i + 2)))
-                            Else
-                                br.Write(Convert.ToUInt16(comp.indices(i + 0)))
-                                br.Write(Convert.ToUInt16(comp.indices(i + 1)))
-                                br.Write(Convert.ToUInt16(comp.indices(i + 2)))
-                            End If
-                        Next
-                    Catch ex As Exception
-                        MsgBox("failed writing indices OBJ:" + _group(pnt_id).name, MsgBoxStyle.Exclamation, "Fail!")
-                        ms_table.Close()
-                        t_writer.Close()
-                        t_writer.Dispose()
-                        r.Close()
-                        br.Close()
-                        br.Dispose()
-                        Return
+            Dim base_g = grp_ids(0) ' first (or only) primitiveGroup for this render set
 
-                    End Try
+            '================================================================ TRACK
+            ' All track data comes from the original loaded file unchanged.
+            If sname.ToLower.Contains("track") Then
+                ' Count total indices across all primitiveGroups for this render set
+                Dim total_ind As Integer = 0
+                For Each g In grp_ids
+                    total_ind += (_group(g).indices.Length - 1) * 3
+                Next
 
-                    'write entry for each model in this group
-                    br.Write(CInt(0)) ' indices start index
-                    br.Write(CUInt(comp.nPrimitives)) ' primitive count
-                    br.Write(CInt(0)) ' vertices start index
-                    br.Write(CUInt(comp.vert_cnt))
+                Dim sect_start = br.BaseStream.Position
+                Dim n = System.Text.Encoding.Default.GetBytes("list")
+                ReDim Preserve n(63)
+                br.Write(n)
+                br.Write(total_ind)       ' nIndices — sum across all primitiveGroups
+                br.Write(grp_ids.Count)   ' nPrimitiveGroups — was hardcoded 1, now correct
 
-                    p = br.BaseStream.Position - sect_start
-                    l = (br.BaseStream.Position) Mod 4L
-                    padding = CUInt(l)
-                    'writing padding bytes if needed
-                    If l > 0 Then
-                        For i = 1 To 4 - l
-                            br.Write(b)
-                        Next
-                    End If
-                    'first entry in table at end ==================================================
-                    t_writer.Write(CUInt(p))
-                    t_writer.Write(New Long)
-                    t_writer.Write(New Long)
-                    Dim r_name = Path.GetFileNameWithoutExtension(_group(pnt_id).table_entry_name) + ".indices"
-                    n = System.Text.Encoding.Default.GetBytes(r_name)
-                    t_writer.Write(CInt(n.Length))
-                    t_writer.Write(n)
-                    l = (t_writer.BaseStream.Position) Mod 4L
-                    If l > 0 Then
-                        For i = 1 To 4 - l
-                            t_writer.Write(b)
-                        Next
-                    End If
+                ' Write index data for every primitiveGroup in this render set
+                For Each g In grp_ids
+                    Debug.WriteLine("_group(" + g.ToString + ").indices.Length " + _group(g).indices.Length.ToString)
+                    Debug.WriteLine("_group(" + g.ToString + ").vertices.Length " + _group(g).vertices.Length.ToString)
+                    For i = 1 To _group(g).indices.Length - 1
+                        If Not frmWritePrimitive.flipWindingOrder_cb.Checked Then
+                            br.Write(Convert.ToUInt16(_group(g).indices(i).v2))
+                            br.Write(Convert.ToUInt16(_group(g).indices(i).v1))
+                            br.Write(Convert.ToUInt16(_group(g).indices(i).v3))
+                        Else
+                            br.Write(Convert.ToUInt16(_group(g).indices(i).v1))
+                            br.Write(Convert.ToUInt16(_group(g).indices(i).v2))
+                            br.Write(Convert.ToUInt16(_group(g).indices(i).v3))
+                        End If
+                    Next
+                Next
 
-                    sect_start = br.BaseStream.Position
+                ' Write primitiveGroup descriptors with correct cumulative offsets
+                Dim start_idx As Integer = 0  ' raw index position (individual indices, not triangles)
+                Dim start_vtx As Integer = 0  ' vertex offset into the combined vertex pool
+                For Each g In grp_ids
+                    Dim tri_count = _group(g).indices.Length - 1
+                    br.Write(CInt(start_idx))                          ' startIndex (individual index offset)
+                    br.Write(CUInt(tri_count))                         ' nPrimitives
+                    br.Write(CInt(start_vtx))                          ' startVertex
+                    br.Write(CUInt(_group(g).nVertices_))              ' nVertices for this group
+                    start_idx += tri_count * 3                         ' each triangle = 3 indices
+                    start_vtx += _group(g).nVertices_
+                Next
 
-                    Dim h1() = "BPVTxyznuviiiwwtb".ToArray
-                    Dim h2() = "set3/xyznuviiiwwtbpc".ToArray
-                    ReDim Preserve h1(67)
-                    ReDim Preserve h2(63)
-                    br.Write(h1)
-                    br.Write(h2)
-                    'write primitive count
-                    br.Write(comp.vert_cnt)
-                    Try
+                p = br.BaseStream.Position - sect_start
+                l = (br.BaseStream.Position) Mod 4L
+                padding = l
+                If l > 0 Then
+                    For i = 1 To 4 - l : br.Write(b) : Next
+                End If
+                ' table entry — indices
+                t_writer.Write(CUInt(p))
+                t_writer.Write(New Long)
+                t_writer.Write(New Long)
+                Dim r_name = Path.GetFileNameWithoutExtension(sname) + ".indices"
+                n = System.Text.Encoding.Default.GetBytes(r_name)
+                t_writer.Write(CInt(n.Length))
+                t_writer.Write(n)
+                l = (t_writer.BaseStream.Position) Mod 4L
+                If l > 0 Then
+                    For i = 1 To 4 - l : t_writer.Write(b) : Next
+                End If
 
-                        For i = 0 To comp.vert_cnt - 1
-                            br.Write(comp.vertices(i).x)
-                            br.Write(comp.vertices(i).y)
-                            br.Write(comp.vertices(i).z)
+                ' Write vertex section (shared across all primitiveGroups in this render set)
+                sect_start = br.BaseStream.Position
+                Dim h1() = "BPVTxyznuviiiwwtb".ToArray
+                Dim h2() = "set3/xyznuviiiwwtbpc".ToArray
+                ReDim Preserve h1(67)
+                ReDim Preserve h2(63)
+                br.Write(h1)
+                br.Write(h2)
+                ' Write combined vertex pool — all groups concatenated
+                Dim total_track_verts As Integer = 0
+                For Each g In grp_ids
+                    total_track_verts += _group(g).nVertices_
+                Next
+                br.Write(total_track_verts)
+                For Each g In grp_ids
+                    For i = 0 To _group(g).nVertices_ - 1
+                        If frmWritePrimitive.hide_tracks_cb.Checked Then
+                            br.Write(0.0!) : br.Write(0.0!) : br.Write(0.0!)
+                        Else
+                            br.Write(_group(g).vertices(i).x)
+                            br.Write(_group(g).vertices(i).y)
+                            br.Write(_group(g).vertices(i).z)
+                        End If
+                        br.Write(_group(g).vertices(i).n)
+                        br.Write(_group(g).vertices(i).u)
+                        br.Write(_group(g).vertices(i).v)
+                        br.Write(_group(g).vertices(i).index_1)
+                        br.Write(_group(g).vertices(i).index_2)
+                        br.Write(_group(g).vertices(i).index_3)
+                        br.Write(_group(g).vertices(i).index_4)
+                        br.Write(_group(g).vertices(i).weight_1)
+                        br.Write(_group(g).vertices(i).weight_2)
+                        br.Write(_group(g).vertices(i).weight_3)
+                        br.Write(_group(g).vertices(i).weight_4)
+                        br.Write(_group(g).vertices(i).t)
+                        br.Write(_group(g).vertices(i).bn)
+                    Next
+                Next
+                p = br.BaseStream.Position - sect_start
+                l = (br.BaseStream.Position) Mod 4L
+                If l > 0 Then
+                    For i = 1 To 4 - l : br.Write(b) : Next
+                End If
+                ' table entry — vertices
+                t_writer.Write(CUInt(p))
+                t_writer.Write(New Long)
+                t_writer.Write(New Long)
+                r_name = Path.GetFileNameWithoutExtension(sname) + ".vertices"
+                n = System.Text.Encoding.Default.GetBytes(r_name)
+                t_writer.Write(CInt(n.Length))
+                t_writer.Write(n)
+                l = (t_writer.BaseStream.Position) Mod 4L
+                If l > 0 Then
+                    For i = 1 To 4 - l : t_writer.Write(b) : Next
+                End If
 
-                            br.Write(comp.vertices(i).n)
-                            br.Write(comp.vertices(i).u)
-                            br.Write(comp.vertices(i).v)
+                ' Write UV2 section
+                sect_start = br.BaseStream.Position
+                Dim h3() = "BPVSuv2".ToArray
+                Dim h4() = "set3/uv2pc".ToArray
+                ReDim Preserve h3(67)
+                ReDim Preserve h4(63)
+                br.Write(h3)
+                br.Write(h4)
+                ' Write combined UV2 pool — all groups concatenated, matching vertex pool order
+                br.Write(total_track_verts)
+                For Each g In grp_ids
+                    For i = 0 To _group(g).nVertices_ - 1
+                        br.Write(_group(g).vertices(i).u2)
+                        br.Write(_group(g).vertices(i).v2)
+                    Next
+                Next
+                p = br.BaseStream.Position - sect_start
+                t_writer.Write(CUInt(p))
+                t_writer.Write(New Long)
+                t_writer.Write(New Long)
+                r_name = Path.GetFileNameWithoutExtension(sname) + ".uv2"
+                n = System.Text.Encoding.Default.GetBytes(r_name)
+                t_writer.Write(CInt(n.Length))
+                t_writer.Write(n)
+                l = (t_writer.BaseStream.Position) Mod 4L
+                If l > 0 Then
+                    For i = 1 To 4 - l : t_writer.Write(b) : Next
+                End If
 
-                            br.Write(comp.vertices(i).index_1)
-                            br.Write(comp.vertices(i).index_2)
-                            br.Write(comp.vertices(i).index_3)
+            End If
 
-                            br.Write(CByte(0))
+            '================================================================ CHASSIS
+            If sname.ToLower.Contains("chass") Then
+                frmMain.info_Label.Text = "Compacting Data ID=" + base_g.ToString
+                Application.DoEvents()
+                Dim comp As comp_ = compact_primitive(base_g, fbxgrp(base_g).comp)
 
-                            br.Write(CByte(0))
-                            br.Write(CByte(0))
-                            'br.Write(_group(pnt_id).vertices(i).weight_3)
-                            br.Write(CByte(255))
-                            br.Write(CByte(0))
+                Dim sect_start = br.BaseStream.Position
+                Dim n = System.Text.Encoding.Default.GetBytes("list")
+                ReDim Preserve n(63)
+                br.Write(n)
+                br.Write(comp.indi_cnt)
+                br.Write(1) ' chassis render sets always have one primitiveGroup
+                Dim c As Integer = 0
+                Try
+                    Debug.WriteLine("comp.indi_cnt " + comp.indi_cnt.ToString)
+                    Debug.WriteLine("comp.vert_cnt " + comp.vertices.Length.ToString)
+                    For i = 0 To comp.indi_cnt - 1 Step 3
+                        c = i + 2
+                        If Not frmWritePrimitive.flipWindingOrder_cb.Checked Then
+                            br.Write(Convert.ToUInt16(comp.indices(i + 1)))
+                            br.Write(Convert.ToUInt16(comp.indices(i + 0)))
+                            br.Write(Convert.ToUInt16(comp.indices(i + 2)))
+                        Else
+                            br.Write(Convert.ToUInt16(comp.indices(i + 0)))
+                            br.Write(Convert.ToUInt16(comp.indices(i + 1)))
+                            br.Write(Convert.ToUInt16(comp.indices(i + 2)))
+                        End If
+                    Next
+                Catch ex As Exception
+                    MsgBox("failed writing indices OBJ:" + _group(base_g).name, MsgBoxStyle.Exclamation, "Fail!")
+                    ms_table.Close() : t_writer.Close() : t_writer.Dispose()
+                    r.Close() : br.Close() : br.Dispose()
+                    Return
+                End Try
 
+                br.Write(CInt(0))              ' startIndex
+                br.Write(CUInt(comp.nPrimitives)) ' nPrimitives
+                br.Write(CInt(0))              ' startVertex
+                br.Write(CUInt(comp.vert_cnt)) ' nVertices
+
+                p = br.BaseStream.Position - sect_start
+                l = (br.BaseStream.Position) Mod 4L
+                padding = CUInt(l)
+                If l > 0 Then
+                    For i = 1 To 4 - l : br.Write(b) : Next
+                End If
+                ' table entry — indices
+                t_writer.Write(CUInt(p))
+                t_writer.Write(New Long)
+                t_writer.Write(New Long)
+                Dim r_name = Path.GetFileNameWithoutExtension(sname) + ".indices"
+                n = System.Text.Encoding.Default.GetBytes(r_name)
+                t_writer.Write(CInt(n.Length))
+                t_writer.Write(n)
+                l = (t_writer.BaseStream.Position) Mod 4L
+                If l > 0 Then
+                    For i = 1 To 4 - l : t_writer.Write(b) : Next
+                End If
+
+                sect_start = br.BaseStream.Position
+                ' Bug 1 fix: use the stride that was read from the original file,
+                ' not a hardcoded stride-40 header.  Chassis can be stride 32
+                ' ("BPVTxyznuviiiww", no t/bn) or stride 40 ("BPVTxyznuviiiwwtb").
+                Dim chassis_stride = _group(base_g).stride
+                Dim h1() As Char
+                Dim h2() As Char
+                If chassis_stride = 32 Then
+                    h1 = "BPVTxyznuviiiww".ToArray
+                    h2 = "set3/xyznuviiiwwpc".ToArray
+                Else ' 40
+                    h1 = "BPVTxyznuviiiwwtb".ToArray
+                    h2 = "set3/xyznuviiiwwtbpc".ToArray
+                End If
+                ReDim Preserve h1(67)
+                ReDim Preserve h2(63)
+                br.Write(h1)
+                br.Write(h2)
+                br.Write(comp.vert_cnt)
+                Try
+                    For i = 0 To comp.vert_cnt - 1
+                        ' All fields now come from comp.vertices, which was built in
+                        ' compact_primitive with correct values from both fbxgrp and _group:
+                        '   x/y/z/u/bone data  — from fbxgrp (artist-edited FBX geometry)
+                        '   v                  — un-flipped in compact_primitive (1 - fbxgrp.v)
+                        '   n/t/bn             — carried from _group (packed, lost in FBX)
+                        ' No _group(base_g) indexing here: the vertex counts between
+                        ' comp and _group can differ after a FBX round-trip.
+                        br.Write(comp.vertices(i).x)
+                        br.Write(comp.vertices(i).y)
+                        br.Write(comp.vertices(i).z)
+                        br.Write(comp.vertices(i).n)
+                        br.Write(comp.vertices(i).u)
+                        br.Write(comp.vertices(i).v)
+                        br.Write(comp.vertices(i).index_1)
+                        br.Write(comp.vertices(i).index_2)
+                        br.Write(comp.vertices(i).index_3)
+                        br.Write(comp.vertices(i).index_4)
+                        br.Write(comp.vertices(i).weight_1)
+                        br.Write(comp.vertices(i).weight_2)
+                        br.Write(comp.vertices(i).weight_3)
+                        br.Write(comp.vertices(i).weight_4)
+                        If chassis_stride = 40 Then
                             br.Write(comp.vertices(i).t)
                             br.Write(comp.vertices(i).bn)
+                        End If
+                    Next
+                Catch ex As Exception
+                    MsgBox("failed writing vertices OBJ:" + _group(base_g).name, MsgBoxStyle.Exclamation, "Fail!")
+                    ms_table.Close() : t_writer.Close() : t_writer.Dispose()
+                    r.Close() : br.Close() : br.Dispose()
+                    Return
+                End Try
 
-
-                        Next
-                    Catch ex As Exception
-                        MsgBox("failed writing vertices OBJ:" + _group(pnt_id).name, MsgBoxStyle.Exclamation, "Fail!")
-                        ms_table.Close()
-                        t_writer.Close()
-                        t_writer.Dispose()
-                        r.Close()
-                        br.Close()
-                        br.Dispose()
-                        Return
-
-                    End Try
-                    p = br.BaseStream.Position - sect_start
-                    l = (br.BaseStream.Position) Mod 4L
-                    Dim padding2 = CUInt(l)
-                    'writing padding bytes if needed
-                    If l > 0 Then
-                        For i = 1 To 4 - l
-                            br.Write(b)
-                        Next
-                    End If
-                    'second entry in table at end ==================================================
-                    'write entry in table
-                    t_writer.Write(CUInt(p))
-                    t_writer.Write(New Long)
-                    t_writer.Write(New Long)
-                    r_name = Path.GetFileNameWithoutExtension(_group(pnt_id).table_entry_name) + ".vertices"
-                    n = System.Text.Encoding.Default.GetBytes(r_name)
-                    t_writer.Write(CInt(n.Length))
-                    t_writer.Write(n)
-                    l = (t_writer.BaseStream.Position) Mod 4L
-                    If l > 0 Then
-                        For i = 1 To 4 - l
-                            t_writer.Write(b)
-                        Next
-                    End If
+                p = br.BaseStream.Position - sect_start
+                l = (br.BaseStream.Position) Mod 4L
+                If l > 0 Then
+                    For i = 1 To 4 - l : br.Write(b) : Next
                 End If
+                ' table entry — vertices
+                t_writer.Write(CUInt(p))
+                t_writer.Write(New Long)
+                t_writer.Write(New Long)
+                r_name = Path.GetFileNameWithoutExtension(sname) + ".vertices"
+                n = System.Text.Encoding.Default.GetBytes(r_name)
+                t_writer.Write(CInt(n.Length))
+                t_writer.Write(n)
+                l = (t_writer.BaseStream.Position) Mod 4L
+                If l > 0 Then
+                    For i = 1 To 4 - l : t_writer.Write(b) : Next
+                End If
+            End If
 
-            Next
         Next ' section names loop
         table_size = t_writer.BaseStream.Position - 1
         ReDim Preserve table(table_size)
@@ -761,7 +740,7 @@ found_it:
 
     End Sub
     Private Sub edit_visual()
-        Dim visual_changed As Boolean = False
+        Dim visual_changed As Boolean = True
         Dim xml = XML_Strings(1).Replace("  ", "")
         xml = xml.Replace(vbCrLf, vbLf)
         Dim xmlArray = xml.Split(vbLf)
@@ -1339,6 +1318,7 @@ no_UV2EVER:
             pnter = m_groups(id).list(i - 1)
             '-------------------------------------------------------------
             '-------------------------------------------------------------
+            recompute_normals(fbxgrp(pnter))
             Dim comp As comp_ = fbxgrp(pnter).comp
 
             For j As UInt32 = 0 To comp.indi_cnt - 1 Step 3
@@ -1841,5 +1821,60 @@ no_UV2EVER:
         Next
         Return MT
     End Function
+    ' Recompute vertex normals for a _grps entry using Inigo Quilez's method.
+    ' Accumulates un-normalized cross products (face normal * triangle area) directly
+    ' into each vertex — area weighting comes for free since cross product magnitude
+    ' is proportional to triangle area. One pass, no intermediate face normal array needed.
+    ' Call this before write_chassis_primitives / write_chassis_crashed instead of
+    ' relying on the repacked .n field from FBX import.
+    Public Sub recompute_normals(ByRef grp As _grps)
+        Dim vc = grp.nVertices_
+        Dim fc = grp.nPrimitives_
+        If vc = 0 OrElse fc = 0 Then Return
 
+        ' Accumulator arrays — one vec3 per vertex, zero-initialised
+        Dim ax(vc - 1) As Single
+        Dim ay(vc - 1) As Single
+        Dim az(vc - 1) As Single
+
+        ' One pass over triangles — accumulate un-normalised cross products
+        For f = 0 To fc - 1
+            Dim i0 = grp.indices(f).v2
+            Dim i1 = grp.indices(f).v1
+            Dim i2 = grp.indices(f).v3
+
+            ' Guard against out-of-range indices
+            If i0 >= vc OrElse i1 >= vc OrElse i2 >= vc Then Continue For
+
+            ' Edge vectors from vertex i1
+            Dim e1x = grp.vertices(i0).x - grp.vertices(i1).x
+            Dim e1y = grp.vertices(i0).y - grp.vertices(i1).y
+            Dim e1z = grp.vertices(i0).z - grp.vertices(i1).z
+
+            Dim e2x = grp.vertices(i2).x - grp.vertices(i1).x
+            Dim e2y = grp.vertices(i2).y - grp.vertices(i1).y
+            Dim e2z = grp.vertices(i2).z - grp.vertices(i1).z
+
+            ' Cross product e1 x e2 — magnitude proportional to triangle area
+            Dim nx = e1y * e2z - e1z * e2y
+            Dim ny = e1z * e2x - e1x * e2z
+            Dim nz = e1x * e2y - e1y * e2x
+
+            ' Accumulate into all three vertices of this face
+            ax(i0) += nx : ay(i0) += ny : az(i0) += nz
+            ax(i1) += nx : ay(i1) += ny : az(i1) += nz
+            ax(i2) += nx : ay(i2) += ny : az(i2) += nz
+        Next
+
+        ' Normalise and write back into the vertex array
+        For v = 0 To vc - 1
+            Dim len = CSng(Math.Sqrt(ax(v) * ax(v) + ay(v) * ay(v) + az(v) * az(v)))
+            If len < 0.000001! Then len = 1.0! ' degenerate — leave as-is
+            grp.vertices(v).nx = ax(v) / len
+            grp.vertices(v).ny = ay(v) / len
+            grp.vertices(v).nz = az(v) / len
+            ' Zero the packed field so write_chassis_primitives knows to repack from floats
+            grp.vertices(v).n = 0
+        Next
+    End Sub
 End Module

@@ -20,7 +20,10 @@
         Return True
     End Function
     Public Function Find_entry(ByVal name As String) As String
-        Debug.WriteLine("=======" + name)
+        Debug.WriteLine("Find_entry =======" + name)
+        If name.ToLower.Contains("ares_90") Then
+            'Stop
+        End If
         name = name.Replace("\", "/")
         If xmlPartList IsNot Nothing Then
             For Each row As DataRow In xmlPartList.Rows
@@ -32,7 +35,7 @@
         Return String.Empty
     End Function
     Public Function find_root(ByVal name As String)
-        Debug.WriteLine("=======" + name)
+        Debug.WriteLine("find_root =======" + name)
         name = name.Replace("\", "/")
         If xmlPartList IsNot Nothing Then
             For Each row As DataRow In xmlPartList.Rows

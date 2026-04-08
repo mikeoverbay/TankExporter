@@ -6,6 +6,7 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "!_Tank Exporter", "!_Tank Exporter\!_Tank Exporter.vbproj", "{C9AC5573-A1E9-4EAA-81BB-7FFC69BB5E5F}"
 	ProjectSection(ProjectDependencies) = postProject
 		{36056B1E-2C1F-4099-9BEA-314ED1BB2641} = {36056B1E-2C1F-4099-9BEA-314ED1BB2641}
+		{9D6FE32B-42AF-43D9-817A-3CD1A9549159} = {9D6FE32B-42AF-43D9-817A-3CD1A9549159}
 	EndProjectSection
 EndProject
 Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Texp Setup", "Setup1\Setup1.vdproj", "{5B58A86C-F998-4D62-BB6F-79F4E13885D7}"
@@ -16,6 +17,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TextureLoader", "TextureLoader\TextureLoader.vcxproj", "{36056B1E-2C1F-4099-9BEA-314ED1BB2641}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "fbx_reader", "fbx_reader\fbx_reader.vcxproj", "{9D6FE32B-42AF-43D9-817A-3CD1A9549159}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -62,6 +65,18 @@ Global
 		{36056B1E-2C1F-4099-9BEA-314ED1BB2641}.Release|x64.Build.0 = Release|x64
 		{36056B1E-2C1F-4099-9BEA-314ED1BB2641}.Release|x86.ActiveCfg = Release|Win32
 		{36056B1E-2C1F-4099-9BEA-314ED1BB2641}.Release|x86.Build.0 = Release|Win32
+		{9D6FE32B-42AF-43D9-817A-3CD1A9549159}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{9D6FE32B-42AF-43D9-817A-3CD1A9549159}.Debug|Any CPU.Build.0 = Debug|x64
+		{9D6FE32B-42AF-43D9-817A-3CD1A9549159}.Debug|x64.ActiveCfg = Debug|x64
+		{9D6FE32B-42AF-43D9-817A-3CD1A9549159}.Debug|x64.Build.0 = Debug|x64
+		{9D6FE32B-42AF-43D9-817A-3CD1A9549159}.Debug|x86.ActiveCfg = Debug|Win32
+		{9D6FE32B-42AF-43D9-817A-3CD1A9549159}.Debug|x86.Build.0 = Debug|Win32
+		{9D6FE32B-42AF-43D9-817A-3CD1A9549159}.Release|Any CPU.ActiveCfg = Release|x64
+		{9D6FE32B-42AF-43D9-817A-3CD1A9549159}.Release|Any CPU.Build.0 = Release|x64
+		{9D6FE32B-42AF-43D9-817A-3CD1A9549159}.Release|x64.ActiveCfg = Release|x64
+		{9D6FE32B-42AF-43D9-817A-3CD1A9549159}.Release|x64.Build.0 = Release|x64
+		{9D6FE32B-42AF-43D9-817A-3CD1A9549159}.Release|x86.ActiveCfg = Release|Win32
+		{9D6FE32B-42AF-43D9-817A-3CD1A9549159}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

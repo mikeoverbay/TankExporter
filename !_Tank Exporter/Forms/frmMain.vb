@@ -7962,7 +7962,7 @@ fuckit:
         'info_Label.Parent = pb1
         info_Label.Text = "Select Tank to import...."
         info_Label.Visible = True
-        import_FBX()
+        import_fbx_homebrew()
         info_Label.Visible = False
         'info_Label.Parent = Me
         MM.Enabled = True
@@ -9777,7 +9777,8 @@ outta_here:
     End Sub
 
     Private Sub m_import_2016_fbx_Click(sender As Object, e As EventArgs) Handles m_import_2016_fbx.Click
-        Open_2016_fbx()
+        'Open_2016_fbx()
+        import_fbx_homebrew()
     End Sub
 
 

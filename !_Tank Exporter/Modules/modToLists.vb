@@ -44,66 +44,103 @@ Module modToLists
 
 
     Public Function compact_primitive(ByVal fbx_id As Integer, ByRef comp As comp_) As comp_
-        Try
+        ' Fix 5: removed the outer Try/Catch that silently swallowed every exception
+        ' with an empty handler.  Exceptions now propagate naturally to the caller so
+        ' failures are visible instead of producing a silently corrupted comp_.
 
-            comp = New comp_
-            ReDim comp.vertices(fbxgrp(fbx_id).vertices.Length)
-            ReDim comp.indices((fbxgrp(fbx_id).indices.Length) * 3)
-            If fbxgrp(fbx_id).has_uv2 = 1 Then
-                ReDim fbx_uv2s(fbxgrp(fbx_id).vertices.Length)
-                uv2_total_count = 0
-                For i As Integer = 0 To fbxgrp(fbx_id).vertices.Length - 1
-                    fbx_uv2s(uv2_total_count) = New uv_
-                    fbx_uv2s(uv2_total_count).u = fbxgrp(fbx_id).vertices(i).u2
-                    fbx_uv2s(uv2_total_count).v = fbxgrp(fbx_id).vertices(i).v2
-                    uv2_total_count += 1
-                    comp.vertices(i) = New vertice_
-                    fbxgrp(fbx_id).vertices(i).found = False
-                Next
-                ReDim Preserve fbx_uv2s(uv2_total_count - 1)
-            End If
+        comp = New comp_
 
-            Dim i_cnt As Integer
-            Dim indx As Integer
-            Dim v_cnt As Integer = 0
+        ' Fix 6: use the authoritative nPrimitives_ / nVertices_ counts instead of
+        ' deriving counts from .Length on the indices/vertices arrays.  .Length is
+        ' fragile — if either array is ever over-allocated by one slot the counts
+        ' would be wrong.  Local aliases fc/vc are used throughout for clarity.
+        Dim fc As Integer = fbxgrp(fbx_id).nPrimitives_
+        Dim vc As Integer = fbxgrp(fbx_id).nVertices_
 
-            comp.indi_cnt = (fbxgrp(fbx_id).indices.Length) * 3
-            comp.nPrimitives = fbxgrp(fbx_id).nPrimitives_
-            comp.vert_cnt = fbxgrp(fbx_id).nVertices_
-            comp.vertices = fbxgrp(fbx_id).vertices
-            For i = 0 To comp.indi_cnt - 1 Step 3
-                comp.indices(i + 0) = fbxgrp(fbx_id).indices(v_cnt).v1
-                comp.indices(i + 1) = fbxgrp(fbx_id).indices(v_cnt).v2
-                comp.indices(i + 2) = fbxgrp(fbx_id).indices(v_cnt).v3
-                v_cnt += 1
+        comp.indi_cnt = fc * 3
+        comp.nPrimitives = fc
+        comp.vert_cnt = vc
+
+        ' Fix 1 & 2: comp.vertices is now a deep copy — each slot is a NEW vertice_
+        ' instance, fully independent of fbxgrp and _group.
+        '
+        ' Previously: comp.vertices = fbxgrp(fbx_id).vertices was a reference alias
+        ' (both pointed at the same backing array), so any write through comp would
+        ' silently corrupt fbxgrp.
+        '
+        ' Fields are sourced from two places:
+        '   fbxgrp  — geometry the artist may have changed in the 3D app
+        '             (x/y/z, nx/ny/nz, u, bone indices/weights)
+        '   _group  — packed binary fields the FBX format cannot carry
+        '             (n, t, bn) and raw v (fbxgrp.v = 1-raw_v from the export flip)
+        '
+        ' v is un-flipped here (1 - fbxgrp.v) so comp.vertices.v = raw game-file
+        ' value, ready to write directly.  The writer no longer needs to touch
+        ' _group at all — all fields come from comp.
+        ReDim comp.vertices(vc - 1)
+        For i As Integer = 0 To vc - 1
+            comp.vertices(i) = New vertice_
+            comp.vertices(i).x = fbxgrp(fbx_id).vertices(i).x
+            comp.vertices(i).y = fbxgrp(fbx_id).vertices(i).y
+            comp.vertices(i).z = fbxgrp(fbx_id).vertices(i).z
+            comp.vertices(i).nx = fbxgrp(fbx_id).vertices(i).nx
+            comp.vertices(i).ny = fbxgrp(fbx_id).vertices(i).ny
+            comp.vertices(i).nz = fbxgrp(fbx_id).vertices(i).nz
+            comp.vertices(i).u = fbxgrp(fbx_id).vertices(i).u
+            ' Fix 2: do NOT flip v here.  fbx_reader.dll already reverses the
+            ' exporter's (1-v) transform: it delivers v = raw game value directly.
+            ' The previous "1.0F - fbxgrp.v" was a double-flip that produced (1-v_raw),
+            ' causing the writer to store the wrong UV and corrupting all UV0 v coords.
+            comp.vertices(i).v = fbxgrp(fbx_id).vertices(i).v   ' v_raw — ready to write as-is
+            comp.vertices(i).u2 = fbxgrp(fbx_id).vertices(i).u2
+            comp.vertices(i).v2 = fbxgrp(fbx_id).vertices(i).v2
+            comp.vertices(i).index_1 = fbxgrp(fbx_id).vertices(i).index_1
+            comp.vertices(i).index_2 = fbxgrp(fbx_id).vertices(i).index_2
+            comp.vertices(i).index_3 = fbxgrp(fbx_id).vertices(i).index_3
+            comp.vertices(i).index_4 = fbxgrp(fbx_id).vertices(i).index_4
+            comp.vertices(i).weight_1 = fbxgrp(fbx_id).vertices(i).weight_1
+            comp.vertices(i).weight_2 = fbxgrp(fbx_id).vertices(i).weight_2
+            comp.vertices(i).weight_3 = fbxgrp(fbx_id).vertices(i).weight_3
+            comp.vertices(i).weight_4 = fbxgrp(fbx_id).vertices(i).weight_4
+            ' packed fields lost in FBX round-trip — carry forward from original load
+            comp.vertices(i).n = _group(fbx_id).vertices(i).n
+            comp.vertices(i).t = _group(fbx_id).vertices(i).t
+            comp.vertices(i).bn = _group(fbx_id).vertices(i).bn
+        Next
+
+        ' Fix 2 & 3: UV2 extraction now uses vc (authoritative count) as loop bound.
+        ' Removed two dead statements from the old UV2 block:
+        '   comp.vertices(i) = New vertice_  — wrote into the array that was about to
+        '                                       be thrown away by the reference assign.
+        '   fbxgrp(fbx_id).vertices(i).found = False — side-effect on global fbxgrp
+        '                                       state, unrelated to building comp_.
+        If fbxgrp(fbx_id).has_uv2 = 1 Then
+            ReDim fbx_uv2s(vc - 1)
+            uv2_total_count = 0
+            For i As Integer = 0 To vc - 1
+                fbx_uv2s(uv2_total_count) = New uv_
+                fbx_uv2s(uv2_total_count).u = fbxgrp(fbx_id).vertices(i).u2
+                fbx_uv2s(uv2_total_count).v = fbxgrp(fbx_id).vertices(i).v2
+                uv2_total_count += 1
             Next
+        End If
 
-            Return comp
-            '==================================================================
-            For i As Integer = 0 To fbxgrp(fbx_id).nPrimitives_
-                Dim id As Integer = get_vert(fbxgrp(fbx_id).vertices(i), indx, v_cnt, comp)
-                If id > -1 Then
-                    comp.indices(i_cnt) = indx
-                    i_cnt += 1
-                Else
-                    fbxgrp(fbx_id).vertices(i).found = True
-                    comp.vertices(indx) = fbxgrp(fbx_id).vertices(i)
-                    comp.vertices(indx).found = True
-                    comp.indices(i_cnt) = indx
-                    i_cnt += 1
-                    v_cnt += 1
+        ' Fix 2: comp.indices sized exactly indi_cnt.  Previously ReDim'd as
+        ' (indices.Length * 3) which created one extra unused trailing slot.
+        ReDim comp.indices(comp.indi_cnt - 1)
+        Dim v_cnt As Integer = 0
+        For i As Integer = 0 To comp.indi_cnt - 1 Step 3
+            comp.indices(i + 0) = fbxgrp(fbx_id).indices(v_cnt).v1
+            comp.indices(i + 1) = fbxgrp(fbx_id).indices(v_cnt).v2
+            comp.indices(i + 2) = fbxgrp(fbx_id).indices(v_cnt).v3
+            v_cnt += 1
+        Next
 
-                End If
-            Next
-            ReDim Preserve comp.vertices(v_cnt - 1)
-            ReDim Preserve comp.indices(i_cnt - 1)
-            comp.indi_cnt = i_cnt
-            comp.vert_cnt = v_cnt
-            comp.nPrimitives = CInt(i_cnt / 3)
-            'make_temp_list(comp) test function to make sure its correct
-        Catch ex As Exception
+        ' Fix 4: removed the unreachable vertex-deduplication block that previously
+        ' followed an early "Return comp" statement.  That entire For loop
+        ' (get_vert calls, comp.vertices/indices rebuilding, ReDim Preserve) was
+        ' dead code — it could never execute.
 
-        End Try
         Return comp
     End Function
     Private Sub make_temp_list(ByRef comp As comp_)

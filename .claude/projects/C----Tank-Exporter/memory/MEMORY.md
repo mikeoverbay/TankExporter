@@ -1,0 +1,2 @@
+- [Primitives_Processed Format](primitives_processed_format.md) — Binary geometry file structure: sections, vertices, indices, UVs, colors, skinning data
+- [XML to Primitives Mapping](xml_primitives_mapping.md) — How XML visual files declare expected geometry sections that must match primitives_processed binary sections

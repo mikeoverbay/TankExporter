@@ -158,7 +158,6 @@ Partial Class frmExtract
         'ext_chassis
         '
         Me.ext_chassis.AutoSize = True
-        Me.ext_chassis.Enabled = False
         Me.ext_chassis.Location = New System.Drawing.Point(27, 144)
         Me.ext_chassis.Name = "ext_chassis"
         Me.ext_chassis.Size = New System.Drawing.Size(88, 17)

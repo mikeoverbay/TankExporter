@@ -60,6 +60,13 @@ Module get_FBX
                 Dim item = 1
 
                 For Each mat In scene.Materials
+                    Debug.WriteLine("=== Material: " & mat.Name & " ===")
+                    Debug.WriteLine("  Diffuse   has=" & mat.HasTextureDiffuse & " path='" & If(mat.HasTextureDiffuse, mat.TextureDiffuse.FilePath, "") & "'")
+                    Debug.WriteLine("  Normal    has=" & mat.HasTextureNormal & " path='" & If(mat.HasTextureNormal, mat.TextureNormal.FilePath, "") & "'")
+                    Debug.WriteLine("  Specular  has=" & mat.HasTextureSpecular & " path='" & If(mat.HasTextureSpecular, mat.TextureSpecular.FilePath, "") & "'")
+                    Debug.WriteLine("  Ambient   has=" & mat.HasTextureAmbient & " path='" & If(mat.HasTextureAmbient, mat.TextureAmbient.FilePath, "") & "'")
+                    Debug.WriteLine("  Emissive  has=" & mat.HasTextureEmissive & " path='" & If(mat.HasTextureEmissive, mat.TextureEmissive.FilePath, "") & "'")
+                    Debug.WriteLine("  Opacity   has=" & mat.HasTextureOpacity & " path='" & If(mat.HasTextureOpacity, mat.TextureOpacity.FilePath, "") & "'")
                     If mat.HasTextureDiffuse Then
                         fbxgrp(item).color_name = mat.TextureDiffuse.FilePath
                     End If
@@ -184,31 +191,28 @@ Module get_FBX
                         Else
                             fbxgrp(item).has_uv2 = 0
                         End If
-                        Dim scaler As Single = 1.292
                         If mesh.VertexColorChannelCount = 1 Then
                             fbxgrp(item).stride = 37
                             fbxgrp(item).has_color = 1
                             Dim c = mesh.VertexColorChannels(0)(vertexIndex)
-                            fbxgrp(item).vertices(vertexIndex).index_1 = CByte(c.R * 255 * scaler)
-                            fbxgrp(item).vertices(vertexIndex).index_2 = CByte(c.G * 255 * scaler)
-                            fbxgrp(item).vertices(vertexIndex).index_3 = CByte(c.B * 255 * scaler)
-                            fbxgrp(item).vertices(vertexIndex).index_4 = 255
+                            fbxgrp(item).vertices(vertexIndex).index_1 = CByte(c.R * 255)
+                            fbxgrp(item).vertices(vertexIndex).index_2 = CByte(c.G * 255)
+                            fbxgrp(item).vertices(vertexIndex).index_3 = CByte(c.B * 255)
+                            fbxgrp(item).vertices(vertexIndex).index_4 = CByte(c.A * 255)
                         End If
                         If mesh.VertexColorChannelCount = 2 Then
                             fbxgrp(item).stride = 40
                             fbxgrp(item).has_color = 1
                             Dim c = mesh.VertexColorChannels(0)(vertexIndex)
-                            fbxgrp(item).vertices(vertexIndex).index_1 = CByte(c.R * 255 * scaler)
-                            fbxgrp(item).vertices(vertexIndex).index_2 = CByte(c.G * 255 * scaler)
-                            fbxgrp(item).vertices(vertexIndex).index_3 = CByte(c.B * 255 * scaler)
-                            fbxgrp(item).vertices(vertexIndex).index_4 = 255
-                            Dim cout = c.R * 255 * scaler
-                            'Debug.WriteLine(cout.ToString)
+                            fbxgrp(item).vertices(vertexIndex).index_1 = CByte(c.R * 255)
+                            fbxgrp(item).vertices(vertexIndex).index_2 = CByte(c.G * 255)
+                            fbxgrp(item).vertices(vertexIndex).index_3 = CByte(c.B * 255)
+                            fbxgrp(item).vertices(vertexIndex).index_4 = CByte(c.A * 255)
                             c = mesh.VertexColorChannels(1)(vertexIndex)
                             fbxgrp(item).vertices(vertexIndex).weight_1 = CByte(c.R * 255)
                             fbxgrp(item).vertices(vertexIndex).weight_2 = CByte(c.G * 255)
                             fbxgrp(item).vertices(vertexIndex).weight_3 = CByte(c.B * 255)
-                            fbxgrp(item).vertices(vertexIndex).weight_4 = 255
+                            fbxgrp(item).vertices(vertexIndex).weight_4 = CByte(c.A * 255)
                         End If
                         vertexIndex += 1
                     Next
@@ -248,7 +252,7 @@ Module get_FBX
                     End If
 
                     If fbxgrp(i).color_name IsNot Nothing Then
-                        fbxgrp(i).color_Id = get_fbx_texture(Path.GetDirectoryName(open_path) + "\" + fbxgrp(i).color_name)
+                        fbxgrp(i).color_Id = get_fbx_texture(Path.GetDirectoryName(open_path) + "\" + fbxgrp(i).color_name.Replace("..", ""))
 
                     Else
                         fbxgrp(i).color_Id = white_id ' fall back so we have something to render :)
@@ -256,7 +260,7 @@ Module get_FBX
 
                     If fbxgrp(i).normal_name IsNot Nothing Then
                         fbx_bumped = 1
-                        fbxgrp(i).normal_Id = get_fbx_texture(Path.GetDirectoryName(open_path) + "\" + fbxgrp(i).normal_name)
+                        fbxgrp(i).normal_Id = get_fbx_texture(Path.GetDirectoryName(open_path) + "\" + fbxgrp(i).normal_name.Replace("..", ""))
                     Else
                         fbxgrp(i).normal_Id = 0
                     End If

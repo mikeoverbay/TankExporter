@@ -1,17 +1,121 @@
 ﻿
 
-Imports Aspose.ThreeD
-Imports Aspose.ThreeD.Entities
-Imports Aspose.ThreeD.Utilities
-Imports Aspose.ThreeD.Shading
 'Imports System.Net.WebRequestMethods
 Imports System.IO
+Imports System.Runtime.InteropServices
+Imports Aspose.ThreeD
+Imports Aspose.ThreeD.Entities
 Imports Aspose.ThreeD.Formats
-Imports System.Diagnostics.Eventing.Reader
+Imports Aspose.ThreeD.Shading
+Imports Aspose.ThreeD.Utilities
 'Imports Skill.FbxSDK.FbxAxisSystem
 
 
 Module mod_Exporter
+
+    ' ── fbx_reader.dll P/Invoke declarations ────────────────────────────────
+    ' Mirrors the FbxVertex struct in fbx_reader.h (pragma pack 1, 48 bytes).
+    ' All Aspose.3D export transforms are already reversed inside the DLL.
+    <StructLayout(LayoutKind.Sequential, Pack:=1)>
+    Public Structure FbxVertex_Native
+        Public x As Single, y As Single, z As Single         ' world position
+        Public nx As Single, ny As Single, nz As Single      ' normal (X already un-negated)
+        Public u As Single, v As Single                      ' UV0  (v already = 1-stored)
+        Public u2 As Single, v2 As Single                    ' UV1  (v2 already = -stored)
+        Public index_1 As Byte, index_2 As Byte, index_3 As Byte, index_4 As Byte    ' bone indices
+        Public weight_1 As Byte, weight_2 As Byte, weight_3 As Byte, weight_4 As Byte ' bone weights
+    End Structure
+
+    ' Triangle face — three vertex indices into the vertex array.
+    <StructLayout(LayoutKind.Sequential)>
+    Public Structure FbxFace_Native
+        Public v1 As UInteger, v2 As UInteger, v3 As UInteger
+    End Structure
+
+    ' Load a binary FBX file.  Returns an opaque scene handle, or IntPtr.Zero on failure.
+    <DllImport("fbx_reader.dll", CallingConvention:=CallingConvention.Cdecl, CharSet:=CharSet.Ansi)>
+    Private Function fbx_load(ByVal path As String) As IntPtr
+    End Function
+
+    ' Release all memory allocated by fbx_load.  Safe to call with IntPtr.Zero.
+    <DllImport("fbx_reader.dll", CallingConvention:=CallingConvention.Cdecl)>
+    Private Sub fbx_free(ByVal scene As IntPtr)
+    End Sub
+
+    ' Number of meshes in the scene.
+    <DllImport("fbx_reader.dll", CallingConvention:=CallingConvention.Cdecl)>
+    Private Function fbx_mesh_count(ByVal scene As IntPtr) As Integer
+    End Function
+
+    ' Display name of mesh[idx] (from the FBX Model node).  Returns a const char* — use PtrToStringAnsi.
+    <DllImport("fbx_reader.dll", CallingConvention:=CallingConvention.Cdecl)>
+    Private Function fbx_mesh_name(ByVal scene As IntPtr, ByVal idx As Integer) As IntPtr
+    End Function
+
+    ' Diffuse texture filename for mesh[idx].  Returns "" if none.
+    <DllImport("fbx_reader.dll", CallingConvention:=CallingConvention.Cdecl)>
+    Private Function fbx_mesh_diffuse(ByVal scene As IntPtr, ByVal idx As Integer) As IntPtr
+    End Function
+
+    ' Normal-map texture filename for mesh[idx].  Returns "" if none.
+    <DllImport("fbx_reader.dll", CallingConvention:=CallingConvention.Cdecl)>
+    Private Function fbx_mesh_normal_tex(ByVal scene As IntPtr, ByVal idx As Integer) As IntPtr
+    End Function
+
+    ' Number of deduplicated vertices in mesh[idx].
+    <DllImport("fbx_reader.dll", CallingConvention:=CallingConvention.Cdecl)>
+    Private Function fbx_mesh_vert_count(ByVal scene As IntPtr, ByVal idx As Integer) As Integer
+    End Function
+
+    ' Number of triangles in mesh[idx].
+    <DllImport("fbx_reader.dll", CallingConvention:=CallingConvention.Cdecl)>
+    Private Function fbx_mesh_face_count(ByVal scene As IntPtr, ByVal idx As Integer) As Integer
+    End Function
+
+    ' 1 if mesh[idx] has a second UV channel (u2/v2 populated), else 0.
+    <DllImport("fbx_reader.dll", CallingConvention:=CallingConvention.Cdecl)>
+    Private Function fbx_mesh_has_uv2(ByVal scene As IntPtr, ByVal idx As Integer) As Integer
+    End Function
+
+    ' Number of vertex-colour channels (0=no skinning, 1=indices only, 2=indices+weights).
+    <DllImport("fbx_reader.dll", CallingConvention:=CallingConvention.Cdecl)>
+    Private Function fbx_mesh_color_ch(ByVal scene As IntPtr, ByVal idx As Integer) As Integer
+    End Function
+
+    ' Copy all vertices of mesh[idx] into a pinned FbxVertex_Native array.
+    ' out must hold at least fbx_mesh_vert_count elements.
+    <DllImport("fbx_reader.dll", CallingConvention:=CallingConvention.Cdecl)>
+    Private Sub fbx_mesh_get_verts(ByVal scene As IntPtr, ByVal idx As Integer, ByVal out As IntPtr)
+    End Sub
+
+    ' Copy all triangle faces of mesh[idx] into a pinned FbxFace_Native array.
+    ' out must hold at least fbx_mesh_face_count elements.
+    <DllImport("fbx_reader.dll", CallingConvention:=CallingConvention.Cdecl)>
+    Private Sub fbx_mesh_get_faces(ByVal scene As IntPtr, ByVal idx As Integer, ByVal out As IntPtr)
+    End Sub
+
+    ' Returns a pointer to 16 doubles — column-major 4x4 local transform matrix.
+    ' Built from Lcl Translation/Rotation/Scaling (Euler XYZ degrees).
+    ' Translation at [12],[13],[14].  Copy immediately; valid only until fbx_free().
+    <DllImport("fbx_reader.dll", CallingConvention:=CallingConvention.Cdecl)>
+    Private Function fbx_mesh_matrix(ByVal scene As IntPtr, ByVal idx As Integer) As IntPtr
+    End Function
+
+    ' Returns a pointer to the "primitive_table" custom property string for mesh[idx].
+    ' Written by export_aspose_fbx via base.SetProperty("primitive_table", ...).
+    ' e.g. "hull/lod0/indices" — the section name in .primitives_processed.
+    ' Returns pointer to "" if not present (older FBX files). Valid until fbx_free().
+    <DllImport("fbx_reader.dll", CallingConvention:=CallingConvention.Cdecl)>
+    Private Function fbx_mesh_primitive_table(ByVal scene As IntPtr, ByVal idx As Integer) As IntPtr
+    End Function
+
+    ' Returns the "primitive_index" custom property for mesh[idx].
+    ' The 1-based _group() slot index stored at export time.
+    ' Returns -1 if not present (older FBX files).
+    <DllImport("fbx_reader.dll", CallingConvention:=CallingConvention.Cdecl)>
+    Private Function fbx_mesh_primitive_index(ByVal scene As IntPtr, ByVal idx As Integer) As Integer
+    End Function
+    ' ─────────────────────────────────────────────────────────────────────────
     Public EXPORT_TYPE As Integer = 1
     Public Sub export_aspose_fbx()
         Dim normals() As Aspose.ThreeD.Utilities.Vector4
@@ -95,7 +199,7 @@ Module mod_Exporter
                         _group(item).color_name.Contains("hull") Then
 
                     For i As UInteger = 1 To _group(item).nPrimitives_
-                        m.CreatePolygon(_group(item).indices(i).v1 - off, _group(item).indices(i).v2 - off,
+                        m.CreatePolygon(_group(item).indices(i).v2 - off, _group(item).indices(i).v1 - off,
                                       _group(item).indices(i).v3 - off)
                     Next
                 Else
@@ -114,21 +218,20 @@ Module mod_Exporter
 
             Dim norm As New VertexElementNormal
             ReDim normals(_group(item).nVertices_ - 1)
+            'fix_winding_order_group(item)
+
+            ' Fix 3 & 4: uniform X-only negation for all meshes, no Z touch.
+            ' Old code had two problems:
+            '   Bug 3 — negated Z for every mesh with a color_name, but the DLL
+            '            never un-negated Z → nz was always wrong after round-trip.
+            '   Bug 4 — negated X only for turret/hull; the DLL always un-negates X
+            '            → for non-turret/hull meshes the DLL incorrectly inverted nx.
+            ' Fix: always negate X (DLL always un-negates X), never touch Z.
+            ' The per-mesh branch is gone — the DLL needs no mesh-type knowledge.
             For i As UInt32 = 0 To _group(item).nVertices_ - 1
-                normals(i).X = _group(item).vertices(i).nx
-                normals(i).Y = _group(item).vertices(i).ny
-                If _group(item).color_name IsNot Nothing Then
-
-                    If _group(item).color_name.Contains("turret") Or
-                            _group(item).color_name.Contains("hull") Or
-                            _group(item).color_name.Contains("gun") Then
-                        normals(i).X *= -1
-                    Else
-                        normals(i).X *= -1
-
-                    End If
-                End If
-                normals(i).Z = _group(item).vertices(i).nz
+                normals(i).X = -_group(item).vertices(i).nx  ' negate X — DLL will un-negate
+                normals(i).Y = _group(item).vertices(i).ny  ' Y straight through
+                normals(i).Z = _group(item).vertices(i).nz  ' Z straight through (no longer touched)
             Next
             norm.SetData(normals)
             m.AddElement(norm)
@@ -199,7 +302,7 @@ Module mod_Exporter
                 ' Set up the base color texture
                 Dim DnF = Path.GetFileName(_group(item).color_name)
                 Dim tx As New Texture(DnF.Replace(".dds", ".png"))
-                tx.FileName = save_path + "\" + Path.GetFileName(tx.Name)
+                tx.FileName = tx.Name
                 'tx.Name = tx.FileName
                 tx.MagFilter = TextureFilter.Linear
                 tx.MinFilter = TextureFilter.Linear
@@ -210,7 +313,7 @@ Module mod_Exporter
                 ' Set up the normal texture
                 DnF = Path.GetFileName(_group(item).normal_name)
                 Dim txn As New Texture(DnF.Replace(".dds", ".png"))
-                txn.FileName = save_path + "\" + Path.GetFileName(txn.Name)
+                txn.FileName = txn.Name
                 'txn.Name = txn.FileName
                 txn.MagFilter = TextureFilter.Linear
                 txn.MinFilter = TextureFilter.Linear
@@ -221,7 +324,7 @@ Module mod_Exporter
                 ' Set up the metallic-roughness texture
                 DnF = Path.GetFileName(_group(item).GMM_name)
                 Dim txgm As New Texture(DnF.Replace(".dds", ".png"))
-                txgm.FileName = save_path + "\" + Path.GetFileName(txgm.Name)
+                txgm.FileName = txgm.Name
                 'txgm.Name = txgm.FileName
                 txgm.MagFilter = TextureFilter.Linear
                 txgm.MinFilter = TextureFilter.Linear
@@ -235,7 +338,7 @@ Module mod_Exporter
 
                     DnF = Path.GetFileName(_group(item).ao_name)
                     txao = New Texture(DnF.Replace(".dds", ".png"))
-                    txao.FileName = save_path + "\" + Path.GetFileName(txao.Name)
+                    txao.FileName = txao.Name
                     'txao.Name = txao.FileName
                     txao.MagFilter = TextureFilter.Linear
                     txao.MinFilter = TextureFilter.Linear
@@ -243,9 +346,6 @@ Module mod_Exporter
                     txao.EnableMipMap = True
                 End If
 
-                If EXPORT_TYPE = 1 Then
-                Else
-                End If
                 Select Case EXPORT_TYPE
                     Case 2, 3, 4
                         Dim m2 = New LambertMaterial("material_" + scene_.RootNode.Materials.Count.ToString)
@@ -289,6 +389,18 @@ Module mod_Exporter
 
 
             base.Name = model_name
+            ' ── write primitive table name as FBX custom property ─────────────
+            ' This embeds the exact section_names entry (e.g. "hull/lod0/indices")
+            ' onto the Model node in Properties70. When the FBX is re-imported,
+            ' fbx_reader can read this directly to sort meshes back into the
+            ' correct slot without relying on Blender's export order or ~ naming.
+            If Not String.IsNullOrEmpty(_group(item).table_entry_name) Then
+                base.SetProperty("primitive_table", _group(item).table_entry_name)
+            End If
+            ' Also store the 1-based item index as a fallback integer slot reference.
+            base.SetProperty("primitive_index", item)
+
+
             'base.Entity = m
             Dim mat As Matrix4
             Dim tMatrix(16) As Double
@@ -324,7 +436,6 @@ Module mod_Exporter
                 Dim ts, ss As Vector3
                 Dim err = mat.Decompose(ts, ss, rs)
                 rs.Normalize()
-                Dim r_v = New Vector4(rs.X, 0.0, rs.Z, 0)
                 Dim t_v = New Vector3(-ts.X, ts.Y, ts.Z)
                 Dim s_v = New Vector3(-ss.X, ss.Y, ss.Z)
                 If _group(item).color_name IsNot Nothing Then
@@ -343,16 +454,11 @@ Module mod_Exporter
                         s_v.Y *= -1.0
                     End If
                 End If
+
                 base.Transform.Scaling = s_v
                 base.Transform.Translation = t_v
                 base.Transform.Rotation = rs
-                ' Convert quaternion to Euler angles
-                Dim eulerAngles As Vector3 = rs.EulerAngles()
 
-                ' Check for NaN values and handle them
-                If Double.IsNaN(eulerAngles.X) Then eulerAngles.X = 0.0
-                If Double.IsNaN(eulerAngles.Y) Then eulerAngles.Y = 0.0
-                If Double.IsNaN(eulerAngles.Z) Then eulerAngles.Z = 0.0
 
 
             Else
@@ -385,7 +491,7 @@ Module mod_Exporter
             Case 2
                 Dim save_options As New FbxSaveOptions(FileFormat.FBX7400Binary)
                 save_options.EmbedTextures = False
-                save_options.VideoForTexture = True
+                save_options.VideoForTexture = False
                 save_options.GenerateVertexElementMaterial = True
                 scene_.Save(out_path, save_options)
                 Exit Select
@@ -400,6 +506,236 @@ Module mod_Exporter
 
     End Sub
 
+
+    Public Sub import_fbx_homebrew()
+        frmMain.OpenFileDialog1.Filter = "FBX|*.fbx"
+        frmMain.OpenFileDialog1.Title = "Open FBX.."
+        frmMain.OpenFileDialog1.FileName = My.Settings.fbx_path
+        If My.Settings.fbx_path.Length = 0 Then My.Settings.fbx_path = "C:\"
+        frmMain.OpenFileDialog1.InitialDirectory = Path.GetDirectoryName(My.Settings.fbx_path)
+        If frmMain.OpenFileDialog1.ShowDialog = DialogResult.Cancel Then Return
+        My.Settings.fbx_path = frmMain.OpenFileDialog1.FileName
+        My.Settings.Save()
+
+        Dim open_path = My.Settings.fbx_path
+        CRASH_MODE = open_path.ToLower.Contains("crash")   ' reset each load — was never cleared before
+
+        frmMain.clean_house()
+        remove_loaded_fbx()
+        frmMain.info_Label.Visible = True
+
+        Dim hScene As IntPtr = IntPtr.Zero
+
+        Try
+            frmMain.info_Label.Text = "loading FBX: " & open_path
+            Application.DoEvents()
+
+            ' ── load file via DLL ────────────────────────────────────────────
+            hScene = fbx_load(open_path)
+            If hScene = IntPtr.Zero Then
+                Throw New Exception("fbx_reader.dll could not parse: " & open_path)
+            End If
+
+            Dim meshCount = fbx_mesh_count(hScene)
+            If meshCount = 0 Then Throw New Exception("No meshes found in FBX file.")
+
+            ' fbxgrp / _group are 1-based; index 0 is unused
+            ReDim Preserve fbxgrp(meshCount)
+            ReDim Preserve _group(meshCount)
+
+            For i = 0 To meshCount - 1
+                Dim item = i + 1   ' 1-based slot
+                frmMain.info_Label.Text = "reading model: " & item.ToString
+                Application.DoEvents()
+
+                ' ── name & flags ─────────────────────────────────────────────
+                Dim meshName = Marshal.PtrToStringAnsi(fbx_mesh_name(hScene, i))
+                fbxgrp(item).name = meshName
+                fbxgrp(item).is_new_model = Not meshName.ToLower.Contains("~")
+                _group(item).name = meshName
+                _group(item).is_new_model = fbxgrp(item).is_new_model
+
+                ' ── texture filenames ─────────────────────────────────────────
+                fbxgrp(item).color_name = Marshal.PtrToStringAnsi(fbx_mesh_diffuse(hScene, i))
+                fbxgrp(item).normal_name = Marshal.PtrToStringAnsi(fbx_mesh_normal_tex(hScene, i))
+                If String.IsNullOrEmpty(fbxgrp(item).color_name) Then fbxgrp(item).color_name = Nothing
+                If String.IsNullOrEmpty(fbxgrp(item).normal_name) Then fbxgrp(item).normal_name = Nothing
+                _group(item).color_name = fbxgrp(item).color_name
+                _group(item).normal_name = fbxgrp(item).normal_name
+
+                ' ── vertex data ───────────────────────────────────────────────
+                Dim vc = fbx_mesh_vert_count(hScene, i)
+                Dim fc = fbx_mesh_face_count(hScene, i)
+                fbxgrp(item).nVertices_ = vc
+                fbxgrp(item).nPrimitives_ = fc
+                Debug.WriteLine("vc " + vc.ToString)
+                Debug.WriteLine("face cnt" + fc.ToString)
+                ' Determine stride from colour channel count:
+                '   0 channels → 32  (pos+normal+UV0)
+                '   1 channel  → 37  (+ bone indices)
+                '   2 channels → 40  (+ bone indices + weights)
+                Dim colorCh = fbx_mesh_color_ch(hScene, i)
+                fbxgrp(item).has_color = If(colorCh > 0, 1, 0)
+                fbxgrp(item).has_uv2 = fbx_mesh_has_uv2(hScene, i)
+                Select Case colorCh
+                    Case 1 : fbxgrp(item).stride = 37
+                    Case 2 : fbxgrp(item).stride = 40
+                    Case Else : fbxgrp(item).stride = 32
+                End Select
+
+                ' ── copy vertices from DLL into managed array ─────────────────
+                ' Pin a native-layout array, hand its address to the DLL, then unpin.
+                Dim nativeVerts(vc - 1) As FbxVertex_Native
+                Dim hvPin = GCHandle.Alloc(nativeVerts, GCHandleType.Pinned)
+                fbx_mesh_get_verts(hScene, i, hvPin.AddrOfPinnedObject())
+                hvPin.Free()
+
+
+                ReDim fbxgrp(item).vertices(vc - 1)
+                For v = 0 To vc - 1
+                    fbxgrp(item).vertices(v) = New vertice_
+                    With nativeVerts(v)
+                        fbxgrp(item).vertices(v).x = .x : fbxgrp(item).vertices(v).y = .y : fbxgrp(item).vertices(v).z = .z
+                        fbxgrp(item).vertices(v).nx = .nx : fbxgrp(item).vertices(v).ny = .ny : fbxgrp(item).vertices(v).nz = .nz
+
+                        If fbxgrp(item).color_name.Contains("chassis") OrElse fbxgrp(item).color_name.Contains("gun") Then
+                            fbxgrp(item).vertices(v).nz = -fbxgrp(item).vertices(v).nz
+                        End If
+
+                        fbxgrp(item).vertices(v).u = .u : fbxgrp(item).vertices(v).v = .v
+                        fbxgrp(item).vertices(v).u2 = .u2 : fbxgrp(item).vertices(v).v2 = .v2
+                        fbxgrp(item).vertices(v).index_1 = .index_1 : fbxgrp(item).vertices(v).index_2 = .index_2
+                        fbxgrp(item).vertices(v).index_3 = .index_3 : fbxgrp(item).vertices(v).index_4 = .index_4
+                        fbxgrp(item).vertices(v).weight_1 = .weight_1 : fbxgrp(item).vertices(v).weight_2 = .weight_2
+                        fbxgrp(item).vertices(v).weight_3 = .weight_3 : fbxgrp(item).vertices(v).weight_4 = .weight_4
+                    End With
+                Next
+
+                ' ── copy faces from DLL ───────────────────────────────────────
+                Dim nativeFaces(fc - 1) As FbxFace_Native
+                Dim hfPin = GCHandle.Alloc(nativeFaces, GCHandleType.Pinned)
+                fbx_mesh_get_faces(hScene, i, hfPin.AddrOfPinnedObject())
+                hfPin.Free()
+
+                Dim nm = fbxgrp(item).name.ToLower
+
+                ReDim fbxgrp(item).indices(fc - 1)
+
+                If nm.Contains("turret") OrElse nm.Contains("hull") Then
+                    ' exported swapped (v2,v1,v3) — swap back on import
+                    For f = 0 To fc - 1
+                        fbxgrp(item).indices(f) = New uvect3
+                        fbxgrp(item).indices(f).v1 = CInt(nativeFaces(f).v2)
+                        fbxgrp(item).indices(f).v2 = CInt(nativeFaces(f).v1)
+                        fbxgrp(item).indices(f).v3 = CInt(nativeFaces(f).v3)
+                    Next
+                Else
+                    ' chassis, tracks, gun, and all others exported straight — import straight
+                    For f = 0 To fc - 1
+                        fbxgrp(item).indices(f) = New uvect3
+                        fbxgrp(item).indices(f).v1 = CInt(nativeFaces(f).v1)
+                        fbxgrp(item).indices(f).v2 = CInt(nativeFaces(f).v2)
+                        fbxgrp(item).indices(f).v3 = CInt(nativeFaces(f).v3)
+                    Next
+                End If
+
+                ' ── local transform matrix ────────────────────────────────────
+                ' fbx_mesh_matrix returns a const double* to 16 doubles inside the DLL.
+                ' Copy them immediately into fbxgrp(item).matrix (Double(15)).
+                Dim pMat As IntPtr = fbx_mesh_matrix(hScene, i)
+                If pMat <> IntPtr.Zero Then
+                    ReDim fbxgrp(item).matrix(15)
+                    Dim matBytes(16 * 8 - 1) As Byte
+                    Marshal.Copy(pMat, matBytes, 0, 16 * 8)
+                    For m_ = 0 To 15
+                        fbxgrp(item).matrix(m_) = BitConverter.ToDouble(matBytes, m_ * 8)
+                    Next
+                End If
+
+                ' ── primitive ordering tags ───────────────────────────────────
+                ' Written by export_aspose_fbx via base.SetProperty().
+                ' primitive_table  = the section name in .primitives_processed
+                '                    e.g. "hull/lod0/indices"
+                ' primitive_index  = the 1-based _group() slot index at export time.
+                ' Both are "" / -1 on older FBX files that pre-date this feature;
+                ' process_fbx_data() falls back to the ~ name convention in that case.
+                Dim rawTable = Marshal.PtrToStringAnsi(fbx_mesh_primitive_table(hScene, i))
+                fbxgrp(item).primitive_table = If(String.IsNullOrEmpty(rawTable), Nothing, rawTable)
+                fbxgrp(item).primitive_index = fbx_mesh_primitive_index(hScene, i)
+
+            Next
+
+            ' DLL data is fully copied — release the scene now
+            fbx_free(hScene)
+            hScene = IntPtr.Zero
+
+            ' ── load textures for OpenGL display ─────────────────────────────
+            For i = 1 To fbxgrp.Length - 1
+                frmMain.info_Label.Text = "loading texture set: " & i.ToString
+                Application.DoEvents()
+                If Not fbxgrp(i).name.Contains("~") Then
+                    fbxgrp(i).is_new_model = True
+                    _group(i).is_new_model = True
+                Else
+                    fbxgrp(i).is_new_model = False
+                    _group(i).is_new_model = False
+                End If
+                If fbxgrp(i).color_name IsNot Nothing Then
+                    fbxgrp(i).color_Id = get_fbx_texture(Path.GetDirectoryName(open_path) & "\" & fbxgrp(i).color_name.Replace("..", ""))
+                Else
+                    fbxgrp(i).color_Id = white_id
+                End If
+                If fbxgrp(i).normal_name IsNot Nothing Then
+                    fbx_bumped = 1
+                    fbxgrp(i).normal_Id = get_fbx_texture(Path.GetDirectoryName(open_path) & "\" & fbxgrp(i).normal_name.Replace("..", ""))
+                Else
+                    fbxgrp(i).normal_Id = 0
+                End If
+
+            Next
+
+            '===================================================================
+            process_fbx_data()
+            '===================================================================
+
+            For i = 1 To object_count - 1
+                tank_center_X += _object(i).center_x
+                tank_center_Y += _object(i).center_y
+                tank_center_Z += _object(i).center_z
+            Next
+            tank_center_X /= object_count - 1
+            tank_center_Y /= object_count - 1
+            tank_center_Z /= object_count - 1
+            look_point_x = tank_center_X
+            look_point_y = tank_center_Y
+            look_point_z = tank_center_Z
+
+            frmMain.info_Label.Text = "Creating Display Lists"
+            Application.DoEvents()
+            For i = 1 To fbxgrp.Length - 1
+                Dim id = Gl.glGenLists(1)
+                Gl.glNewList(id, Gl.GL_COMPILE)
+                fbxgrp(i).call_list = id
+                make_fbx_display_lists(fbxgrp(i).nPrimitives_, i)
+                Gl.glEndList()
+            Next
+
+            FBX_LOADED = True
+            LOADING_FBX = False
+            frmMain.info_Label.Visible = False
+            frmMain.m_show_fbx.Checked = True
+            If MODEL_LOADED Then frmMain.m_show_fbx.Visible = True
+
+        Catch ex As Exception
+            If hScene <> IntPtr.Zero Then fbx_free(hScene)
+            MsgBox(ex.Message, MsgBoxStyle.Exclamation, "error")
+            remove_loaded_fbx()
+        End Try
+
+        frmMain.info_Label.Visible = False
+        view_radius = -10.0!
+        look_point_y = 1.0
+    End Sub
     Private Sub round_error(ByRef val As Single)
         val = Math.Round(val, 6, MidpointRounding.AwayFromZero)
     End Sub
