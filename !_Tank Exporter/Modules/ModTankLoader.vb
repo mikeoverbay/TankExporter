@@ -997,7 +997,7 @@ next_m:
             'lets fill the tbuf with the data now
             'and store the indices and vertex data for export
 
-            ReDim tbuf(vh.nVertice_count)
+            ReDim tbuf(vh.nVertice_count + 3)
             i = 0
             Dim p As Integer = 6
             Dim color_buf_pointer As Integer = 0
@@ -1020,10 +1020,10 @@ next_m:
                 End If
                 _group(k).has_color = 0
 
-                Dim pos As UInt32
+                Dim numVerts As UInt32
 
                 Try
-                    pos = pGroups(k - object_start).nVertices_ - 1
+                    numVerts = pGroups(k - object_start).nVertices_ - 1
                     _group(k).startVertex_ = pGroups(k - object_start).startVertex_
                     _group(k).startIndex_ = pGroups(k - object_start).startIndex_
                     _group(k).nVertices_ = pGroups(k - object_start).nVertices_
@@ -1034,9 +1034,9 @@ next_m:
                 End Try
 
 
-                ReDim _group(k).vertices(pos + 1)
+                ReDim _group(k).vertices(numVerts + 1)
                 Dim color_runner As Integer = 0
-                For cnt = 0 To pos
+                For cnt = 0 To numVerts
                     Try
                         tbuf(i) = New vertice_
 
@@ -1314,7 +1314,7 @@ next_m:
                 ReDim Preserve _group(jj).indices(cnt)
                 ' get indices offset
                 ib_reader.BaseStream.Seek(pGroups(jj - object_start).startIndex_ * ind_scale + 72, SeekOrigin.Begin)
-                ReDim Preserve _object(jj).tris(cnt)
+                ReDim Preserve _object(jj).tris(cnt + 3)
                 _object(jj).count = cnt
                 _object(jj).old_count = cnt
 

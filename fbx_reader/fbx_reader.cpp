@@ -26,7 +26,7 @@
 #include <cstdio>
 #include <cmath>
 #include <algorithm>
-#include <iostream>
+#include <cassert>
 // ============================================================
 //  1.  DEFLATE decompressor (no zlib dependency)
 // ============================================================
@@ -699,6 +699,11 @@ static bool sample_layer(const LayerElem& le, int ctrl_idx, int pv_idx, double* 
     for (int i = 0; i < le.components; ++i) out[i] = le.data[base + i];
     return true;
 }
+#define DEBUG_OUTPUT(fmt, ...) do { \
+    wchar_t _buf[512]; \
+    swprintf_s(_buf, L"[FBX] " fmt, __VA_ARGS__); \
+    OutputDebugString(_buf); \
+} while(0)
 
 // ============================================================
 //  5.  Mesh baking (polygon-vertex expansion + deduplication)
@@ -827,15 +832,14 @@ static void build_mesh(const RawMesh& raw, BakedMesh& baked) {
         ++pv_idx;
 
         if (face_end) {
-            // Triangulate the face (fan from vertex 0)
-            if (polygon_verts.size() >= 3) {
-                for (size_t k = 1; k + 1 < polygon_verts.size(); ++k) {
-                    baked.faces.push_back({
-                        (uint32_t)polygon_verts[0],
-                        (uint32_t)polygon_verts[k],
-                        (uint32_t)polygon_verts[k + 1]
-                        });
-                }
+            // FBX file must be pre-triangulated (3 vertices per face)
+            assert(polygon_verts.size() == 3 && "FBX must be pre-triangulated");
+            if (polygon_verts.size() == 3) {
+                baked.faces.push_back({
+                    (uint32_t)polygon_verts[0],
+                    (uint32_t)polygon_verts[1],
+                    (uint32_t)polygon_verts[2]
+                    });
             }
             polygon_verts.clear();
         }
@@ -884,12 +888,15 @@ static void build_mesh(const RawMesh& raw, BakedMesh& baked) {
         }
     }
 
+
     // Remap face indices
     for (auto& face : baked.faces) {
         face.v1 = remap[face.v1];
         face.v2 = remap[face.v2];
         face.v3 = remap[face.v3];
     }
+    DEBUG_OUTPUT(L"Mesh: %S | pv_list: %zu | verts: %zu\n",
+        raw.name.c_str(), pv_list.size(), baked.verts.size());
 }
 
 // ============================================================

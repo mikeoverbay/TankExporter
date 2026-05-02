@@ -103,6 +103,11 @@ Module modToLists
             comp.vertices(i).weight_3 = fbxgrp(fbx_id).vertices(i).weight_3
             comp.vertices(i).weight_4 = fbxgrp(fbx_id).vertices(i).weight_4
             ' packed fields lost in FBX round-trip — carry forward from original load
+            If _group(fbx_id).vertices(i) Is Nothing Then
+                vc = i
+                comp.vert_cnt = vc
+                Exit For
+            End If
             comp.vertices(i).n = _group(fbx_id).vertices(i).n
             comp.vertices(i).t = _group(fbx_id).vertices(i).t
             comp.vertices(i).bn = _group(fbx_id).vertices(i).bn

@@ -199,7 +199,7 @@ Module mod_Exporter
                         _group(item).color_name.Contains("hull") Then
 
                     For i As UInteger = 1 To _group(item).nPrimitives_
-                        m.CreatePolygon(_group(item).indices(i).v2 - off, _group(item).indices(i).v1 - off,
+                        m.CreatePolygon(_group(item).indices(i).v1 - off, _group(item).indices(i).v2 - off,
                                       _group(item).indices(i).v3 - off)
                     Next
                 Else
@@ -220,82 +220,13 @@ Module mod_Exporter
             ReDim normals(_group(item).nVertices_ - 1)
             'fix_winding_order_group(item)
 
-            ' Fix 3 & 4: uniform X-only negation for all meshes, no Z touch.
-            ' Old code had two problems:
-            '   Bug 3 — negated Z for every mesh with a color_name, but the DLL
-            '            never un-negated Z → nz was always wrong after round-trip.
-            '   Bug 4 — negated X only for turret/hull; the DLL always un-negates X
-            '            → for non-turret/hull meshes the DLL incorrectly inverted nx.
-            ' Fix: always negate X (DLL always un-negates X), never touch Z.
-            ' The per-mesh branch is gone — the DLL needs no mesh-type knowledge.
-            For i As UInt32 = 0 To _group(item).nVertices_ - 1
-                normals(i).X = -_group(item).vertices(i).nx  ' negate X — DLL will un-negate
-                normals(i).Y = _group(item).vertices(i).ny  ' Y straight through
-                normals(i).Z = _group(item).vertices(i).nz  ' Z straight through (no longer touched)
-            Next
-            norm.SetData(normals)
-            m.AddElement(norm)
-
-            Dim uvs_1 As New VertexElementUV()
-            ReDim uvs(_group(item).nVertices_ - 1)
-            For i = 0 To _group(item).nVertices_ - 1
-                uvs(i).X = _group(item).vertices(i).u
-                uvs(i).Y = (-_group(item).vertices(i).v) + 1
-            Next
-            uvs_1.SetData(uvs)
-            m.AddElement(uvs_1)
-
-            If _group(item).has_uv2 = 1 Then
-                ReDim uvs(_group(item).nVertices_ - 1)
-                For i As UInt32 = 0 To _group(item).nVertices_ - 1
-                    uvs(i).X = _group(item).vertices(i).u2
-                    uvs(i).Y = -_group(item).vertices(i).v2
-                Next
-
-                Dim vElement2 As New VertexElementUV()
-                vElement2.SetData(uvs)
-                m.AddElement(vElement2)
-
-            End If
-            If _group(item).has_color = 1 Then
-                Dim vcolor As New VertexElementVertexColor
-                ReDim normals(_group(item).nVertices_ - 1)
-                For i As UInt32 = 0 To _group(item).nVertices_ - 1
-                    normals(i).X = CDbl(_group(item).vertices(i).r)
-                    normals(i).Y = CDbl(_group(item).vertices(i).g)
-                    normals(i).Z = CDbl(_group(item).vertices(i).b)
-                    normals(i).W = CDbl(_group(item).vertices(i).a)
-                Next
-                vcolor.SetData(normals)
-
-                m.AddElement(vcolor)
-
-                Dim vcolor2 As New VertexElementVertexColor
-                ReDim normals(_group(item).nVertices_ - 1)
-                For i As UInt32 = 0 To _group(item).nVertices_ - 1
-                    normals(i).X = _group(item).vertices(i).ir
-                    normals(i).Y = _group(item).vertices(i).ig
-                    normals(i).Z = _group(item).vertices(i).ib
-                    normals(i).W = _group(item).vertices(i).ia
-                Next
-                vcolor2.SetData(normals)
-                m.AddElement(vcolor2)
-            End If
-
+            Dim isTrack As Boolean = _group(item).color_name.Contains("track")
 
             For i As UInt32 = 0 To _group(item).nVertices_ - 1
-                Dim v As Vector4
-                v.X = _group(item).vertices(i).x
-                v.Y = _group(item).vertices(i).y
-                v.Z = _group(item).vertices(i).z
-                m.ControlPoints.Add(v)
+                normals(i).X = -_group(item).vertices(i).nx
+                normals(i).Y = _group(item).vertices(i).ny
+                normals(i).Z = If(isTrack, -_group(item).vertices(i).nz, _group(item).vertices(i).nz)
             Next
-            Dim co As Vector3
-            co.X = 0.6
-            co.Y = 0.6
-            co.Z = 0.6
-            'Some turrets dont exist but are still used for translations.
-            'If the are only a matrix transform, they have no textures!
 
             If _group(item).color_name IsNot Nothing Then
 
@@ -345,6 +276,71 @@ Module mod_Exporter
                     txao.MipFilter = TextureFilter.Anisotropic
                     txao.EnableMipMap = True
                 End If
+
+                norm.SetData(normals)
+                m.AddElement(norm)
+
+                Dim uvs_1 As New VertexElementUV()
+                ReDim uvs(_group(item).nVertices_ - 1)
+                For i = 0 To _group(item).nVertices_ - 1
+                    uvs(i).X = _group(item).vertices(i).u
+                    uvs(i).Y = (-_group(item).vertices(i).v) + 1
+                Next
+                uvs_1.SetData(uvs)
+                m.AddElement(uvs_1)
+
+                If _group(item).has_uv2 = 1 Then
+                    ReDim uvs(_group(item).nVertices_ - 1)
+                    For i As UInt32 = 0 To _group(item).nVertices_ - 1
+                        uvs(i).X = _group(item).vertices(i).u2
+                        uvs(i).Y = -_group(item).vertices(i).v2
+                    Next
+
+                    Dim vElement2 As New VertexElementUV()
+                    vElement2.SetData(uvs)
+                    m.AddElement(vElement2)
+
+                End If
+                If _group(item).has_color = 1 Then
+                    Dim vcolor As New VertexElementVertexColor
+                    ReDim normals(_group(item).nVertices_ - 1)
+                    For i As UInt32 = 0 To _group(item).nVertices_ - 1
+                        normals(i).X = CDbl(_group(item).vertices(i).r)
+                        normals(i).Y = CDbl(_group(item).vertices(i).g)
+                        normals(i).Z = CDbl(_group(item).vertices(i).b)
+                        normals(i).W = CDbl(_group(item).vertices(i).a)
+                    Next
+                    vcolor.SetData(normals)
+
+                    m.AddElement(vcolor)
+
+                    Dim vcolor2 As New VertexElementVertexColor
+                    ReDim normals(_group(item).nVertices_ - 1)
+                    For i As UInt32 = 0 To _group(item).nVertices_ - 1
+                        normals(i).X = _group(item).vertices(i).ir
+                        normals(i).Y = _group(item).vertices(i).ig
+                        normals(i).Z = _group(item).vertices(i).ib
+                        normals(i).W = _group(item).vertices(i).ia
+                    Next
+                    vcolor2.SetData(normals)
+                    m.AddElement(vcolor2)
+                End If
+
+
+                For i As UInt32 = 0 To _group(item).nVertices_ - 1
+                    Dim v As Vector4
+                    v.X = _group(item).vertices(i).x
+                    v.Y = _group(item).vertices(i).y
+                    v.Z = _group(item).vertices(i).z
+                    m.ControlPoints.Add(v)
+                Next
+                Dim co As Vector3
+                co.X = 0.6
+                co.Y = 0.6
+                co.Z = 0.6
+                'Some turrets dont exist but are still used for translations.
+                'If the are only a matrix transform, they have no textures!
+
 
                 Select Case EXPORT_TYPE
                     Case 2, 3, 4
@@ -554,6 +550,16 @@ Module mod_Exporter
                 fbxgrp(item).is_new_model = Not meshName.ToLower.Contains("~")
                 _group(item).name = meshName
                 _group(item).is_new_model = fbxgrp(item).is_new_model
+                ' ── primitive ordering tags ───────────────────────────────────
+                ' Written by export_aspose_fbx via base.SetProperty().
+                ' primitive_table  = the section name in .primitives_processed
+                '                    e.g. "hull/lod0/indices"
+                ' primitive_index  = the 1-based _group() slot index at export time.
+                ' Both are "" / -1 on older FBX files that pre-date this feature;
+                ' process_fbx_data() falls back to the ~ name convention in that case.
+                Dim rawTable = Marshal.PtrToStringAnsi(fbx_mesh_primitive_table(hScene, i))
+                fbxgrp(item).primitive_table = If(String.IsNullOrEmpty(rawTable), Nothing, rawTable)
+                fbxgrp(item).primitive_index = fbx_mesh_primitive_index(hScene, i)
 
                 ' ── texture filenames ─────────────────────────────────────────
                 fbxgrp(item).color_name = Marshal.PtrToStringAnsi(fbx_mesh_diffuse(hScene, i))
@@ -596,10 +602,14 @@ Module mod_Exporter
                     fbxgrp(item).vertices(v) = New vertice_
                     With nativeVerts(v)
                         fbxgrp(item).vertices(v).x = .x : fbxgrp(item).vertices(v).y = .y : fbxgrp(item).vertices(v).z = .z
-                        fbxgrp(item).vertices(v).nx = .nx : fbxgrp(item).vertices(v).ny = .ny : fbxgrp(item).vertices(v).nz = .nz
+                        fbxgrp(item).vertices(v).nx = .nx : fbxgrp(item).vertices(v).ny = .ny : fbxgrp(item).vertices(v).nz = - .nz
+                        'chasssis,turret and gun need flipped
 
-                        If fbxgrp(item).color_name.Contains("chassis") OrElse fbxgrp(item).color_name.Contains("gun") Then
-                            fbxgrp(item).vertices(v).nz = -fbxgrp(item).vertices(v).nz
+                        'hull does not so fix the previous flip
+                        If fbxgrp(item).color_name.Contains("turret") Or fbxgrp(item).color_name.Contains("hull") Then
+                            '
+                            fbxgrp(item).vertices(v).nz = .nz
+                            'fbxgrp(item).vertices(v).ny = -fbxgrp(item).vertices(v).ny
                         End If
 
                         fbxgrp(item).vertices(v).u = .u : fbxgrp(item).vertices(v).v = .v
@@ -621,24 +631,25 @@ Module mod_Exporter
 
                 ReDim fbxgrp(item).indices(fc - 1)
 
-                If nm.Contains("turret") OrElse nm.Contains("hull") Then
-                    ' exported swapped (v2,v1,v3) — swap back on import
-                    For f = 0 To fc - 1
-                        fbxgrp(item).indices(f) = New uvect3
-                        fbxgrp(item).indices(f).v1 = CInt(nativeFaces(f).v2)
-                        fbxgrp(item).indices(f).v2 = CInt(nativeFaces(f).v1)
-                        fbxgrp(item).indices(f).v3 = CInt(nativeFaces(f).v3)
-                    Next
-                Else
-                    ' chassis, tracks, gun, and all others exported straight — import straight
-                    For f = 0 To fc - 1
-                        fbxgrp(item).indices(f) = New uvect3
-                        fbxgrp(item).indices(f).v1 = CInt(nativeFaces(f).v1)
-                        fbxgrp(item).indices(f).v2 = CInt(nativeFaces(f).v2)
-                        fbxgrp(item).indices(f).v3 = CInt(nativeFaces(f).v3)
-                    Next
-                End If
+                'If nm.Contains("turret") OrElse nm.Contains("hull") Then
+                '    ' exported swapped (v2,v1,v3) — swap back on import
+                '    For f = 0 To fc - 1
+                '        fbxgrp(item).indices(f) = New uvect3
+                '        fbxgrp(item).indices(f).v1 = CInt(nativeFaces(f).v2)
+                '        fbxgrp(item).indices(f).v2 = CInt(nativeFaces(f).v1)
+                '        fbxgrp(item).indices(f).v3 = CInt(nativeFaces(f).v3)
+                '    Next
+                'Else
+                '    ' chassis, tracks, gun, and all others exported straight — import straight
 
+                'End If
+
+                For f = 0 To fc - 1
+                    fbxgrp(item).indices(f) = New uvect3
+                    fbxgrp(item).indices(f).v1 = CInt(nativeFaces(f).v1)
+                    fbxgrp(item).indices(f).v2 = CInt(nativeFaces(f).v2)
+                    fbxgrp(item).indices(f).v3 = CInt(nativeFaces(f).v3)
+                Next
                 ' ── local transform matrix ────────────────────────────────────
                 ' fbx_mesh_matrix returns a const double* to 16 doubles inside the DLL.
                 ' Copy them immediately into fbxgrp(item).matrix (Double(15)).
@@ -652,16 +663,6 @@ Module mod_Exporter
                     Next
                 End If
 
-                ' ── primitive ordering tags ───────────────────────────────────
-                ' Written by export_aspose_fbx via base.SetProperty().
-                ' primitive_table  = the section name in .primitives_processed
-                '                    e.g. "hull/lod0/indices"
-                ' primitive_index  = the 1-based _group() slot index at export time.
-                ' Both are "" / -1 on older FBX files that pre-date this feature;
-                ' process_fbx_data() falls back to the ~ name convention in that case.
-                Dim rawTable = Marshal.PtrToStringAnsi(fbx_mesh_primitive_table(hScene, i))
-                fbxgrp(item).primitive_table = If(String.IsNullOrEmpty(rawTable), Nothing, rawTable)
-                fbxgrp(item).primitive_index = fbx_mesh_primitive_index(hScene, i)
 
             Next
 
